@@ -1,0 +1,64 @@
+{
+  "id": "create-product-type",
+  "title": "A product type created by mutation is applied and returned with a server id",
+  "targets": ["server", "flutter"],
+  "given": {
+    "backendState": "empty",
+    "appState": "fresh"
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": {},
+        "mutations": [
+          {
+            "client_op_id": "op-1",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "ProductType",
+                "productType": {
+                  "product_type_id": "tmp_vegetables",
+                  "producer_account_id": "producerAccountId",
+                  "name": "Vegetables",
+                  "supported_basket_sizes": [
+                    {
+                      "name": "small"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-1",
+          "status": "APPLIED",
+          "serverEntityId": {
+            "kind": "present-and-not-equal",
+            "value": "tmp_vegetables"
+          }
+        }
+      ],
+      "snapshotByEntityType": {
+        "ProductType": {
+          "itemCount": 1,
+          "contains": [
+            {
+              "name": "Vegetables"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

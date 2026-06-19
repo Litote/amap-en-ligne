@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Voice & tone</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  body { font-family: var(--font-sans); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px;}
+  .col h4 { font: 500 12px/1 Roboto; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;}
+  .quote { font: 14px/1.45 Roboto; color: var(--fg1); padding: 10px 12px; background: var(--surface-container-low); border-radius: 8px; margin-bottom: 6px;}
+  .quote.bad { background: #F9DEDC; color: #410E0B; text-decoration: line-through; opacity: 0.7;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="grid">
+    <div class="col">
+      <h4>✓ Do</h4>
+      <div class="quote">J'ai déjà un compte</div>
+      <div class="quote">Connectez-vous à votre espace personnel</div>
+      <div class="quote">Email ou mot de passe incorrect.</div>
+      <div class="quote">Aucun type de produit.</div>
+    </div>
+    <div class="col">
+      <h4>✗ Don't</h4>
+      <div class="quote bad">Oops ! Petit problème...</div>
+      <div class="quote bad">CONNECT TO YOUR ACCOUNT</div>
+      <div class="quote bad">😢 We couldn't log you in!</div>
+      <div class="quote bad">No items found yet 🌱</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

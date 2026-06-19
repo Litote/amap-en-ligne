@@ -1,0 +1,100 @@
+{
+  "id": "incremental-sync",
+  "title": "Incremental sync returns only changes after the captured cursor",
+  "targets": ["server", "flutter"],
+  "given": {
+    "backendState": "empty",
+    "appState": "fresh"
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "save": {
+        "cursorRefs": {
+          "ProductType": "initialProductTypeCursor"
+        }
+      },
+      "request": {
+        "cursors": {},
+        "mutations": [
+          {
+            "client_op_id": "op-1",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "ProductType",
+                "productType": {
+                  "product_type_id": "pt-1",
+                  "producer_account_id": "producerAccountId",
+                  "name": "Vegetables",
+                  "supported_basket_sizes": [
+                    {
+                      "name": "small"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "ProductType": "$ref:initialProductTypeCursor"
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-2",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "ProductType",
+                "productType": {
+                  "product_type_id": "pt-2",
+                  "producer_account_id": "producerAccountId",
+                  "name": "Fruits",
+                  "supported_basket_sizes": [
+                    {
+                      "name": "small"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-2",
+          "status": "APPLIED",
+          "serverEntityId": {
+            "kind": "equals",
+            "value": "pt-2"
+          }
+        }
+      ],
+      "snapshotByEntityType": {},
+      "changesByEntityType": {
+        "ProductType": 1
+      },
+      "containsChanges": [
+        {
+          "entityType": "ProductType",
+          "entityId": "pt-2",
+          "op": "UPSERT"
+        }
+      ]
+    }
+  }
+}

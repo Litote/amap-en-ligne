@@ -1,0 +1,9 @@
+{
+  "id": "delivery-template-association-blocks-delete",
+  "title": "A synced delivery keeps its delivery_template_id so the admin sees template associations and future-linked templates cannot be deleted",
+  "targets": ["flutter"],
+  "given": {
+    "backendState": "organization exists and admin can sync its organization scope",
+    "appState": "fresh organization cache"
+  }
+}

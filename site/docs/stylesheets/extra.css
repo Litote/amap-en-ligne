@@ -1,0 +1,149 @@
+/* Page de garde — hero, cartes et liens par rôle.
+   S'appuie sur les variables Material pour s'adapter au thème clair/sombre. */
+
+.amap-hero {
+  background:
+    radial-gradient(1200px 400px at 80% -10%,
+      color-mix(in srgb, var(--md-primary-fg-color) 22%, transparent), transparent),
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--md-primary-fg-color) 14%, transparent),
+      transparent 60%);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.amap-hero__inner {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 4rem 0.8rem 3.5rem;
+}
+
+.amap-hero__text {
+  flex: 1 1 60%;
+}
+
+.amap-hero__text h1 {
+  font-size: 2.6rem;
+  line-height: 1.1;
+  font-weight: 800;
+  margin: 0 0 0.6rem;
+  color: var(--md-default-fg-color);
+}
+
+.amap-hero__tagline {
+  font-size: 1.05rem;
+  max-width: 34rem;
+  color: var(--md-default-fg-color--light);
+  margin: 0 0 1.6rem;
+}
+
+.amap-hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.amap-hero__cta .md-button {
+  font-weight: 700;
+}
+
+.amap-hero__meta {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--md-default-fg-color--light);
+  margin: 0;
+}
+
+.amap-hero__art {
+  flex: 0 0 auto;
+  font-size: 9rem;
+  line-height: 1;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.18));
+}
+
+/* Sections sous le hero */
+.amap-section {
+  padding: 2.4rem 0.8rem 0.4rem;
+}
+
+.amap-section__title {
+  font-weight: 700;
+  margin: 0 0 1.2rem;
+}
+
+/* Cartes "Pourquoi" */
+.amap-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.amap-card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.6rem;
+  padding: 1.2rem;
+  background: var(--md-default-bg-color);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.amap-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.amap-card__icon {
+  font-size: 1.8rem;
+}
+
+.amap-card h3 {
+  margin: 0.5rem 0 0.3rem;
+  font-size: 1rem;
+}
+
+.amap-card p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--md-default-fg-color--light);
+}
+
+/* Liens par rôle */
+.amap-roles {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.amap-roles a {
+  display: inline-block;
+  padding: 0.55rem 1rem;
+  border-radius: 2rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  font-weight: 600;
+  color: var(--md-default-fg-color);
+}
+
+.amap-roles a:hover {
+  background: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+  border-color: var(--md-primary-fg-color);
+}
+
+/* Adaptation mobile */
+@media screen and (max-width: 60em) {
+  .amap-hero__inner {
+    flex-direction: column-reverse;
+    text-align: center;
+    padding: 2.5rem 0.8rem;
+  }
+  .amap-hero__cta { justify-content: center; }
+  .amap-hero__art { font-size: 6rem; }
+  .amap-hero__text h1 { font-size: 2rem; }
+}

@@ -1,0 +1,45 @@
+{
+  "id": "organization-request-creation",
+  "title": "An AMAP creation request can be submitted, approved by an owner, and its admin can authenticate",
+  "targets": ["organization-flow", "flutter"],
+  "given": {
+    "backendState": "empty"
+  },
+  "when": [
+    {
+      "actor": "requester",
+      "action": "submit_organization_request",
+      "request": {
+        "organization_name": "AMAP des Collines",
+        "organization_type": "AMAP",
+        "timezone": "Europe/Paris",
+        "default_language": "fr",
+        "admin_first_name": "Alice",
+        "admin_last_name": "Martin",
+        "admin_email": "alice@collines.fr"
+      },
+      "save": {
+        "requestIdRef": "requestId"
+      }
+    },
+    {
+      "actor": "owner",
+      "action": "approve_organization_request",
+      "params": {
+        "requestId": "$ref:requestId"
+      }
+    },
+    {
+      "actor": "new_admin",
+      "action": "list_organization_requests",
+      "params": {
+        "status": "APPROVED"
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200
+    }
+  }
+}

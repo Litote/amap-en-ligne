@@ -1,0 +1,101 @@
+{
+  "id": "volunteer-register-early-slot-delivery-override",
+  "title": "A volunteer can register on an EARLY slot of a template-less delivery whose own early_slot override sets the capacity",
+  "targets": ["volunteer-flow", "flutter"],
+  "given": {
+    "backendState": "organization:org-1 with a future CONFIRMED delivery:delivery-1 with no template but a delivery-level early_slot override (max_volunteers 2) containing an EARLY slot with capacity 2 and no registrations; member:volunteer-1 authorized on organization:org-1 with role VOLUNTEER",
+    "appState": "fresh organization cache synchronized from bootstrap"
+  },
+  "when": [
+    {
+      "actor": "volunteer",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-register-early",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Organization",
+                "organization": {
+                  "organization_id": "org-1",
+                  "name": "AMAP des Collines",
+                  "contact_email": "contact@amap.example.com",
+                  "active_status": true,
+                  "timezone": "Europe/Paris",
+                  "default_language": "fr",
+                  "created_instant": "2025-01-01T00:00:00Z",
+                  "last_updated_instant": "2025-01-01T00:00:00Z",
+                  "producers": [],
+                  "products": [],
+                  "deliveries": [
+                    {
+                      "delivery_id": "delivery-1",
+                      "organization_id": "org-1",
+                      "scheduled_date": "2099-06-15T18:00:00",
+                      "status": "CONFIRMED",
+                      "min_volunteers_required": 2,
+                      "early_slot": {
+                        "arrival_time": "16:30",
+                        "explanation": "Réception des légumes",
+                        "max_volunteers": 2
+                      },
+                      "contracts": [
+                        {
+                          "contract_id": "contract-1",
+                          "coordinators": ["coordinator-1"],
+                          "basket_quantity": 10,
+                          "delivery_description": "Weekly basket",
+                          "status": "PENDING",
+                          "slots": [
+                            {
+                              "start_time": "2099-06-15T16:30:00",
+                              "end_time": "2099-06-15T18:00:00",
+                              "activity_type": "PREPARATION",
+                              "required_volunteers": 2,
+                              "current_registrations": 1,
+                              "status": "OPEN",
+                              "slot_kind": "EARLY",
+                              "registrations": [
+                                {
+                                  "member_id": "volunteer-1",
+                                  "display_name": "Alice Volunteer",
+                                  "member_email": "volunteer@example.com",
+                                  "registration_instant": "2099-06-01T10:00:00Z",
+                                  "status": "REGISTERED"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-register-early",
+          "status": "APPLIED",
+          "serverEntityId": {
+            "kind": "equals",
+            "value": "org-1"
+          }
+        }
+      ]
+    }
+  }
+}

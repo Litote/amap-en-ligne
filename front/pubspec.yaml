@@ -1,0 +1,90 @@
+name: amap_en_ligne
+description: 'Amap en Ligne — offline-first producer-side CSA management app.'
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management
+  bloc: 9.2.0
+  flutter_bloc: 9.1.1
+
+  # Routing
+  go_router: 17.2.1
+  flutter_web_plugins:
+    sdk: flutter
+
+  # Data models
+  freezed_annotation: 3.1.0
+  json_annotation: 4.11.0
+
+  # Local persistence (offline-first cache)
+  drift: 2.32.1
+  drift_flutter: 0.3.0
+  path_provider: 2.1.5
+
+  # Network
+  dio: 5.7.0
+  connectivity_plus: 6.1.0
+
+  # Auth providers — Dart-only Cognito client (no native plugins, web-friendly).
+  # GoTrue is consumed directly via dio in data/auth/gotrue_auth_service.dart.
+  amazon_cognito_identity_dart_2: 3.8.1
+
+  # UI
+  google_fonts: 8.0.2
+  cupertino_icons: 1.0.9
+
+  # PDF generation and sharing
+  pdf: 3.12.0
+  printing: 5.14.3
+
+  # External link launching (tel:, mailto:, https:)
+  url_launcher: 6.3.2
+
+  # Push notifications (FCM) — ADR-005. Native config (google-services.json /
+  # GoogleService-Info.plist) is required for real delivery; with placeholder
+  # config the app degrades gracefully (no token → no push, no crash).
+  firebase_core: 4.9.0
+  firebase_messaging: 16.2.2
+  sentry_flutter: 9.21.0
+
+  # Utilities
+  archive: 4.0.9
+  package_info_plus: 10.1.0
+  logger: 2.7.0
+  shared_preferences: 2.5.5
+  intl: 0.20.2
+  flutter_svg: 2.3.0
+  web: 1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+  build_runner: 2.13.1
+  freezed: 3.2.5
+  json_serializable: 6.13.1
+  drift_dev: 2.32.1
+  bloc_test: 10.0.0
+  mocktail: 1.0.5
+  http: 1.6.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.svg
+    - assets/wordmark.svg
+
+module:
+  androidX: true

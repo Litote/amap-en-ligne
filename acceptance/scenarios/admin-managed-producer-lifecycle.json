@@ -1,0 +1,9 @@
+{
+  "id": "admin-managed-producer-lifecycle",
+  "title": "An admin can reach producer creation from /admin/producers, create an AMAP-managed producer with exactly 2 products, then create a delivery from the resulting organization state",
+  "targets": ["flutter", "web-ui"],
+  "given": {
+    "backendState": "organization sync scope and admin producer management screens are available",
+    "appState": "fresh organization cache"
+  }
+}
