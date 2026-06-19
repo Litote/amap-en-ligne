@@ -1,0 +1,24 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Backend JVM" type="KtorApplicationConfigurationType" factoryName="Ktor">
+    <option name="ALTERNATIVE_JRE_PATH" value="25" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="envFilePaths">
+      <option value="$PROJECT_DIR$/back/deploy/jvm/.env" />
+    </option>
+    <option name="MAIN_CLASS_NAME" value="deploy.jvm.MainKt" />
+    <module name="back.deploy.jvm.main" />
+    <option name="alternativeJrePath" value="25" />
+    <option name="alternativeJrePathEnabled" value="true" />
+    <option name="includeProvidedScope" value="false" />
+    <option name="mainClass" value="deploy.jvm.MainKt" />
+    <option name="passParentEnvs" value="true" />
+    <option name="programParameters" value="" />
+    <option name="shortenCommandLine" />
+    <option name="vmParameters" />
+    <option name="workingDirectory" value="$PROJECT_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Docker backend JVM" run_configuration_type="docker-deploy" />
+    </method>
+  </configuration>
+</component>

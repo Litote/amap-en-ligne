@@ -1,0 +1,6 @@
+# Keep generated files
+!**/build/generated
+!**/build/generated/**
+
+# Per-deployment local env file (committed: `.env.example`).
+deploy/jvm/.env

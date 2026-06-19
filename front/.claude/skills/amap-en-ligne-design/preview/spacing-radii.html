@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Corner radii</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .row { display: flex; gap: 14px; align-items: flex-end; }
+  .item { display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: 'Roboto Mono', monospace; font-size: 10px; color: var(--fg2);}
+  .box { width: 72px; height: 72px; background: var(--surface-container); border: 1px solid var(--outline-variant); }
+  .name { color: var(--fg1); font-weight: 500; font-family: Roboto; font-size: 11px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="row">
+    <div class="item">
+      <div class="box" style="border-radius:4px"></div>
+      <div class="name">xs · 4px</div><div>text fields</div>
+    </div>
+    <div class="item">
+      <div class="box" style="border-radius:8px"></div>
+      <div class="name">sm · 8px</div><div>segmented btn</div>
+    </div>
+    <div class="item">
+      <div class="box" style="border-radius:12px"></div>
+      <div class="name">md · 12px</div><div>cards</div>
+    </div>
+    <div class="item">
+      <div class="box" style="border-radius:16px"></div>
+      <div class="name">lg · 16px</div><div>large cards</div>
+    </div>
+    <div class="item">
+      <div class="box" style="border-radius:28px"></div>
+      <div class="name">xl · 28px</div><div>dialogs</div>
+    </div>
+    <div class="item">
+      <div class="box" style="width:96px;height:36px;border-radius:9999px;background:#4CAF50;border:none"></div>
+      <div class="name">pill</div><div>filled buttons</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

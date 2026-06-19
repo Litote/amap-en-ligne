@@ -1,0 +1,62 @@
+version: 2
+
+updates:
+  # ── GitHub Actions ──────────────────────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - github-actions
+
+  # ── Gradle (back) ──────────────────────────────────────────────────────────
+  - package-ecosystem: gradle
+    directory: /back
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - backend
+
+  # ── Flutter / Dart (pub) ────────────────────────────────────────────────────
+  - package-ecosystem: pub
+    directory: /front
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - flutter
+
+  # ── Terraform (infra) ───────────────────────────────────────────────────────
+  - package-ecosystem: terraform
+    directory: /infra
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - infra
+
+  # ── Terraform (infra bootstrap) ─────────────────────────────────────────────
+  - package-ecosystem: terraform
+    directory: /infra/bootstrap
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - infra

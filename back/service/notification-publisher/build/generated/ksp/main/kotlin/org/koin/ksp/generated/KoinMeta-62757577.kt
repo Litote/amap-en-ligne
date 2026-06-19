@@ -1,0 +1,9 @@
+package org.koin.ksp.generated
+
+import org.koin.meta.annotations.*
+@MetaModule("notificationpublisher.NotificationPublisherModule",id="lxz2f4")
+public class _KSP_NotificationpublisherNotificationPublisherModule
+@MetaDefinition("notificationpublisher.NotificationPublisher",moduleTagId="lxz2f4:NotificationpublisherNotificationPublisherModule", dependencies=["notificationSyncDAO:persistence.dao.NotificationSyncDAO","deviceTokenSyncDAO:persistence.dao.DeviceTokenSyncDAO","dispatcher:notificationpublisher.NotificationDispatcher"])
+public class _KSP_NotificationpublisherNotificationPublisher
+@MetaDefinition("notificationpublisher.NotificationDispatcher",moduleTagId="lxz2f4:NotificationpublisherNotificationPublisherModule", dependencies=["senders:notificationpublisher.NotificationChannelSender"])
+public class _KSP_NotificationpublisherNotificationDispatcher

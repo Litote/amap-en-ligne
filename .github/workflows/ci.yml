@@ -1,0 +1,290 @@
+name: CI — Tests, Coverage & Quality Gate
+
+# Single workflow so the Sonar analysis can `needs:` the coverage-producing jobs and
+# aggregate their artifacts (GitHub artifact sharing + `needs:` only work within one
+# workflow). Three jobs each emit one coverage report:
+#   - back       : Kotlin unit coverage           → jacoco-back.xml
+#   - front      : Dart/Flutter coverage (lcov)    → front/coverage/lcov.info
+#   - acceptance : back acceptance + cross-component e2e coverage → jacoco-acceptance.xml
+# The `sonar` job downloads all three and runs a scan-only analysis (no test execution),
+# so SonarCloud's coverage is the union of unit ∪ acceptance ∪ e2e.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'back/**'
+      - 'front/**'
+      - 'acceptance/**'
+      - 'convention/**'
+      - 'gradle/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'back/**'
+      - 'front/**'
+      - 'acceptance/**'
+      - 'convention/**'
+      - 'gradle/**'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Back unit tests + coverage ─────────────────────────────────────────────
+  back:
+    name: Back unit (check)
+    runs-on: ubuntu-latest
+    # Backstop against a hung build: a test task can block forever (observed:
+    # `:persistence:dynamo:test` awaiting an unreachable DynamoDB-Local container via AWS CRT
+    # with no request timeout), which otherwise burns the full 6h GitHub limit. The per-test
+    # task deadline in the Gradle convention (10 min) should trip first; this caps the job.
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          build-scan-publish: false
+
+      # `check` is unit-only — back acceptance now runs in the `acceptance` job.
+      - name: Build & test
+        working-directory: back
+        run: ./gradlew check
+
+      # Snapshot the unit-test exec into a JaCoCo XML (no test deps — tests already ran).
+      - name: Coverage report
+        working-directory: back
+        run: ./gradlew jacocoExecReport
+
+      - name: Upload back coverage
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: coverage-back
+          path: back/build/reports/jacoco/jacocoExecReport/jacocoExecReport.xml
+          if-no-files-found: error
+          retention-days: 1
+
+  # ── Front unit + widget + acceptance tests + coverage (lcov) ───────────────
+  front:
+    name: Front (test + coverage)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          working-directory: front
+
+      - name: Install dependencies
+        working-directory: front
+        run: flutter pub get --enforce-lockfile
+
+      - name: Verify code generation is up to date
+        working-directory: front
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          git diff --exit-code -- lib/
+
+      - name: Analyze
+        working-directory: front
+        run: flutter analyze --fatal-infos
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          build-scan-publish: false
+
+      # `frontTest` runs `flutter test test/ --coverage` (unit + widget + scripted
+      # acceptance; only golden + cross-component excluded) → front/coverage/lcov.info.
+      - name: Front coverage (lcov)
+        run: ./gradlew frontTest
+
+      - name: Upload front coverage
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: coverage-front
+          path: front/coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 1
+
+  # ── Acceptance gate: allAcceptanceTests + its coverage ─────────────────────
+  # Runs the full `./gradlew allAcceptanceTests` aggregate: back acceptance scenarios,
+  # front acceptance, and cross-component E2E (API + Web UI via Playwright). Mobile UI
+  # tests self-skip (no Android emulator in CI). Requires Docker (Testcontainers:
+  # Postgres + GoTrue + MailHog) and Flutter.
+  acceptance:
+    name: Acceptance + E2E (allAcceptanceTests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          build-scan-publish: false
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          working-directory: front
+
+      - name: Install Flutter dependencies
+        working-directory: front
+        run: flutter pub get --enforce-lockfile
+
+      - name: Install Playwright Chromium
+        working-directory: back
+        run: ./gradlew :e2e:installPlaywrightBrowsers
+
+      - name: Run all acceptance tests
+        run: ./gradlew allAcceptanceTests
+        env:
+          # Mobile UI tests require an Android emulator — skip in CI
+          E2E_SKIP_IF_NO_ANDROID_DEVICE: "true"
+
+      # Snapshot the acceptance + e2e exec into a JaCoCo XML (no test deps — tests already
+      # ran). jacocoExecReport folds in acceptance/e2e/build/jacoco/*.exec automatically.
+      - name: Coverage report
+        working-directory: back
+        run: ./gradlew jacocoExecReport
+
+      - name: Upload acceptance coverage
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: coverage-acceptance
+          path: back/build/reports/jacoco/jacocoExecReport/jacocoExecReport.xml
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: playwright-traces
+          path: acceptance/e2e/build/reports/tests/
+          retention-days: 7
+
+  # ── SonarCloud analysis — scan only, aggregates the three coverage artifacts ─
+  sonar:
+    name: SonarCloud analysis
+    runs-on: ubuntu-latest
+    needs: [back, front, acceptance]
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          build-scan-publish: false
+
+      # The SonarCloud Dart analyzer needs resolved packages to parse front/lib: without
+      # `flutter pub get` there is no .dart_tool/package_config.json, every `package:` import
+      # is unresolved, and the analyzer emits a dart:S2260 parse error per symbol (≈15k false
+      # issues + broken coverage attribution). Tests are NOT re-run here — coverage comes from
+      # the downloaded lcov artifact; pub get only provides package resolution for the scan.
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          working-directory: front
+
+      - name: Install Flutter dependencies (for Dart analysis)
+        working-directory: front
+        run: flutter pub get --enforce-lockfile
+
+      # Back unit + acceptance/e2e JaCoCo XMLs.
+      - name: Download back coverage
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: coverage-back
+          path: coverage-reports/back
+      - name: Download acceptance coverage
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: coverage-acceptance
+          path: coverage-reports/acceptance
+      # Front lcov — restored to the path the Sonar config expects by default.
+      - name: Download front coverage
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: coverage-front
+          path: front/coverage
+
+      # Scan-only: `-PsonarExternalCoverage` drops the local jacoco dependency; the coverage
+      # reports come from the downloaded artifacts. They MUST be passed as Gradle `-P`
+      # properties (consumed by the build's `sonar { }` DSL) — the SonarQube Gradle plugin
+      # ignores `-Dsonar.*` overrides when the property is also set via the DSL.
+      - name: SonarCloud analysis + quality gate
+        working-directory: back
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BRANCH: ${{ github.head_ref }}
+          PR_BASE: ${{ github.base_ref }}
+        if: env.SONAR_TOKEN != ''
+        run: |
+          JACOCO_PATHS="$GITHUB_WORKSPACE/coverage-reports/back/jacocoExecReport.xml,$GITHUB_WORKSPACE/coverage-reports/acceptance/jacocoExecReport.xml"
+          LCOV_PATH="$GITHUB_WORKSPACE/front/coverage/lcov.info"
+          COMMON_ARGS=(
+            sonar sonarCheck
+            -PsonarExternalCoverage
+            "-PjacocoXmlReportPaths=$JACOCO_PATHS"
+            "-PdartLcovReportPaths=$LCOV_PATH"
+          )
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            ./gradlew "${COMMON_ARGS[@]}" \
+              -Dsonar.pullrequest.key="$PR_NUMBER" \
+              -Dsonar.pullrequest.branch="$PR_BRANCH" \
+              -Dsonar.pullrequest.base="$PR_BASE"
+          else
+            ./gradlew "${COMMON_ARGS[@]}"
+          fi

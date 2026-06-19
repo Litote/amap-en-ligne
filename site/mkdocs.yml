@@ -1,0 +1,111 @@
+site_name: Amap en ligne — Aide
+# ⚠️ À adapter à l'URL de publication réelle (nécessaire pour la recherche
+# instantanée et les liens canoniques / SEO).
+site_url: https://litote.github.io/amap-en-ligne/
+site_description: >-
+  Guide d'utilisation d'Amap en ligne : prise en main, livraisons, contrats,
+  paniers et administration, par rôle.
+site_author: Amap en ligne
+copyright: Amap en ligne — documentation libre (AGPL 3.0)
+
+# Sortie de build (gitignorée). Le contenu source vit dans docs/.
+site_dir: _build
+
+# Le guide reste la source de vérité dans documentation/guide/fr/ et est monté
+# sous docs/guide via un lien symbolique (voir README.md de ce dossier).
+docs_dir: docs
+
+theme:
+  name: material
+  language: fr
+  custom_dir: overrides
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-night
+        name: Passer au thème sombre
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-sunny
+        name: Passer au thème clair
+  icon:
+    logo: material/sprout
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search:
+      lang: fr
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+      # Ancres compatibles GitHub (conserve les accents) pour que les liens
+      # internes du guide fonctionnent à l'identique sur GitHub et sur le site.
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+# Navigation explicite : la page de garde (index.md) reste l'accueil ; le guide
+# est organisé par rôle, en suivant documentation/guide/fr/.
+nav:
+  - Accueil: index.md
+  - Guide:
+      - guide/README.md
+      - Démarrer avec l'application: guide/01-demarrage.md
+      - Amapien:
+          - guide/amapien/README.md
+          - Mes livraisons: guide/amapien/01-mes-livraisons.md
+          - Mes contrats: guide/amapien/02-mes-contrats.md
+          - Échanger un panier: guide/amapien/03-echange-de-paniers.md
+          - Mon historique: guide/amapien/04-mon-historique.md
+          - Notifications et préférences: guide/amapien/05-notifications-preferences.md
+      - Coordinateur:
+          - guide/coordinateur/README.md
+          - Planifier une livraison: guide/coordinateur/01-planifier-une-livraison.md
+          - Bénévoles et créneaux: guide/coordinateur/02-benevoles-et-creneaux.md
+          - Contrats de saison: guide/coordinateur/03-contrats-de-saison.md
+          - Contrats des amapiens: guide/coordinateur/04-contrats-des-amapiens.md
+          - Le jour de la livraison: guide/coordinateur/05-jour-de-livraison.md
+          - Coordination par contrat: guide/coordinateur/06-coordination-par-contrat.md
+      - Producteur:
+          - guide/producteur/README.md
+          - Catalogue de produits: guide/producteur/01-catalogue-produits.md
+          - Contenu des livraisons: guide/producteur/02-contenu-des-livraisons.md
+      - Administrateur d'AMAP:
+          - guide/admin-amap/README.md
+          - Gérer les membres: guide/admin-amap/01-gestion-des-membres.md
+          - Gérer les producteurs: guide/admin-amap/02-gestion-des-producteurs.md
+          - Modèles de livraison: guide/admin-amap/03-modeles-de-livraison.md
+      - Administrateur d'instance:
+          - guide/owner-instance/README.md
+          - Valider les demandes: guide/owner-instance/01-demandes-de-creation.md
+          - Gérer les comptes: guide/owner-instance/02-gestion-des-comptes.md
+          - Inviter un administrateur: guide/owner-instance/03-inviter-un-administrateur.md
+      - Glossaire: guide/glossaire.md

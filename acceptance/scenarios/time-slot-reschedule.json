@@ -1,0 +1,104 @@
+{
+  "id": "time-slot-reschedule",
+  "title": "A coordinator reschedules a slot with active registrations: registrations are preserved and members are notified",
+  "targets": ["time-slot-flow", "flutter"],
+  "given": {
+    "backendState": "organization:org-1 with a future PLANNED delivery:delivery-1 containing one OPEN slot:slot-1 with 2 active registrations (member:member-1, member:member-2); member:coordinator-1 authorized on organization:org-1 with role COORDINATOR",
+    "appState": "fresh organization cache synchronized from bootstrap"
+  },
+  "when": [
+    {
+      "actor": "coordinator",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-reschedule-slot",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Organization",
+                "organization": {
+                  "organization_id": "org-1",
+                  "name": "AMAP des Collines",
+                  "contact_email": "contact@amap.example.com",
+                  "active_status": true,
+                  "timezone": "Europe/Paris",
+                  "default_language": "fr",
+                  "created_instant": "2025-01-01T00:00:00Z",
+                  "last_updated_instant": "2025-01-01T00:00:00Z",
+                  "producers": [],
+                  "products": [],
+                  "deliveries": [
+                    {
+                      "delivery_id": "delivery-1",
+                      "organization_id": "org-1",
+                      "scheduled_date": "2099-06-15T18:00:00",
+                      "status": "PLANNED",
+                      "min_volunteers_required": 2,
+                      "contracts": [
+                        {
+                          "contract_id": "contract-1",
+                          "coordinators": ["coordinator-1"],
+                          "basket_quantity": 10,
+                          "delivery_description": "Weekly basket",
+                          "status": "PENDING",
+                          "slots": [
+                            {
+                              "slot_id": "slot-1",
+                              "start_time": "2099-06-15T19:00:00",
+                              "end_time": "2099-06-15T21:00:00",
+                              "activity_type": "RECEPTION",
+                              "required_volunteers": 2,
+                              "current_registrations": 2,
+                              "status": "OPEN",
+                              "slot_kind": "STANDARD",
+                              "registrations": [
+                                {
+                                  "member_id": "member-1",
+                                  "display_name": "Alice Volunteer",
+                                  "member_email": "member-1@example.com",
+                                  "registration_instant": "2099-06-01T10:00:00Z",
+                                  "status": "REGISTERED"
+                                },
+                                {
+                                  "member_id": "member-2",
+                                  "display_name": "Bob Volunteer",
+                                  "member_email": "member-2@example.com",
+                                  "registration_instant": "2099-06-01T11:00:00Z",
+                                  "status": "REGISTERED"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-reschedule-slot",
+          "status": "APPLIED",
+          "serverEntityId": {
+            "kind": "equals",
+            "value": "org-1"
+          }
+        }
+      ]
+    }
+  }
+}

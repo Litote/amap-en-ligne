@@ -1,0 +1,11 @@
+package org.koin.ksp.generated
+
+import org.koin.meta.annotations.*
+@MetaModule("sync.SyncModule",id="hsiou2", includes=["core.CoreModule","onboarding.OnboardingModule","owner.OwnerModule","errorreport.ErrorReportModule","organization.OrganizationModule","contract.ContractModule","deliverytemplate.DeliveryTemplateModule","produceraccount.ProducerAccountModule","producer.ProducerModule","producttype.ProductTypeModule","member.MemberModule","memberjoinrequest.MemberJoinRequestModule","memberinvitation.MemberInvitationModule","organizationrequest.OrganizationRequestModule","producerrequest.ProducerRequestModule","attendance.AttendanceModule","exchange.ExchangeModule","notification.NotificationModule","activation.ActivationModule"])
+public class _KSP_SyncSyncModule
+@MetaDefinition("sync.DataService",moduleTagId="hsiou2:SyncSyncModule", dependencies=["services:core.EntityTypeService","changeDAO:persistence.dao.ChangeDAO","memberSyncDAO:persistence.dao.MemberSyncDAO","authorizedScopeResolver:core.AuthorizedScopeResolver"])
+public class _KSP_SyncDataService
+@MetaDefinition("sync.ImportService",moduleTagId="hsiou2:SyncSyncModule", dependencies=["organizationSyncDAO:persistence.dao.OrganizationSyncDAO","producerAccountSyncDAO:persistence.dao.ProducerAccountSyncDAO","memberSyncDAO:persistence.dao.MemberSyncDAO","contractSyncDAO:persistence.dao.ContractSyncDAO","deliveryTemplateSyncDAO:persistence.dao.DeliveryTemplateSyncDAO","basketExchangeSyncDAO:persistence.dao.BasketExchangeSyncDAO","memberInvitationDAO:persistence.dao.MemberInvitationSyncDAO","memberJoinRequestSyncDAO:persistence.dao.MemberJoinRequestSyncDAO","productTypeDAO:persistence.dao.ProductTypeSyncDAO","ownerSyncDAO:persistence.dao.OwnerSyncDAO"])
+public class _KSP_SyncImportService
+@MetaDefinition("sync.ExportService",moduleTagId="hsiou2:SyncSyncModule", dependencies=["dataService:sync.DataService","organizationSyncDAO:persistence.dao.OrganizationSyncDAO","producerAccountSyncDAO:persistence.dao.ProducerAccountSyncDAO","productTypeDAO:persistence.dao.ProductTypeSyncDAO","memberSyncDAO:persistence.dao.MemberSyncDAO"])
+public class _KSP_SyncExportService
