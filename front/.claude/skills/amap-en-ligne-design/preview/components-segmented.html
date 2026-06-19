@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Segmented button</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .seg { display: inline-flex; border-radius: 999px; overflow: hidden; border: 1px solid #73796E; }
+  .seg button {
+    font: 500 14px/1 Roboto; letter-spacing:0.5px;
+    padding: 10px 20px; background: transparent; border: none; color: var(--fg1); cursor: pointer;
+  }
+  .seg button.on { background: #B7F397; color: #042100; }
+  .seg button + button { border-left: 1px solid #73796E; }
+  .lbl { font-size: 10px; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px;}
+  .row { margin-bottom: 18px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="row">
+    <div class="lbl">Type d'organisation</div>
+    <div class="seg">
+      <button class="on">✓ AMAP</button>
+      <button>Producteur</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="lbl">Langue par défaut</div>
+    <div class="seg">
+      <button class="on">✓ Français</button>
+      <button>English</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

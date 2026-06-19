@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spacing scale</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .scale { display: flex; flex-direction: column; gap: 8px; }
+  .row { display:flex; align-items: center; gap: 12px; font-family:'Roboto Mono', monospace; font-size: 11px; color: var(--fg2);}
+  .bar { background: #4CAF50; height: 14px; border-radius: 3px; }
+  .tag { width: 64px; flex-shrink: 0; }
+  .name { color: var(--fg1); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="scale">
+    <div class="row"><div class="tag"><span class="name">space-1</span></div><div class="bar" style="width:4px"></div><div>4px</div></div>
+    <div class="row"><div class="tag"><span class="name">space-2</span></div><div class="bar" style="width:8px"></div><div>8px</div></div>
+    <div class="row"><div class="tag"><span class="name">space-3</span></div><div class="bar" style="width:12px"></div><div>12px · between fields</div></div>
+    <div class="row"><div class="tag"><span class="name">space-4</span></div><div class="bar" style="width:16px"></div><div>16px · between cards · card padding</div></div>
+    <div class="row"><div class="tag"><span class="name">space-6</span></div><div class="bar" style="width:24px"></div><div>24px · screen padding · between form sections</div></div>
+    <div class="row"><div class="tag"><span class="name">space-7</span></div><div class="bar" style="width:32px"></div><div>32px · top of screen / between blocks</div></div>
+  </div>
+</div>
+</body>
+</html>

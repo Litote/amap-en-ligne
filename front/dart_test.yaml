@@ -1,0 +1,15 @@
+# Test runner configuration picked up automatically by `flutter test`.
+#
+# Per-test timeout guard: without it, a widget test that never settles
+# (e.g. `pumpAndSettle()` while a `CircularProgressIndicator` is on screen,
+# or a leaked drift stream timer) hangs the whole suite until the 10-minute
+# default. 60s is far above any healthy unit/widget test here and turns a
+# hang into a named, fast failure. Override per test with `timeout:` on
+# `testWidgets`/`test` when a slow case is legitimately needed.
+timeout: 60s
+
+# Declared tags so `--tags` / `--exclude-tags` never warn about unknown tags.
+tags:
+  golden:
+  acceptance:
+  cross-component:

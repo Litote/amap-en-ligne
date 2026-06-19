@@ -1,0 +1,84 @@
+{
+  "id": "contract-in-preparation-rejects-self-subscription",
+  "title": "A member (without COORDINATOR role) self-subscribing to an IN_PREPARATION contract is rejected with FORBIDDEN",
+  "targets": ["contract-lifecycle"],
+  "given": {
+    "backendState": "organization:org-1 with an ended contract:contract-1 (season 2020) and an IN_PREPARATION contract:contract-2 (future dates); member:admin-1 with role ADMIN; member:member-1 with role VOLUNTEER (no COORDINATOR/ADMIN)",
+    "appState": "fresh organization cache synchronized from bootstrap"
+  },
+  "when": [
+    {
+      "actor": "member",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-subscribe",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Member",
+                "member": {
+                  "member_id": "member-1",
+                  "organization_id": "org-1",
+                  "roles": ["VOLUNTEER"],
+                  "active_status": true,
+                  "member_settings": {
+                    "delivery_reminders": { "days_before": 1, "reminder_time": "08:00" },
+                    "accessibility_options": { "high_contrast": false, "large_text": false, "screen_reader": false },
+                    "last_updated_instant": "1970-01-01T00:00:00Z"
+                  },
+                  "member_preferences": {
+                    "delivery_reminders_enabled": true,
+                    "volunteer_alerts_enabled": true,
+                    "last_updated_instant": "1970-01-01T00:00:00Z"
+                  },
+                  "user_preferences": {
+                    "email_notifications_enabled": true,
+                    "push_notifications_enabled": false,
+                    "last_updated_instant": "1970-01-01T00:00:00Z"
+                  },
+                  "user_settings": {
+                    "language": "fr",
+                    "timezone": "Europe/Paris",
+                    "server_id": "default",
+                    "last_updated_instant": "1970-01-01T00:00:00Z"
+                  },
+                  "contracts": [
+                    {
+                      "contract_id": "contract-2",
+                      "subscription_instant": "2026-01-01T00:00:00Z",
+                      "status": "ACTIVE",
+                      "subscriptions": [
+                        {
+                          "product_type_id": "pt-vegetables"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-subscribe",
+          "status": "REJECTED",
+          "error": {
+            "code": "FORBIDDEN"
+          }
+        }
+      ]
+    }
+  }
+}

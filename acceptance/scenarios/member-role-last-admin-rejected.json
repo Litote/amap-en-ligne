@@ -1,0 +1,43 @@
+{
+  "id": "member-role-last-admin-rejected",
+  "title": "Removing the last admin role is rejected by the server",
+  "targets": ["flutter"],
+  "given": {
+    "backendState": "single admin member",
+    "appState": "member cached in drift"
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": { "Member": "c1" },
+        "mutations": [
+          {
+            "client_op_id": "op-1",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Member",
+                "member": {
+                  "member_id": "m-1",
+                  "organization_id": "org-1",
+                  "roles": ["COORDINATOR"],
+                  "active_status": true,
+                  "contracts": []
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "mutationOutcomes": [
+        { "clientOpId": "op-1", "status": "REJECTED" }
+      ]
+    }
+  }
+}
