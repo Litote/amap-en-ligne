@@ -1,0 +1,73 @@
+name: amap_en_ligne
+description: 'Amap en Ligne — offline-first producer-side CSA management app.'
+publish_to: 'none'
+
+# Semver bumped by release-please (which rewrites the whole token, dropping
+# any +N suffix — expected). CI stamps the real build number via
+# --build-number (run number) so installed builds stay traceable.
+version: 0.0.0+1 # x-release-please-version
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  # Auth providers — Dart-only Cognito client (no native plugins, web-friendly).
+  # GoTrue is consumed directly via dio in data/auth/gotrue_auth_service.dart.
+  amazon_cognito_identity_dart_2: 3.8.1
+  archive: 4.0.9
+  bloc: 9.2.0
+  connectivity_plus: 6.1.0
+  cupertino_icons: 1.0.9
+  dio: 5.7.0
+  drift: 2.32.1
+  drift_flutter: 0.3.0
+  firebase_core: 4.9.0
+  firebase_messaging: 16.2.2
+  flutter:
+    sdk: flutter
+  flutter_bloc: 9.1.1
+  flutter_localizations:
+    sdk: flutter
+  flutter_secure_storage: 10.3.1
+  flutter_svg: 2.3.0
+  flutter_web_plugins:
+    sdk: flutter
+  freezed_annotation: 3.1.0
+  go_router: 17.2.1
+  google_fonts: 8.0.2
+  intl: 0.20.2
+  json_annotation: 4.11.0
+  logger: 2.7.0
+  package_info_plus: 10.1.0
+  path_provider: 2.1.5
+  pdf: 3.12.0
+  printing: 5.14.3
+  sentry_flutter: 9.21.0
+  shared_preferences: 2.5.5
+  url_launcher: 6.3.2
+  web: 1.1.1
+
+dev_dependencies:
+  bloc_test: 10.0.0
+  build_runner: 2.13.1
+  drift_dev: 2.32.1
+  flutter_lints: 6.0.0
+  flutter_test:
+    sdk: flutter
+  freezed: 3.2.5
+  http: 1.6.0
+  integration_test:
+    sdk: flutter
+  json_serializable: 6.13.1
+  mocktail: 1.0.5
+  path_provider_platform_interface: 2.1.2
+  plugin_platform_interface: 2.1.8
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.svg
+    - assets/wordmark.svg
+
+module:
+  androidX: true

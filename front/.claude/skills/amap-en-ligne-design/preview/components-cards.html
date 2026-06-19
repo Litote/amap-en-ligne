@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cards</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  body { background: var(--bg2); }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+  .m3card {
+    background: #FFFFFF; border-radius: 12px; padding: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .title { font: 500 16px/1.5 Roboto; }
+  .sub { font: 14px/1.43 Roboto; color: var(--fg2); margin-top: 4px;}
+  .btn { font: 500 14px/1 Roboto; letter-spacing:0.5px; padding: 10px 24px; border-radius: 9999px; color: #fff; border: none; margin-top: 12px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="stack">
+    <div class="m3card">
+      <div class="title">J'ai déjà un compte</div>
+      <div class="sub">Connectez-vous à votre espace personnel</div>
+      <button class="btn" style="background:#4CAF50">SE CONNECTER</button>
+    </div>
+    <div class="m3card">
+      <div class="title">Je veux créer une nouvelle organisation</div>
+      <div class="sub">(AMAP ou producteur)<br>C'est totalement gratuit !</div>
+      <button class="btn" style="background:#FF9800">INSCRIVEZ-VOUS</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

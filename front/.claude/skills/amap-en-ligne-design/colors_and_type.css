@@ -1,0 +1,190 @@
+/*
+ * Amap en Ligne — colors & type tokens
+ *
+ * Mirrors the Flutter app's runtime theme:
+ *   ColorScheme.fromSeed(seedColor: Colors.green) + useMaterial3: true
+ *
+ * Plus the per-screen overrides the codebase uses on home-page action
+ * cards: raw Colors.green / Colors.blue / Colors.orange on FilledButtons.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined');
+
+/* Icon class shim — keeps the .material-symbols-outlined class name (used
+   across this design system) but renders glyphs with the legacy Material
+   Icons font, which has reliable ligature substitution in sandboxed iframes
+   where the newer variable-axis Material Symbols font fails to render. */
+.material-symbols-outlined,
+.material-icons-outlined,
+.material-icons {
+  font-family: 'Material Icons Outlined', 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+}
+
+:root {
+  /* ---------- PALETTE (Material green seed + raw colors used in code) ---------- */
+
+  /* Primary — Colors.green (Material green 500) + M3 derived tones */
+  --green-500: #4CAF50;      /* Material Colors.green — primary FilledButton on home */
+  --green-600: #43A047;
+  --green-700: #388E3C;
+  --green-100: #C8E6C9;
+  --green-50:  #E8F5E9;
+
+  /* M3 seed-derived primary (what ColorScheme.fromSeed produces) */
+  --m3-primary:           #386A20;
+  --m3-on-primary:        #FFFFFF;
+  --m3-primary-container: #B7F397;
+  --m3-on-primary-container: #042100;
+
+  /* Accent blue — raw Colors.blue used on "S'INSCRIRE À UNE AMAP" */
+  --blue-500: #2196F3;
+  --blue-600: #1E88E5;
+
+  /* Accent orange — raw Colors.orange used on "INSCRIVEZ-VOUS" */
+  --orange-500: #FF9800;
+  --orange-600: #FB8C00;
+
+  /* Error (M3 default) */
+  --error:            #B3261E;
+  --on-error:         #FFFFFF;
+  --error-container:  #F9DEDC;
+  --on-error-container: #410E0B;
+
+  /* Neutrals — M3 surface scale derived from green seed (warm-tinted) */
+  --surface:                #FCFDF6;
+  --surface-dim:            #DDDBD0;
+  --surface-bright:         #FCFDF6;
+  --surface-container-lowest:#FFFFFF;
+  --surface-container-low:  #F6F7F0;
+  --surface-container:      #F0F1EA;
+  --surface-container-high: #EAEBE4;
+  --surface-container-highest:#E4E5DE;
+
+  --on-surface:        #1A1C18;
+  --on-surface-variant:#43483E;
+  --outline:           #73796E;
+  --outline-variant:   #C3C8BB;
+
+  /* Plain grey used once for muted helper text (Colors.grey) */
+  --grey-500: #9E9E9E;
+
+  /* ---------- SEMANTIC ALIASES ---------- */
+  --fg1: var(--on-surface);         /* primary text */
+  --fg2: var(--on-surface-variant); /* secondary text */
+  --fg3: var(--outline);            /* muted */
+  --bg1: var(--surface);            /* page background */
+  --bg2: var(--surface-container-low); /* card-on-surface */
+  --bg3: var(--surface-container);  /* nested */
+
+  --action-primary:   var(--green-500);   /* "SE CONNECTER" */
+  --action-secondary: var(--blue-500);    /* "S'INSCRIRE À UNE AMAP" */
+  --action-tertiary:  var(--orange-500);  /* "INSCRIVEZ-VOUS" */
+  --action-on:        #FFFFFF;
+  --action-success:   var(--green-500);   /* check_circle icon */
+
+  --link: var(--m3-primary);
+  --border: var(--outline-variant);
+
+  /* ---------- TYPOGRAPHY ---------- */
+  --font-sans: 'Roboto', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-icon: 'Material Symbols Outlined';
+
+  /* Material 3 type scale (px @ default scale, line-height in unitless) */
+  --type-display-large:   57px / 1.12 var(--font-sans);
+  --type-display-medium:  45px / 1.16 var(--font-sans);
+  --type-display-small:   36px / 1.22 var(--font-sans);
+  --type-headline-large:  32px / 1.25 var(--font-sans);
+  --type-headline-medium: 28px / 1.29 var(--font-sans);
+  --type-headline-small:  24px / 1.33 var(--font-sans);
+  --type-title-large:     22px / 1.27 var(--font-sans);
+  --type-title-medium:    16px / 1.50 var(--font-sans);
+  --type-title-small:     14px / 1.43 var(--font-sans);
+  --type-body-large:      16px / 1.50 var(--font-sans);
+  --type-body-medium:     14px / 1.43 var(--font-sans);
+  --type-body-small:      12px / 1.33 var(--font-sans);
+  --type-label-large:     14px / 1.43 var(--font-sans);
+  --type-label-medium:    12px / 1.33 var(--font-sans);
+  --type-label-small:     11px / 1.45 var(--font-sans);
+
+  /* Weights */
+  --w-regular: 400;
+  --w-medium:  500;
+  --w-bold:    700;
+
+  /* ---------- SHAPE / RADII (Material 3) ---------- */
+  --radius-xs:  4px;   /* text fields, outlines */
+  --radius-sm:  8px;   /* segmented buttons */
+  --radius-md: 12px;   /* cards */
+  --radius-lg: 16px;   /* large cards */
+  --radius-xl: 28px;   /* dialogs */
+  --radius-pill: 9999px; /* filled buttons */
+
+  /* ---------- ELEVATION (M3 surface tint + minimal shadow) ---------- */
+  --elev-1: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.04);
+  --elev-2: 0 2px 4px rgba(0,0,0,0.06), 0 1px 8px rgba(0,0,0,0.04);
+  --elev-3: 0 4px 8px rgba(0,0,0,0.08), 0 2px 14px rgba(0,0,0,0.06);
+  --elev-fab: 0 6px 10px rgba(0,0,0,0.14), 0 2px 4px rgba(0,0,0,0.12);
+
+  /* ---------- SPACING (8pt scale, with 4/12 half-steps) ---------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+  --space-9: 64px;
+}
+
+/* ---------- BASE TYPOGRAPHY ---------- */
+
+html, body {
+  font: var(--type-body-medium);
+  font-weight: var(--w-regular);
+  color: var(--fg1);
+  background: var(--bg1);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1 { font: var(--type-headline-medium); font-weight: var(--w-bold); margin: 0; }
+h2 { font: var(--type-headline-small);  font-weight: var(--w-bold); margin: 0; }
+h3 { font: var(--type-title-large);     font-weight: var(--w-medium); margin: 0; }
+h4 { font: var(--type-title-medium);    font-weight: var(--w-medium); margin: 0; }
+h5 { font: var(--type-title-small);     font-weight: var(--w-medium); margin: 0; }
+p  { font: var(--type-body-medium); margin: 0; }
+
+small { font: var(--type-body-small); color: var(--fg2); }
+
+code, kbd, pre { font-family: var(--font-mono); font-size: 0.9em; }
+
+/* ---------- UTILITY CLASSES ---------- */
+
+.section-header {
+  /* ALL-CAPS green section header, e.g. "INFORMATIONS ORGANISATION" */
+  font: var(--type-label-large);
+  font-weight: var(--w-medium);
+  color: var(--m3-primary);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.muted        { color: var(--fg2); }
+.muted-strong { color: var(--fg3); }
+.error-text   { color: var(--error); }

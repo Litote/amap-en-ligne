@@ -1,0 +1,28 @@
+# State local (bootstrap uniquement — NE PAS commiter)
+bootstrap/terraform.tfstate
+bootstrap/terraform.tfstate.backup
+bootstrap/.terraform/
+
+# State et cache Terraform (géré par le backend S3)
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.*
+
+# Variables sensibles
+*.auto.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Plans
+*.tfplan
+
+# Fichier de secrets local (jamais commiter)
+secrets.auto.tfvars
+
+# Backend partiel : le nom du bucket embarque l'AWS account id (jamais commiter ;
+# voir backend.hcl.sample)
+backend.hcl

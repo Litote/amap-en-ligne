@@ -1,0 +1,9 @@
+{
+  "id": "producer-request-approval",
+  "title": "A producer request can be submitted publicly, reviewed from the owner sync feed, and provision a producer activation path",
+  "targets": ["flutter"],
+  "given": {
+    "backendState": "owner sync scope is available and producer requests are public",
+    "appState": "fresh instance-owner cache"
+  }
+}

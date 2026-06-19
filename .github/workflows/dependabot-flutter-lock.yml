@@ -1,0 +1,95 @@
+name: Update Flutter pubspec lock
+
+on:
+  pull_request_target:
+    branches: [ main ]
+    paths:
+      - 'front/pubspec.yaml'
+      - 'front/pubspec.lock'
+
+# Keep commit-backs on the same PR branch from racing on the ref.
+concurrency:
+  group: dependabot-autocommit-${{ github.head_ref }}
+  cancel-in-progress: false
+
+jobs:
+  update-flutter-lock:
+    name: Regenerate Flutter pubspec lock
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_PLEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+
+      # Checkout the base branch (trusted code) to avoid executing untrusted workflow
+      # logic. Only pubspec.yaml/pubspec.lock are then fetched from the PR branch — they
+      # carry safe, predictable content from dependabot, and `flutter pub get` resolves
+      # dependencies without executing package code.
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+          ref: ${{ github.base_ref }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Apply dependabot dependency changes
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          git fetch origin "$HEAD_REF"
+          git checkout FETCH_HEAD -- front/pubspec.yaml front/pubspec.lock
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          working-directory: front
+
+      # Dependabot resolves with plain `dart pub`, which ignores the Flutter SDK-vendored
+      # constraints and bumps meta/test/test_api/test_core past what the pinned SDK allows.
+      # That breaks `flutter pub get --enforce-lockfile` in front-ci. A plain
+      # `flutter pub get` re-pins those packages to the SDK versions while preserving
+      # dependabot's intended bump.
+      - name: Regenerate pubspec.lock
+        working-directory: front
+        run: flutter pub get
+
+      - name: Commit updated pubspec.lock
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          if git diff --quiet -- front/pubspec.lock; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          # Use the API to get the PR branch HEAD — git rev-parse HEAD would return
+          # the base branch SHA since we checked out github.base_ref, not the PR branch.
+          PARENT_SHA=$(gh api "repos/$OWNER/$REPO/git/refs/heads/$BRANCH" --jq '.object.sha')
+          CURRENT_TREE=$(gh api "repos/$OWNER/$REPO/git/commits/$PARENT_SHA" --jq '.tree.sha')
+
+          base64 -w 0 front/pubspec.lock > /tmp/content.b64
+          python3 -c "import json; c=open('/tmp/content.b64').read(); print(json.dumps({'content':c,'encoding':'base64'}))" > /tmp/blob-payload.json
+          BLOB_SHA=$(gh api "repos/$OWNER/$REPO/git/blobs" --input /tmp/blob-payload.json --jq '.sha')
+
+          TREE_SHA=$(jq -nc --arg base "$CURRENT_TREE" --arg path "front/pubspec.lock" --arg sha "$BLOB_SHA" \
+            '{base_tree: $base, tree: [{path: $path, mode: "100644", type: "blob", sha: $sha}]}' \
+            | gh api "repos/$OWNER/$REPO/git/trees" --input - --jq '.sha')
+
+          COMMIT_SHA=$(gh api "repos/$OWNER/$REPO/git/commits" \
+            --field message="chore: re-pin Flutter pubspec.lock to SDK versions" \
+            --field tree="$TREE_SHA" \
+            --field "parents[]=$PARENT_SHA" \
+            --jq '.sha')
+
+          gh api "repos/$OWNER/$REPO/git/refs/heads/$BRANCH" \
+            --method PATCH \
+            --field sha="$COMMIT_SHA"

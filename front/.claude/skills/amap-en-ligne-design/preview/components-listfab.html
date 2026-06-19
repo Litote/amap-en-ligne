@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>List tile + FAB</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  body { background: var(--bg1); }
+  .tile { display:flex; align-items:center; padding: 14px 16px; gap: 12px;}
+  .tile + .tile { border-top: 1px solid var(--outline-variant); }
+  .tile .title { font: 16px/1.4 Roboto; flex: 1;}
+  .tile .meta { font: 12px/1.3 Roboto; color: var(--fg2);}
+  .fab {
+    position: absolute; bottom: 20px; right: 20px;
+    width: 56px; height: 56px; border-radius: 16px; background: #B7F397; color: #042100;
+    display:flex; align-items:center; justify-content:center; font-size: 28px; font-family: 'Material Symbols Outlined';
+    box-shadow: 0 6px 10px rgba(0,0,0,0.14), 0 2px 4px rgba(0,0,0,0.12);
+  }
+  .wrap { position: relative; min-height: 200px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="wrap">
+    <div class="tile">
+      <div>
+        <div class="title">Panier légumes</div>
+      </div>
+      <div class="meta">3 sizes</div>
+      <span class="material-symbols-outlined" style="color: var(--fg2)">chevron_right</span>
+    </div>
+    <div class="tile">
+      <div><div class="title">Pommes Reinette</div></div>
+      <div class="meta">2 sizes</div>
+      <span class="material-symbols-outlined" style="color: var(--fg2)">chevron_right</span>
+    </div>
+    <div class="tile">
+      <div><div class="title">Œufs fermiers</div></div>
+      <div class="meta">1 size</div>
+      <span class="material-symbols-outlined" style="color: var(--fg2)">chevron_right</span>
+    </div>
+    <div class="fab">add</div>
+  </div>
+</div>
+</body>
+</html>

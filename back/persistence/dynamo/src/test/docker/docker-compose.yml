@@ -1,0 +1,12 @@
+
+services:
+  dynamodb-local:
+    # In-memory mode: no on-disk db, so no host volume. The previous on-disk setup mounted an
+    # untracked host dir; on the CI runner that dir does not exist, Docker created the bind mount
+    # as root, and DynamoDB-Local (non-root in the container) could not write its db file — so it
+    # started (port reachable) but served no API calls, hanging :persistence:dynamo:test.
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb-local
+    ports:
+      - "8001:8000"

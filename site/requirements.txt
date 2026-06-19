@@ -1,0 +1,3 @@
+# Outillage du site d'aide (MkDocs Material).
+# Épingler la version majeure pour des builds reproductibles.
+mkdocs-material>=9.5,<10

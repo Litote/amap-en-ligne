@@ -1,0 +1,43 @@
+{
+  "id": "member-role-change",
+  "title": "A member role change mutation is applied and the member is returned with updated roles",
+  "targets": ["flutter"],
+  "given": {
+    "backendState": "member with roles [COORDINATOR]",
+    "appState": "member cached in drift"
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": { "Member": "c1" },
+        "mutations": [
+          {
+            "client_op_id": "op-1",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Member",
+                "member": {
+                  "member_id": "m-1",
+                  "organization_id": "org-1",
+                  "roles": ["COORDINATOR", "ADMIN"],
+                  "active_status": true,
+                  "contracts": []
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "mutationOutcomes": [
+        { "clientOpId": "op-1", "status": "APPLIED", "serverEntityId": "m-1" }
+      ]
+    }
+  }
+}

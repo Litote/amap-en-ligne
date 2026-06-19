@@ -1,0 +1,92 @@
+{
+  "id": "sync-retry-idempotent-create-product-type",
+  "title": "Resending the same client_op_id after a lost response does not create a second entity",
+  "targets": ["server"],
+  "given": {
+    "backendState": "empty",
+    "appState": "fresh"
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": {},
+        "mutations": [
+          {
+            "client_op_id": "op-1",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "ProductType",
+                "productType": {
+                  "product_type_id": "tmp_vegetables",
+                  "producer_account_id": "producerAccountId",
+                  "name": "Vegetables",
+                  "supported_basket_sizes": [
+                    {
+                      "name": "small"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": {},
+        "mutations": [
+          {
+            "client_op_id": "op-1",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "ProductType",
+                "productType": {
+                  "product_type_id": "tmp_vegetables",
+                  "producer_account_id": "producerAccountId",
+                  "name": "Vegetables",
+                  "supported_basket_sizes": [
+                    {
+                      "name": "small"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-1",
+          "status": "APPLIED",
+          "serverEntityId": {
+            "kind": "present-and-not-equal",
+            "value": "tmp_vegetables"
+          }
+        }
+      ],
+      "snapshotByEntityType": {
+        "ProductType": {
+          "itemCount": 1,
+          "contains": [
+            {
+              "name": "Vegetables"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

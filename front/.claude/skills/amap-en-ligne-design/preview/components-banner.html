@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Banners & dividers</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .banner {
+    background: #F9DEDC; color: #410E0B; padding: 14px 16px; border-radius: 0;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .banner button { background: transparent; border: none; color: #410E0B; font: 500 14px/1 Roboto; letter-spacing:0.5px; cursor:pointer;}
+  .banner .icon { color: #B3261E; }
+  .hr { height: 1px; background: var(--outline-variant); margin: 16px 0; }
+  .progress { height: 4px; background: var(--surface-container-high); border-radius: 2px; overflow: hidden; margin-top: 18px;}
+  .progress > div { height: 100%; width: 60%; background: #4CAF50; }
+  .lbl { font-size: 10px; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="lbl">MaterialBanner — error</div>
+  <div class="banner">
+    <span><span class="icon material-symbols-outlined" style="vertical-align:-4px">error</span> Échec de la synchronisation : timeout.</span>
+    <button>RÉESSAYER</button>
+  </div>
+  <div class="lbl">Divider</div>
+  <div class="hr"></div>
+  <div class="lbl">LinearProgressIndicator (M3 default)</div>
+  <div class="progress"><div></div></div>
+</div>
+</body>
+</html>
