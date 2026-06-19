@@ -1,0 +1,88 @@
+{
+  "id": "volunteer-self-unregister",
+  "title": "A volunteer can remove their own registration from a slot they are already registered to",
+  "targets": ["volunteer-flow", "flutter"],
+  "given": {
+    "backendState": "organization:org-1 with a future CONFIRMED delivery:delivery-1 containing a STANDARD slot with capacity 2 and one existing registration for member:volunteer-1; member:volunteer-1 authorized on organization:org-1 with role VOLUNTEER",
+    "appState": "organization cache synchronized from bootstrap including the existing registration"
+  },
+  "when": [
+    {
+      "actor": "volunteer",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-unregister",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Organization",
+                "organization": {
+                  "organization_id": "org-1",
+                  "name": "AMAP des Collines",
+                  "contact_email": "contact@amap.example.com",
+                  "active_status": true,
+                  "timezone": "Europe/Paris",
+                  "default_language": "fr",
+                  "created_instant": "2025-01-01T00:00:00Z",
+                  "last_updated_instant": "2025-01-01T00:00:00Z",
+                  "producers": [],
+                  "products": [],
+                  "deliveries": [
+                    {
+                      "delivery_id": "delivery-1",
+                      "organization_id": "org-1",
+                      "scheduled_date": "2099-06-15T18:00:00",
+                      "status": "CONFIRMED",
+                      "min_volunteers_required": 2,
+                      "contracts": [
+                        {
+                          "contract_id": "contract-1",
+                          "coordinators": ["coordinator-1"],
+                          "basket_quantity": 10,
+                          "delivery_description": "Weekly basket",
+                          "status": "PENDING",
+                          "slots": [
+                            {
+                              "start_time": "2099-06-15T18:00:00",
+                              "end_time": "2099-06-15T20:00:00",
+                              "activity_type": "RECEPTION",
+                              "required_volunteers": 2,
+                              "current_registrations": 0,
+                              "status": "OPEN",
+                              "slot_kind": "STANDARD",
+                              "registrations": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-unregister",
+          "status": "APPLIED",
+          "serverEntityId": {
+            "kind": "equals",
+            "value": "org-1"
+          }
+        }
+      ]
+    }
+  }
+}

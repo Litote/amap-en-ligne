@@ -1,0 +1,86 @@
+{
+  "id": "contract-ended-rejects-new-subscription",
+  "title": "Adding a new member subscription to an ended contract is rejected with CONTRACT_ENDED",
+  "targets": ["contract-lifecycle"],
+  "given": {
+    "backendState": "organization:org-1 with a persisted Contract:contract-1 whose max_delivery_date is 2020-06-30 (past); member:admin-1 authorized on organization:org-1 with role ADMIN; member:member-1 already subscribed to contract-1",
+    "appState": "fresh organization cache synchronized from bootstrap"
+  },
+  "when": [
+    {
+      "actor": "admin",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-add-member",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Contract",
+                "contract": {
+                  "contract_id": "contract-1",
+                  "name": "Saison 2020",
+                  "organization_id": "org-1",
+                  "producer_account_id": "producer-1",
+                  "min_delivery_date": "2020-01-01",
+                  "max_delivery_date": "2020-06-30",
+                  "delivery_count": 26,
+                  "season_year": 2020,
+                  "product_prices": [
+                    {
+                      "product_type_id": "pt-tomato"
+                    },
+                    {
+                      "product_type_id": "pt-eggs"
+                    }
+                  ],
+                  "coordinators": [],
+                  "members": [
+                    {
+                      "member_id": "member-1",
+                      "subscription_instant": "2020-01-01T00:00:00Z",
+                      "status": "ACTIVE",
+                      "subscriptions": [
+                        {
+                          "product_type_id": "pt-tomato"
+                        }
+                      ]
+                    },
+                    {
+                      "member_id": "member-2",
+                      "subscription_instant": "2020-01-15T00:00:00Z",
+                      "status": "ACTIVE",
+                      "subscriptions": [
+                        {
+                          "product_type_id": "pt-eggs"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-add-member",
+          "status": "REJECTED",
+          "error": {
+            "code": "CONTRACT_ENDED"
+          }
+        }
+      ]
+    }
+  }
+}

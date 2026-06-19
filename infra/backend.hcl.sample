@@ -1,0 +1,12 @@
+# Partial S3 backend configuration — copy to `backend.hcl` (gitignored) and fill in.
+#
+#   cp infra/backend.hcl.sample infra/backend.hcl
+#
+# The bucket name is created by `make bootstrap` and embeds the AWS account id,
+# which is why it is kept out of version control. Retrieve it from the bootstrap
+# output (or `aws s3 ls | grep tfstate`).
+#
+# `terraform init` then picks it up via `-backend-config=backend.hcl`
+# (the Makefile `init` target passes this automatically).
+
+bucket = "amap-en-ligne-tfstate-XXXXXXXXXXXX"

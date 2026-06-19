@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Amap en Ligne · Public Web Kit</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  body { margin: 0; background: #E8EDE3; min-height: 100vh; font-family: 'Roboto', sans-serif; }
+  @keyframes amap-spin { to { transform: rotate(360deg);} }
+  .stage {
+    display: flex; flex-wrap: wrap; gap: 32px; padding: 40px;
+    justify-content: center; align-items: flex-start;
+  }
+  .stage-label {
+    text-align: center; font: 500 12px/1 'Roboto Mono', monospace;
+    letter-spacing: 0.6px; color: #43483E; margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .frame { display: flex; flex-direction: column; align-items: center; }
+  .toolbar {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    background: #FFFFFF; padding: 6px; border-radius: 9999px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    display: flex; gap: 4px; z-index: 10;
+  }
+  .toolbar button {
+    border: none; background: transparent; padding: 8px 14px; border-radius: 9999px;
+    font: 500 13px/1 Roboto; cursor: pointer; color: #43483E; white-space: nowrap;
+  }
+  .toolbar button.on { background: #B7F397; color: #042100; }
+  .mode-grid #single { display: none; }
+  .mode-single #grid { display: none; }
+  .mode-single .stage { padding: 40px 24px; }
+</style>
+</head>
+<body class="mode-grid">
+
+<div class="toolbar">
+  <button class="on" onclick="setMode('grid')">All screens</button>
+  <button onclick="setMode('single')">Single screen</button>
+</div>
+
+<!-- GRID: all 4 frames side-by-side, each its own MobileFrame -->
+<div id="grid" class="stage">
+  <div class="frame"><div class="stage-label">/  · Home</div><div id="r-home"></div></div>
+  <div class="frame"><div class="stage-label">/login</div><div id="r-login"></div></div>
+  <div class="frame"><div class="stage-label">/register</div><div id="r-register"></div></div>
+  <div class="frame"><div class="stage-label">/amap-search</div><div id="r-search"></div></div>
+</div>
+
+<!-- SINGLE: one App that navigates between routes -->
+<div id="single" class="stage">
+  <div class="frame">
+    <div class="stage-label">Click-thru · navigate using buttons inside the screen</div>
+    <div id="r-app"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" src="HomeScreen.jsx"></script>
+<script type="text/babel" src="LoginScreen.jsx"></script>
+<script type="text/babel" src="RegisterScreen.jsx"></script>
+<script type="text/babel" src="SearchScreen.jsx"></script>
+<script type="text/babel" src="App.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+// Mount after every other Babel script has finished — babel-standalone
+// transforms scripts asynchronously, so we poll until all components exist.
+function tryMount() {
+  if (!window.App || !window.HomeScreen || !window.LoginScreen || !window.RegisterScreen || !window.SearchScreen) {
+    return setTimeout(tryMount, 50);
+  }
+  const noop = () => {};
+  ReactDOM.createRoot(document.getElementById('r-home')).render(<HomeScreen go={noop}/>);
+  ReactDOM.createRoot(document.getElementById('r-login')).render(<LoginScreen go={noop}/>);
+  ReactDOM.createRoot(document.getElementById('r-register')).render(<RegisterScreen go={noop}/>);
+  ReactDOM.createRoot(document.getElementById('r-search')).render(<SearchScreen go={noop} preselectedOrg="org-1"/>);
+  ReactDOM.createRoot(document.getElementById('r-app')).render(<App/>);
+}
+tryMount();
+</script>
+<script>
+function setMode(m) {
+  document.body.className = 'mode-' + m;
+  document.querySelectorAll('.toolbar button').forEach(b => b.classList.remove('on'));
+  event.target.classList.add('on');
+}
+</script>
+
+</body>
+</html>

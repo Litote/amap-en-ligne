@@ -1,0 +1,5 @@
+# Sortie de build MkDocs
+_build/
+
+# Environnement virtuel local
+.venv/
