@@ -1,0 +1,76 @@
+{
+  "id": "contract-subscription-invalid-rejected",
+  "title": "Upsert contract with invalid member subscription (no match to product prices) is rejected with INVALID_SUBSCRIPTION",
+  "targets": ["contract-lifecycle"],
+  "given": {
+    "backendState": "empty",
+    "appState": "fresh"
+  },
+  "when": [
+    {
+      "actor": "admin",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-invalid-sub",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Contract",
+                "contract": {
+                  "contract_id": "contract-2",
+                  "name": "Saison 2025",
+                  "organization_id": "org-1",
+                  "producer_account_id": "producer-1",
+                  "min_delivery_date": "2025-01-01",
+                  "max_delivery_date": "2025-12-31",
+                  "delivery_count": 26,
+                  "season_year": 2025,
+                  "product_prices": [
+                    {
+                      "product_type_id": "pt-tomato"
+                    },
+                    {
+                      "product_type_id": "pt-eggs"
+                    }
+                  ],
+                  "coordinators": [],
+                  "members": [
+                    {
+                      "member_id": "member-1",
+                      "subscription_instant": "2025-01-01T00:00:00Z",
+                      "status": "ACTIVE",
+                      "subscriptions": [
+                        {
+                          "product_type_id": "pt-unknown"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-invalid-sub",
+          "status": "REJECTED",
+          "error": {
+            "code": "INVALID_SUBSCRIPTION"
+          }
+        }
+      ]
+    }
+  }
+}

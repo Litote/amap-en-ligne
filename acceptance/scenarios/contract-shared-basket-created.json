@@ -1,0 +1,87 @@
+{
+  "id": "contract-shared-basket-created",
+  "title": "Upsert a contract with a tmp_ shared basket grouping two members sharing an identical subscription is APPLIED and the contract is persisted",
+  "targets": ["contract-lifecycle"],
+  "given": {
+    "backendState": "empty; member:admin-1 authorized on organization:org-1 with role ADMIN",
+    "appState": "fresh"
+  },
+  "when": [
+    {
+      "actor": "admin",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-shared-basket",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Contract",
+                "contract": {
+                  "contract_id": "contract-shared",
+                  "name": "Saison partagée 2025",
+                  "organization_id": "org-1",
+                  "producer_account_id": "producer-1",
+                  "min_delivery_date": "2025-01-01",
+                  "max_delivery_date": "2025-12-31",
+                  "delivery_count": 26,
+                  "season_year": 2025,
+                  "product_prices": [
+                    {
+                      "product_type_id": "pt-tomato"
+                    }
+                  ],
+                  "coordinators": [],
+                  "members": [
+                    {
+                      "member_id": "member-1",
+                      "subscription_instant": "2025-01-01T00:00:00Z",
+                      "status": "ACTIVE",
+                      "subscriptions": [
+                        {
+                          "product_type_id": "pt-tomato"
+                        }
+                      ]
+                    },
+                    {
+                      "member_id": "member-2",
+                      "subscription_instant": "2025-01-01T00:00:00Z",
+                      "status": "ACTIVE",
+                      "subscriptions": [
+                        {
+                          "product_type_id": "pt-tomato"
+                        }
+                      ]
+                    }
+                  ],
+                  "shared_baskets": [
+                    {
+                      "shared_basket_id": "tmp_sb-1",
+                      "member_ids": ["member-1", "member-2"]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-shared-basket",
+          "status": "APPLIED",
+          "serverEntityId": { "kind": "equals", "value": "contract-shared" }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,80 @@
+name: E2E — Cross-component tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'back/**'
+      - 'front/**'
+      - 'acceptance/**'
+      - '.github/workflows/e2e.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'back/**'
+      - 'front/**'
+      - 'acceptance/**'
+      - '.github/workflows/e2e.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # ── API cross-component tests + Web UI (Playwright) ───────────────────────
+  # Requires Docker (Testcontainers: Postgres + GoTrue + MailHog) and Flutter.
+  # Mobile UI tests are skipped: no Android emulator in CI
+  # (E2E_SKIP_IF_NO_ANDROID_DEVICE defaults to true in E2eTestSupport).
+  cross-component:
+    name: Cross-component (API + Web UI)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          build-scan-publish: false
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          working-directory: front
+
+      - name: Install Flutter dependencies
+        working-directory: front
+        run: flutter pub get --enforce-lockfile
+
+      - name: Install Playwright Chromium
+        working-directory: back
+        run: ./gradlew :e2e:installPlaywrightBrowsers
+
+      - name: Run cross-component tests
+        working-directory: back
+        run: ./gradlew crossComponentTest
+        env:
+          # Mobile UI tests require an Android emulator — skip in CI
+          E2E_SKIP_IF_NO_ANDROID_DEVICE: "true"
+
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: playwright-traces
+          path: acceptance/e2e/build/reports/tests/
+          retention-days: 7

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+OWN_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+PROJECT_ROOT_DIR="$(realpath "${OWN_DIR}/..")"
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf -- "${TMP_DIR}"' EXIT
+
+assert_resolves_to() {
+  local path="$1" expected="$2"
+  local actual
+  actual="$(realpath -e "$path")"
+  if [[ "$actual" != "$expected" ]]; then
+    printf 'Assertion failed: %s resolves to %s, expected %s\n' "$path" "$actual" "$expected" >&2
+    exit 1
+  fi
+}
+
+mkdir -p "${TMP_DIR}/app/android"
+touch "${TMP_DIR}/app/settings.gradle.kts" "${TMP_DIR}/app/android/settings.gradle.kts"
+
+"${PROJECT_ROOT_DIR}/bin/gradle-init" "${TMP_DIR}/app/settings.gradle.kts"
+"${PROJECT_ROOT_DIR}/bin/gradle-init" "${TMP_DIR}/app/android/settings.gradle.kts"
+
+assert_resolves_to "${TMP_DIR}/app/gradlew" "${PROJECT_ROOT_DIR}/gradlew"
+assert_resolves_to "${TMP_DIR}/app/gradle.properties" "${PROJECT_ROOT_DIR}/gradle.properties"
+assert_resolves_to "${TMP_DIR}/app/gradle/wrapper" "${PROJECT_ROOT_DIR}/gradle/wrapper"
+
+assert_resolves_to "${TMP_DIR}/app/android/gradlew" "${PROJECT_ROOT_DIR}/gradlew"
+assert_resolves_to "${TMP_DIR}/app/android/gradle.properties" "${PROJECT_ROOT_DIR}/gradle.properties"
+assert_resolves_to "${TMP_DIR}/app/android/gradle/wrapper" "${PROJECT_ROOT_DIR}/gradle/wrapper"
+
+printf 'gradle-init symlink test passed\n'
