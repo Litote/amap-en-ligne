@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.80"
+      version = "~> 6.50"
     }
   }
   # Intentional local state — this bootstrap folder must never be deleted
