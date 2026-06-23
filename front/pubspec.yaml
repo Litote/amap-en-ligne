@@ -33,7 +33,7 @@ dependencies:
 
   # Network
   dio: 5.7.0
-  connectivity_plus: 6.1.0
+  connectivity_plus: 7.1.1
 
   # Auth providers — Dart-only Cognito client (no native plugins, web-friendly).
   # GoTrue is consumed directly via dio in data/auth/gotrue_auth_service.dart.
