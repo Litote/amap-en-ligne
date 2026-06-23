@@ -32,7 +32,7 @@ dependencies:
   path_provider: 2.1.5
 
   # Network
-  dio: 5.7.0
+  dio: 5.9.2
   connectivity_plus: 6.1.0
 
   # Auth providers — Dart-only Cognito client (no native plugins, web-friendly).
