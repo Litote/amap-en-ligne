@@ -1,8 +1,27 @@
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
+
 plugins {
     base
 }
 
 // ── Flutter tasks ──────────────────────────────────────────────────────────
+
+// `flutter test` writes shared bundle assets under build/unit_test_assets (e.g. compiled
+// shaders like ink_sparkle.frag). Two `flutter test` invocations in the same project race
+// on those writes and fail with "Could not write file ...". This only surfaces under
+// Gradle's parallel execution (org.gradle.parallel=true) — e.g. the CI `allAcceptanceTests`
+// job running frontAcceptanceTest and frontCrossComponentTest concurrently. A shared build
+// service capped at one usage serialises every flutter-test task without disabling
+// parallelism for the rest of the build.
+abstract class FlutterTestLockService : BuildService<BuildServiceParameters.None>
+
+val flutterTestLock = gradle.sharedServices.registerIfAbsent(
+    "flutterTestLock",
+    FlutterTestLockService::class.java,
+) {
+    maxParallelUsages.set(1)
+}
 
 // Resolve flutter executable from local.properties if available, fallback to PATH.
 val flutterBin = project.file("android/local.properties").let { propFile ->
@@ -35,6 +54,7 @@ val frontTest by tasks.registering(Exec::class) {
     group = "front"
     description = "Runs Flutter unit + widget + (scripted) acceptance tests with coverage."
     dependsOn(flutterPubGet)
+    usesService(flutterTestLock)
     workingDir = projectDir
     // --coverage generates coverage/lcov.info consumed by SonarQube. Acceptance
     // tests are scripted (real drift + fake SyncApi, no backend), so they run
@@ -64,6 +84,7 @@ val frontAcceptanceTest by tasks.registering(Exec::class) {
     group = "front"
     description = "Runs Flutter acceptance tests (cross-component tests run via frontCrossComponentTest only)."
     dependsOn(flutterPubGet)
+    usesService(flutterTestLock)
     workingDir = projectDir
     val resolvedFlutterCmd = flutterCmd
     commandLine(flutterCmd, "--version")
@@ -89,6 +110,7 @@ val frontCrossComponentTest by tasks.registering(Exec::class) {
     group = "front"
     description = "Runs Flutter cross-component acceptance tests (individually skipped when env vars absent)."
     dependsOn(flutterPubGet)
+    usesService(flutterTestLock)
     workingDir = projectDir
     // Placeholder — overridden in doFirst so per-run values (runId, testDeliveryDate,
     // .env reload) are computed at execution time, not cached by the configuration cache.

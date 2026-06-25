@@ -175,14 +175,8 @@ jobs:
         working-directory: back
         run: ./gradlew :e2e:installPlaywrightBrowsers
 
-      # `--no-parallel`: allAcceptanceTests aggregates `:e2e:test` (builds the Flutter web
-      # app in front/) and the front `flutter test` tasks (frontAcceptanceTest /
-      # frontCrossComponentTest), all writing under front/build. With Gradle's project-level
-      # parallelism (org.gradle.parallel=true) they race on front/build/unit_test_assets and
-      # fail with "Could not write file ... shaders/ink_sparkle.frag". Serial execution avoids
-      # the shared-directory collision (test-level forking inside each Test task is unaffected).
       - name: Run all acceptance tests
-        run: ./gradlew allAcceptanceTests --no-parallel
+        run: ./gradlew allAcceptanceTests
         env:
           # Mobile UI tests require an Android emulator — skip in CI
           E2E_SKIP_IF_NO_ANDROID_DEVICE: "true"
