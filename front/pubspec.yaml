@@ -37,7 +37,7 @@ dependencies:
 
   # Auth providers — Dart-only Cognito client (no native plugins, web-friendly).
   # GoTrue is consumed directly via dio in data/auth/gotrue_auth_service.dart.
-  amazon_cognito_identity_dart_2: 3.8.1
+  amazon_cognito_identity_dart_2: 4.0.0
 
   # UI
   google_fonts: 8.0.2
