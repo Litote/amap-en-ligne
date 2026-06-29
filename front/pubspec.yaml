@@ -53,7 +53,7 @@ dependencies:
   # Push notifications (FCM) — ADR-005. Native config (google-services.json /
   # GoogleService-Info.plist) is required for real delivery; with placeholder
   # config the app degrades gracefully (no token → no push, no crash).
-  firebase_core: 4.9.0
+  firebase_core: 4.11.0
   firebase_messaging: 16.2.2
   sentry_flutter: 9.21.0
 
