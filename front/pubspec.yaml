@@ -55,7 +55,7 @@ dependencies:
   # config the app degrades gracefully (no token → no push, no crash).
   firebase_core: 4.9.0
   firebase_messaging: 16.2.2
-  sentry_flutter: 9.21.0
+  sentry_flutter: 9.22.0
 
   # Utilities
   archive: 4.0.9
