@@ -5,7 +5,10 @@ import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/delivery_slots.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart'
-    show activeRegistrationsExcluding, deliveryCoordinatorIds, mainContractIdsOf;
+    show
+        activeRegistrationsExcluding,
+        deliveryCoordinatorIds,
+        mainContractIdsOf;
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
 import 'package:amap_en_ligne/domain/sync/mutation_outcome.dart';

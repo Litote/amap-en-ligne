@@ -832,9 +832,7 @@ class _CoordinatorContractsScreenState
           break;
         }
       }
-      final memberName = member != null
-          ? memberDisplayName(member)
-          : memberId;
+      final memberName = member != null ? memberDisplayName(member) : memberId;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Sélectionnez au moins un produit pour $memberName.'),

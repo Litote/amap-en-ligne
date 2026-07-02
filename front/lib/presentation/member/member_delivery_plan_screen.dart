@@ -123,9 +123,7 @@ class _MemberDeliveryPlanScreenState extends State<MemberDeliveryPlanScreen> {
       _updateState(() {
         _org = org;
         _loading = false;
-        if (org != null &&
-            !_autoMonthAdjusted &&
-            widget.initialMonth == null) {
+        if (org != null && !_autoMonthAdjusted && widget.initialMonth == null) {
           _selectedMonth = defaultPlanningMonth(org, DateTime.now());
           _autoMonthAdjusted = true;
         }

@@ -37,5 +37,8 @@ class _IntegrityProbeUser implements QueryExecutorUser {
   int get schemaVersion => 1;
 
   @override
-  Future<void> beforeOpen(QueryExecutor executor, OpeningDetails details) async {}
+  Future<void> beforeOpen(
+    QueryExecutor executor,
+    OpeningDetails details,
+  ) async {}
 }

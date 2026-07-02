@@ -6,6 +6,8 @@ import 'package:amap_en_ligne/domain/model/organization_creation_request.dart';
 import 'package:amap_en_ligne/domain/model/organization_request_response.dart';
 import 'package:dio/dio.dart';
 
+const _emptyBodyError = FormatException('Empty body');
+
 /// Client for the unauthenticated public endpoints.
 ///
 /// [backendUrl] is the base URL of the target instance.
@@ -45,7 +47,7 @@ class PublicApi {
         data: request.toJson(),
       );
       final body = response.data;
-      if (body == null) throw const FormatException('Empty body');
+      if (body == null) throw _emptyBodyError;
       return OrganizationRequestResponse.fromJson(body);
     } on DioException catch (e) {
       if (e.response?.statusCode == 409) {
@@ -75,7 +77,7 @@ class PublicApi {
         data: request.toJson(),
       );
       final body = response.data;
-      if (body == null) throw const FormatException('Empty body');
+      if (body == null) throw _emptyBodyError;
       return ProducerRequestResponse.fromJson(body);
     } on DioException catch (e) {
       if (e.response?.statusCode == 409) {
@@ -105,7 +107,7 @@ class PublicApi {
         data: request.toJson(),
       );
       final body = response.data;
-      if (body == null) throw const FormatException('Empty body');
+      if (body == null) throw _emptyBodyError;
       return MemberJoinRequestResponse.fromJson(body);
     } on DioException catch (e) {
       if (e.response?.statusCode == 409) {
@@ -136,7 +138,7 @@ class PublicApi {
         data: {'token': token, 'password': password},
       );
       final body = response.data;
-      if (body == null) throw const FormatException('Empty body');
+      if (body == null) throw _emptyBodyError;
       final kindStr = body['kind'] as String?;
       final kind = switch (kindStr) {
         'OWNER' => ActivationKind.owner,

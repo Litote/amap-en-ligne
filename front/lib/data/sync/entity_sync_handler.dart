@@ -254,6 +254,55 @@ final class ProducerAccountSyncHandler implements EntitySyncHandler {
     return db.remapProducerAccountId(oldId: localId, newId: serverEntityId);
   }
 
+  ClientMutation _rewriteProducerAccountPayload(
+    ClientMutation mutation,
+    ProducerAccountPayload payload,
+    String oldId,
+    String newId,
+  ) {
+    final producer = payload.producerAccount;
+    if (producer.producerAccountId != oldId) {
+      return mutation;
+    }
+    return mutation.copyWith(
+      op: Upsert(
+        payload: ProducerAccountPayload(
+          producerAccount: producer.copyWith(producerAccountId: newId),
+        ),
+      ),
+    );
+  }
+
+  ClientMutation _rewriteOrganizationPayload(
+    ClientMutation mutation,
+    OrganizationPayload payload,
+    String oldId,
+    String newId,
+  ) {
+    final organization = payload.organization;
+    final hasProducerReference = organization.producers.any(
+      (producer) => producer.producerAccountId == oldId,
+    );
+    if (!hasProducerReference) {
+      return mutation;
+    }
+    return mutation.copyWith(
+      op: Upsert(
+        payload: OrganizationPayload(
+          organization: organization.copyWith(
+            producers: organization.producers
+                .map(
+                  (producer) => producer.producerAccountId == oldId
+                      ? producer.copyWith(producerAccountId: newId)
+                      : producer,
+                )
+                .toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   ClientMutation rewriteMutationReference(
     ClientMutation mutation, {
@@ -263,43 +312,10 @@ final class ProducerAccountSyncHandler implements EntitySyncHandler {
     final op = mutation.op;
     if (op case Upsert(:final payload)) {
       if (payload is ProducerAccountPayload) {
-        final producer = payload.producerAccount;
-        if (producer.producerAccountId == oldId) {
-          return mutation.copyWith(
-            op: Upsert(
-              payload: ProducerAccountPayload(
-                producerAccount: producer.copyWith(producerAccountId: newId),
-              ),
-            ),
-          );
-        }
+        return _rewriteProducerAccountPayload(mutation, payload, oldId, newId);
       }
       if (payload is OrganizationPayload) {
-        final organization = payload.organization;
-        final hasProducerReference = organization.producers.any(
-          (producer) => producer.producerAccountId == oldId,
-        );
-        // NO_ACCOUNT products are no longer included in OrganizationPayload
-        // mutations — ProducerAccount.products is the single source of truth.
-        // Only rewrite the producers list reference.
-        if (!hasProducerReference) {
-          return mutation;
-        }
-        return mutation.copyWith(
-          op: Upsert(
-            payload: OrganizationPayload(
-              organization: organization.copyWith(
-                producers: organization.producers
-                    .map(
-                      (producer) => producer.producerAccountId == oldId
-                          ? producer.copyWith(producerAccountId: newId)
-                          : producer,
-                    )
-                    .toList(),
-              ),
-            ),
-          ),
-        );
+        return _rewriteOrganizationPayload(mutation, payload, oldId, newId);
       }
     }
     if (op case Delete(
@@ -566,6 +582,57 @@ final class ContractSyncHandler implements EntitySyncHandler {
     );
   }
 
+  ClientMutation _rewriteContractPayload(
+    ClientMutation mutation,
+    ContractPayload payload,
+    String oldId,
+    String newId,
+  ) {
+    final contract = payload.contract;
+    if (contract.contractId != oldId) return mutation;
+    return mutation.copyWith(
+      op: Upsert(
+        payload: ContractPayload(
+          contract: contract.copyWith(contractId: newId),
+        ),
+      ),
+    );
+  }
+
+  ClientMutation _rewriteOrganizationPayloadForContract(
+    ClientMutation mutation,
+    OrganizationPayload payload,
+    String oldId,
+    String newId,
+  ) {
+    final organization = payload.organization;
+    final hasContractReference = organization.deliveries.any(
+      (d) => d.contracts.any((dc) => dc.contractId == oldId),
+    );
+    if (!hasContractReference) return mutation;
+    return mutation.copyWith(
+      op: Upsert(
+        payload: OrganizationPayload(
+          organization: organization.copyWith(
+            deliveries: organization.deliveries.map((d) {
+              final hasRef = d.contracts.any((dc) => dc.contractId == oldId);
+              if (!hasRef) return d;
+              return d.copyWith(
+                contracts: d.contracts
+                    .map(
+                      (dc) => dc.contractId == oldId
+                          ? dc.copyWith(contractId: newId)
+                          : dc,
+                    )
+                    .toList(),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   ClientMutation rewriteMutationReference(
     ClientMutation mutation, {
@@ -575,44 +642,14 @@ final class ContractSyncHandler implements EntitySyncHandler {
     final op = mutation.op;
     if (op case Upsert(:final payload)) {
       if (payload is ContractPayload) {
-        final contract = payload.contract;
-        if (contract.contractId != oldId) return mutation;
-        return mutation.copyWith(
-          op: Upsert(
-            payload: ContractPayload(
-              contract: contract.copyWith(contractId: newId),
-            ),
-          ),
-        );
+        return _rewriteContractPayload(mutation, payload, oldId, newId);
       }
       if (payload is OrganizationPayload) {
-        final organization = payload.organization;
-        final hasContractReference = organization.deliveries.any(
-          (d) => d.contracts.any((dc) => dc.contractId == oldId),
-        );
-        if (!hasContractReference) return mutation;
-        return mutation.copyWith(
-          op: Upsert(
-            payload: OrganizationPayload(
-              organization: organization.copyWith(
-                deliveries: organization.deliveries.map((d) {
-                  final hasRef = d.contracts.any(
-                    (dc) => dc.contractId == oldId,
-                  );
-                  if (!hasRef) return d;
-                  return d.copyWith(
-                    contracts: d.contracts
-                        .map(
-                          (dc) => dc.contractId == oldId
-                              ? dc.copyWith(contractId: newId)
-                              : dc,
-                        )
-                        .toList(),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
+        return _rewriteOrganizationPayloadForContract(
+          mutation,
+          payload,
+          oldId,
+          newId,
         );
       }
       return mutation;

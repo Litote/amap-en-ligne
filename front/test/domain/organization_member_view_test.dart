@@ -592,10 +592,7 @@ void main() {
           cancelledReg('m-4'),
         ],
       );
-      expect(
-        activeRegistrationsExcluding(slot, {'coordinator-1'}),
-        3,
-      );
+      expect(activeRegistrationsExcluding(slot, {'coordinator-1'}), 3);
     });
 
     test('excludes multiple coordinators from the count', () {
@@ -608,20 +605,14 @@ void main() {
         ],
       );
       expect(
-        activeRegistrationsExcluding(
-          slot,
-          {'coordinator-1', 'coordinator-2'},
-        ),
+        activeRegistrationsExcluding(slot, {'coordinator-1', 'coordinator-2'}),
         2,
       );
     });
 
     test('ignores cancelled registrations even if not a coordinator', () {
       final slot = slotWith(
-        registrations: [
-          activeReg('m-1'),
-          cancelledReg('m-2'),
-        ],
+        registrations: [activeReg('m-1'), cancelledReg('m-2')],
       );
       expect(activeRegistrationsExcluding(slot, <String>{}), 1);
     });
@@ -637,10 +628,10 @@ void main() {
           ],
         );
         expect(
-          activeRegistrationsExcluding(
-            slot,
-            {'coordinator-1', 'coordinator-2'},
-          ),
+          activeRegistrationsExcluding(slot, {
+            'coordinator-1',
+            'coordinator-2',
+          }),
           1,
         );
       },

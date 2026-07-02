@@ -1017,31 +1017,30 @@ void main() {
     },
   );
 
-  testWidgets(
-    'subscription snackbar names the member, not their id',
-    (tester) async {
-      stubProductInclusion(contracts: [_emptyContract]);
-      when(
-        () => memberRepository.watch(any()),
-      ).thenAnswer((_) => Stream.value([_alice]));
+  testWidgets('subscription snackbar names the member, not their id', (
+    tester,
+  ) async {
+    stubProductInclusion(contracts: [_emptyContract]);
+    when(
+      () => memberRepository.watch(any()),
+    ).thenAnswer((_) => Stream.value([_alice]));
 
-      await startContractCreation(tester);
+    await startContractCreation(tester);
 
-      await tester.ensureVisible(find.text('Alice Durand'));
-      await tester.tap(find.text('Alice Durand'));
-      await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Alice Durand'));
+    await tester.tap(find.text('Alice Durand'));
+    await tester.pumpAndSettle();
 
-      await tester.ensureVisible(find.text('ENREGISTRER LE CONTRAT'));
-      await tester.tap(find.text('ENREGISTRER LE CONTRAT'));
-      await tester.pump();
+    await tester.ensureVisible(find.text('ENREGISTRER LE CONTRAT'));
+    await tester.tap(find.text('ENREGISTRER LE CONTRAT'));
+    await tester.pump();
 
-      expect(
-        find.text('Sélectionnez au moins un produit pour Alice Durand.'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('m-alice'), findsNothing);
-    },
-  );
+    expect(
+      find.text('Sélectionnez au moins un produit pour Alice Durand.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('m-alice'), findsNothing);
+  });
 
   testWidgets(
     'pre-fills subscriptions when editing a contract with existing members',

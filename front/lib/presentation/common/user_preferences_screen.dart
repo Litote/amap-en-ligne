@@ -604,7 +604,8 @@ class _OrganizationBackupCardState extends State<_OrganizationBackupCard> {
       // Pull the freshly-restored data back into the local cache.
       syncBloc.add(const SyncEvent.mutationApplied());
       final members = result['members'] ?? 0;
-      final warnings = (result['warnings'] as List?)?.cast<String>() ?? const [];
+      final warnings =
+          (result['warnings'] as List?)?.cast<String>() ?? const [];
       if (warnings.isNotEmpty && context.mounted) {
         await _showImportWarnings(context, members, warnings);
       } else {

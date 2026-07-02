@@ -597,10 +597,7 @@ class AppDatabase extends _$AppDatabase {
     ),
   );
 
-  Future<void> remapProducerAccountId({
-    required String oldId,
-    required String newId,
-  }) => transaction(() async {
+  Future<void> _remapProducerAccountRows(String oldId, String newId) async {
     final producerRows = await (select(
       producerAccounts,
     )..where((t) => t.producerAccountId.equals(oldId))).get();
@@ -624,7 +621,9 @@ class AppDatabase extends _$AppDatabase {
         ),
       );
     }
+  }
 
+  Future<void> _remapProductTypeRows(String oldId, String newId) async {
     final productTypeRows = await (select(
       productTypes,
     )..where((t) => t.producerAccountId.equals(oldId))).get();
@@ -642,7 +641,9 @@ class AppDatabase extends _$AppDatabase {
         productTypes,
       ).insertOnConflictUpdate(_toRow(updatedProductType));
     }
+  }
 
+  Future<void> _remapProducerInOrganizations(String oldId, String newId) async {
     final orgRows = await select(organizations).get();
     for (final row in orgRows) {
       final organization = Organization.fromJson(
@@ -675,6 +676,15 @@ class AppDatabase extends _$AppDatabase {
       );
       await upsertOrganization(updatedOrganization);
     }
+  }
+
+  Future<void> remapProducerAccountId({
+    required String oldId,
+    required String newId,
+  }) => transaction(() async {
+    await _remapProducerAccountRows(oldId, newId);
+    await _remapProductTypeRows(oldId, newId);
+    await _remapProducerInOrganizations(oldId, newId);
   });
 
   Future<void> deleteProducerAccount(
@@ -1594,31 +1604,7 @@ class AppDatabase extends _$AppDatabase {
     await upsertMember(organizationId, member);
   });
 
-  Future<void> remapContractId({
-    required String organizationId,
-    required String oldId,
-    required String newId,
-  }) => transaction(() async {
-    final existing =
-        await (select(contracts)..where(
-              (t) =>
-                  t.organizationId.equals(organizationId) &
-                  t.contractId.equals(oldId),
-            ))
-            .getSingleOrNull();
-    if (existing == null) return;
-    final contract = Contract.fromJson(
-      jsonDecode(existing.dataJson) as Map<String, dynamic>,
-    ).copyWith(contractId: newId);
-    await (delete(contracts)..where(
-          (t) =>
-              t.organizationId.equals(organizationId) &
-              t.contractId.equals(oldId),
-        ))
-        .go();
-    await upsertContract(organizationId, contract);
-
-    // Rewrite delivery[].contracts[].contractId references in organizations.
+  Future<void> _remapContractInOrganizations(String oldId, String newId) async {
     final orgRows = await select(organizations).get();
     for (final row in orgRows) {
       final organization = Organization.fromJson(
@@ -1645,6 +1631,32 @@ class AppDatabase extends _$AppDatabase {
       );
       await upsertOrganization(updatedOrg);
     }
+  }
+
+  Future<void> remapContractId({
+    required String organizationId,
+    required String oldId,
+    required String newId,
+  }) => transaction(() async {
+    final existing =
+        await (select(contracts)..where(
+              (t) =>
+                  t.organizationId.equals(organizationId) &
+                  t.contractId.equals(oldId),
+            ))
+            .getSingleOrNull();
+    if (existing == null) return;
+    final contract = Contract.fromJson(
+      jsonDecode(existing.dataJson) as Map<String, dynamic>,
+    ).copyWith(contractId: newId);
+    await (delete(contracts)..where(
+          (t) =>
+              t.organizationId.equals(organizationId) &
+              t.contractId.equals(oldId),
+        ))
+        .go();
+    await upsertContract(organizationId, contract);
+    await _remapContractInOrganizations(oldId, newId);
   });
 
   Future<void> remapMemberInvitationId({

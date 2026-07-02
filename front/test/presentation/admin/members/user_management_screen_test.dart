@@ -366,37 +366,34 @@ void main() {
       },
     );
 
-    testWidgets(
-      'GIVEN a member with no matching pending invitation '
-      'THEN the member row is still shown',
-      (tester) async {
-        when(() => memberRepo.watch(_orgId)).thenAnswer(
-          (_) => Stream.value([
-            Member(
-              memberId: 'carol-member',
-              organizationId: _orgId,
-              firstName: 'Carol',
-              lastName: 'Durand',
-              email: 'carol@example.com',
-              roles: const {Role.volunteer},
-            ),
-          ]),
-        );
-        when(
-          () => invitationRepo.watch(_orgId),
-        ).thenAnswer((_) => Stream.value([_invitation1]));
+    testWidgets('GIVEN a member with no matching pending invitation '
+        'THEN the member row is still shown', (tester) async {
+      when(() => memberRepo.watch(_orgId)).thenAnswer(
+        (_) => Stream.value([
+          Member(
+            memberId: 'carol-member',
+            organizationId: _orgId,
+            firstName: 'Carol',
+            lastName: 'Durand',
+            email: 'carol@example.com',
+            roles: const {Role.volunteer},
+          ),
+        ]),
+      );
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value([_invitation1]));
 
-        await _pumpScreen(
-          tester,
-          memberRepo: memberRepo,
-          invitationRepo: invitationRepo,
-        );
-        await tester.pump();
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
 
-        expect(find.text('Carol Durand'), findsOneWidget);
-        expect(find.byTooltip('Modifier les rôles'), findsOneWidget);
-      },
-    );
+      expect(find.text('Carol Durand'), findsOneWidget);
+      expect(find.byTooltip('Modifier les rôles'), findsOneWidget);
+    });
   });
 
   group('UserManagementScreen — members list & role editing', () {

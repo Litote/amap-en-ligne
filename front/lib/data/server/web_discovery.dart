@@ -5,6 +5,59 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+ServerConfig? _parseGoTrueAuth(
+  String origin,
+  String name,
+  String apiUrl,
+  Map<String, dynamic> auth,
+) {
+  final gotrueUrl = auth['base_url'] as String?;
+  if (gotrueUrl == null || gotrueUrl.isEmpty) {
+    return null;
+  }
+  return GoTrueServerConfig(
+    id: origin,
+    name: name,
+    backendUrl: apiUrl,
+    gotrueUrl: gotrueUrl,
+    discoveryUrl: '$origin/.well-known/amap-en-ligne.json',
+  );
+}
+
+ServerConfig? _parseCognitoAuth(
+  String origin,
+  String name,
+  String apiUrl,
+  Map<String, dynamic> auth,
+) {
+  final issuerUrl = auth['issuer_url'] as String?;
+  final clientId = auth['client_id'] as String?;
+  if (issuerUrl == null ||
+      issuerUrl.isEmpty ||
+      clientId == null ||
+      clientId.isEmpty) {
+    return null;
+  }
+  final issuerUri = Uri.tryParse(issuerUrl);
+  final pathSegments =
+      issuerUri?.pathSegments.where((s) => s.isNotEmpty).toList() ?? [];
+  final userPoolId = pathSegments.isNotEmpty ? pathSegments.last : '';
+  final hostParts = issuerUri?.host.split('.') ?? [];
+  final region = hostParts.length >= 3 ? hostParts[1] : 'us-east-1';
+  if (userPoolId.isEmpty) {
+    return null;
+  }
+  return CognitoServerConfig(
+    id: origin,
+    name: name,
+    backendUrl: apiUrl,
+    userPoolId: userPoolId,
+    clientId: clientId,
+    region: region,
+    discoveryUrl: '$origin/.well-known/amap-en-ligne.json',
+  );
+}
+
 /// Parses the `auth` block of the back's discovery document.
 ///
 /// The back emits:
@@ -34,49 +87,9 @@ ServerConfig? _parseDiscoveryResponse(
   final kind = auth['kind'] as String?;
   switch (kind) {
     case 'gotrue':
-      final gotrueUrl = auth['base_url'] as String?;
-      if (gotrueUrl == null || gotrueUrl.isEmpty) {
-        return null;
-      }
-      return GoTrueServerConfig(
-        id: origin,
-        name: name,
-        backendUrl: apiUrl,
-        gotrueUrl: gotrueUrl,
-        discoveryUrl: '$origin/.well-known/amap-en-ligne.json',
-      );
+      return _parseGoTrueAuth(origin, name, apiUrl, auth);
     case 'cognito':
-      final issuerUrl = auth['issuer_url'] as String?;
-      final clientId = auth['client_id'] as String?;
-      if (issuerUrl == null ||
-          issuerUrl.isEmpty ||
-          clientId == null ||
-          clientId.isEmpty) {
-        return null;
-      }
-      // Derive region from Cognito issuer URL:
-      // https://cognito-idp.<region>.amazonaws.com/<pool-id>
-      // Extract pool id as-is; region and pool id are both needed.
-      final issuerUri = Uri.tryParse(issuerUrl);
-      final pathSegments =
-          issuerUri?.pathSegments.where((s) => s.isNotEmpty).toList() ?? [];
-      final userPoolId = pathSegments.isNotEmpty ? pathSegments.last : '';
-      // Region is the second label of the Cognito IdP hostname.
-      final hostParts = issuerUri?.host.split('.') ?? [];
-      // cognito-idp.<region>.amazonaws.com → index 1
-      final region = hostParts.length >= 3 ? hostParts[1] : 'us-east-1';
-      if (userPoolId.isEmpty) {
-        return null;
-      }
-      return CognitoServerConfig(
-        id: origin,
-        name: name,
-        backendUrl: apiUrl,
-        userPoolId: userPoolId,
-        clientId: clientId,
-        region: region,
-        discoveryUrl: '$origin/.well-known/amap-en-ligne.json',
-      );
+      return _parseCognitoAuth(origin, name, apiUrl, auth);
     default:
       return null;
   }

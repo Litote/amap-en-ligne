@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 ///
 /// Once per-instance discovery is wired in, this file should remain only as a
 /// minimal offline/bootstrap fallback.
-final serverPresets = <ServerConfig>[
+final serverPresets = const <ServerConfig>[
   GoTrueServerConfig(
     id: 'local-dev-gotrue',
     name: 'Local dev (Supabase / GoTrue)',
