@@ -16,7 +16,7 @@
 angus-mail = "2.0.3"
 firebase-admin = "9.4.3"
 asyncant-lambda-runtime = "0.9.7"
-aws-dynamodb = "1.6.59-beta"
+aws-dynamodb = "1.6.102-beta"
 aws-sdk-kotlin = "1.6.59"
 coroutines = "1.10.2"
 flyway = "11.7.2"
