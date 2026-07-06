@@ -16,7 +16,7 @@ dependencies:
   amazon_cognito_identity_dart_2: 3.8.1
   archive: 4.0.9
   bloc: 9.2.0
-  connectivity_plus: 6.1.0
+  connectivity_plus: 7.2.0
   cupertino_icons: 1.0.9
   dio: 5.7.0
   drift: 2.32.1
