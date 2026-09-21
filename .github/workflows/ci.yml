@@ -100,7 +100,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Flutter
-        uses: ./.github/actions/setup-flutter
+        uses: $/.github/actions/setup-flutter
         with:
           working-directory: front
 
@@ -166,7 +166,7 @@ jobs:
           build-scan-publish: false
 
       - name: Setup Flutter
-        uses: ./.github/actions/setup-flutter
+        uses: $/.github/actions/setup-flutter
         with:
           working-directory: front
 
@@ -236,7 +236,7 @@ jobs:
       # issues + broken coverage attribution). Tests are NOT re-run here — coverage comes from
       # the downloaded lcov artifact; pub get only provides package resolution for the scan.
       - name: Setup Flutter
-        uses: ./.github/actions/setup-flutter
+        uses: $/.github/actions/setup-flutter
         with:
           working-directory: front
 
