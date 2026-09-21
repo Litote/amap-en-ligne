@@ -262,29 +262,38 @@ jobs:
           name: coverage-front
           path: front/coverage
 
-      # GitHub never exposes repo secrets to a fork's pull_request run, so SONAR_TOKEN is
+      # GitHub never exposes repo/org secrets to a fork's pull_request run, so SONAR_TOKEN is
       # legitimately absent there and the scan below is skipped — but that must be loud, not a
-      # silently-green job. A missing token outside that case is a real misconfiguration and
-      # must fail the job instead of quietly skipping the quality gate.
+      # silently-green job. The same restriction applies to PRs opened by dependabot[bot]: even
+      # though the head repo is the same repo (not a fork), GitHub withholds secrets from
+      # dependabot-triggered pull_request runs by design. A missing token outside those two cases
+      # is a real misconfiguration and must fail the job instead of quietly skipping the quality
+      # gate.
       - name: Check SONAR_TOKEN availability
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           EVENT_NAME: ${{ github.event_name }}
           HEAD_REPO_FULL_NAME: ${{ github.event.pull_request.head.repo.full_name }}
           REPOSITORY: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
         run: |
           if [[ -n "$SONAR_TOKEN" ]]; then
             exit 0
           fi
-          IS_FORK_PR="false"
+          IS_RESTRICTED_PR="false"
+          RESTRICTED_REASON=""
           if [[ "$EVENT_NAME" == "pull_request" && \
                 "$HEAD_REPO_FULL_NAME" != "$REPOSITORY" ]]; then
-            IS_FORK_PR="true"
+            IS_RESTRICTED_PR="true"
+            RESTRICTED_REASON="a fork pull request (GitHub does not share repo secrets with forks)"
+          elif [[ "$EVENT_NAME" == "pull_request" && "$ACTOR" == "dependabot[bot]" ]]; then
+            IS_RESTRICTED_PR="true"
+            RESTRICTED_REASON="a dependabot pull request (GitHub withholds secrets from dependabot-triggered runs even though the head repo isn't a fork)"
           fi
-          if [[ "$IS_FORK_PR" == "true" ]]; then
-            echo "::warning::SONAR_TOKEN is unavailable on this fork pull request (GitHub does not share repo secrets with forks) — SonarCloud analysis and the quality gate are SKIPPED for this run. A maintainer must re-run CI from a branch on the main repo (or merge) to get gate coverage."
+          if [[ "$IS_RESTRICTED_PR" == "true" ]]; then
+            echo "::warning::SONAR_TOKEN is unavailable on this run because it is $RESTRICTED_REASON — SonarCloud analysis and the quality gate are SKIPPED for this run. A maintainer must re-run CI from a branch on the main repo (or merge) to get gate coverage."
           else
-            echo "::error::SONAR_TOKEN secret is missing outside of a fork pull request — this is a misconfiguration, not an expected skip. Check the repository's Actions secrets."
+            echo "::error::SONAR_TOKEN secret is missing outside of a fork or dependabot pull request — this is a misconfiguration, not an expected skip. Check the repository's Actions secrets."
             exit 1
           fi
 
