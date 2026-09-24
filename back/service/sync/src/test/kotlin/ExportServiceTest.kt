@@ -17,12 +17,9 @@ import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationSyncDAO
 import persistence.dao.ProducerAccountSyncDAO
 import persistence.dao.ProductTypeSyncDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.BasketSize
-import persistence.model.DeliveryReminders
 import persistence.model.Member
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Organization
 import persistence.model.ProducerAccount
 import persistence.model.ProductType
@@ -54,13 +51,6 @@ internal class ExportServiceTest {
         Member(
             memberId = "member-1".toId(),
             organizationId = organizationId.toId(),
-            activeStatus = true,
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(1, "08:00"),
-                    accessibilityOptions = AccessibilityOptions(false, false, false),
-                    lastUpdatedInstant = now,
-                ),
             memberPreferences = MemberPreferences(true, true, now),
             userPreferences = UserPreferences(true, false, now),
             userSettings =

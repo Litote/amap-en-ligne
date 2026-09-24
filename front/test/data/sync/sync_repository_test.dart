@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:amap_en_ligne/data/local/database.dart';
@@ -328,38 +327,6 @@ void main() {
       },
     );
 
-    test(
-      'successful sync drops legacy pending rows that still have no scope',
-      () async {
-        await db.customStatement(
-          'INSERT INTO pending_mutations (client_op_id, scope_key, payload_json, created_at) '
-          'VALUES (?, NULL, ?, ?)',
-          [
-            'op-legacy',
-            '{"client_op_id":"op-legacy","op":{"type":"Delete","entity_type":"Member","entity_id":"member-missing"}}',
-            1,
-          ],
-        );
-
-        when(() => api.sync(any())).thenAnswer(
-          (_) async => const SyncResponse(
-            authorizedScopes: [testProducerScopeKey],
-            results: {
-              testProducerScopeKey: IncrementalScopeSyncResult(
-                nextCursor: 'c1',
-              ),
-            },
-          ),
-        );
-
-        await repo.sync(tenantId: testTenantId);
-
-        final captured =
-            verify(() => api.sync(captureAny())).captured.single as SyncRequest;
-        expect(captured.mutations, isEmpty);
-        expect(await db.readPendingMutations(), isEmpty);
-      },
-    );
   });
 
   group('mutation reconciliation', () {
@@ -659,70 +626,6 @@ void main() {
       },
     );
 
-    test(
-      'legacy delete without scope inherits scope and rewritten id after tmp remap',
-      () async {
-        const orgScope = 'organization:org-1';
-        const tmpMember = Member(
-          memberId: 'tmp_member',
-          organizationId: 'org-1',
-        );
-        await db.upsertMember('org-1', tmpMember);
-        await db.customStatement(
-          'INSERT INTO pending_mutations (client_op_id, scope_key, payload_json, created_at) '
-          'VALUES (?, NULL, ?, ?)',
-          [
-            'op-member-upsert',
-            jsonEncode(
-              const ClientMutation(
-                clientOpId: 'op-member-upsert',
-                op: Upsert(payload: MemberPayload(member: tmpMember)),
-              ),
-            ),
-            1,
-          ],
-        );
-        await db.customStatement(
-          'INSERT INTO pending_mutations (client_op_id, scope_key, payload_json, created_at) '
-          'VALUES (?, NULL, ?, ?)',
-          [
-            'op-member-delete',
-            jsonEncode(
-              const ClientMutation(
-                clientOpId: 'op-member-delete',
-                op: Delete(
-                  entityType: EntityType.member,
-                  entityId: 'tmp_member',
-                ),
-              ),
-            ),
-            2,
-          ],
-        );
-
-        when(() => api.sync(any())).thenAnswer(
-          (_) async => const SyncResponse(
-            authorizedScopes: [orgScope],
-            mutations: [
-              MutationOutcome(
-                clientOpId: 'op-member-upsert',
-                status: MutationStatus.applied,
-                serverEntityId: 'member-1',
-              ),
-            ],
-          ),
-        );
-
-        await repo.sync(tenantId: testTenantId);
-
-        final pending = await db.readPendingMutationEntries();
-        expect(pending, hasLength(1));
-        expect(pending.single.scopeKey, orgScope);
-        final delete = pending.single.mutation.op as Delete;
-        expect(delete.entityId, 'member-1');
-      },
-    );
-
     test('REJECTED is surfaced and pending entry is still drained', () async {
       final mutation = buildProductTypeDeleteMutation(
         clientOpId: 'op-bad',
@@ -866,6 +769,22 @@ void main() {
             statusCode: 500,
             requestOptions: requestOptions,
             response: Response(requestOptions: requestOptions, statusCode: 500),
+          ),
+        );
+        final outcome = await repo.sync(tenantId: testTenantId);
+        expect(outcome, isA<SyncFailure>());
+      },
+    );
+
+    test(
+      'returns SyncFailure (not SyncNetworkFailure) on a transform timeout',
+      () async {
+        // The server answered; only decoding the response exceeded the
+        // timeout, so the server is reachable.
+        when(() => api.sync(any())).thenThrow(
+          DioException.transformTimeout(
+            requestOptions: RequestOptions(path: '/v1/sync'),
+            timeout: const Duration(seconds: 5),
           ),
         );
         final outcome = await repo.sync(tenantId: testTenantId);

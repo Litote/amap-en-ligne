@@ -63,7 +63,6 @@ import persistence.dao.ProducerRequestDAO
 import persistence.dao.ProducerRequestSyncDAO
 import persistence.dao.ProducerSyncDAO
 import persistence.dao.ProductTypeSyncDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.AppliedClientOp
 import persistence.model.BasketExchange
 import persistence.model.BasketExchangeStatus
@@ -72,13 +71,11 @@ import persistence.model.Contract
 import persistence.model.Delivery
 import persistence.model.DeliveryContract
 import persistence.model.DeliveryContractStatus
-import persistence.model.DeliveryReminders
 import persistence.model.DeliveryStatus
 import persistence.model.DeliveryTemplate
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Organization
 import persistence.model.OrganizationProducer
 import persistence.model.OrganizationProducerStatus
@@ -729,13 +726,6 @@ internal class DataServiceTest {
                 Member(
                     memberId = "member-1".toId(),
                     organizationId = "org-1".toId(),
-                    activeStatus = true,
-                    memberSettings =
-                        MemberSettings(
-                            deliveryReminders = DeliveryReminders(1, "08:00"),
-                            accessibilityOptions = AccessibilityOptions(false, false, false),
-                            lastUpdatedInstant = Instant.fromEpochMilliseconds(1),
-                        ),
                     memberPreferences = MemberPreferences(true, true, Instant.fromEpochMilliseconds(1)),
                     userPreferences = UserPreferences(true, false, Instant.fromEpochMilliseconds(1)),
                     userSettings =

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'auth_event.dart';
@@ -9,6 +9,7 @@ part of 'auth_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$AuthEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AuthEvent()';
+    return 'AuthEvent()';
 }
 
 
@@ -215,7 +216,7 @@ class AuthStarted implements AuthEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthStarted);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthStarted);
 }
 
 
@@ -224,7 +225,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AuthEvent.started()';
+    return 'AuthEvent.started()';
 }
 
 
@@ -252,16 +253,18 @@ $AuthSessionChangedCopyWith<AuthSessionChanged> get copyWith => _$AuthSessionCha
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthSessionChanged&&(identical(other.session, session) || other.session == session));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthSessionChanged&&(identical(other.session, session) || other.session == session));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,session);
+int get hashCode {
+    return Object.hash(runtimeType,session);
+}
 
 @override
 String toString() {
-  return 'AuthEvent.sessionChanged(session: $session)';
+    return 'AuthEvent.sessionChanged(session: $session)';
 }
 
 
@@ -327,16 +330,18 @@ $AuthOrganizationIdChangedCopyWith<AuthOrganizationIdChanged> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthOrganizationIdChanged&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthOrganizationIdChanged&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationId);
+int get hashCode {
+    return Object.hash(runtimeType,organizationId);
+}
 
 @override
 String toString() {
-  return 'AuthEvent.organizationIdChanged(organizationId: $organizationId)';
+    return 'AuthEvent.organizationIdChanged(organizationId: $organizationId)';
 }
 
 
@@ -394,16 +399,18 @@ $AuthMemberNameUpdatedCopyWith<AuthMemberNameUpdated> get copyWith => _$AuthMemb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthMemberNameUpdated&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthMemberNameUpdated&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,firstName,lastName);
+int get hashCode {
+    return Object.hash(runtimeType,firstName,lastName);
+}
 
 @override
 String toString() {
-  return 'AuthEvent.memberNameUpdated(firstName: $firstName, lastName: $lastName)';
+    return 'AuthEvent.memberNameUpdated(firstName: $firstName, lastName: $lastName)';
 }
 
 
@@ -446,7 +453,7 @@ as String?,
 
 
 class AuthMemberRolesUpdated implements AuthEvent {
-  const AuthMemberRolesUpdated(final  Set<Role> roles): _roles = roles;
+  const AuthMemberRolesUpdated( Set<Role> roles): _roles = roles;
   
 
  final  Set<Role> _roles;
@@ -467,16 +474,18 @@ $AuthMemberRolesUpdatedCopyWith<AuthMemberRolesUpdated> get copyWith => _$AuthMe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthMemberRolesUpdated&&const DeepCollectionEquality().equals(other._roles, _roles));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthMemberRolesUpdated&&const DeepCollectionEquality().equals(other.roles, _roles));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_roles));
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_roles));
+}
 
 @override
 String toString() {
-  return 'AuthEvent.memberRolesUpdated(roles: $roles)';
+    return 'AuthEvent.memberRolesUpdated(roles: $roles)';
 }
 
 
@@ -535,16 +544,18 @@ $AuthLoginSubmittedCopyWith<AuthLoginSubmitted> get copyWith => _$AuthLoginSubmi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoginSubmitted&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.rememberMe, rememberMe) || other.rememberMe == rememberMe));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoginSubmitted&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.rememberMe, rememberMe) || other.rememberMe == rememberMe));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,email,password,rememberMe);
+int get hashCode {
+    return Object.hash(runtimeType,email,password,rememberMe);
+}
 
 @override
 String toString() {
-  return 'AuthEvent.loginSubmitted(email: $email, password: $password, rememberMe: $rememberMe)';
+    return 'AuthEvent.loginSubmitted(email: $email, password: $password, rememberMe: $rememberMe)';
 }
 
 
@@ -598,7 +609,7 @@ class AuthLogoutRequested implements AuthEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLogoutRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLogoutRequested);
 }
 
 
@@ -607,7 +618,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AuthEvent.logoutRequested()';
+    return 'AuthEvent.logoutRequested()';
 }
 
 

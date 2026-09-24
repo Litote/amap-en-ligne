@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'scope_sync_result.dart';
@@ -9,6 +9,7 @@ part of 'scope_sync_result.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $BootstrapScopeSyncResultCopyWith<BootstrapScopeSyncResult> get copyWith => _$Bo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BootstrapScopeSyncResult&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor));
+  final _this = this as BootstrapScopeSyncResult;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BootstrapScopeSyncResult&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.nextCursor, _this.nextCursor) || other.nextCursor == _this.nextCursor));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),nextCursor);
+int get hashCode {
+  final _this = this as BootstrapScopeSyncResult;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.items),_this.nextCursor);
+}
 
 @override
 String toString() {
-  return 'BootstrapScopeSyncResult(items: $items, nextCursor: $nextCursor)';
+  final _this = this as BootstrapScopeSyncResult;
+  return 'BootstrapScopeSyncResult(items: ${_this.items}, nextCursor: ${_this.nextCursor})';
 }
 
 
@@ -63,7 +69,7 @@ class _$BootstrapScopeSyncResultCopyWithImpl<$Res>
 /// Create a copy of BootstrapScopeSyncResult
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? nextCursor = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(BootstrapScopeSyncResult(
 items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
 as List<EntityPayload>,nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -207,7 +213,7 @@ return $default(_that.items,_that.nextCursor);case _:
 
 
 class _BootstrapScopeSyncResult extends BootstrapScopeSyncResult {
-  const _BootstrapScopeSyncResult({final  List<EntityPayload> items = const <EntityPayload>[], @JsonKey(name: 'next_cursor') this.nextCursor}): _items = items,super._();
+  const _BootstrapScopeSyncResult({ List<EntityPayload> items = const <EntityPayload>[], @JsonKey(name: 'next_cursor') this.nextCursor}): _items = items,super._();
   
 
  final  List<EntityPayload> _items;
@@ -229,16 +235,18 @@ _$BootstrapScopeSyncResultCopyWith<_BootstrapScopeSyncResult> get copyWith => __
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BootstrapScopeSyncResult&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BootstrapScopeSyncResult&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),nextCursor);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),nextCursor);
+}
 
 @override
 String toString() {
-  return 'BootstrapScopeSyncResult(items: $items, nextCursor: $nextCursor)';
+    return 'BootstrapScopeSyncResult(items: $items, nextCursor: $nextCursor)';
 }
 
 
@@ -291,16 +299,21 @@ $IncrementalScopeSyncResultCopyWith<IncrementalScopeSyncResult> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is IncrementalScopeSyncResult&&const DeepCollectionEquality().equals(other.changes, changes)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor));
+  final _this = this as IncrementalScopeSyncResult;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IncrementalScopeSyncResult&&const DeepCollectionEquality().equals(other.changes, _this.changes)&&(identical(other.nextCursor, _this.nextCursor) || other.nextCursor == _this.nextCursor));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(changes),nextCursor);
+int get hashCode {
+  final _this = this as IncrementalScopeSyncResult;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.changes),_this.nextCursor);
+}
 
 @override
 String toString() {
-  return 'IncrementalScopeSyncResult(changes: $changes, nextCursor: $nextCursor)';
+  final _this = this as IncrementalScopeSyncResult;
+  return 'IncrementalScopeSyncResult(changes: ${_this.changes}, nextCursor: ${_this.nextCursor})';
 }
 
 
@@ -329,7 +342,7 @@ class _$IncrementalScopeSyncResultCopyWithImpl<$Res>
 /// Create a copy of IncrementalScopeSyncResult
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? changes = null,Object? nextCursor = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(IncrementalScopeSyncResult(
 changes: null == changes ? _self.changes : changes // ignore: cast_nullable_to_non_nullable
 as List<Change>,nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -473,7 +486,7 @@ return $default(_that.changes,_that.nextCursor);case _:
 
 
 class _IncrementalScopeSyncResult extends IncrementalScopeSyncResult {
-  const _IncrementalScopeSyncResult({final  List<Change> changes = const <Change>[], @JsonKey(name: 'next_cursor') this.nextCursor}): _changes = changes,super._();
+  const _IncrementalScopeSyncResult({ List<Change> changes = const <Change>[], @JsonKey(name: 'next_cursor') this.nextCursor}): _changes = changes,super._();
   
 
  final  List<Change> _changes;
@@ -495,16 +508,18 @@ _$IncrementalScopeSyncResultCopyWith<_IncrementalScopeSyncResult> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IncrementalScopeSyncResult&&const DeepCollectionEquality().equals(other._changes, _changes)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _IncrementalScopeSyncResult&&const DeepCollectionEquality().equals(other.changes, _changes)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_changes),nextCursor);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_changes),nextCursor);
+}
 
 @override
 String toString() {
-  return 'IncrementalScopeSyncResult(changes: $changes, nextCursor: $nextCursor)';
+    return 'IncrementalScopeSyncResult(changes: $changes, nextCursor: $nextCursor)';
 }
 
 

@@ -12,13 +12,10 @@ import persistence.changes.ChangeOp
 import persistence.changes.Cursor
 import persistence.changes.MemberPayload
 import persistence.changes.SyncScope
-import persistence.model.AccessibilityOptions
-import persistence.model.DeliveryReminders
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Organization
 import persistence.model.UserPreferences
 import persistence.model.UserSettings
@@ -48,18 +45,6 @@ abstract class MemberSyncDAOContractTest {
         Member(
             memberId = memberId.toId(),
             organizationId = organizationId.toId(),
-            activeStatus = true,
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                    accessibilityOptions =
-                        AccessibilityOptions(
-                            highContrast = false,
-                            largeText = false,
-                            screenReader = false,
-                        ),
-                    lastUpdatedInstant = Instant.fromEpochMilliseconds(1_000_000L),
-                ),
             memberPreferences =
                 MemberPreferences(
                     deliveryRemindersEnabled = true,
@@ -195,18 +180,18 @@ abstract class MemberSyncDAOContractTest {
         }
 
     @Test
-    fun `GIVEN a member WHEN put updated version THEN getByOrganizationId returns updated`() =
+    fun `GIVEN a member WHEN put updated account status THEN getByOrganizationId returns updated`() =
         runTest {
             val orgId = newOrganizationId()
             insertOrganization(orgId)
             val member = buildMember(organizationId = orgId)
             memberSyncDAO.put(member, listOf(buildUpsertChange(member, orgId)))
 
-            val updated = member.copy(activeStatus = false)
+            val updated = member.copy(accountStatus = MemberAccountStatus.SUSPENDED)
             memberSyncDAO.put(updated, listOf(buildUpsertChange(updated, orgId)))
 
             val result = memberSyncDAO.getByOrganizationId(orgId.toId())
-            assertEquals(false, result.first().activeStatus)
+            assertEquals(MemberAccountStatus.SUSPENDED, result.first().accountStatus)
         }
 
     @Test
@@ -287,41 +272,40 @@ abstract class MemberSyncDAOContractTest {
         }
 
     @Test
-    fun `GIVEN an active member WHEN setActiveStatusBySub(false) THEN the row is suspended`() =
+    fun `GIVEN an active member WHEN setAccountStatusBySub(SUSPENDED) THEN the row is suspended`() =
         runTest {
             val orgId = newOrganizationId()
             insertOrganization(orgId)
             val sub = "sub-${UUID.randomUUID()}"
-            val member = buildMember(memberId = sub, organizationId = orgId).copy(activeStatus = true)
+            val member = buildMember(memberId = sub, organizationId = orgId)
             memberSyncDAO.put(member, listOf(buildUpsertChange(member, orgId)))
 
-            val suspended = member.copy(activeStatus = false)
-            memberSyncDAO.setActiveStatusBySub(
+            val suspended = member.copy(accountStatus = MemberAccountStatus.SUSPENDED)
+            memberSyncDAO.setAccountStatusBySub(
                 sub,
-                activeStatus = false,
+                accountStatus = MemberAccountStatus.SUSPENDED,
                 changes = listOf(buildUpsertChange(suspended, orgId)),
             )
 
             val result = memberSyncDAO.getMembersBySub(sub)
             assertEquals(1, result.size)
-            assertEquals(false, result.first().activeStatus)
+            assertEquals(MemberAccountStatus.SUSPENDED, result.first().accountStatus)
         }
 
     @Test
-    fun `GIVEN a member WHEN anonymiseBySub THEN PII is cleared and active_status false`() =
+    fun `GIVEN a member WHEN anonymiseBySub THEN PII is cleared and account_status is SUSPENDED`() =
         runTest {
             val orgId = newOrganizationId()
             insertOrganization(orgId)
             val sub = "sub-${UUID.randomUUID()}"
             val member =
                 buildMember(memberId = sub, organizationId = orgId).copy(
-                    activeStatus = true,
                     firstName = "Alice",
                     email = "alice@example.org",
                 )
             memberSyncDAO.put(member, listOf(buildUpsertChange(member, orgId)))
 
-            val anonymised = member.copy(activeStatus = false, firstName = null, email = null)
+            val anonymised = member.copy(firstName = null, email = null, accountStatus = MemberAccountStatus.SUSPENDED)
             memberSyncDAO.anonymiseBySub(
                 sub,
                 changes = listOf(buildUpsertChange(anonymised, orgId)),
@@ -329,7 +313,9 @@ abstract class MemberSyncDAOContractTest {
 
             val byOrg = memberSyncDAO.getByOrganizationId(orgId.toId())
             val row = byOrg.single { it.memberId == member.memberId }
-            assertEquals(false, row.activeStatus)
+            assertEquals(null, row.firstName)
+            assertEquals(null, row.email)
+            assertEquals(MemberAccountStatus.SUSPENDED, row.accountStatus)
         }
 
     @Test
@@ -357,12 +343,11 @@ abstract class MemberSyncDAOContractTest {
         }
 
     @Test
-    fun `GIVEN a legacy member without PII WHEN put THEN round-trip keeps the new fields null`() =
+    fun `GIVEN a member without PII WHEN put THEN round-trip keeps PII null and accountStatus is ACTIVE`() =
         runTest {
             val orgId = newOrganizationId()
             insertOrganization(orgId)
-            // Default-built member has null firstName/lastName/email/phone/accountStatus,
-            // matching legacy rows created before V22.
+            // A member without PII represents a non-activated invited member.
             val member = buildMember(organizationId = orgId)
 
             memberSyncDAO.put(member, listOf(buildUpsertChange(member, orgId)))
@@ -372,6 +357,6 @@ abstract class MemberSyncDAOContractTest {
             assertEquals(null, result.lastName)
             assertEquals(null, result.email)
             assertEquals(null, result.phone)
-            assertEquals(null, result.accountStatus)
+            assertEquals(MemberAccountStatus.ACTIVE, result.accountStatus)
         }
 }

@@ -122,6 +122,7 @@ jobs:
           TF_VAR_initial_owner_email: ${{ secrets.TF_VAR_INITIAL_OWNER_EMAIL }}
           TF_VAR_initial_owner_temp_password: ${{ secrets.TF_VAR_INITIAL_OWNER_TEMP_PASSWORD }}
           TF_VAR_ses_from_email: ${{ secrets.TF_VAR_SES_FROM_EMAIL }}
+          TF_VAR_ses_create_identity: ${{ vars.SES_CREATE_IDENTITY || 'true' }}
 
   # ── Terraform apply ───────────────────────────────────────────────────────
   # Push to main → dev. Manual dispatch → the chosen target (dev or prod).
@@ -178,6 +179,7 @@ jobs:
           TF_VAR_initial_owner_email: ${{ secrets.TF_VAR_INITIAL_OWNER_EMAIL }}
           TF_VAR_initial_owner_temp_password: ${{ secrets.TF_VAR_INITIAL_OWNER_TEMP_PASSWORD }}
           TF_VAR_ses_from_email: ${{ secrets.TF_VAR_SES_FROM_EMAIL }}
+          TF_VAR_ses_create_identity: ${{ vars.SES_CREATE_IDENTITY || 'true' }}
 
   # ── Lambda function code deploy ───────────────────────────────────────────
   deploy-function:

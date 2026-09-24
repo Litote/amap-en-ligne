@@ -293,7 +293,8 @@ extension ProducerDeliveriesX on Organization {
 extension OrganizationDeliveryProductsX on Organization {
   /// Returns [Contract]s that are active (date-wise) for the given [Delivery].
   /// If [contracts] is empty or doesn't contain the contract, returns the
-  /// [DeliveryContract] IDs as-is (fallback for backward compatibility).
+  /// [DeliveryContract] IDs as-is (defensive fallback when the caller has not
+  /// loaded the contract list yet).
   List<DeliveryContract> activeContractsForDelivery(
     Delivery delivery, {
     List<Contract> contracts = const [],

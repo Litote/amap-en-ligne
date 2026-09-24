@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'basket_exchange.dart';
@@ -9,19 +9,14 @@ part of 'basket_exchange.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$BasketExchangeRequest {
 
-@JsonKey(name: 'request_id') String get requestId;@JsonKey(name: 'requester_member_id') String get requesterMemberId;// ISO-8601 instant string, e.g. "2026-05-26T12:00:00Z".
-@JsonKey(name: 'created_at') String get createdAt; BasketExchangeRequestStatus get status;// ISO-8601 instant string; null/absent when not yet decided.
-@JsonKey(name: 'decided_at') String? get decidedAt;// Reciprocal swap: the delivery (and optional contract) the requester offers
-// in return. The offerer receives this basket when validating the request.
-// Required at submission time (enforced by the back); nullable on the wire for
-// robustness / legacy rows.
-@JsonKey(name: 'proposed_delivery_id') String? get proposedDeliveryId;@JsonKey(name: 'proposed_contract_id') String? get proposedContractId;
+@JsonKey(name: 'request_id') String get requestId;@JsonKey(name: 'requester_member_id') String get requesterMemberId;@JsonKey(name: 'created_at') String get createdAt; BasketExchangeRequestStatus get status;@JsonKey(name: 'decided_at') String? get decidedAt;@JsonKey(name: 'proposed_delivery_id') String? get proposedDeliveryId;@JsonKey(name: 'proposed_contract_id') String? get proposedContractId;
 /// Create a copy of BasketExchangeRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -34,16 +29,21 @@ $BasketExchangeRequestCopyWith<BasketExchangeRequest> get copyWith => _$BasketEx
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.requesterMemberId, requesterMemberId) || other.requesterMemberId == requesterMemberId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.status, status) || other.status == status)&&(identical(other.decidedAt, decidedAt) || other.decidedAt == decidedAt)&&(identical(other.proposedDeliveryId, proposedDeliveryId) || other.proposedDeliveryId == proposedDeliveryId)&&(identical(other.proposedContractId, proposedContractId) || other.proposedContractId == proposedContractId));
+  final _this = this as BasketExchangeRequest;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequest&&(identical(other.requestId, _this.requestId) || other.requestId == _this.requestId)&&(identical(other.requesterMemberId, _this.requesterMemberId) || other.requesterMemberId == _this.requesterMemberId)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.decidedAt, _this.decidedAt) || other.decidedAt == _this.decidedAt)&&(identical(other.proposedDeliveryId, _this.proposedDeliveryId) || other.proposedDeliveryId == _this.proposedDeliveryId)&&(identical(other.proposedContractId, _this.proposedContractId) || other.proposedContractId == _this.proposedContractId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,requesterMemberId,createdAt,status,decidedAt,proposedDeliveryId,proposedContractId);
+int get hashCode {
+  final _this = this as BasketExchangeRequest;
+  return Object.hash(runtimeType,_this.requestId,_this.requesterMemberId,_this.createdAt,_this.status,_this.decidedAt,_this.proposedDeliveryId,_this.proposedContractId);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeRequest(requestId: $requestId, requesterMemberId: $requesterMemberId, createdAt: $createdAt, status: $status, decidedAt: $decidedAt, proposedDeliveryId: $proposedDeliveryId, proposedContractId: $proposedContractId)';
+  final _this = this as BasketExchangeRequest;
+  return 'BasketExchangeRequest(requestId: ${_this.requestId}, requesterMemberId: ${_this.requesterMemberId}, createdAt: ${_this.createdAt}, status: ${_this.status}, decidedAt: ${_this.decidedAt}, proposedDeliveryId: ${_this.proposedDeliveryId}, proposedContractId: ${_this.proposedContractId})';
 }
 
 
@@ -72,7 +72,7 @@ class _$BasketExchangeRequestCopyWithImpl<$Res>
 /// Create a copy of BasketExchangeRequest
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? requestId = null,Object? requesterMemberId = null,Object? createdAt = null,Object? status = null,Object? decidedAt = freezed,Object? proposedDeliveryId = freezed,Object? proposedContractId = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(BasketExchangeRequest(
 requestId: null == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String,requesterMemberId: null == requesterMemberId ? _self.requesterMemberId : requesterMemberId // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
@@ -226,15 +226,9 @@ class _BasketExchangeRequest implements BasketExchangeRequest {
 
 @override@JsonKey(name: 'request_id') final  String requestId;
 @override@JsonKey(name: 'requester_member_id') final  String requesterMemberId;
-// ISO-8601 instant string, e.g. "2026-05-26T12:00:00Z".
 @override@JsonKey(name: 'created_at') final  String createdAt;
 @override final  BasketExchangeRequestStatus status;
-// ISO-8601 instant string; null/absent when not yet decided.
 @override@JsonKey(name: 'decided_at') final  String? decidedAt;
-// Reciprocal swap: the delivery (and optional contract) the requester offers
-// in return. The offerer receives this basket when validating the request.
-// Required at submission time (enforced by the back); nullable on the wire for
-// robustness / legacy rows.
 @override@JsonKey(name: 'proposed_delivery_id') final  String? proposedDeliveryId;
 @override@JsonKey(name: 'proposed_contract_id') final  String? proposedContractId;
 
@@ -251,16 +245,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketExchangeRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.requesterMemberId, requesterMemberId) || other.requesterMemberId == requesterMemberId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.status, status) || other.status == status)&&(identical(other.decidedAt, decidedAt) || other.decidedAt == decidedAt)&&(identical(other.proposedDeliveryId, proposedDeliveryId) || other.proposedDeliveryId == proposedDeliveryId)&&(identical(other.proposedContractId, proposedContractId) || other.proposedContractId == proposedContractId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketExchangeRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.requesterMemberId, requesterMemberId) || other.requesterMemberId == requesterMemberId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.status, status) || other.status == status)&&(identical(other.decidedAt, decidedAt) || other.decidedAt == decidedAt)&&(identical(other.proposedDeliveryId, proposedDeliveryId) || other.proposedDeliveryId == proposedDeliveryId)&&(identical(other.proposedContractId, proposedContractId) || other.proposedContractId == proposedContractId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,requesterMemberId,createdAt,status,decidedAt,proposedDeliveryId,proposedContractId);
+int get hashCode {
+    return Object.hash(runtimeType,requestId,requesterMemberId,createdAt,status,decidedAt,proposedDeliveryId,proposedContractId);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeRequest(requestId: $requestId, requesterMemberId: $requesterMemberId, createdAt: $createdAt, status: $status, decidedAt: $decidedAt, proposedDeliveryId: $proposedDeliveryId, proposedContractId: $proposedContractId)';
+    return 'BasketExchangeRequest(requestId: $requestId, requesterMemberId: $requesterMemberId, createdAt: $createdAt, status: $status, decidedAt: $decidedAt, proposedDeliveryId: $proposedDeliveryId, proposedContractId: $proposedContractId)';
 }
 
 
@@ -308,10 +304,7 @@ as String?,
 /// @nodoc
 mixin _$BasketExchange {
 
-@JsonKey(name: 'basket_exchange_id') String get basketExchangeId;@JsonKey(name: 'organization_id') String get organizationId;@JsonKey(name: 'delivery_id') String get deliveryId;@JsonKey(name: 'contract_id') String get contractId;@JsonKey(name: 'offering_member_id') String get offeringMemberId; String? get motive; BasketExchangeStatus get status;// ISO-8601 instant string, e.g. "2026-05-26T12:00:00Z".
-@JsonKey(name: 'created_at') String get createdAt;// ISO-8601 instant string; null/absent until the exchange is decided.
-@JsonKey(name: 'decided_at') String? get decidedAt;// Null/absent while no request has been accepted yet.
-@JsonKey(name: 'accepted_request_id') String? get acceptedRequestId; List<BasketExchangeRequest> get requests;
+@JsonKey(name: 'basket_exchange_id') String get basketExchangeId;@JsonKey(name: 'organization_id') String get organizationId;@JsonKey(name: 'delivery_id') String get deliveryId;@JsonKey(name: 'contract_id') String get contractId;@JsonKey(name: 'offering_member_id') String get offeringMemberId; String? get motive; BasketExchangeStatus get status;@JsonKey(name: 'created_at') String get createdAt;@JsonKey(name: 'decided_at') String? get decidedAt;@JsonKey(name: 'accepted_request_id') String? get acceptedRequestId; List<BasketExchangeRequest> get requests;
 /// Create a copy of BasketExchange
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -324,16 +317,21 @@ $BasketExchangeCopyWith<BasketExchange> get copyWith => _$BasketExchangeCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchange&&(identical(other.basketExchangeId, basketExchangeId) || other.basketExchangeId == basketExchangeId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.offeringMemberId, offeringMemberId) || other.offeringMemberId == offeringMemberId)&&(identical(other.motive, motive) || other.motive == motive)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.decidedAt, decidedAt) || other.decidedAt == decidedAt)&&(identical(other.acceptedRequestId, acceptedRequestId) || other.acceptedRequestId == acceptedRequestId)&&const DeepCollectionEquality().equals(other.requests, requests));
+  final _this = this as BasketExchange;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchange&&(identical(other.basketExchangeId, _this.basketExchangeId) || other.basketExchangeId == _this.basketExchangeId)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.deliveryId, _this.deliveryId) || other.deliveryId == _this.deliveryId)&&(identical(other.contractId, _this.contractId) || other.contractId == _this.contractId)&&(identical(other.offeringMemberId, _this.offeringMemberId) || other.offeringMemberId == _this.offeringMemberId)&&(identical(other.motive, _this.motive) || other.motive == _this.motive)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.decidedAt, _this.decidedAt) || other.decidedAt == _this.decidedAt)&&(identical(other.acceptedRequestId, _this.acceptedRequestId) || other.acceptedRequestId == _this.acceptedRequestId)&&const DeepCollectionEquality().equals(other.requests, _this.requests));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,basketExchangeId,organizationId,deliveryId,contractId,offeringMemberId,motive,status,createdAt,decidedAt,acceptedRequestId,const DeepCollectionEquality().hash(requests));
+int get hashCode {
+  final _this = this as BasketExchange;
+  return Object.hash(runtimeType,_this.basketExchangeId,_this.organizationId,_this.deliveryId,_this.contractId,_this.offeringMemberId,_this.motive,_this.status,_this.createdAt,_this.decidedAt,_this.acceptedRequestId,const DeepCollectionEquality().hash(_this.requests));
+}
 
 @override
 String toString() {
-  return 'BasketExchange(basketExchangeId: $basketExchangeId, organizationId: $organizationId, deliveryId: $deliveryId, contractId: $contractId, offeringMemberId: $offeringMemberId, motive: $motive, status: $status, createdAt: $createdAt, decidedAt: $decidedAt, acceptedRequestId: $acceptedRequestId, requests: $requests)';
+  final _this = this as BasketExchange;
+  return 'BasketExchange(basketExchangeId: ${_this.basketExchangeId}, organizationId: ${_this.organizationId}, deliveryId: ${_this.deliveryId}, contractId: ${_this.contractId}, offeringMemberId: ${_this.offeringMemberId}, motive: ${_this.motive}, status: ${_this.status}, createdAt: ${_this.createdAt}, decidedAt: ${_this.decidedAt}, acceptedRequestId: ${_this.acceptedRequestId}, requests: ${_this.requests})';
 }
 
 
@@ -362,7 +360,7 @@ class _$BasketExchangeCopyWithImpl<$Res>
 /// Create a copy of BasketExchange
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? basketExchangeId = null,Object? organizationId = null,Object? deliveryId = null,Object? contractId = null,Object? offeringMemberId = null,Object? motive = freezed,Object? status = null,Object? createdAt = null,Object? decidedAt = freezed,Object? acceptedRequestId = freezed,Object? requests = null,}) {
-  return _then(_self.copyWith(
+  return _then(BasketExchange(
 basketExchangeId: null == basketExchangeId ? _self.basketExchangeId : basketExchangeId // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,deliveryId: null == deliveryId ? _self.deliveryId : deliveryId // ignore: cast_nullable_to_non_nullable
@@ -515,7 +513,7 @@ return $default(_that.basketExchangeId,_that.organizationId,_that.deliveryId,_th
 @JsonSerializable()
 
 class _BasketExchange implements BasketExchange {
-  const _BasketExchange({@JsonKey(name: 'basket_exchange_id') required this.basketExchangeId, @JsonKey(name: 'organization_id') required this.organizationId, @JsonKey(name: 'delivery_id') required this.deliveryId, @JsonKey(name: 'contract_id') required this.contractId, @JsonKey(name: 'offering_member_id') required this.offeringMemberId, this.motive, required this.status, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'decided_at') this.decidedAt, @JsonKey(name: 'accepted_request_id') this.acceptedRequestId, final  List<BasketExchangeRequest> requests = const []}): _requests = requests;
+  const _BasketExchange({@JsonKey(name: 'basket_exchange_id') required this.basketExchangeId, @JsonKey(name: 'organization_id') required this.organizationId, @JsonKey(name: 'delivery_id') required this.deliveryId, @JsonKey(name: 'contract_id') required this.contractId, @JsonKey(name: 'offering_member_id') required this.offeringMemberId, this.motive, required this.status, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'decided_at') this.decidedAt, @JsonKey(name: 'accepted_request_id') this.acceptedRequestId,  List<BasketExchangeRequest> requests = const []}): _requests = requests;
   factory _BasketExchange.fromJson(Map<String, dynamic> json) => _$BasketExchangeFromJson(json);
 
 @override@JsonKey(name: 'basket_exchange_id') final  String basketExchangeId;
@@ -525,11 +523,8 @@ class _BasketExchange implements BasketExchange {
 @override@JsonKey(name: 'offering_member_id') final  String offeringMemberId;
 @override final  String? motive;
 @override final  BasketExchangeStatus status;
-// ISO-8601 instant string, e.g. "2026-05-26T12:00:00Z".
 @override@JsonKey(name: 'created_at') final  String createdAt;
-// ISO-8601 instant string; null/absent until the exchange is decided.
 @override@JsonKey(name: 'decided_at') final  String? decidedAt;
-// Null/absent while no request has been accepted yet.
 @override@JsonKey(name: 'accepted_request_id') final  String? acceptedRequestId;
  final  List<BasketExchangeRequest> _requests;
 @override@JsonKey() List<BasketExchangeRequest> get requests {
@@ -552,16 +547,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketExchange&&(identical(other.basketExchangeId, basketExchangeId) || other.basketExchangeId == basketExchangeId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.offeringMemberId, offeringMemberId) || other.offeringMemberId == offeringMemberId)&&(identical(other.motive, motive) || other.motive == motive)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.decidedAt, decidedAt) || other.decidedAt == decidedAt)&&(identical(other.acceptedRequestId, acceptedRequestId) || other.acceptedRequestId == acceptedRequestId)&&const DeepCollectionEquality().equals(other._requests, _requests));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketExchange&&(identical(other.basketExchangeId, basketExchangeId) || other.basketExchangeId == basketExchangeId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.offeringMemberId, offeringMemberId) || other.offeringMemberId == offeringMemberId)&&(identical(other.motive, motive) || other.motive == motive)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.decidedAt, decidedAt) || other.decidedAt == decidedAt)&&(identical(other.acceptedRequestId, acceptedRequestId) || other.acceptedRequestId == acceptedRequestId)&&const DeepCollectionEquality().equals(other.requests, _requests));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,basketExchangeId,organizationId,deliveryId,contractId,offeringMemberId,motive,status,createdAt,decidedAt,acceptedRequestId,const DeepCollectionEquality().hash(_requests));
+int get hashCode {
+    return Object.hash(runtimeType,basketExchangeId,organizationId,deliveryId,contractId,offeringMemberId,motive,status,createdAt,decidedAt,acceptedRequestId,const DeepCollectionEquality().hash(_requests));
+}
 
 @override
 String toString() {
-  return 'BasketExchange(basketExchangeId: $basketExchangeId, organizationId: $organizationId, deliveryId: $deliveryId, contractId: $contractId, offeringMemberId: $offeringMemberId, motive: $motive, status: $status, createdAt: $createdAt, decidedAt: $decidedAt, acceptedRequestId: $acceptedRequestId, requests: $requests)';
+    return 'BasketExchange(basketExchangeId: $basketExchangeId, organizationId: $organizationId, deliveryId: $deliveryId, contractId: $contractId, offeringMemberId: $offeringMemberId, motive: $motive, status: $status, createdAt: $createdAt, decidedAt: $decidedAt, acceptedRequestId: $acceptedRequestId, requests: $requests)';
 }
 
 

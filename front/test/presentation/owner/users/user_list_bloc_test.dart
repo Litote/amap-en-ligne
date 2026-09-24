@@ -51,17 +51,15 @@ Member _member({
   String orgId = 'org-1',
   String? sub,
   Set<Role> roles = const {Role.volunteer},
-  bool activeStatus = true,
   String? firstName,
   String? lastName,
   String? email,
   String? phone,
-  MemberAccountStatus? accountStatus,
+  MemberAccountStatus accountStatus = MemberAccountStatus.active,
 }) => Member(
   memberId: id,
   organizationId: orgId,
   roles: roles,
-  activeStatus: activeStatus,
   firstName: firstName,
   lastName: lastName,
   email: email,
@@ -438,7 +436,9 @@ void main() {
       memberRepo: memberRepo,
       orgRepo: orgRepo,
       owners: [_owner()],
-      members: [_member(id: 'm-1', activeStatus: false)],
+      members: [
+        _member(id: 'm-1', accountStatus: MemberAccountStatus.suspended),
+      ],
     );
     final bloc = buildBloc()..add(const UserListEvent.loaded());
     await _awaitSettled(bloc);
@@ -455,7 +455,9 @@ void main() {
       memberRepo: memberRepo,
       orgRepo: orgRepo,
       owners: [_owner()],
-      members: [_member(id: 'm-1', activeStatus: false)],
+      members: [
+        _member(id: 'm-1', accountStatus: MemberAccountStatus.suspended),
+      ],
     );
     final bloc = buildBloc()..add(const UserListEvent.loaded());
     await _awaitSettled(bloc);

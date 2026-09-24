@@ -71,8 +71,9 @@ module "lambda" {
 module "ses" {
   source = "./modules/ses"
 
-  from_email = var.ses_from_email
-  tags       = local.tags
+  from_email      = var.ses_from_email
+  create_identity = var.ses_create_identity
+  tags            = local.tags
 }
 
 module "email_lambda" {

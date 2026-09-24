@@ -25,16 +25,13 @@ import persistence.dao.ProducerAccountSyncDAO
 import persistence.dao.ProducerRequestDAO
 import persistence.dao.ProducerRequestSyncDAO
 import persistence.dao.ServerDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.AccountStatus
 import persistence.model.CreateMemberJoinRequestBody
 import persistence.model.CreateOrganizationRequestBody
 import persistence.model.CreateProducerRequestBody
-import persistence.model.DeliveryReminders
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.NotificationCategory
 import persistence.model.NotificationChannel
 import persistence.model.NotificationType
@@ -456,14 +453,7 @@ internal class PublicServiceTest {
             memberId = sub.toId(),
             organizationId = "org-1".toId(),
             roles = setOf(role),
-            activeStatus = true,
             accountStatus = MemberAccountStatus.ACTIVE,
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                    accessibilityOptions = AccessibilityOptions(highContrast = false, largeText = false, screenReader = false),
-                    lastUpdatedInstant = now,
-                ),
             memberPreferences =
                 MemberPreferences(
                     deliveryRemindersEnabled = true,

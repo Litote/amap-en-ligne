@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'delivery_template.dart';
@@ -9,6 +9,7 @@ part of 'delivery_template.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $EarlySlotCopyWith<EarlySlot> get copyWith => _$EarlySlotCopyWithImpl<EarlySlot>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EarlySlot&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.explanation, explanation) || other.explanation == explanation)&&(identical(other.maxVolunteers, maxVolunteers) || other.maxVolunteers == maxVolunteers));
+  final _this = this as EarlySlot;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EarlySlot&&(identical(other.arrivalTime, _this.arrivalTime) || other.arrivalTime == _this.arrivalTime)&&(identical(other.explanation, _this.explanation) || other.explanation == _this.explanation)&&(identical(other.maxVolunteers, _this.maxVolunteers) || other.maxVolunteers == _this.maxVolunteers));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,arrivalTime,explanation,maxVolunteers);
+int get hashCode {
+  final _this = this as EarlySlot;
+  return Object.hash(runtimeType,_this.arrivalTime,_this.explanation,_this.maxVolunteers);
+}
 
 @override
 String toString() {
-  return 'EarlySlot(arrivalTime: $arrivalTime, explanation: $explanation, maxVolunteers: $maxVolunteers)';
+  final _this = this as EarlySlot;
+  return 'EarlySlot(arrivalTime: ${_this.arrivalTime}, explanation: ${_this.explanation}, maxVolunteers: ${_this.maxVolunteers})';
 }
 
 
@@ -66,7 +72,7 @@ class _$EarlySlotCopyWithImpl<$Res>
 /// Create a copy of EarlySlot
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? arrivalTime = null,Object? explanation = freezed,Object? maxVolunteers = null,}) {
-  return _then(_self.copyWith(
+  return _then(EarlySlot(
 arrivalTime: null == arrivalTime ? _self.arrivalTime : arrivalTime // ignore: cast_nullable_to_non_nullable
 as String,explanation: freezed == explanation ? _self.explanation : explanation // ignore: cast_nullable_to_non_nullable
 as String?,maxVolunteers: null == maxVolunteers ? _self.maxVolunteers : maxVolunteers // ignore: cast_nullable_to_non_nullable
@@ -231,16 +237,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EarlySlot&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.explanation, explanation) || other.explanation == explanation)&&(identical(other.maxVolunteers, maxVolunteers) || other.maxVolunteers == maxVolunteers));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EarlySlot&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.explanation, explanation) || other.explanation == explanation)&&(identical(other.maxVolunteers, maxVolunteers) || other.maxVolunteers == maxVolunteers));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,arrivalTime,explanation,maxVolunteers);
+int get hashCode {
+    return Object.hash(runtimeType,arrivalTime,explanation,maxVolunteers);
+}
 
 @override
 String toString() {
-  return 'EarlySlot(arrivalTime: $arrivalTime, explanation: $explanation, maxVolunteers: $maxVolunteers)';
+    return 'EarlySlot(arrivalTime: $arrivalTime, explanation: $explanation, maxVolunteers: $maxVolunteers)';
 }
 
 
@@ -297,16 +305,21 @@ $DeliveryTemplateCopyWith<DeliveryTemplate> get copyWith => _$DeliveryTemplateCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplate&&(identical(other.deliveryTemplateId, deliveryTemplateId) || other.deliveryTemplateId == deliveryTemplateId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.name, name) || other.name == name)&&(identical(other.standardStartTime, standardStartTime) || other.standardStartTime == standardStartTime)&&(identical(other.standardEndTime, standardEndTime) || other.standardEndTime == standardEndTime)&&(identical(other.volunteerArrivalTime, volunteerArrivalTime) || other.volunteerArrivalTime == volunteerArrivalTime)&&(identical(other.desiredVolunteerCount, desiredVolunteerCount) || other.desiredVolunteerCount == desiredVolunteerCount)&&(identical(other.earlySlot, earlySlot) || other.earlySlot == earlySlot));
+  final _this = this as DeliveryTemplate;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplate&&(identical(other.deliveryTemplateId, _this.deliveryTemplateId) || other.deliveryTemplateId == _this.deliveryTemplateId)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.standardStartTime, _this.standardStartTime) || other.standardStartTime == _this.standardStartTime)&&(identical(other.standardEndTime, _this.standardEndTime) || other.standardEndTime == _this.standardEndTime)&&(identical(other.volunteerArrivalTime, _this.volunteerArrivalTime) || other.volunteerArrivalTime == _this.volunteerArrivalTime)&&(identical(other.desiredVolunteerCount, _this.desiredVolunteerCount) || other.desiredVolunteerCount == _this.desiredVolunteerCount)&&(identical(other.earlySlot, _this.earlySlot) || other.earlySlot == _this.earlySlot));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deliveryTemplateId,organizationId,name,standardStartTime,standardEndTime,volunteerArrivalTime,desiredVolunteerCount,earlySlot);
+int get hashCode {
+  final _this = this as DeliveryTemplate;
+  return Object.hash(runtimeType,_this.deliveryTemplateId,_this.organizationId,_this.name,_this.standardStartTime,_this.standardEndTime,_this.volunteerArrivalTime,_this.desiredVolunteerCount,_this.earlySlot);
+}
 
 @override
 String toString() {
-  return 'DeliveryTemplate(deliveryTemplateId: $deliveryTemplateId, organizationId: $organizationId, name: $name, standardStartTime: $standardStartTime, standardEndTime: $standardEndTime, volunteerArrivalTime: $volunteerArrivalTime, desiredVolunteerCount: $desiredVolunteerCount, earlySlot: $earlySlot)';
+  final _this = this as DeliveryTemplate;
+  return 'DeliveryTemplate(deliveryTemplateId: ${_this.deliveryTemplateId}, organizationId: ${_this.organizationId}, name: ${_this.name}, standardStartTime: ${_this.standardStartTime}, standardEndTime: ${_this.standardEndTime}, volunteerArrivalTime: ${_this.volunteerArrivalTime}, desiredVolunteerCount: ${_this.desiredVolunteerCount}, earlySlot: ${_this.earlySlot})';
 }
 
 
@@ -335,7 +348,7 @@ class _$DeliveryTemplateCopyWithImpl<$Res>
 /// Create a copy of DeliveryTemplate
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? deliveryTemplateId = null,Object? organizationId = null,Object? name = null,Object? standardStartTime = null,Object? standardEndTime = null,Object? volunteerArrivalTime = freezed,Object? desiredVolunteerCount = null,Object? earlySlot = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DeliveryTemplate(
 deliveryTemplateId: null == deliveryTemplateId ? _self.deliveryTemplateId : deliveryTemplateId // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -522,16 +535,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeliveryTemplate&&(identical(other.deliveryTemplateId, deliveryTemplateId) || other.deliveryTemplateId == deliveryTemplateId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.name, name) || other.name == name)&&(identical(other.standardStartTime, standardStartTime) || other.standardStartTime == standardStartTime)&&(identical(other.standardEndTime, standardEndTime) || other.standardEndTime == standardEndTime)&&(identical(other.volunteerArrivalTime, volunteerArrivalTime) || other.volunteerArrivalTime == volunteerArrivalTime)&&(identical(other.desiredVolunteerCount, desiredVolunteerCount) || other.desiredVolunteerCount == desiredVolunteerCount)&&(identical(other.earlySlot, earlySlot) || other.earlySlot == earlySlot));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeliveryTemplate&&(identical(other.deliveryTemplateId, deliveryTemplateId) || other.deliveryTemplateId == deliveryTemplateId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.name, name) || other.name == name)&&(identical(other.standardStartTime, standardStartTime) || other.standardStartTime == standardStartTime)&&(identical(other.standardEndTime, standardEndTime) || other.standardEndTime == standardEndTime)&&(identical(other.volunteerArrivalTime, volunteerArrivalTime) || other.volunteerArrivalTime == volunteerArrivalTime)&&(identical(other.desiredVolunteerCount, desiredVolunteerCount) || other.desiredVolunteerCount == desiredVolunteerCount)&&(identical(other.earlySlot, earlySlot) || other.earlySlot == earlySlot));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deliveryTemplateId,organizationId,name,standardStartTime,standardEndTime,volunteerArrivalTime,desiredVolunteerCount,earlySlot);
+int get hashCode {
+    return Object.hash(runtimeType,deliveryTemplateId,organizationId,name,standardStartTime,standardEndTime,volunteerArrivalTime,desiredVolunteerCount,earlySlot);
+}
 
 @override
 String toString() {
-  return 'DeliveryTemplate(deliveryTemplateId: $deliveryTemplateId, organizationId: $organizationId, name: $name, standardStartTime: $standardStartTime, standardEndTime: $standardEndTime, volunteerArrivalTime: $volunteerArrivalTime, desiredVolunteerCount: $desiredVolunteerCount, earlySlot: $earlySlot)';
+    return 'DeliveryTemplate(deliveryTemplateId: $deliveryTemplateId, organizationId: $organizationId, name: $name, standardStartTime: $standardStartTime, standardEndTime: $standardEndTime, volunteerArrivalTime: $volunteerArrivalTime, desiredVolunteerCount: $desiredVolunteerCount, earlySlot: $earlySlot)';
 }
 
 

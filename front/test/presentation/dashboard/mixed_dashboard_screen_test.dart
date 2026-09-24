@@ -318,13 +318,11 @@ void main() {
             memberId: 'm-1',
             organizationId: 'org-1',
             roles: {Role.coordinator},
-            activeStatus: true,
           ),
           const Member(
             memberId: 'm-2',
             organizationId: 'org-1',
             roles: {Role.volunteer},
-            activeStatus: true,
           ),
         ]),
       );

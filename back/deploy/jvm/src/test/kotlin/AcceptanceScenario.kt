@@ -35,7 +35,7 @@ data class AcceptanceStep(
 @Serializable
 data class AcceptanceSave(
     @SerialName("cursorRefs")
-    val cursorRefs: Map<EntityType, String> = emptyMap(),
+    val cursorRefs: Map<String, String> = emptyMap(),
 )
 
 @Serializable

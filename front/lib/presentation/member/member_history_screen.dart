@@ -331,13 +331,10 @@ class _StatsCard extends StatelessWidget {
       seasonContractIds,
     );
 
-    // Rank denominator: only ACTIVE members (ACTIVE account status or legacy
-    // activeStatus=true). Terminated/suspended members are excluded.
-    final activeMembers = allMembers.where((m) {
-      final status = m.accountStatus;
-      if (status != null) return status == MemberAccountStatus.active;
-      return m.activeStatus;
-    });
+    // Rank denominator: only ACTIVE members. Terminated/suspended members are excluded.
+    final activeMembers = allMembers.where(
+      (m) => m.accountStatus == MemberAccountStatus.active,
+    );
     final rankResult = memberRankIn(
       org,
       activeMembers,

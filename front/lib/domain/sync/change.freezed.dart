@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'change.dart';
@@ -9,6 +9,7 @@ part of 'change.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $ChangeCopyWith<Change> get copyWith => _$ChangeCopyWithImpl<Change>(this as Cha
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Change&&(identical(other.cursor, cursor) || other.cursor == cursor)&&(identical(other.entityType, entityType) || other.entityType == entityType)&&(identical(other.entityId, entityId) || other.entityId == entityId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.op, op) || other.op == op)&&(identical(other.payload, payload) || other.payload == payload)&&(identical(other.producedAt, producedAt) || other.producedAt == producedAt));
+  final _this = this as Change;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Change&&(identical(other.cursor, _this.cursor) || other.cursor == _this.cursor)&&(identical(other.entityType, _this.entityType) || other.entityType == _this.entityType)&&(identical(other.entityId, _this.entityId) || other.entityId == _this.entityId)&&(identical(other.producerAccountId, _this.producerAccountId) || other.producerAccountId == _this.producerAccountId)&&(identical(other.op, _this.op) || other.op == _this.op)&&(identical(other.payload, _this.payload) || other.payload == _this.payload)&&(identical(other.producedAt, _this.producedAt) || other.producedAt == _this.producedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cursor,entityType,entityId,producerAccountId,op,payload,producedAt);
+int get hashCode {
+  final _this = this as Change;
+  return Object.hash(runtimeType,_this.cursor,_this.entityType,_this.entityId,_this.producerAccountId,_this.op,_this.payload,_this.producedAt);
+}
 
 @override
 String toString() {
-  return 'Change(cursor: $cursor, entityType: $entityType, entityId: $entityId, producerAccountId: $producerAccountId, op: $op, payload: $payload, producedAt: $producedAt)';
+  final _this = this as Change;
+  return 'Change(cursor: ${_this.cursor}, entityType: ${_this.entityType}, entityId: ${_this.entityId}, producerAccountId: ${_this.producerAccountId}, op: ${_this.op}, payload: ${_this.payload}, producedAt: ${_this.producedAt})';
 }
 
 
@@ -66,7 +72,7 @@ class _$ChangeCopyWithImpl<$Res>
 /// Create a copy of Change
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? cursor = freezed,Object? entityType = null,Object? entityId = null,Object? producerAccountId = freezed,Object? op = null,Object? payload = freezed,Object? producedAt = null,}) {
-  return _then(_self.copyWith(
+  return _then(Change(
 cursor: freezed == cursor ? _self.cursor : cursor // ignore: cast_nullable_to_non_nullable
 as String?,entityType: null == entityType ? _self.entityType : entityType // ignore: cast_nullable_to_non_nullable
 as EntityType,entityId: null == entityId ? _self.entityId : entityId // ignore: cast_nullable_to_non_nullable
@@ -239,16 +245,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Change&&(identical(other.cursor, cursor) || other.cursor == cursor)&&(identical(other.entityType, entityType) || other.entityType == entityType)&&(identical(other.entityId, entityId) || other.entityId == entityId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.op, op) || other.op == op)&&(identical(other.payload, payload) || other.payload == payload)&&(identical(other.producedAt, producedAt) || other.producedAt == producedAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Change&&(identical(other.cursor, cursor) || other.cursor == cursor)&&(identical(other.entityType, entityType) || other.entityType == entityType)&&(identical(other.entityId, entityId) || other.entityId == entityId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.op, op) || other.op == op)&&(identical(other.payload, payload) || other.payload == payload)&&(identical(other.producedAt, producedAt) || other.producedAt == producedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cursor,entityType,entityId,producerAccountId,op,payload,producedAt);
+int get hashCode {
+    return Object.hash(runtimeType,cursor,entityType,entityId,producerAccountId,op,payload,producedAt);
+}
 
 @override
 String toString() {
-  return 'Change(cursor: $cursor, entityType: $entityType, entityId: $entityId, producerAccountId: $producerAccountId, op: $op, payload: $payload, producedAt: $producedAt)';
+    return 'Change(cursor: $cursor, entityType: $entityType, entityId: $entityId, producerAccountId: $producerAccountId, op: $op, payload: $payload, producedAt: $producedAt)';
 }
 
 

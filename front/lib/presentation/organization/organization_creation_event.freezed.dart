@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'organization_creation_event.dart';
@@ -9,6 +9,7 @@ part of 'organization_creation_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $OrganizationCreationEventCopyWith<OrganizationCreationEvent> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationEvent&&(identical(other.organizationName, organizationName) || other.organizationName == organizationName)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment));
+  final _this = this as OrganizationCreationEvent;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationEvent&&(identical(other.organizationName, _this.organizationName) || other.organizationName == _this.organizationName)&&(identical(other.timezone, _this.timezone) || other.timezone == _this.timezone)&&(identical(other.defaultLanguage, _this.defaultLanguage) || other.defaultLanguage == _this.defaultLanguage)&&(identical(other.adminFirstName, _this.adminFirstName) || other.adminFirstName == _this.adminFirstName)&&(identical(other.adminLastName, _this.adminLastName) || other.adminLastName == _this.adminLastName)&&(identical(other.adminEmail, _this.adminEmail) || other.adminEmail == _this.adminEmail)&&(identical(other.organizationType, _this.organizationType) || other.organizationType == _this.organizationType)&&(identical(other.submitterComment, _this.submitterComment) || other.submitterComment == _this.submitterComment));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationName,timezone,defaultLanguage,adminFirstName,adminLastName,adminEmail,organizationType,submitterComment);
+int get hashCode {
+  final _this = this as OrganizationCreationEvent;
+  return Object.hash(runtimeType,_this.organizationName,_this.timezone,_this.defaultLanguage,_this.adminFirstName,_this.adminLastName,_this.adminEmail,_this.organizationType,_this.submitterComment);
+}
 
 @override
 String toString() {
-  return 'OrganizationCreationEvent(organizationName: $organizationName, timezone: $timezone, defaultLanguage: $defaultLanguage, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, organizationType: $organizationType, submitterComment: $submitterComment)';
+  final _this = this as OrganizationCreationEvent;
+  return 'OrganizationCreationEvent(organizationName: ${_this.organizationName}, timezone: ${_this.timezone}, defaultLanguage: ${_this.defaultLanguage}, adminFirstName: ${_this.adminFirstName}, adminLastName: ${_this.adminLastName}, adminEmail: ${_this.adminEmail}, organizationType: ${_this.organizationType}, submitterComment: ${_this.submitterComment})';
 }
 
 
@@ -63,7 +69,7 @@ class _$OrganizationCreationEventCopyWithImpl<$Res>
 /// Create a copy of OrganizationCreationEvent
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? organizationName = null,Object? timezone = null,Object? defaultLanguage = null,Object? adminFirstName = null,Object? adminLastName = null,Object? adminEmail = null,Object? organizationType = null,Object? submitterComment = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(OrganizationCreationEvent.submitted(
 organizationName: null == organizationName ? _self.organizationName : organizationName // ignore: cast_nullable_to_non_nullable
 as String,timezone: null == timezone ? _self.timezone : timezone // ignore: cast_nullable_to_non_nullable
 as String,defaultLanguage: null == defaultLanguage ? _self.defaultLanguage : defaultLanguage // ignore: cast_nullable_to_non_nullable
@@ -229,16 +235,18 @@ $OrganizationCreationSubmittedCopyWith<OrganizationCreationSubmitted> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationSubmitted&&(identical(other.organizationName, organizationName) || other.organizationName == organizationName)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationSubmitted&&(identical(other.organizationName, organizationName) || other.organizationName == organizationName)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationName,timezone,defaultLanguage,adminFirstName,adminLastName,adminEmail,organizationType,submitterComment);
+int get hashCode {
+    return Object.hash(runtimeType,organizationName,timezone,defaultLanguage,adminFirstName,adminLastName,adminEmail,organizationType,submitterComment);
+}
 
 @override
 String toString() {
-  return 'OrganizationCreationEvent.submitted(organizationName: $organizationName, timezone: $timezone, defaultLanguage: $defaultLanguage, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, organizationType: $organizationType, submitterComment: $submitterComment)';
+    return 'OrganizationCreationEvent.submitted(organizationName: $organizationName, timezone: $timezone, defaultLanguage: $defaultLanguage, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, organizationType: $organizationType, submitterComment: $submitterComment)';
 }
 
 

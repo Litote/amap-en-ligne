@@ -187,26 +187,10 @@ UserRow? userRowFromMembers(
   return UserRow(
     identityKey: identityKey,
     ownerId: first.memberId,
-    firstName: _resolveMemberField(
-      members,
-      direct: (member) => member.firstName,
-      legacyKey: 'first_name',
-    ),
-    lastName: _resolveMemberField(
-      members,
-      direct: (member) => member.lastName,
-      legacyKey: 'last_name',
-    ),
-    email: _resolveMemberField(
-      members,
-      direct: (member) => member.email,
-      legacyKey: 'email',
-    ),
-    phone: _resolveOptionalMemberField(
-      members,
-      direct: (member) => member.phone,
-      legacyKey: 'phone',
-    ),
+    firstName: _resolveMemberField(members, direct: (member) => member.firstName),
+    lastName: _resolveMemberField(members, direct: (member) => member.lastName),
+    email: _resolveMemberField(members, direct: (member) => member.email),
+    phone: _resolveOptionalMemberField(members, direct: (member) => member.phone),
     registeredAt: null,
     displayStatus: _aggregateMemberStatus(members),
     memberships: memberships,
@@ -218,33 +202,16 @@ UserRow? userRowFromMembers(
 String _resolveMemberField(
   List<Member> members, {
   required String? Function(Member member) direct,
-  required String legacyKey,
 }) =>
-    _resolveOptionalMemberField(
-      members,
-      direct: direct,
-      legacyKey: legacyKey,
-    ) ??
-    '';
+    _resolveOptionalMemberField(members, direct: direct) ?? '';
 
 String? _resolveOptionalMemberField(
   List<Member> members, {
   required String? Function(Member member) direct,
-  required String legacyKey,
 }) {
   for (final member in members) {
     final value = direct(member)?.trim();
     if (value != null && value.isNotEmpty) return value;
-  }
-  for (final member in members) {
-    final settingsValue = (member.memberSettings?[legacyKey] as String?)
-        ?.trim();
-    if (settingsValue != null && settingsValue.isNotEmpty) return settingsValue;
-    final userSettingsValue = (member.userSettings?[legacyKey] as String?)
-        ?.trim();
-    if (userSettingsValue != null && userSettingsValue.isNotEmpty) {
-      return userSettingsValue;
-    }
   }
   return null;
 }
@@ -260,15 +227,8 @@ UserDisplayStatus _aggregateMemberStatus(List<Member> members) {
   return UserDisplayStatus.active;
 }
 
-UserDisplayStatus _displayStatusFromMember(Member member) {
-  switch (member.accountStatus) {
-    case MemberAccountStatus.suspended:
-      return UserDisplayStatus.suspended;
-    case MemberAccountStatus.active:
-      return UserDisplayStatus.active;
-    case null:
-      return member.activeStatus
-          ? UserDisplayStatus.active
-          : UserDisplayStatus.suspended;
-  }
-}
+UserDisplayStatus _displayStatusFromMember(Member member) =>
+    switch (member.accountStatus) {
+      MemberAccountStatus.suspended => UserDisplayStatus.suspended,
+      MemberAccountStatus.active => UserDisplayStatus.active,
+    };

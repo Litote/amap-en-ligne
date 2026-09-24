@@ -494,14 +494,12 @@ internal object ContainerSuite {
                     .prepareStatement(
                         """
                         INSERT INTO member(
-                            member_id, organization_id, roles, active_status,
+                            member_id, organization_id, roles,
                             first_name, last_name, email,
-                            account_status,
-                            member_settings, member_preferences, user_preferences, user_settings,
+                            member_preferences, user_preferences, user_settings,
                             created_instant, last_updated_instant
                         )
-                        VALUES (?, ?, ?, true, ?, ?, ?, 'ACTIVE',
-                            '{"delivery_reminders":{"days_before":1,"reminder_time":"08:00"},"accessibility_options":{"high_contrast":false,"large_text":false,"screen_reader":false},"last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
+                        VALUES (?, ?, ?, ?, ?, ?,
                             '{"delivery_reminders_enabled":true,"volunteer_alerts_enabled":true,"last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
                             '{"email_notifications_enabled":true,"push_notifications_enabled":true,"last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
                             ?::jsonb,

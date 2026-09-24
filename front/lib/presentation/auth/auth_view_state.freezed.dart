@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'auth_view_state.dart';
@@ -9,6 +9,7 @@ part of 'auth_view_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $AuthViewStateCopyWith<AuthViewState> get copyWith => _$AuthViewStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthViewState&&(identical(other.initializing, initializing) || other.initializing == initializing)&&(identical(other.submitting, submitting) || other.submitting == submitting)&&(identical(other.logoutRequested, logoutRequested) || other.logoutRequested == logoutRequested)&&(identical(other.producerId, producerId) || other.producerId == producerId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.isAdmin, isAdmin) || other.isAdmin == isAdmin)&&(identical(other.role, role) || other.role == role)&&const DeepCollectionEquality().equals(other.memberRoles, memberRoles)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.lastError, lastError) || other.lastError == lastError));
+  final _this = this as AuthViewState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthViewState&&(identical(other.initializing, _this.initializing) || other.initializing == _this.initializing)&&(identical(other.submitting, _this.submitting) || other.submitting == _this.submitting)&&(identical(other.logoutRequested, _this.logoutRequested) || other.logoutRequested == _this.logoutRequested)&&(identical(other.producerId, _this.producerId) || other.producerId == _this.producerId)&&(identical(other.producerAccountId, _this.producerAccountId) || other.producerAccountId == _this.producerAccountId)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.isAdmin, _this.isAdmin) || other.isAdmin == _this.isAdmin)&&(identical(other.role, _this.role) || other.role == _this.role)&&const DeepCollectionEquality().equals(other.memberRoles, _this.memberRoles)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&(identical(other.lastError, _this.lastError) || other.lastError == _this.lastError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,initializing,submitting,logoutRequested,producerId,producerAccountId,organizationId,isAdmin,role,const DeepCollectionEquality().hash(memberRoles),firstName,lastName,lastError);
+int get hashCode {
+  final _this = this as AuthViewState;
+  return Object.hash(runtimeType,_this.initializing,_this.submitting,_this.logoutRequested,_this.producerId,_this.producerAccountId,_this.organizationId,_this.isAdmin,_this.role,const DeepCollectionEquality().hash(_this.memberRoles),_this.firstName,_this.lastName,_this.lastError);
+}
 
 @override
 String toString() {
-  return 'AuthViewState(initializing: $initializing, submitting: $submitting, logoutRequested: $logoutRequested, producerId: $producerId, producerAccountId: $producerAccountId, organizationId: $organizationId, isAdmin: $isAdmin, role: $role, memberRoles: $memberRoles, firstName: $firstName, lastName: $lastName, lastError: $lastError)';
+  final _this = this as AuthViewState;
+  return 'AuthViewState(initializing: ${_this.initializing}, submitting: ${_this.submitting}, logoutRequested: ${_this.logoutRequested}, producerId: ${_this.producerId}, producerAccountId: ${_this.producerAccountId}, organizationId: ${_this.organizationId}, isAdmin: ${_this.isAdmin}, role: ${_this.role}, memberRoles: ${_this.memberRoles}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, lastError: ${_this.lastError})';
 }
 
 
@@ -63,7 +69,7 @@ class _$AuthViewStateCopyWithImpl<$Res>
 /// Create a copy of AuthViewState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? initializing = null,Object? submitting = null,Object? logoutRequested = null,Object? producerId = freezed,Object? producerAccountId = freezed,Object? organizationId = freezed,Object? isAdmin = null,Object? role = null,Object? memberRoles = null,Object? firstName = freezed,Object? lastName = freezed,Object? lastError = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(AuthViewState(
 initializing: null == initializing ? _self.initializing : initializing // ignore: cast_nullable_to_non_nullable
 as bool,submitting: null == submitting ? _self.submitting : submitting // ignore: cast_nullable_to_non_nullable
 as bool,logoutRequested: null == logoutRequested ? _self.logoutRequested : logoutRequested // ignore: cast_nullable_to_non_nullable
@@ -217,7 +223,7 @@ return $default(_that.initializing,_that.submitting,_that.logoutRequested,_that.
 
 
 class _AuthViewState implements AuthViewState {
-  const _AuthViewState({this.initializing = true, this.submitting = false, this.logoutRequested = false, this.producerId, this.producerAccountId, this.organizationId, this.isAdmin = false, this.role = UserRole.memberNoRole, final  Set<Role> memberRoles = const <Role>{}, this.firstName, this.lastName, this.lastError}): _memberRoles = memberRoles;
+  const _AuthViewState({this.initializing = true, this.submitting = false, this.logoutRequested = false, this.producerId, this.producerAccountId, this.organizationId, this.isAdmin = false, this.role = UserRole.memberNoRole,  Set<Role> memberRoles = const <Role>{}, this.firstName, this.lastName, this.lastError}): _memberRoles = memberRoles;
   
 
 @override@JsonKey() final  bool initializing;
@@ -249,16 +255,18 @@ _$AuthViewStateCopyWith<_AuthViewState> get copyWith => __$AuthViewStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthViewState&&(identical(other.initializing, initializing) || other.initializing == initializing)&&(identical(other.submitting, submitting) || other.submitting == submitting)&&(identical(other.logoutRequested, logoutRequested) || other.logoutRequested == logoutRequested)&&(identical(other.producerId, producerId) || other.producerId == producerId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.isAdmin, isAdmin) || other.isAdmin == isAdmin)&&(identical(other.role, role) || other.role == role)&&const DeepCollectionEquality().equals(other._memberRoles, _memberRoles)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.lastError, lastError) || other.lastError == lastError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthViewState&&(identical(other.initializing, initializing) || other.initializing == initializing)&&(identical(other.submitting, submitting) || other.submitting == submitting)&&(identical(other.logoutRequested, logoutRequested) || other.logoutRequested == logoutRequested)&&(identical(other.producerId, producerId) || other.producerId == producerId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.isAdmin, isAdmin) || other.isAdmin == isAdmin)&&(identical(other.role, role) || other.role == role)&&const DeepCollectionEquality().equals(other.memberRoles, _memberRoles)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.lastError, lastError) || other.lastError == lastError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,initializing,submitting,logoutRequested,producerId,producerAccountId,organizationId,isAdmin,role,const DeepCollectionEquality().hash(_memberRoles),firstName,lastName,lastError);
+int get hashCode {
+    return Object.hash(runtimeType,initializing,submitting,logoutRequested,producerId,producerAccountId,organizationId,isAdmin,role,const DeepCollectionEquality().hash(_memberRoles),firstName,lastName,lastError);
+}
 
 @override
 String toString() {
-  return 'AuthViewState(initializing: $initializing, submitting: $submitting, logoutRequested: $logoutRequested, producerId: $producerId, producerAccountId: $producerAccountId, organizationId: $organizationId, isAdmin: $isAdmin, role: $role, memberRoles: $memberRoles, firstName: $firstName, lastName: $lastName, lastError: $lastError)';
+    return 'AuthViewState(initializing: $initializing, submitting: $submitting, logoutRequested: $logoutRequested, producerId: $producerId, producerAccountId: $producerAccountId, organizationId: $organizationId, isAdmin: $isAdmin, role: $role, memberRoles: $memberRoles, firstName: $firstName, lastName: $lastName, lastError: $lastError)';
 }
 
 

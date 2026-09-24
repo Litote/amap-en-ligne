@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'device_token.dart';
@@ -9,6 +9,7 @@ part of 'device_token.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $DeviceTokenCopyWith<DeviceToken> get copyWith => _$DeviceTokenCopyWithImpl<Devi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceToken&&(identical(other.deviceTokenId, deviceTokenId) || other.deviceTokenId == deviceTokenId)&&(identical(other.recipientScope, recipientScope) || other.recipientScope == recipientScope)&&(identical(other.platform, platform) || other.platform == platform)&&(identical(other.token, token) || other.token == token)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.lastSeenAt, lastSeenAt) || other.lastSeenAt == lastSeenAt));
+  final _this = this as DeviceToken;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceToken&&(identical(other.deviceTokenId, _this.deviceTokenId) || other.deviceTokenId == _this.deviceTokenId)&&(identical(other.recipientScope, _this.recipientScope) || other.recipientScope == _this.recipientScope)&&(identical(other.platform, _this.platform) || other.platform == _this.platform)&&(identical(other.token, _this.token) || other.token == _this.token)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.lastSeenAt, _this.lastSeenAt) || other.lastSeenAt == _this.lastSeenAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deviceTokenId,recipientScope,platform,token,createdAt,lastSeenAt);
+int get hashCode {
+  final _this = this as DeviceToken;
+  return Object.hash(runtimeType,_this.deviceTokenId,_this.recipientScope,_this.platform,_this.token,_this.createdAt,_this.lastSeenAt);
+}
 
 @override
 String toString() {
-  return 'DeviceToken(deviceTokenId: $deviceTokenId, recipientScope: $recipientScope, platform: $platform, token: $token, createdAt: $createdAt, lastSeenAt: $lastSeenAt)';
+  final _this = this as DeviceToken;
+  return 'DeviceToken(deviceTokenId: ${_this.deviceTokenId}, recipientScope: ${_this.recipientScope}, platform: ${_this.platform}, token: ${_this.token}, createdAt: ${_this.createdAt}, lastSeenAt: ${_this.lastSeenAt})';
 }
 
 
@@ -66,7 +72,7 @@ class _$DeviceTokenCopyWithImpl<$Res>
 /// Create a copy of DeviceToken
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? deviceTokenId = null,Object? recipientScope = null,Object? platform = null,Object? token = null,Object? createdAt = null,Object? lastSeenAt = null,}) {
-  return _then(_self.copyWith(
+  return _then(DeviceToken(
 deviceTokenId: null == deviceTokenId ? _self.deviceTokenId : deviceTokenId // ignore: cast_nullable_to_non_nullable
 as String,recipientScope: null == recipientScope ? _self.recipientScope : recipientScope // ignore: cast_nullable_to_non_nullable
 as String,platform: null == platform ? _self.platform : platform // ignore: cast_nullable_to_non_nullable
@@ -237,16 +243,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeviceToken&&(identical(other.deviceTokenId, deviceTokenId) || other.deviceTokenId == deviceTokenId)&&(identical(other.recipientScope, recipientScope) || other.recipientScope == recipientScope)&&(identical(other.platform, platform) || other.platform == platform)&&(identical(other.token, token) || other.token == token)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.lastSeenAt, lastSeenAt) || other.lastSeenAt == lastSeenAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeviceToken&&(identical(other.deviceTokenId, deviceTokenId) || other.deviceTokenId == deviceTokenId)&&(identical(other.recipientScope, recipientScope) || other.recipientScope == recipientScope)&&(identical(other.platform, platform) || other.platform == platform)&&(identical(other.token, token) || other.token == token)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.lastSeenAt, lastSeenAt) || other.lastSeenAt == lastSeenAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deviceTokenId,recipientScope,platform,token,createdAt,lastSeenAt);
+int get hashCode {
+    return Object.hash(runtimeType,deviceTokenId,recipientScope,platform,token,createdAt,lastSeenAt);
+}
 
 @override
 String toString() {
-  return 'DeviceToken(deviceTokenId: $deviceTokenId, recipientScope: $recipientScope, platform: $platform, token: $token, createdAt: $createdAt, lastSeenAt: $lastSeenAt)';
+    return 'DeviceToken(deviceTokenId: $deviceTokenId, recipientScope: $recipientScope, platform: $platform, token: $token, createdAt: $createdAt, lastSeenAt: $lastSeenAt)';
 }
 
 

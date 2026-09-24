@@ -24,17 +24,14 @@ import persistence.dao.ProducerAccountSyncDAO
 import persistence.dao.ProducerRequestDAO
 import persistence.dao.ProducerSyncDAO
 import persistence.dao.ServerDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.AccountStatus
 import persistence.model.ActivateResponse
 import persistence.model.ActivationKind
-import persistence.model.DeliveryReminders
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
 import persistence.model.MemberInvitation
 import persistence.model.MemberInvitationStatus
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Owner
 import persistence.model.OwnerInvitationStatus
 import persistence.model.Producer
@@ -96,17 +93,10 @@ class ActivationService(
                         memberId = sub.toId(),
                         organizationId = organizationId,
                         roles = setOf(Role.ADMIN),
-                        activeStatus = true,
                         firstName = request.adminFirstName,
                         lastName = request.adminLastName,
                         email = activationToken.adminEmail,
                         accountStatus = MemberAccountStatus.ACTIVE,
-                        memberSettings =
-                            MemberSettings(
-                                deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                                accessibilityOptions = AccessibilityOptions(false, false, false),
-                                lastUpdatedInstant = now,
-                            ),
                         memberPreferences =
                             MemberPreferences(
                                 deliveryRemindersEnabled = true,
@@ -279,17 +269,10 @@ class ActivationService(
                         memberId = sub.toId(),
                         organizationId = invitation.organizationId,
                         roles = invitation.roles,
-                        activeStatus = true,
                         firstName = invitation.firstName,
                         lastName = invitation.lastName,
                         email = invitation.email,
                         accountStatus = MemberAccountStatus.ACTIVE,
-                        memberSettings =
-                            MemberSettings(
-                                deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                                accessibilityOptions = AccessibilityOptions(false, false, false),
-                                lastUpdatedInstant = now,
-                            ),
                         memberPreferences =
                             MemberPreferences(
                                 deliveryRemindersEnabled = true,
