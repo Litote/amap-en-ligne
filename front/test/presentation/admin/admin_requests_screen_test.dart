@@ -11,6 +11,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockOrganizationRequestRepository extends Mock
@@ -85,6 +86,16 @@ Future<void> _pump(
 }
 
 void main() {
+  setUpAll(() async {
+    await initializeDateFormatting('fr');
+    registerFallbackValue(
+      _orgRequest(
+        id: 'fallback',
+        status: OrganizationRequestStatus.pendingValidation,
+      ),
+    );
+  });
+
   late _MockOrganizationRequestRepository orgRepo;
   late _MockProducerRequestRepository producerRepo;
 
@@ -149,7 +160,7 @@ void main() {
         ).thenAnswer((_) => Stream.value([pending, approved, rejected]));
         await _pump(tester, orgRepo: orgRepo, producerRepo: producerRepo);
 
-        await tester.tap(find.widgetWithText(FilterChip, 'Approuvée'));
+        await tester.tap(find.widgetWithText(FilterChip, 'Approuvées'));
         await tester.pump();
 
         expect(find.text('Org req-pending'), findsNothing);
@@ -166,7 +177,7 @@ void main() {
         ).thenAnswer((_) => Stream.value([pending, approved, rejected]));
         await _pump(tester, orgRepo: orgRepo, producerRepo: producerRepo);
 
-        await tester.tap(find.widgetWithText(FilterChip, 'Rejetée'));
+        await tester.tap(find.widgetWithText(FilterChip, 'Rejetées'));
         await tester.pump();
 
         expect(find.text('Org req-pending'), findsNothing);
@@ -346,5 +357,94 @@ void main() {
       expect(find.text('Org amap-1'), findsOneWidget);
       expect(find.text('Producer pr-1'), findsNothing);
     });
+  });
+
+  group('AdminRequestsScreen — approval', () {
+    final pending = _orgRequest(
+      id: 'req-pending',
+      status: OrganizationRequestStatus.pendingValidation,
+    );
+
+    testWidgets(
+      'asks for confirmation before approving, then confirms success',
+      (tester) async {
+        when(() => orgRepo.watch()).thenAnswer((_) => Stream.value([pending]));
+        when(() => orgRepo.approve(any())).thenAnswer((_) async {});
+        await _pump(tester, orgRepo: orgRepo, producerRepo: producerRepo);
+
+        await tester.tap(find.text('Org req-pending'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Approuver'));
+        await tester.pumpAndSettle();
+
+        // Nothing is approved until the dialog is confirmed.
+        expect(find.text('Approuver la demande ?'), findsOneWidget);
+        verifyNever(() => orgRepo.approve(any()));
+
+        await tester.tap(find.widgetWithText(FilledButton, 'Approuver').last);
+        await tester.pumpAndSettle();
+
+        verify(() => orgRepo.approve(any())).called(1);
+        expect(
+          find.text("Demande approuvée : le lien d'activation a été envoyé."),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets('cancelling the confirmation does not approve', (tester) async {
+      when(() => orgRepo.watch()).thenAnswer((_) => Stream.value([pending]));
+      await _pump(tester, orgRepo: orgRepo, producerRepo: producerRepo);
+
+      await tester.tap(find.text('Org req-pending'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Approuver'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Annuler'));
+      await tester.pumpAndSettle();
+
+      verifyNever(() => orgRepo.approve(any()));
+    });
+  });
+
+  testWidgets('initialTab producers opens on the Producteurs tab', (
+    tester,
+  ) async {
+    when(() => orgRepo.watch()).thenAnswer((_) => Stream.value(const []));
+    when(() => producerRepo.watch()).thenAnswer(
+      (_) => Stream.value([
+        _producerRequest(
+          id: 'p-1',
+          status: ProducerRequestStatus.pendingValidation,
+        ),
+      ]),
+    );
+    final bloc = _MockSyncBloc();
+    when(() => bloc.state).thenReturn(const SyncState.idle());
+    when(() => bloc.stream).thenAnswer((_) => const Stream.empty());
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider<OrganizationRequestRepository>.value(
+              value: orgRepo,
+            ),
+            RepositoryProvider<ProducerRequestRepository>.value(
+              value: producerRepo,
+            ),
+          ],
+          child: BlocProvider<SyncBloc>.value(
+            value: bloc,
+            child: const AdminRequestsScreen(
+              initialTab: AdminRequestsTab.producers,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Producer p-1'), findsOneWidget);
   });
 }

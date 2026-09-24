@@ -121,12 +121,13 @@ internal class AttendanceEmailRequestServiceTest {
         requestId: String = TMP_REQUEST_ID,
         organizationId: String = ORG_ID,
         deliveryId: String = DELIVERY_ID,
+        recipientEmail: String = "recipient@example.com",
     ): AttendanceEmailRequest =
         AttendanceEmailRequest(
             attendanceEmailRequestId = requestId.toId(),
             organizationId = organizationId.toId(),
             deliveryId = deliveryId,
-            recipientEmail = "recipient@example.com",
+            recipientEmail = recipientEmail,
             requestedAt = Clock.System.now(),
         )
 
@@ -185,6 +186,20 @@ internal class AttendanceEmailRequestServiceTest {
             assertEquals(MutationStatus.REJECTED, outcome.status)
             assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
             coVerify(exactly = 0) { attendanceEmailRequestSyncDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN malformed recipient email WHEN upsert THEN REJECTED INVALID_PAYLOAD and nothing sent`() =
+        runTest {
+            val request = buildRequest(recipientEmail = "pas-un-email")
+            coEvery { organizationSyncDAO.getById(any()) } returns buildOrganization()
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(request), AttendanceEmailRequestPayload(request))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            coVerify(exactly = 0) { attendanceEmailRequestSyncDAO.put(any(), any()) }
+            coVerify(exactly = 0) { attendanceEmailPort.sendAttendanceSheets(any(), any(), any(), any(), any()) }
         }
 
     @Test

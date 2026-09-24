@@ -69,6 +69,8 @@ flutter build web --release  # builds WASM by default
 - Private by convention: `_prefixName` for internal fields and methods
 - No explicit `public` keyword (Dart default)
 
+**Validation on both sides:** every rule the back enforces and a user can trigger must be pre-checked in the form (French message, submit blocked), and every form rule must exist in the back too (see root `AGENTS.md` → *Validation on both sides*). Keep shared rules in `domain/` (e.g. `domain/auth/password_policy.dart`) so they can be unit-tested.
+
 **Imports:** Single imports only — no `show X, Y` patterns
 
 **Code generation:** Every model change requires re-running `build_runner`. Generated files (`.freezed.dart`, `.g.dart`) are committed to the repo.
@@ -78,6 +80,8 @@ flutter build web --release  # builds WASM by default
 **Comments:** In English (as per global AGENTS.md rule).
 
 **No silent catches:** never write `on Exception catch (_)`. A real operation failure reduced to a generic UI state must call `unawaited(Sentry.captureException(e, stackTrace: stackTrace))`; an expected, recoverable fallback (lookup miss, claim decode, parse) must call `recordFallbackBreadcrumb(...)` (`presentation/common/error_feedback.dart`; in `data/`, use `Sentry.addBreadcrumb` directly). For a pure lookup, prefer `.where(...).firstOrNull` over try/catch.
+
+**Dependency proposal:** when adding a package (or exposing a transitive one) is the cleanest solution, stop and ask the user explicitly — package, exact version, and why — rather than working around it with a hack; add it only after approval (see root `AGENTS.md`).
 
 **Dependency versions:** All entries in `pubspec.yaml` must use **exact versions** (e.g. `dio: 5.7.0`), never range constraints (`^`, `>=`, `any`). The `environment: sdk:` range is the only exception. When adding or upgrading a package, pin the version resolved in `pubspec.lock`.
 

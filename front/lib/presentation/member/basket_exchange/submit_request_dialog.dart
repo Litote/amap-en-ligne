@@ -16,7 +16,7 @@ class SubmitRequestDialog extends StatefulWidget {
     super.key,
     required this.offer,
     required this.offererDisplayName,
-    required this.contractDescription,
+    required this.offerLabel,
     required this.org,
     required this.memberId,
     required this.allExchanges,
@@ -29,8 +29,9 @@ class SubmitRequestDialog extends StatefulWidget {
   /// Resolved display name of the offerer (first+last name, or id as fallback).
   final String offererDisplayName;
 
-  /// Human-readable description of the contract being exchanged.
-  final String contractDescription;
+  /// Human-readable label of the offered basket: its delivery date and
+  /// contract ("Jeudi 15 oct. • Oeufs automne"), as on the offer card.
+  final String offerLabel;
 
   /// The organization, used to list the requester's eligible counter-deliveries.
   final Organization org;
@@ -156,7 +157,7 @@ class _SubmitRequestDialogState extends State<SubmitRequestDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '📅 ${widget.contractDescription}',
+                      '📅 ${widget.offerLabel}',
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),

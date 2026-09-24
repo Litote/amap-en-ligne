@@ -867,9 +867,9 @@ String _roleLabel(Role role) => switch (role) {
 
 /// Default invitation email copy shown as a hint in the bulk-resend dialog.
 /// Leaving a field empty keeps the per-member default copy server-side.
-const String _defaultInvitationSubject = 'Invitation à rejoindre votre AMAP';
+const String _defaultInvitationSubject = "Invitation à rejoindre l'AMAP";
 const String _defaultInvitationBody =
-    'Bonjour,\n\nVous avez été invité(e) à rejoindre votre AMAP sur AMAP en '
+    "Bonjour,\n\nVous avez été invité(e) à rejoindre l'AMAP sur AMAP en "
     'ligne. Connectez-vous pour finaliser votre inscription.';
 
 /// Banner shown above the list when there are still-pending invitations,

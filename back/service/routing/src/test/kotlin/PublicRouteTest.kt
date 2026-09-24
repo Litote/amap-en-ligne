@@ -7,6 +7,7 @@ import id.toId
 import instanceconfig.GoTrueInstanceAuthConfig
 import instanceconfig.InstanceConfig
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -15,6 +16,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import onboarding.AdminService
@@ -516,6 +518,165 @@ internal class PublicRouteTest {
                 val body = response.bodyAsText()
                 assertTrue(body.contains("CONFLICT"))
                 assertTrue(body.contains("email"))
+            }
+        }
+
+    private fun startPublicKoin(publicService: PublicService) =
+        startKoin {
+            modules(
+                module {
+                    single<DataService> { mockk(relaxed = true) }
+                    single<AuthenticationService> { mockk(relaxed = true) }
+                    single { HttpService() }
+                    single { stubInstanceConfig }
+                    single { publicService }
+                    single { mockk<AdminService>(relaxed = true) }
+                    single { mockk<ActivationService>(relaxed = true) }
+                    single { mockk<OwnerInvitationService>(relaxed = true) }
+                    single<ProducerAccountSyncDAO> { mockk(relaxed = true) }
+                    single<MemberSyncDAO> { mockk(relaxed = true) }
+                    single { mockk<owner.OwnerService>(relaxed = true) }
+                    single { mockk<produceraccount.ProducerAccountService>(relaxed = true) }
+                    single<Properties> { Properties.Instance }
+                },
+            )
+        }
+
+    private fun organizationRequestJson(
+        organizationName: String = "AMAP des Collines",
+        adminEmail: String = "jean@example.com",
+        adminFirstName: String = "Jean",
+    ) = """
+        {"organization_name":"$organizationName","organization_type":"AMAP","timezone":"Europe/Paris",
+        "default_language":"fr","admin_first_name":"$adminFirstName","admin_last_name":"Dupont",
+        "admin_email":"$adminEmail"}
+        """.trimIndent()
+
+    @Test
+    fun `GIVEN invalid admin email WHEN POST v1 organization-requests THEN returns 400 and nothing is created`() =
+        runTest {
+            val publicService = mockk<PublicService>(relaxed = true)
+            val koin = startPublicKoin(publicService)
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val response =
+                    client.post("/v1/organization-requests") {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(organizationRequestJson(adminEmail = "not-an-email"))
+                    }
+
+                assertEquals(HttpStatusCode.BadRequest, response.status)
+                assertTrue(response.bodyAsText().contains("INVALID_PAYLOAD"))
+                coVerify(exactly = 0) { publicService.createOrganizationRequest(any()) }
+            }
+        }
+
+    @Test
+    fun `GIVEN blank organization name WHEN POST v1 organization-requests THEN returns 400`() =
+        runTest {
+            val publicService = mockk<PublicService>(relaxed = true)
+            val koin = startPublicKoin(publicService)
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val response =
+                    client.post("/v1/organization-requests") {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(organizationRequestJson(organizationName = "   "))
+                    }
+
+                assertEquals(HttpStatusCode.BadRequest, response.status)
+                coVerify(exactly = 0) { publicService.createOrganizationRequest(any()) }
+            }
+        }
+
+    @Test
+    fun `GIVEN malformed JSON WHEN POST v1 organization-requests THEN returns 400 not 500`() =
+        runTest {
+            val publicService = mockk<PublicService>(relaxed = true)
+            val koin = startPublicKoin(publicService)
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val response =
+                    client.post("/v1/organization-requests") {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody("{")
+                    }
+
+                assertEquals(HttpStatusCode.BadRequest, response.status)
+                assertTrue(response.bodyAsText().contains("INVALID_PAYLOAD"))
+            }
+        }
+
+    @Test
+    fun `GIVEN invalid admin email WHEN POST v1 producer-requests THEN returns 400`() =
+        runTest {
+            val publicService = mockk<PublicService>(relaxed = true)
+            val koin = startPublicKoin(publicService)
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val response =
+                    client.post("/v1/producer-requests") {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(
+                            """{"producer_name":"Ferme","admin_first_name":"A","admin_last_name":"B","admin_email":"bad"}""",
+                        )
+                    }
+
+                assertEquals(HttpStatusCode.BadRequest, response.status)
+                coVerify(exactly = 0) { publicService.createProducerRequest(any()) }
+            }
+        }
+
+    @Test
+    fun `GIVEN blank first name WHEN POST v1 public member-join-requests THEN returns 400`() =
+        runTest {
+            val publicService = mockk<PublicService>(relaxed = true)
+            val koin = startPublicKoin(publicService)
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val response =
+                    client.post("/v1/public/member-join-requests") {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(
+                            """{"organization_id":"org-1","email":"a@example.com","first_name":" ","last_name":"B"}""",
+                        )
+                    }
+
+                assertEquals(HttpStatusCode.BadRequest, response.status)
+                coVerify(exactly = 0) { publicService.createMemberJoinRequest(any()) }
+            }
+        }
+
+    @Test
+    fun `GIVEN unknown organization WHEN POST v1 public member-join-requests THEN returns 404`() =
+        runTest {
+            val publicService = mockk<PublicService>()
+            coEvery { publicService.createMemberJoinRequest(any()) } returns CreateMemberJoinOutcome.OrganizationNotFound
+            val koin = startPublicKoin(publicService)
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val response =
+                    client.post("/v1/public/member-join-requests") {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(
+                            """{"organization_id":"nope","email":"a@example.com","first_name":"A","last_name":"B"}""",
+                        )
+                    }
+
+                assertEquals(HttpStatusCode.NotFound, response.status)
+                assertTrue(response.bodyAsText().contains("NOT_FOUND"))
             }
         }
 }

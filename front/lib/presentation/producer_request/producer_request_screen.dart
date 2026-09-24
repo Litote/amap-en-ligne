@@ -1,4 +1,5 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/common/terms_checkbox_tile.dart';
 import 'package:amap_en_ligne/presentation/producer_request/producer_request_bloc.dart';
 import 'package:amap_en_ligne/presentation/producer_request/producer_request_event.dart';
@@ -331,7 +332,11 @@ class _FormViewState extends State<_FormView> {
                     Expanded(
                       child: FilledButton(
                         key: const Key('submit'),
-                        onPressed: submitting ? null : _submit,
+                        // Same gating as the AMAP creation form: no silent
+                        // no-op when the terms are not accepted.
+                        onPressed: (submitting || !_termsAccepted)
+                            ? null
+                            : _submit,
                         child: Text(
                           submitting ? 'ENVOI...' : 'ENVOYER LA DEMANDE',
                         ),
@@ -349,13 +354,13 @@ class _FormViewState extends State<_FormView> {
 
   String? _requireNonEmpty(String? value) {
     if ((value ?? '').trim().isEmpty) return 'Ce champ est requis.';
-    return null;
+    return requiredName(value);
   }
 
   String? _validateEmail(String? value) {
     final trimmed = (value ?? '').trim();
     if (trimmed.isEmpty) return 'Ce champ est requis.';
-    if (!trimmed.contains('@')) return 'Email invalide.';
+    if (!isValidEmail(trimmed)) return 'Email invalide.';
     return null;
   }
 }
@@ -368,8 +373,9 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     label,
-    style: Theme.of(
-      context,
-    ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+    // Same look as the AMAP creation form section headers.
+    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+      color: Theme.of(context).colorScheme.primary,
+    ),
   );
 }

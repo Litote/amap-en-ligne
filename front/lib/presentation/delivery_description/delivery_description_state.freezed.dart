@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'delivery_description_state.dart';
@@ -9,6 +9,7 @@ part of 'delivery_description_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$DeliveryDescriptionState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryDescriptionState()';
+    return 'DeliveryDescriptionState()';
 }
 
 
@@ -203,7 +204,7 @@ class DeliveryDescriptionInitial implements DeliveryDescriptionState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionInitial);
 }
 
 
@@ -212,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryDescriptionState.initial()';
+    return 'DeliveryDescriptionState.initial()';
 }
 
 
@@ -225,7 +226,7 @@ String toString() {
 
 
 class DeliveryDescriptionLoaded implements DeliveryDescriptionState {
-  const DeliveryDescriptionLoaded({required this.org, required this.delivery, required final  List<ProductType> productTypes, required final  List<BasketDeliveryDescription> localDescriptions}): _productTypes = productTypes,_localDescriptions = localDescriptions;
+  const DeliveryDescriptionLoaded({required this.org, required this.delivery, required  List<ProductType> productTypes, required  List<BasketDeliveryDescription> localDescriptions}): _productTypes = productTypes,_localDescriptions = localDescriptions;
   
 
  final  Organization org;
@@ -255,16 +256,18 @@ $DeliveryDescriptionLoadedCopyWith<DeliveryDescriptionLoaded> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionLoaded&&(identical(other.org, org) || other.org == org)&&(identical(other.delivery, delivery) || other.delivery == delivery)&&const DeepCollectionEquality().equals(other._productTypes, _productTypes)&&const DeepCollectionEquality().equals(other._localDescriptions, _localDescriptions));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionLoaded&&(identical(other.org, org) || other.org == org)&&(identical(other.delivery, delivery) || other.delivery == delivery)&&const DeepCollectionEquality().equals(other.productTypes, _productTypes)&&const DeepCollectionEquality().equals(other.localDescriptions, _localDescriptions));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,org,delivery,const DeepCollectionEquality().hash(_productTypes),const DeepCollectionEquality().hash(_localDescriptions));
+int get hashCode {
+    return Object.hash(runtimeType,org,delivery,const DeepCollectionEquality().hash(_productTypes),const DeepCollectionEquality().hash(_localDescriptions));
+}
 
 @override
 String toString() {
-  return 'DeliveryDescriptionState.loaded(org: $org, delivery: $delivery, productTypes: $productTypes, localDescriptions: $localDescriptions)';
+    return 'DeliveryDescriptionState.loaded(org: $org, delivery: $delivery, productTypes: $productTypes, localDescriptions: $localDescriptions)';
 }
 
 
@@ -337,7 +340,7 @@ class DeliveryDescriptionSaving implements DeliveryDescriptionState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionSaving);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionSaving);
 }
 
 
@@ -346,7 +349,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryDescriptionState.saving()';
+    return 'DeliveryDescriptionState.saving()';
 }
 
 
@@ -369,7 +372,7 @@ class DeliveryDescriptionSaved implements DeliveryDescriptionState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionSaved);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionSaved);
 }
 
 
@@ -378,7 +381,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryDescriptionState.saved()';
+    return 'DeliveryDescriptionState.saved()';
 }
 
 
@@ -406,16 +409,18 @@ $DeliveryDescriptionErrorCopyWith<DeliveryDescriptionError> get copyWith => _$De
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'DeliveryDescriptionState.error(message: $message)';
+    return 'DeliveryDescriptionState.error(message: $message)';
 }
 
 

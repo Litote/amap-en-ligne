@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'membership_requests_state.dart';
@@ -9,6 +9,7 @@ part of 'membership_requests_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$MembershipRequestsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'MembershipRequestsState()';
+    return 'MembershipRequestsState()';
 }
 
 
@@ -197,7 +198,7 @@ class MembershipRequestsInitial implements MembershipRequestsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsInitial);
 }
 
 
@@ -206,7 +207,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'MembershipRequestsState.initial()';
+    return 'MembershipRequestsState.initial()';
 }
 
 
@@ -229,7 +230,7 @@ class MembershipRequestsLoading implements MembershipRequestsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsLoading);
 }
 
 
@@ -238,7 +239,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'MembershipRequestsState.loading()';
+    return 'MembershipRequestsState.loading()';
 }
 
 
@@ -251,7 +252,7 @@ String toString() {
 
 
 class MembershipRequestsLoaded implements MembershipRequestsState {
-  const MembershipRequestsLoaded({required final  List<AdminMemberJoinRequest> requests, this.statusFilter, this.actionInProgress = false, this.actionError}): _requests = requests;
+  const MembershipRequestsLoaded({required  List<AdminMemberJoinRequest> requests, this.statusFilter, this.actionInProgress = false, this.actionError}): _requests = requests;
   
 
  final  List<AdminMemberJoinRequest> _requests;
@@ -275,16 +276,18 @@ $MembershipRequestsLoadedCopyWith<MembershipRequestsLoaded> get copyWith => _$Me
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsLoaded&&const DeepCollectionEquality().equals(other._requests, _requests)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsLoaded&&const DeepCollectionEquality().equals(other.requests, _requests)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_requests),statusFilter,actionInProgress,actionError);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_requests),statusFilter,actionInProgress,actionError);
+}
 
 @override
 String toString() {
-  return 'MembershipRequestsState.loaded(requests: $requests, statusFilter: $statusFilter, actionInProgress: $actionInProgress, actionError: $actionError)';
+    return 'MembershipRequestsState.loaded(requests: $requests, statusFilter: $statusFilter, actionInProgress: $actionInProgress, actionError: $actionError)';
 }
 
 
@@ -344,16 +347,18 @@ $MembershipRequestsErrorCopyWith<MembershipRequestsError> get copyWith => _$Memb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is MembershipRequestsError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'MembershipRequestsState.error(message: $message)';
+    return 'MembershipRequestsState.error(message: $message)';
 }
 
 

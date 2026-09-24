@@ -331,6 +331,12 @@ internal class APIGatewayLambdaIntegrationTest {
                                     changes: List<persistence.changes.Change>,
                                 ) = Unit
 
+                                override suspend fun updatePendingActivation(
+                                    producerAccountId: id.Id<ProducerAccount>,
+                                    pendingActivation: Boolean,
+                                    changes: List<persistence.changes.Change>,
+                                ) = Unit
+
                                 override suspend fun put(
                                     producerAccount: ProducerAccount,
                                     organizationId: id.Id<Organization>,
@@ -348,7 +354,10 @@ internal class APIGatewayLambdaIntegrationTest {
                                     organizationId: id.Id<Organization>,
                                 ) = Unit
 
-                                override suspend fun createStandalone(producerAccount: ProducerAccount) = Unit
+                                override suspend fun createStandalone(
+                                    producerAccount: ProducerAccount,
+                                    changes: List<persistence.changes.Change>,
+                                ) = Unit
 
                                 override suspend fun updateProfile(
                                     producerAccount: ProducerAccount,

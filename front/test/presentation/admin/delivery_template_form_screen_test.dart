@@ -324,4 +324,39 @@ void main() {
     expect(find.textContaining('nnuler'), findsOneWidget);
     expect(find.text('AM'), findsNothing);
   });
+
+  testWidgets(
+    'required errors disappear as soon as the fields are filled after a failed submit',
+    (tester) async {
+      // Tall surface so the whole (lazily built) form stays on screen.
+      tester.view.physicalSize = const Size(800, 2000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await _pumpScreen(
+        tester,
+        deliveryTemplateRepository: deliveryTemplateRepository,
+        organizationRepository: organizationRepository,
+        syncBloc: syncBloc,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Créer'));
+      await tester.pumpAndSettle();
+      // Name, start time and end time are required.
+      expect(find.text('Champ requis.'), findsNWidgets(3));
+
+      await tester.enterText(find.byType(TextFormField).first, 'Jeudi soir');
+      await tester.pump();
+      expect(find.text('Champ requis.'), findsNWidgets(2));
+
+      // Pick the start time (dialog defaults to 18:00) and confirm.
+      await tester.tap(find.text('Sélectionner une heure').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('18:00'), findsOneWidget);
+      expect(find.text('Champ requis.'), findsOneWidget);
+    },
+  );
 }

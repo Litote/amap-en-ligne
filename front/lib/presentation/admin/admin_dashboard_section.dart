@@ -234,7 +234,10 @@ class _DashboardStats {
     required List<Member> members,
     required Organization? organization,
   }) {
-    final activeMembers = members.where((m) => m.activeStatus).toList();
+    final activeMembers =
+        members
+            .where((m) => m.accountStatus == MemberAccountStatus.active)
+            .toList();
     final coordinators = activeMembers
         .where((m) => m.roles.contains(Role.coordinator))
         .length;

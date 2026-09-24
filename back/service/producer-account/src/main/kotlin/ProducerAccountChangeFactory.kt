@@ -19,6 +19,9 @@ import persistence.model.ProducerAccount
  *  - [buildStatusChangeChanges]: UPSERT on every currently-linked org scope plus `instance-owner`
  *    (used for suspend/reactivate, delete, and profile updates).
  *
+ * Every builder also refreshes the producer's own `producer-account:{id}` feed, which carries
+ * its account (menu name, profile, preferences).
+ *
  * Private helpers [producerUpsertChange] and [producerDeleteChange] factor the repeated
  * [Change] constructor pattern so each public method stays declarative.
  */
@@ -36,6 +39,7 @@ class ProducerAccountChangeFactory {
                 add(producerUpsertChange(producerAccount, SyncScope.Organization(visibleOrganizationId).key))
             }
             add(producerUpsertChange(producerAccount, SyncScope.InstanceOwner.key))
+            add(producerUpsertChange(producerAccount, SyncScope.ProducerAccount(producerAccount.producerAccountId.id).key))
         }
     }
 
@@ -58,6 +62,8 @@ class ProducerAccountChangeFactory {
             } else {
                 add(producerUpsertChange(existingProducer, SyncScope.InstanceOwner.key))
             }
+            // The account itself still exists: refresh the producer's own feed.
+            add(producerUpsertChange(existingProducer, SyncScope.ProducerAccount(existingProducer.producerAccountId.id).key))
         }
 
     fun buildStatusChangeChanges(producer: ProducerAccount): List<Change> =
@@ -69,6 +75,7 @@ class ProducerAccountChangeFactory {
                     add(producerUpsertChange(producer, SyncScope.Organization(organizationId).key))
                 }
             add(producerUpsertChange(producer, SyncScope.InstanceOwner.key))
+            add(producerUpsertChange(producer, SyncScope.ProducerAccount(producer.producerAccountId.id).key))
         }
 
     private fun producerUpsertChange(

@@ -6,6 +6,7 @@ import 'package:amap_en_ligne/presentation/delivery_description/delivery_descrip
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockOrganizationRepository extends Mock
@@ -48,6 +49,8 @@ const _org = Organization(
 );
 
 void main() {
+  setUpAll(() async => initializeDateFormatting('fr'));
+
   late _MockOrganizationRepository orgRepo;
   late _MockProductTypeRepository productTypeRepo;
 
@@ -101,7 +104,9 @@ void main() {
   ) async {
     await pump(tester);
 
-    expect(find.textContaining('Description du 2025-06-14'), findsOneWidget);
+    // Human-readable French date, never the raw ISO instant.
+    expect(find.text('Composition du samedi 14 juin'), findsOneWidget);
+    expect(find.textContaining('2025-06-14'), findsNothing);
     expect(find.text('Légumes'), findsOneWidget);
     expect(find.text('Enregistrer'), findsOneWidget);
   });
@@ -130,6 +135,41 @@ void main() {
     await tester.tap(find.byIcon(Icons.remove_circle_outline));
     await tester.pumpAndSettle();
     expect(find.text('carottes'), findsNothing);
+  });
+
+  testWidgets('without a component catalog, Ajouter opens a free-entry form '
+      'whose name is required', (tester) async {
+    when(
+      () => productTypeRepo.watch(any()),
+    ).thenAnswer((_) => Stream.value(const <ProductType>[]));
+    await pump(tester);
+
+    await tester.tap(find.text('Légumes'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ajouter'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ajouter un composant'), findsOneWidget);
+
+    // Name is required (same rule as the back).
+    await tester.tap(find.text('AJOUTER'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ce champ est requis.'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Composant *'),
+      'Courge butternut',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Poids (facultatif)'),
+      '1 pièce',
+    );
+    await tester.tap(find.text('AJOUTER'));
+    await tester.pumpAndSettle();
+
+    // Listed by its name (never the technical id), weight editable.
+    expect(find.text('Courge butternut'), findsOneWidget);
+    expect(find.textContaining('free-'), findsNothing);
+    expect(find.widgetWithText(TextFormField, 'Poids'), findsOneWidget);
   });
 
   testWidgets('saving shows the confirmation snackbar and closes the screen', (

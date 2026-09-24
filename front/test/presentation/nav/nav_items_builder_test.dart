@@ -38,6 +38,16 @@ void main() {
       }
     });
 
+    test('Notifications routes to the inbox for every role', () {
+      // The inbox is otherwise unreachable: no bell in the app bar.
+      for (final role in UserRole.values) {
+        final items = buildNavItemsForRole(role, noop);
+        final inbox = items.where((i) => i.label == 'Notifications');
+        expect(inbox, hasLength(1), reason: 'role=$role');
+        expect(inbox.single.route, '/notifications', reason: 'role=$role');
+      }
+    });
+
     test('Aide routes to /help for every role', () {
       for (final role in UserRole.values) {
         final items = buildNavItemsForRole(role, noop);
@@ -216,8 +226,13 @@ void main() {
       expect(labels, contains('Accueil'));
       expect(
         labels.where(
-          (l) =>
-              !['Accueil', 'Préférences', 'Aide', 'Se déconnecter'].contains(l),
+          (l) => ![
+            'Accueil',
+            'Notifications',
+            'Préférences',
+            'Aide',
+            'Se déconnecter',
+          ].contains(l),
         ),
         isEmpty,
       );
@@ -245,7 +260,7 @@ void main() {
       final headers = sectionHeaders(
         buildNavItems({Role.volunteer, Role.coordinator}, noop),
       );
-      expect(headers, ['— Bénévole —', '— Coordinateur —']);
+      expect(headers, ['— Amapien —', '— Coordinateur —']);
     });
 
     test('COORDINATOR + ADMIN → correct items in each section', () {
@@ -271,7 +286,7 @@ void main() {
       final headers = sectionHeaders(
         buildNavItems({Role.volunteer, Role.coordinator, Role.admin}, noop),
       );
-      expect(headers, ['— Bénévole —', '— Coordinateur —', '— Admin —']);
+      expect(headers, ['— Amapien —', '— Coordinateur —', '— Admin —']);
     });
 
     test('separator appears before common items in multi-role', () {

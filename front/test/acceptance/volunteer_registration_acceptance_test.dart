@@ -93,7 +93,6 @@ void main() {
     firstName: 'Alice',
     lastName: 'Volunteer',
     email: 'volunteer@example.com',
-    activeStatus: true,
   );
 
   setUp(() {

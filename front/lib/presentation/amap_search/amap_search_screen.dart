@@ -1,8 +1,10 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_bloc.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_event.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_state.dart';
+import 'package:amap_en_ligne/presentation/common/terms_checkbox_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -163,6 +165,7 @@ class _JoinFormViewState extends State<_JoinFormView> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
+  bool _termsAccepted = false;
 
   @override
   void dispose() {
@@ -173,6 +176,7 @@ class _JoinFormViewState extends State<_JoinFormView> {
   }
 
   void _submit() {
+    if (!_termsAccepted) return;
     if (!_formKey.currentState!.validate()) return;
     context.read<AmapSearchBloc>().add(
       AmapSearchEvent.joinFormSubmitted(
@@ -229,7 +233,7 @@ class _JoinFormViewState extends State<_JoinFormView> {
                   labelText: 'Prénom *',
                   border: OutlineInputBorder(),
                 ),
-                validator: _requireNonEmpty,
+                validator: requiredName,
                 onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
               ),
               const SizedBox(height: 12),
@@ -242,7 +246,7 @@ class _JoinFormViewState extends State<_JoinFormView> {
                   labelText: 'Nom *',
                   border: OutlineInputBorder(),
                 ),
-                validator: _requireNonEmpty,
+                validator: requiredName,
                 onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
               ),
               const SizedBox(height: 12),
@@ -256,8 +260,16 @@ class _JoinFormViewState extends State<_JoinFormView> {
                   labelText: 'Email *',
                   border: OutlineInputBorder(),
                 ),
-                validator: _validateEmail,
+                validator: requiredEmail,
                 onFieldSubmitted: (_) => _submit(),
+              ),
+              const SizedBox(height: 12),
+              TermsCheckboxTile(
+                key: const Key('terms'),
+                value: _termsAccepted,
+                onChanged: widget.isSubmitting
+                    ? (_) {}
+                    : (v) => setState(() => _termsAccepted = v ?? false),
               ),
               if (widget.errorMessage != null) ...[
                 const SizedBox(height: 12),
@@ -273,7 +285,9 @@ class _JoinFormViewState extends State<_JoinFormView> {
               else
                 FilledButton(
                   key: const Key('submit'),
-                  onPressed: _submit,
+                  // Mirrors the other public forms: disabled until the terms
+                  // are accepted.
+                  onPressed: _termsAccepted ? _submit : null,
                   child: const Text("S'INSCRIRE"),
                 ),
             ],
@@ -282,20 +296,6 @@ class _JoinFormViewState extends State<_JoinFormView> {
       ),
     ),
   );
-
-  static String? _requireNonEmpty(String? v) {
-    if (v == null || v.trim().isEmpty) return 'Requis.';
-    return null;
-  }
-
-  static String? _validateEmail(String? v) {
-    final val = v?.trim() ?? '';
-    if (val.isEmpty) return "L'email est requis.";
-    if (!val.contains('@') || !val.contains('.')) {
-      return 'Saisissez un email valide.';
-    }
-    return null;
-  }
 }
 
 // ---------------------------------------------------------------------------

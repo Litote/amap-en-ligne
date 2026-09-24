@@ -40,11 +40,62 @@ void main() {
   );
 
   var counter = 0;
-  int nextTmpId() => ++counter;
+  String nextTmpId() => '${++counter}';
 
   setUp(() => counter = 0);
 
   group('planWeeklyDeliveries', () {
+    test('never generates a delivery requiring zero volunteers', () {
+      // Legacy templates may still carry desired_volunteer_count = 0, which
+      // the back now rejects on new deliveries (min_volunteers_required >= 1).
+      const legacyTemplate = DeliveryTemplate(
+        deliveryTemplateId: 'dt-legacy',
+        organizationId: orgId,
+        name: 'Legacy',
+        standardStartTime: '18:00',
+        standardEndTime: '20:00',
+        desiredVolunteerCount: 0,
+      );
+
+      final plan = planWeeklyDeliveries(
+        contract: buildContract(),
+        org: buildOrg(),
+        template: legacyTemplate,
+        nextTmpId: nextTmpId,
+      );
+
+      expect(
+        plan.deliveries.every((d) => d.minVolunteersRequired >= 1),
+        isTrue,
+      );
+    });
+
+    test('keeps the same weekday across a DST change', () {
+      // 2026-10-25 is the end of daylight saving time in Europe: adding a
+      // fixed 7×24h duration to a local midnight drifts to the previous day.
+      final contract = buildContract(
+        minDate: '2026-10-01',
+        maxDate: '2026-12-17',
+      );
+
+      final plan = planWeeklyDeliveries(
+        contract: contract,
+        org: buildOrg(),
+        template: null,
+        nextTmpId: nextTmpId,
+      );
+
+      final dates = plan.deliveries
+          .map((d) => d.scheduledDate.split('T').first)
+          .toList();
+      expect(plan.newCount, 12);
+      expect(dates, contains('2026-10-29'));
+      expect(dates, contains('2026-12-17'));
+      for (final d in plan.deliveries) {
+        expect(DateTime.parse(d.scheduledDate).weekday, DateTime.thursday);
+      }
+    });
+
     test('génère une livraison par semaine sur 4 semaines', () {
       final contract = buildContract(
         minDate: '2026-01-05',

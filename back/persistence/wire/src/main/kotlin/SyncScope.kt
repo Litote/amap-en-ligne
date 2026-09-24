@@ -11,9 +11,9 @@ sealed interface SyncScope {
     ) : SyncScope {
         override val key: String = "producer-account:$producerAccountId"
 
-        // Producers' private feed also carries their notifications and device tokens (ADR-005).
+        // Producers' private feed also carries their own account, notifications and device tokens (ADR-005).
         override val entityTypes: List<EntityType> =
-            listOf(EntityType.ProductType, EntityType.Notification, EntityType.DeviceToken)
+            listOf(EntityType.ProducerAccount, EntityType.ProductType, EntityType.Notification, EntityType.DeviceToken)
     }
 
     data class Organization(
@@ -30,6 +30,8 @@ sealed interface SyncScope {
                 EntityType.Contract,
                 EntityType.DeliveryTemplate,
                 EntityType.BasketExchange,
+                // Read-only catalogs of the linked producers (basket composition).
+                EntityType.ProductType,
             )
     }
 

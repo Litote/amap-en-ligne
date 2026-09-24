@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'notification_copy_override.dart';
@@ -9,6 +9,7 @@ part of 'notification_copy_override.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $NotificationCopyOverrideCopyWith<NotificationCopyOverride> get copyWith => _$No
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationCopyOverride&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body));
+  final _this = this as NotificationCopyOverride;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationCopyOverride&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.body, _this.body) || other.body == _this.body));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,body);
+int get hashCode {
+  final _this = this as NotificationCopyOverride;
+  return Object.hash(runtimeType,_this.title,_this.body);
+}
 
 @override
 String toString() {
-  return 'NotificationCopyOverride(title: $title, body: $body)';
+  final _this = this as NotificationCopyOverride;
+  return 'NotificationCopyOverride(title: ${_this.title}, body: ${_this.body})';
 }
 
 
@@ -66,7 +72,7 @@ class _$NotificationCopyOverrideCopyWithImpl<$Res>
 /// Create a copy of NotificationCopyOverride
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? title = freezed,Object? body = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(NotificationCopyOverride(
 title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,body: freezed == body ? _self.body : body // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -229,16 +235,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationCopyOverride&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationCopyOverride&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,body);
+int get hashCode {
+    return Object.hash(runtimeType,title,body);
+}
 
 @override
 String toString() {
-  return 'NotificationCopyOverride(title: $title, body: $body)';
+    return 'NotificationCopyOverride(title: $title, body: $body)';
 }
 
 

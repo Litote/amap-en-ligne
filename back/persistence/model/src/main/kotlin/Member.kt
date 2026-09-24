@@ -12,7 +12,6 @@ import kotlin.time.Instant
 /**
  * Lifecycle status for an AMAP member.
  *
- * Replaces the legacy [Member.activeStatus] boolean.
  * [PENDING_INVITATION] and [EXPIRED_INVITATION] have been removed: those
  * states now live exclusively on [MemberInvitation] and are no longer
  * stored on the Member row.
@@ -30,8 +29,8 @@ enum class MemberAccountStatus {
  * for all account-backed members. The [sub] field has been removed — callers that
  * previously read [sub] should use [memberId] instead.
  *
- * The PII fields ([firstName], [lastName], [email], [phone]) and [accountStatus]
- * are nullable for rows that have not yet been fully activated.
+ * The PII fields ([firstName], [lastName], [email], [phone]) are nullable for rows
+ * that have not yet been fully activated.
  */
 @Serializable
 data class Member(
@@ -40,15 +39,13 @@ data class Member(
     @SerialName("organization_id")
     val organizationId: Id<Organization>,
     val roles: Set<Role> = setOf(Role.VOLUNTEER),
-    @SerialName("active_status") val activeStatus: Boolean,
     @SerialName("first_name") val firstName: String? = null,
     @SerialName("last_name") val lastName: String? = null,
     val email: String? = null,
     val phone: String? = null,
-    @SerialName("account_status") val accountStatus: MemberAccountStatus? = null,
+    @SerialName("account_status") val accountStatus: MemberAccountStatus = MemberAccountStatus.ACTIVE,
     val contracts: List<MemberContract> = emptyList(),
     val registrations: List<MemberRegistration> = emptyList(),
-    @SerialName("member_settings") val memberSettings: MemberSettings,
     @SerialName("member_preferences") val memberPreferences: MemberPreferences,
     // User properties integrated
     @SerialName("user_preferences") val userPreferences: UserPreferences,
@@ -73,29 +70,6 @@ enum class MemberContractStatus {
     CANCELLED,
     NOT_PRESENT,
 }
-
-/**
- * Configuration settings specific to  members (mandatory for all members).
- */
-@Serializable
-data class MemberSettings(
-    @SerialName("delivery_reminders") val deliveryReminders: DeliveryReminders,
-    @SerialName("accessibility_options") val accessibilityOptions: AccessibilityOptions,
-    @SerialName("last_updated_instant") val lastUpdatedInstant: Instant,
-)
-
-@Serializable
-data class DeliveryReminders(
-    @SerialName("days_before") val daysBefore: Int,
-    @SerialName("reminder_time") val reminderTime: String,
-)
-
-@Serializable
-data class AccessibilityOptions(
-    @SerialName("high_contrast") val highContrast: Boolean,
-    @SerialName("large_text") val largeText: Boolean,
-    @SerialName("screen_reader") val screenReader: Boolean,
-)
 
 /**
  * Notification preferences specific to  members (mandatory for all members).

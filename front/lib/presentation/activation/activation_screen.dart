@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:amap_en_ligne/data/network/public_api.dart';
+import 'package:amap_en_ligne/domain/auth/password_policy.dart';
 import 'package:amap_en_ligne/domain/auth/remembered_user_context.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:flutter/foundation.dart';
@@ -34,6 +35,31 @@ class _ActivationScreenState extends State<ActivationScreen> {
 
   ActivationResult? _result;
   ActivationError? _error;
+
+  /// Account the token is about to activate, fetched on load so the user
+  /// knows which email the password is being chosen for.
+  ActivationResult? _preview;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_loadPreview());
+  }
+
+  Future<void> _loadPreview() async {
+    try {
+      final preview = await context.read<PublicApi>().describeActivation(
+        widget.token,
+      );
+      if (mounted) setState(() => _preview = preview);
+    } on ActivationException catch (e) {
+      // Surface an invalid/expired/used link before the user types a password.
+      if (mounted) setState(() => _error = e.error);
+    } on Exception catch (e, stackTrace) {
+      // The preview is informative only: activation still works without it.
+      unawaited(Sentry.captureException(e, stackTrace: stackTrace));
+    }
+  }
 
   @override
   void dispose() {
@@ -108,6 +134,7 @@ class _ActivationScreenState extends State<ActivationScreen> {
                       setState(() => _obscureConfirm = !_obscureConfirm),
                   loading: _loading,
                   error: _error,
+                  preview: _preview,
                   onSubmit: _submit,
                 ),
         ),
@@ -194,6 +221,7 @@ class _FormCard extends StatelessWidget {
     required this.onToggleConfirm,
     required this.loading,
     required this.error,
+    required this.preview,
     required this.onSubmit,
   });
 
@@ -206,15 +234,22 @@ class _FormCard extends StatelessWidget {
   final VoidCallback onToggleConfirm;
   final bool loading;
   final ActivationError? error;
+  final ActivationResult? preview;
   final VoidCallback onSubmit;
 
   String? _validatePassword(String? v) {
     final val = v ?? '';
     if (val.isEmpty) return 'Le mot de passe est requis.';
-    if (val.length < 8) {
-      return 'Le mot de passe doit contenir au moins 8 caractères.';
-    }
-    return null;
+    return passwordPolicyViolation(val);
+  }
+
+  String? get _accountLabel {
+    final p = preview;
+    if (p == null) return null;
+    final name = p.organizationName;
+    if (name == null || name.isEmpty) return 'Compte : ${p.email}';
+    final scope = p.kind == ActivationKind.producer ? 'Producteur' : 'AMAP';
+    return 'Compte : ${p.email}\n$scope : $name';
   }
 
   String? _validateConfirm(String? v) {
@@ -232,6 +267,8 @@ class _FormCard extends StatelessWidget {
         "Ce lien d'activation a expiré. Contactez l'administrateur.",
       ActivationError.alreadyActivated =>
         'Ce compte a déjà été activé. Connectez-vous.',
+      ActivationError.weakPassword =>
+        "Ce mot de passe n'est pas accepté. $kPasswordPolicyHint",
       ActivationError.serverError =>
         'Une erreur est survenue. Veuillez réessayer.',
     };
@@ -258,6 +295,15 @@ class _FormCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey),
             ),
+            if (_accountLabel != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                _accountLabel!,
+                key: const Key('activation_account'),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
             const SizedBox(height: 24),
             TextFormField(
               key: const Key('password'),
@@ -267,6 +313,8 @@ class _FormCard extends StatelessWidget {
               autofillHints: const [AutofillHints.newPassword],
               decoration: InputDecoration(
                 labelText: 'Mot de passe *',
+                helperText: kPasswordPolicyHint,
+                helperMaxLines: 2,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: Icon(

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'time_slots_bloc.dart';
@@ -9,6 +9,7 @@ part of 'time_slots_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $TimeSlotsEventCopyWith<TimeSlotsEvent> get copyWith => _$TimeSlotsEventCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsEvent&&(identical(other.currentOrg, currentOrg) || other.currentOrg == currentOrg)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
+  final _this = this as TimeSlotsEvent;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsEvent&&(identical(other.currentOrg, _this.currentOrg) || other.currentOrg == _this.currentOrg)&&(identical(other.deliveryId, _this.deliveryId) || other.deliveryId == _this.deliveryId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,currentOrg,deliveryId);
+int get hashCode {
+  final _this = this as TimeSlotsEvent;
+  return Object.hash(runtimeType,_this.currentOrg,_this.deliveryId);
+}
 
 @override
 String toString() {
-  return 'TimeSlotsEvent(currentOrg: $currentOrg, deliveryId: $deliveryId)';
+  final _this = this as TimeSlotsEvent;
+  return 'TimeSlotsEvent(currentOrg: ${_this.currentOrg}, deliveryId: ${_this.deliveryId})';
 }
 
 
@@ -238,16 +244,18 @@ $TimeSlotsDeleteRequestedCopyWith<TimeSlotsDeleteRequested> get copyWith => _$Ti
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsDeleteRequested&&(identical(other.currentOrg, currentOrg) || other.currentOrg == currentOrg)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsDeleteRequested&&(identical(other.currentOrg, currentOrg) || other.currentOrg == currentOrg)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,currentOrg,deliveryId);
+int get hashCode {
+    return Object.hash(runtimeType,currentOrg,deliveryId);
+}
 
 @override
 String toString() {
-  return 'TimeSlotsEvent.deleteRequested(currentOrg: $currentOrg, deliveryId: $deliveryId)';
+    return 'TimeSlotsEvent.deleteRequested(currentOrg: $currentOrg, deliveryId: $deliveryId)';
 }
 
 
@@ -317,16 +325,18 @@ $SlotCancelRequestedCopyWith<SlotCancelRequested> get copyWith => _$SlotCancelRe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SlotCancelRequested&&(identical(other.currentOrg, currentOrg) || other.currentOrg == currentOrg)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.slot, slot) || other.slot == slot));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SlotCancelRequested&&(identical(other.currentOrg, currentOrg) || other.currentOrg == currentOrg)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.slot, slot) || other.slot == slot));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,currentOrg,deliveryId,contractId,slot);
+int get hashCode {
+    return Object.hash(runtimeType,currentOrg,deliveryId,contractId,slot);
+}
 
 @override
 String toString() {
-  return 'TimeSlotsEvent.slotCancelRequested(currentOrg: $currentOrg, deliveryId: $deliveryId, contractId: $contractId, slot: $slot)';
+    return 'TimeSlotsEvent.slotCancelRequested(currentOrg: $currentOrg, deliveryId: $deliveryId, contractId: $contractId, slot: $slot)';
 }
 
 
@@ -407,16 +417,18 @@ $SlotDeleteRequestedCopyWith<SlotDeleteRequested> get copyWith => _$SlotDeleteRe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SlotDeleteRequested&&(identical(other.currentOrg, currentOrg) || other.currentOrg == currentOrg)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.slot, slot) || other.slot == slot));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SlotDeleteRequested&&(identical(other.currentOrg, currentOrg) || other.currentOrg == currentOrg)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.slot, slot) || other.slot == slot));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,currentOrg,deliveryId,contractId,slot);
+int get hashCode {
+    return Object.hash(runtimeType,currentOrg,deliveryId,contractId,slot);
+}
 
 @override
 String toString() {
-  return 'TimeSlotsEvent.slotDeleteRequested(currentOrg: $currentOrg, deliveryId: $deliveryId, contractId: $contractId, slot: $slot)';
+    return 'TimeSlotsEvent.slotDeleteRequested(currentOrg: $currentOrg, deliveryId: $deliveryId, contractId: $contractId, slot: $slot)';
 }
 
 
@@ -484,7 +496,7 @@ mixin _$TimeSlotsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsState);
 }
 
 
@@ -493,7 +505,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'TimeSlotsState()';
+    return 'TimeSlotsState()';
 }
 
 
@@ -673,7 +685,7 @@ class TimeSlotsIdle implements TimeSlotsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsIdle);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsIdle);
 }
 
 
@@ -682,7 +694,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'TimeSlotsState.idle()';
+    return 'TimeSlotsState.idle()';
 }
 
 
@@ -705,7 +717,7 @@ class TimeSlotsDeleting implements TimeSlotsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsDeleting);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsDeleting);
 }
 
 
@@ -714,7 +726,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'TimeSlotsState.deleting()';
+    return 'TimeSlotsState.deleting()';
 }
 
 
@@ -737,7 +749,7 @@ class TimeSlotsDeleted implements TimeSlotsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsDeleted);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsDeleted);
 }
 
 
@@ -746,7 +758,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'TimeSlotsState.deleted()';
+    return 'TimeSlotsState.deleted()';
 }
 
 
@@ -769,7 +781,7 @@ class TimeSlotsSlotMutating implements TimeSlotsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsSlotMutating);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsSlotMutating);
 }
 
 
@@ -778,7 +790,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'TimeSlotsState.slotMutating()';
+    return 'TimeSlotsState.slotMutating()';
 }
 
 
@@ -801,7 +813,7 @@ class TimeSlotsSlotMutated implements TimeSlotsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsSlotMutated);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsSlotMutated);
 }
 
 
@@ -810,7 +822,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'TimeSlotsState.slotMutated()';
+    return 'TimeSlotsState.slotMutated()';
 }
 
 
@@ -838,16 +850,18 @@ $TimeSlotsErrorCopyWith<TimeSlotsError> get copyWith => _$TimeSlotsErrorCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeSlotsError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'TimeSlotsState.error(message: $message)';
+    return 'TimeSlotsState.error(message: $message)';
 }
 
 

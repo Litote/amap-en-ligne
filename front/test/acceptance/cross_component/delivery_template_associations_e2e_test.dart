@@ -121,11 +121,9 @@ void main() {
         expect(bootstrapOutcome, isA<SyncSuccess>());
         expect((bootstrapOutcome as SyncSuccess).rejectedMutations, isEmpty);
 
-        // Snapshot pre-existing template IDs so we can identify the new one by diff.
-        // NOTE: the server stores delivery templates with their tmp_ IDs unchanged
-        // (no server-side ID reallocation), so the "before" snapshot may include
-        // tmp_ IDs from previous test runs. We use the diff — not a tmp_ prefix
-        // filter — to find our newly created template.
+        // Snapshot pre-existing template IDs so we can identify the new one by
+        // diff: on a persistent backend, templates from previous runs exist
+        // (some of them stored under legacy tmp_ IDs).
         final preCreateTemplateIds =
             (await templateRepo.watch(_organizationId).first)
                 .map((t) => t.deliveryTemplateId)
@@ -163,11 +161,20 @@ void main() {
           isEmpty,
         );
 
-        // The server stores delivery templates with the tmp_ ID unchanged.
-        // After sync our template still has the same ID.
-        final syncedTemplate = (await templateRepo.watch(_organizationId).first)
-            .singleWhere((t) => t.deliveryTemplateId == optimisticTemplateId);
+        // The server allocates a real ID for the tmp_ creation and the client
+        // remaps its cached template to it.
+        final postSyncTemplates = await templateRepo
+            .watch(_organizationId)
+            .first;
+        expect(
+          postSyncTemplates.map((t) => t.deliveryTemplateId),
+          isNot(contains(optimisticTemplateId)),
+        );
+        final syncedTemplate = postSyncTemplates.singleWhere(
+          (t) => !preCreateTemplateIds.contains(t.deliveryTemplateId),
+        );
         final syncedTemplateId = syncedTemplate.deliveryTemplateId;
+        expect(syncedTemplateId, isNot(startsWith('tmp_')));
         expect(await writeDb.readPendingMutationEntries(), isEmpty);
 
         final currentOrg = (await organizationRepo

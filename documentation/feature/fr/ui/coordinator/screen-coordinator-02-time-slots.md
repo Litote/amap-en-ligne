@@ -117,7 +117,7 @@ Chaque carte propose deux actions :
 - **[MODIFIER]** : ouvre le formulaire d'édition de la livraison existante.
 - **[SUIVRE]** : ouvre l'écran de suivi en direct ([Écran 4](screen-coordinator-04-delivery-tracking.md)) — présences bénévoles et récupération des paniers.
 
-La suppression d'une livraison se fait en **balayant la carte vers la gauche** (geste de suppression).
+La suppression d'une livraison se fait en **balayant la carte vers la gauche** (geste de suppression). Une confirmation « Supprimer la livraison ? » est toujours demandée (ANNULER / SUPPRIMER) ; si des bénévoles sont inscrits, elle précise combien perdront leur inscription. Annuler remet la carte en place.
 
 Dans la liste des livraisons existantes, l'indicateur `👥 N/M` correspond aux inscriptions actuelles sur bénévolat sur la livraison, rapportées au nombre de bénévoles requis pour cette livraison.
 

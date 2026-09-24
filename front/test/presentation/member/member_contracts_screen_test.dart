@@ -295,5 +295,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('📦'), findsOneWidget);
+    // The contract name identifies the contract (several contracts may share
+    // a producer), the producer / product label stays visible below it.
+    expect(find.text('Contrat test'), findsOneWidget);
+    expect(find.text('Tomates'), findsOneWidget);
   });
 }

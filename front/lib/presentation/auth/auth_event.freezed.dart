@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'auth_event.dart';
@@ -9,6 +9,7 @@ part of 'auth_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$AuthEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AuthEvent()';
+    return 'AuthEvent()';
 }
 
 
@@ -55,13 +56,14 @@ extension AuthEventPatterns on AuthEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthStarted value)?  started,TResult Function( AuthSessionChanged value)?  sessionChanged,TResult Function( AuthOrganizationIdChanged value)?  organizationIdChanged,TResult Function( AuthMemberNameUpdated value)?  memberNameUpdated,TResult Function( AuthMemberRolesUpdated value)?  memberRolesUpdated,TResult Function( AuthLoginSubmitted value)?  loginSubmitted,TResult Function( AuthLogoutRequested value)?  logoutRequested,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthStarted value)?  started,TResult Function( AuthSessionChanged value)?  sessionChanged,TResult Function( AuthOrganizationIdChanged value)?  organizationIdChanged,TResult Function( AuthProducerAccountIdChanged value)?  producerAccountIdChanged,TResult Function( AuthMemberNameUpdated value)?  memberNameUpdated,TResult Function( AuthMemberRolesUpdated value)?  memberRolesUpdated,TResult Function( AuthLoginSubmitted value)?  loginSubmitted,TResult Function( AuthLogoutRequested value)?  logoutRequested,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case AuthStarted() when started != null:
 return started(_that);case AuthSessionChanged() when sessionChanged != null:
 return sessionChanged(_that);case AuthOrganizationIdChanged() when organizationIdChanged != null:
-return organizationIdChanged(_that);case AuthMemberNameUpdated() when memberNameUpdated != null:
+return organizationIdChanged(_that);case AuthProducerAccountIdChanged() when producerAccountIdChanged != null:
+return producerAccountIdChanged(_that);case AuthMemberNameUpdated() when memberNameUpdated != null:
 return memberNameUpdated(_that);case AuthMemberRolesUpdated() when memberRolesUpdated != null:
 return memberRolesUpdated(_that);case AuthLoginSubmitted() when loginSubmitted != null:
 return loginSubmitted(_that);case AuthLogoutRequested() when logoutRequested != null:
@@ -83,13 +85,14 @@ return logoutRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthStarted value)  started,required TResult Function( AuthSessionChanged value)  sessionChanged,required TResult Function( AuthOrganizationIdChanged value)  organizationIdChanged,required TResult Function( AuthMemberNameUpdated value)  memberNameUpdated,required TResult Function( AuthMemberRolesUpdated value)  memberRolesUpdated,required TResult Function( AuthLoginSubmitted value)  loginSubmitted,required TResult Function( AuthLogoutRequested value)  logoutRequested,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthStarted value)  started,required TResult Function( AuthSessionChanged value)  sessionChanged,required TResult Function( AuthOrganizationIdChanged value)  organizationIdChanged,required TResult Function( AuthProducerAccountIdChanged value)  producerAccountIdChanged,required TResult Function( AuthMemberNameUpdated value)  memberNameUpdated,required TResult Function( AuthMemberRolesUpdated value)  memberRolesUpdated,required TResult Function( AuthLoginSubmitted value)  loginSubmitted,required TResult Function( AuthLogoutRequested value)  logoutRequested,}){
 final _that = this;
 switch (_that) {
 case AuthStarted():
 return started(_that);case AuthSessionChanged():
 return sessionChanged(_that);case AuthOrganizationIdChanged():
-return organizationIdChanged(_that);case AuthMemberNameUpdated():
+return organizationIdChanged(_that);case AuthProducerAccountIdChanged():
+return producerAccountIdChanged(_that);case AuthMemberNameUpdated():
 return memberNameUpdated(_that);case AuthMemberRolesUpdated():
 return memberRolesUpdated(_that);case AuthLoginSubmitted():
 return loginSubmitted(_that);case AuthLogoutRequested():
@@ -107,13 +110,14 @@ return logoutRequested(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthStarted value)?  started,TResult? Function( AuthSessionChanged value)?  sessionChanged,TResult? Function( AuthOrganizationIdChanged value)?  organizationIdChanged,TResult? Function( AuthMemberNameUpdated value)?  memberNameUpdated,TResult? Function( AuthMemberRolesUpdated value)?  memberRolesUpdated,TResult? Function( AuthLoginSubmitted value)?  loginSubmitted,TResult? Function( AuthLogoutRequested value)?  logoutRequested,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthStarted value)?  started,TResult? Function( AuthSessionChanged value)?  sessionChanged,TResult? Function( AuthOrganizationIdChanged value)?  organizationIdChanged,TResult? Function( AuthProducerAccountIdChanged value)?  producerAccountIdChanged,TResult? Function( AuthMemberNameUpdated value)?  memberNameUpdated,TResult? Function( AuthMemberRolesUpdated value)?  memberRolesUpdated,TResult? Function( AuthLoginSubmitted value)?  loginSubmitted,TResult? Function( AuthLogoutRequested value)?  logoutRequested,}){
 final _that = this;
 switch (_that) {
 case AuthStarted() when started != null:
 return started(_that);case AuthSessionChanged() when sessionChanged != null:
 return sessionChanged(_that);case AuthOrganizationIdChanged() when organizationIdChanged != null:
-return organizationIdChanged(_that);case AuthMemberNameUpdated() when memberNameUpdated != null:
+return organizationIdChanged(_that);case AuthProducerAccountIdChanged() when producerAccountIdChanged != null:
+return producerAccountIdChanged(_that);case AuthMemberNameUpdated() when memberNameUpdated != null:
 return memberNameUpdated(_that);case AuthMemberRolesUpdated() when memberRolesUpdated != null:
 return memberRolesUpdated(_that);case AuthLoginSubmitted() when loginSubmitted != null:
 return loginSubmitted(_that);case AuthLogoutRequested() when logoutRequested != null:
@@ -134,12 +138,13 @@ return logoutRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( AuthState session)?  sessionChanged,TResult Function( String? organizationId)?  organizationIdChanged,TResult Function( String? firstName,  String? lastName)?  memberNameUpdated,TResult Function( Set<Role> roles)?  memberRolesUpdated,TResult Function( String email,  String password,  bool rememberMe)?  loginSubmitted,TResult Function()?  logoutRequested,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( AuthState session)?  sessionChanged,TResult Function( String? organizationId)?  organizationIdChanged,TResult Function( String? producerAccountId)?  producerAccountIdChanged,TResult Function( String? firstName,  String? lastName)?  memberNameUpdated,TResult Function( Set<Role> roles)?  memberRolesUpdated,TResult Function( String email,  String password,  bool rememberMe)?  loginSubmitted,TResult Function()?  logoutRequested,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AuthStarted() when started != null:
 return started();case AuthSessionChanged() when sessionChanged != null:
 return sessionChanged(_that.session);case AuthOrganizationIdChanged() when organizationIdChanged != null:
-return organizationIdChanged(_that.organizationId);case AuthMemberNameUpdated() when memberNameUpdated != null:
+return organizationIdChanged(_that.organizationId);case AuthProducerAccountIdChanged() when producerAccountIdChanged != null:
+return producerAccountIdChanged(_that.producerAccountId);case AuthMemberNameUpdated() when memberNameUpdated != null:
 return memberNameUpdated(_that.firstName,_that.lastName);case AuthMemberRolesUpdated() when memberRolesUpdated != null:
 return memberRolesUpdated(_that.roles);case AuthLoginSubmitted() when loginSubmitted != null:
 return loginSubmitted(_that.email,_that.password,_that.rememberMe);case AuthLogoutRequested() when logoutRequested != null:
@@ -161,12 +166,13 @@ return logoutRequested();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( AuthState session)  sessionChanged,required TResult Function( String? organizationId)  organizationIdChanged,required TResult Function( String? firstName,  String? lastName)  memberNameUpdated,required TResult Function( Set<Role> roles)  memberRolesUpdated,required TResult Function( String email,  String password,  bool rememberMe)  loginSubmitted,required TResult Function()  logoutRequested,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( AuthState session)  sessionChanged,required TResult Function( String? organizationId)  organizationIdChanged,required TResult Function( String? producerAccountId)  producerAccountIdChanged,required TResult Function( String? firstName,  String? lastName)  memberNameUpdated,required TResult Function( Set<Role> roles)  memberRolesUpdated,required TResult Function( String email,  String password,  bool rememberMe)  loginSubmitted,required TResult Function()  logoutRequested,}) {final _that = this;
 switch (_that) {
 case AuthStarted():
 return started();case AuthSessionChanged():
 return sessionChanged(_that.session);case AuthOrganizationIdChanged():
-return organizationIdChanged(_that.organizationId);case AuthMemberNameUpdated():
+return organizationIdChanged(_that.organizationId);case AuthProducerAccountIdChanged():
+return producerAccountIdChanged(_that.producerAccountId);case AuthMemberNameUpdated():
 return memberNameUpdated(_that.firstName,_that.lastName);case AuthMemberRolesUpdated():
 return memberRolesUpdated(_that.roles);case AuthLoginSubmitted():
 return loginSubmitted(_that.email,_that.password,_that.rememberMe);case AuthLogoutRequested():
@@ -184,12 +190,13 @@ return logoutRequested();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( AuthState session)?  sessionChanged,TResult? Function( String? organizationId)?  organizationIdChanged,TResult? Function( String? firstName,  String? lastName)?  memberNameUpdated,TResult? Function( Set<Role> roles)?  memberRolesUpdated,TResult? Function( String email,  String password,  bool rememberMe)?  loginSubmitted,TResult? Function()?  logoutRequested,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( AuthState session)?  sessionChanged,TResult? Function( String? organizationId)?  organizationIdChanged,TResult? Function( String? producerAccountId)?  producerAccountIdChanged,TResult? Function( String? firstName,  String? lastName)?  memberNameUpdated,TResult? Function( Set<Role> roles)?  memberRolesUpdated,TResult? Function( String email,  String password,  bool rememberMe)?  loginSubmitted,TResult? Function()?  logoutRequested,}) {final _that = this;
 switch (_that) {
 case AuthStarted() when started != null:
 return started();case AuthSessionChanged() when sessionChanged != null:
 return sessionChanged(_that.session);case AuthOrganizationIdChanged() when organizationIdChanged != null:
-return organizationIdChanged(_that.organizationId);case AuthMemberNameUpdated() when memberNameUpdated != null:
+return organizationIdChanged(_that.organizationId);case AuthProducerAccountIdChanged() when producerAccountIdChanged != null:
+return producerAccountIdChanged(_that.producerAccountId);case AuthMemberNameUpdated() when memberNameUpdated != null:
 return memberNameUpdated(_that.firstName,_that.lastName);case AuthMemberRolesUpdated() when memberRolesUpdated != null:
 return memberRolesUpdated(_that.roles);case AuthLoginSubmitted() when loginSubmitted != null:
 return loginSubmitted(_that.email,_that.password,_that.rememberMe);case AuthLogoutRequested() when logoutRequested != null:
@@ -215,7 +222,7 @@ class AuthStarted implements AuthEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthStarted);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthStarted);
 }
 
 
@@ -224,7 +231,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AuthEvent.started()';
+    return 'AuthEvent.started()';
 }
 
 
@@ -252,16 +259,18 @@ $AuthSessionChangedCopyWith<AuthSessionChanged> get copyWith => _$AuthSessionCha
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthSessionChanged&&(identical(other.session, session) || other.session == session));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthSessionChanged&&(identical(other.session, session) || other.session == session));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,session);
+int get hashCode {
+    return Object.hash(runtimeType,session);
+}
 
 @override
 String toString() {
-  return 'AuthEvent.sessionChanged(session: $session)';
+    return 'AuthEvent.sessionChanged(session: $session)';
 }
 
 
@@ -327,16 +336,18 @@ $AuthOrganizationIdChangedCopyWith<AuthOrganizationIdChanged> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthOrganizationIdChanged&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthOrganizationIdChanged&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationId);
+int get hashCode {
+    return Object.hash(runtimeType,organizationId);
+}
 
 @override
 String toString() {
-  return 'AuthEvent.organizationIdChanged(organizationId: $organizationId)';
+    return 'AuthEvent.organizationIdChanged(organizationId: $organizationId)';
 }
 
 
@@ -377,6 +388,74 @@ as String?,
 /// @nodoc
 
 
+class AuthProducerAccountIdChanged implements AuthEvent {
+  const AuthProducerAccountIdChanged(this.producerAccountId);
+  
+
+ final  String? producerAccountId;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AuthProducerAccountIdChangedCopyWith<AuthProducerAccountIdChanged> get copyWith => _$AuthProducerAccountIdChangedCopyWithImpl<AuthProducerAccountIdChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthProducerAccountIdChanged&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,producerAccountId);
+}
+
+@override
+String toString() {
+    return 'AuthEvent.producerAccountIdChanged(producerAccountId: $producerAccountId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AuthProducerAccountIdChangedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory $AuthProducerAccountIdChangedCopyWith(AuthProducerAccountIdChanged value, $Res Function(AuthProducerAccountIdChanged) _then) = _$AuthProducerAccountIdChangedCopyWithImpl;
+@useResult
+$Res call({
+ String? producerAccountId
+});
+
+
+
+
+}
+/// @nodoc
+class _$AuthProducerAccountIdChangedCopyWithImpl<$Res>
+    implements $AuthProducerAccountIdChangedCopyWith<$Res> {
+  _$AuthProducerAccountIdChangedCopyWithImpl(this._self, this._then);
+
+  final AuthProducerAccountIdChanged _self;
+  final $Res Function(AuthProducerAccountIdChanged) _then;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? producerAccountId = freezed,}) {
+  return _then(AuthProducerAccountIdChanged(
+freezed == producerAccountId ? _self.producerAccountId : producerAccountId // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
 class AuthMemberNameUpdated implements AuthEvent {
   const AuthMemberNameUpdated(this.firstName, this.lastName);
   
@@ -394,16 +473,18 @@ $AuthMemberNameUpdatedCopyWith<AuthMemberNameUpdated> get copyWith => _$AuthMemb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthMemberNameUpdated&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthMemberNameUpdated&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,firstName,lastName);
+int get hashCode {
+    return Object.hash(runtimeType,firstName,lastName);
+}
 
 @override
 String toString() {
-  return 'AuthEvent.memberNameUpdated(firstName: $firstName, lastName: $lastName)';
+    return 'AuthEvent.memberNameUpdated(firstName: $firstName, lastName: $lastName)';
 }
 
 
@@ -446,7 +527,7 @@ as String?,
 
 
 class AuthMemberRolesUpdated implements AuthEvent {
-  const AuthMemberRolesUpdated(final  Set<Role> roles): _roles = roles;
+  const AuthMemberRolesUpdated( Set<Role> roles): _roles = roles;
   
 
  final  Set<Role> _roles;
@@ -467,16 +548,18 @@ $AuthMemberRolesUpdatedCopyWith<AuthMemberRolesUpdated> get copyWith => _$AuthMe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthMemberRolesUpdated&&const DeepCollectionEquality().equals(other._roles, _roles));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthMemberRolesUpdated&&const DeepCollectionEquality().equals(other.roles, _roles));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_roles));
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_roles));
+}
 
 @override
 String toString() {
-  return 'AuthEvent.memberRolesUpdated(roles: $roles)';
+    return 'AuthEvent.memberRolesUpdated(roles: $roles)';
 }
 
 
@@ -535,16 +618,18 @@ $AuthLoginSubmittedCopyWith<AuthLoginSubmitted> get copyWith => _$AuthLoginSubmi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoginSubmitted&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.rememberMe, rememberMe) || other.rememberMe == rememberMe));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLoginSubmitted&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.rememberMe, rememberMe) || other.rememberMe == rememberMe));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,email,password,rememberMe);
+int get hashCode {
+    return Object.hash(runtimeType,email,password,rememberMe);
+}
 
 @override
 String toString() {
-  return 'AuthEvent.loginSubmitted(email: $email, password: $password, rememberMe: $rememberMe)';
+    return 'AuthEvent.loginSubmitted(email: $email, password: $password, rememberMe: $rememberMe)';
 }
 
 
@@ -598,7 +683,7 @@ class AuthLogoutRequested implements AuthEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLogoutRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthLogoutRequested);
 }
 
 
@@ -607,7 +692,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AuthEvent.logoutRequested()';
+    return 'AuthEvent.logoutRequested()';
 }
 
 

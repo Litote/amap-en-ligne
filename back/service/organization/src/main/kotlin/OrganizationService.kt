@@ -35,6 +35,7 @@ import persistence.model.NotificationChannel
 import persistence.model.NotificationCopyOverride
 import persistence.model.NotificationType
 import persistence.model.Organization
+import persistence.model.OrganizationProducerStatus
 import persistence.model.ProducerManagementMode
 import kotlin.time.Clock
 
@@ -158,6 +159,8 @@ class OrganizationService(
         incoming: Organization,
         mutation: ClientMutation,
     ): SlotLifecycleNormalizer.Result {
+        (organizationFormError(persistedOrg, incoming) ?: enrolledProducerWithoutProductError(persistedOrg, incoming))
+            ?.let { return SlotLifecycleNormalizer.Result.Rejected(rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, it)) }
         val endedLinksOutcome = checkNewDeliveryLinksNotEnded(organizationId, persistedOrg, incoming, mutation)
         if (endedLinksOutcome != null) {
             return SlotLifecycleNormalizer.Result.Rejected(endedLinksOutcome)
@@ -167,6 +170,35 @@ class OrganizationService(
             return SlotLifecycleNormalizer.Result.Rejected(coordinatorPoolOutcome)
         }
         return SlotLifecycleNormalizer.process(persistedOrg, incoming, mutation, this)
+    }
+
+    /**
+     * Mirrors the producer enrollment / product selection screens: an account-backed
+     * producer active in the organization must offer at least one product there. Only
+     * checked for producers newly enrolled or whose product set changed (legacy rows stay
+     * editable); no-account producers get their products derived by [mergeNoAccountProducts].
+     */
+    private suspend fun enrolledProducerWithoutProductError(
+        persistedOrg: Organization?,
+        incoming: Organization,
+    ): String? {
+        val persistedProducts = persistedOrg?.products.orEmpty().groupBy { it.producerAccountId }
+        val incomingProducts = incoming.products.groupBy { it.producerAccountId }
+        incoming.producers
+            .filter { it.status == OrganizationProducerStatus.ACTIVE }
+            .forEach { producer ->
+                val id = producer.producerAccountId
+                val offered = incomingProducts[id].orEmpty()
+                val isNew = persistedOrg?.producers?.none { it.producerAccountId == id } ?: true
+                val changed = offered.map { it.productTypeId }.toSet() != persistedProducts[id].orEmpty().map { it.productTypeId }.toSet()
+                if (offered.isEmpty() && (isNew || changed)) {
+                    val account = producerAccountSyncDAO.findById(id)
+                    if (account?.managementMode == ProducerManagementMode.ACCOUNT_BACKED) {
+                        return "producer ${id.id} must offer at least one product in the organization"
+                    }
+                }
+            }
+        return null
     }
 
     /**

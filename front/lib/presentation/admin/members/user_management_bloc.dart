@@ -10,6 +10,7 @@ import 'package:amap_en_ligne/domain/model/invitation_status.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/member_invitation.dart';
 import 'package:amap_en_ligne/domain/sync/mutation_outcome.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -563,15 +564,25 @@ class UserManagementBloc
       return;
     }
 
-    if (current.inviteFirstName.isEmpty ||
-        current.inviteLastName.isEmpty ||
-        current.inviteEmail.isEmpty ||
+    // Same rules as the back MemberInvitationService (InputRules).
+    if (current.inviteFirstName.trim().isEmpty ||
+        current.inviteLastName.trim().isEmpty ||
+        current.inviteEmail.trim().isEmpty ||
         current.inviteRoles.isEmpty) {
       emit(
         current.copyWith(
           inviteError: 'Veuillez remplir tous les champs obligatoires.',
         ),
       );
+      _submittingInvitation = false;
+      return;
+    }
+    final fieldError =
+        requiredName(current.inviteFirstName) ??
+        requiredName(current.inviteLastName) ??
+        requiredEmail(current.inviteEmail);
+    if (fieldError != null) {
+      emit(current.copyWith(inviteError: fieldError));
       _submittingInvitation = false;
       return;
     }

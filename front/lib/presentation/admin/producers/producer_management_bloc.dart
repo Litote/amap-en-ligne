@@ -14,6 +14,9 @@ part 'producer_management_state.dart';
 const _kOrgNotFound = 'Organisation introuvable.';
 const _kProductUpdateFailed = 'Impossible de mettre à jour les produits.';
 
+/// Pause after the last keystroke before querying the producer search API.
+const _kSearchDebounce = Duration(milliseconds: 300);
+
 class ProducerManagementBloc
     extends Bloc<ProducerManagementEvent, ProducerManagementState> {
   ProducerManagementBloc({
@@ -159,6 +162,12 @@ class ProducerManagementBloc
     }
   }
 
+  bool _isCurrentSearch(String query) {
+    final current = state;
+    return current is ProducerManagementEnrollStep1 &&
+        current.searchQuery == query;
+  }
+
   Future<void> _onEnrollSearchChanged(
     _EnrollSearchChanged event,
     Emitter<ProducerManagementState> emit,
@@ -183,8 +192,15 @@ class ProducerManagementBloc
 
     if (event.query.isEmpty) return;
 
+    // Debounce: handlers run concurrently, so a newer keystroke has already
+    // replaced the query in the state by the time this delay elapses.
+    await Future<void>.delayed(_kSearchDebounce);
+    if (!_isCurrentSearch(event.query)) return;
+
     try {
       final results = await _adminApi.searchProducers(event.query);
+      // Drop responses to superseded queries (out-of-order network replies).
+      if (!_isCurrentSearch(event.query)) return;
       emit(
         ProducerManagementState.enrollStep1(
           organization: org,
@@ -195,6 +211,7 @@ class ProducerManagementBloc
       );
     } on Exception catch (e, stackTrace) {
       unawaited(Sentry.captureException(e, stackTrace: stackTrace));
+      if (!_isCurrentSearch(event.query)) return;
       emit(
         ProducerManagementState.enrollStep1(
           organization: org,

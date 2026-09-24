@@ -223,10 +223,7 @@ class MemberRepository {
           'Member $memberId in organization $organizationId not found in cache',
         );
       }
-      final updated = current.copyWith(
-        accountStatus: target,
-        activeStatus: target == MemberAccountStatus.active,
-      );
+      final updated = current.copyWith(accountStatus: target);
       await _db.upsertMember(organizationId, updated);
       await _db.enqueuePendingMutation(
         ClientMutation(

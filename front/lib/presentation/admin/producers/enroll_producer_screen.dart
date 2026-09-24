@@ -2,6 +2,7 @@ import 'package:amap_en_ligne/data/network/admin_api.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/producer_management_bloc.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/producer_ui_helpers.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
@@ -144,6 +145,7 @@ class _Step1State extends State<_Step1> {
   @override
   Widget build(BuildContext context) => ConnectedScaffold(
     title: 'Inscrire un producteur — Étape 1',
+    onBack: () => context.pop(),
     body: Column(
       children: [
         Padding(
@@ -241,6 +243,9 @@ class _AccountBackedStep2State extends State<_AccountBackedStep2> {
 
     return ConnectedScaffold(
       title: 'Inscrire un producteur — Étape 2',
+      onBack: () => context.read<ProducerManagementBloc>().add(
+        const ProducerManagementEvent.backToListRequested(),
+      ),
       body: Column(
         children: [
           Padding(
@@ -446,6 +451,9 @@ class _NoAccountStep2State extends State<_NoAccountStep2> {
   @override
   Widget build(BuildContext context) => ConnectedScaffold(
     title: 'Créer un producteur sans compte — Étape 2',
+    onBack: () => context.read<ProducerManagementBloc>().add(
+      const ProducerManagementEvent.backToListRequested(),
+    ),
     body: Column(
       children: [
         Expanded(
@@ -470,16 +478,18 @@ class _NoAccountStep2State extends State<_NoAccountStep2> {
                       if (value == null || value.trim().isEmpty) {
                         return 'Renseignez un nom.';
                       }
-                      return null;
+                      return requiredName(value);
                     },
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
+                    key: const Key('no_account_contact_email'),
                     controller: _contactEmailController,
                     decoration: const InputDecoration(
                       labelText: 'Email de contact',
                       border: OutlineInputBorder(),
                     ),
+                    validator: optionalEmail,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -491,11 +501,13 @@ class _NoAccountStep2State extends State<_NoAccountStep2> {
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
+                    key: const Key('no_account_website'),
                     controller: _websiteController,
                     decoration: const InputDecoration(
                       labelText: 'Site web',
                       border: OutlineInputBorder(),
                     ),
+                    validator: optionalHttpUrl,
                   ),
                   const SizedBox(height: 24),
                   Row(

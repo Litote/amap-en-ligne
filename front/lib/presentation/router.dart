@@ -31,6 +31,7 @@ import 'package:amap_en_ligne/presentation/auth/login_screen.dart';
 import 'package:amap_en_ligne/presentation/auth/reset_password_screen.dart';
 import 'package:amap_en_ligne/presentation/common/alert_templates_bloc.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
+import 'package:amap_en_ligne/presentation/common/not_found_screen.dart';
 import 'package:amap_en_ligne/presentation/common/user_preferences_bloc.dart';
 import 'package:amap_en_ligne/presentation/common/user_preferences_screen.dart';
 import 'package:amap_en_ligne/presentation/coordinator/attendance/attendance_sheets_screen.dart';
@@ -203,6 +204,7 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
   final listenable = _AuthBlocListenable(authBloc);
   return GoRouter(
     refreshListenable: listenable,
+    errorBuilder: (_, _) => const NotFoundScreen(),
     redirect: (context, state) => computeRouterRedirect(
       state.uri,
       authBloc.state.producerId,
@@ -262,19 +264,23 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
         routes: [
           GoRoute(
             path: _kProductTypesRoute,
-            builder: (_, _) =>
-                ProductTypesScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => ProductTypesScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/product-types/new',
-            builder: (_, _) =>
-                ProductTypeFormScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => ProductTypeFormScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/product-types/:id',
-            builder: (_, st) => ProductTypeFormScreen(
-              tenantId: _requireTenant(authBloc),
-              productTypeId: st.pathParameters['id'],
+            builder: (_, st) => tenantScoped(
+              (tenantId) => ProductTypeFormScreen(
+                tenantId: tenantId,
+                productTypeId: st.pathParameters['id'],
+              ),
             ),
           ),
           GoRoute(
@@ -291,45 +297,57 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
           ),
           GoRoute(
             path: '/admin/organization-requests',
-            builder: (_, _) => const AdminRequestsScreen(),
+            builder: (_, state) => AdminRequestsScreen(
+              initialTab: state.uri.queryParameters['tab'] == 'producers'
+                  ? AdminRequestsTab.producers
+                  : AdminRequestsTab.amap,
+            ),
           ),
           GoRoute(
             path: '/admin/producers',
-            builder: (_, state) =>
-                ProducerListScreen(organizationId: _requireTenant(authBloc)),
+            builder: (_, state) => tenantScoped(
+              (tenantId) => ProducerListScreen(organizationId: tenantId),
+            ),
           ),
           // Keep the static sub-route before `:producerAccountId`; otherwise
           // `/admin/producers/enroll` is interpreted as a detail page for the
           // producer id `enroll`.
           GoRoute(
             path: '/admin/producers/enroll',
-            builder: (_, state) =>
-                EnrollProducerScreen(organizationId: _requireTenant(authBloc)),
+            builder: (_, state) => tenantScoped(
+              (tenantId) => EnrollProducerScreen(organizationId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/admin/producers/:producerAccountId',
-            builder: (_, state) => ProducerDetailScreen(
-              organizationId: _requireTenant(authBloc),
-              producerAccountId: state.pathParameters['producerAccountId']!,
+            builder: (_, state) => tenantScoped(
+              (tenantId) => ProducerDetailScreen(
+                organizationId: tenantId,
+                producerAccountId: state.pathParameters['producerAccountId']!,
+              ),
             ),
           ),
           GoRoute(
             path: '/admin/delivery-templates',
-            builder: (_, _) => DeliveryTemplateListScreen(
-              organizationId: _requireTenant(authBloc),
+            builder: (_, _) => tenantScoped(
+              (tenantId) =>
+                  DeliveryTemplateListScreen(organizationId: tenantId),
             ),
           ),
           GoRoute(
             path: '/admin/delivery-templates/new',
-            builder: (_, _) => DeliveryTemplateFormScreen(
-              organizationId: _requireTenant(authBloc),
+            builder: (_, _) => tenantScoped(
+              (tenantId) =>
+                  DeliveryTemplateFormScreen(organizationId: tenantId),
             ),
           ),
           GoRoute(
             path: '/admin/delivery-templates/:id',
-            builder: (_, state) => DeliveryTemplateFormScreen(
-              organizationId: _requireTenant(authBloc),
-              template: state.extra as DeliveryTemplate?,
+            builder: (_, state) => tenantScoped(
+              (tenantId) => DeliveryTemplateFormScreen(
+                organizationId: tenantId,
+                template: state.extra as DeliveryTemplate?,
+              ),
             ),
           ),
           // Role-based dashboards.
@@ -347,106 +365,127 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
           ),
           GoRoute(
             path: '/dashboard',
-            builder: (_, _) =>
-                MixedDashboardScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => MixedDashboardScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/contracts',
-            builder: (_, _) =>
-                MemberContractsScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => MemberContractsScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/planning',
-            builder: (_, _) =>
-                MemberDeliveryPlanScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => MemberDeliveryPlanScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/history',
-            builder: (_, _) =>
-                MemberHistoryScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => MemberHistoryScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/history/ranking',
-            builder: (_, _) =>
-                MemberRankingScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => MemberRankingScreen(tenantId: tenantId),
+            ),
           ),
           // Basket-exchange routes — keep static sub-routes before the
           // parametric `:offerId` route so `/basket-exchange/history` is not
           // interpreted as the requests screen for offerId="history".
           GoRoute(
             path: '/basket-exchange/history',
-            builder: (context, _) => BasketExchangeHistoryScreen(
-              orgId: _requireTenant(authBloc),
-              memberId: _resolveSub(context),
+            builder: (context, _) => tenantScoped(
+              (tenantId) => BasketExchangeHistoryScreen(
+                orgId: tenantId,
+                memberId: _resolveSub(context),
+              ),
             ),
           ),
           GoRoute(
             path: '/basket-exchange/overview',
-            builder: (_, _) =>
-                BasketExchangeOverviewScreen(orgId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => BasketExchangeOverviewScreen(orgId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/basket-exchange/:offerId/requests',
-            builder: (_, state) => ReceivedRequestsScreen(
-              orgId: _requireTenant(authBloc),
-              offerId: state.pathParameters['offerId']!,
+            builder: (_, state) => tenantScoped(
+              (tenantId) => ReceivedRequestsScreen(
+                orgId: tenantId,
+                offerId: state.pathParameters['offerId']!,
+              ),
             ),
           ),
           GoRoute(
             path: '/basket-exchange',
-            builder: (_, _) =>
-                BasketExchangeScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => BasketExchangeScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/slots',
             builder: (_, _) =>
-                TimeSlotsScreen(tenantId: _requireTenant(authBloc)),
+                tenantScoped((tenantId) => TimeSlotsScreen(tenantId: tenantId)),
           ),
           GoRoute(
             path: '/coordinator/contracts',
-            builder: (_, _) =>
-                CoordinatorContractsScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => CoordinatorContractsScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/coordinator/member-contracts',
-            builder: (_, _) => CoordinatorMemberContractsScreen(
-              tenantId: _requireTenant(authBloc),
+            builder: (_, _) => tenantScoped(
+              (tenantId) =>
+                  CoordinatorMemberContractsScreen(tenantId: tenantId),
             ),
           ),
           GoRoute(
             path: '/coordinator/time-slots',
             builder: (_, _) =>
-                TimeSlotsScreen(tenantId: _requireTenant(authBloc)),
+                tenantScoped((tenantId) => TimeSlotsScreen(tenantId: tenantId)),
           ),
           GoRoute(
             path: '/coordinator/time-slots/new',
-            builder: (_, _) =>
-                TimeSlotFormScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => TimeSlotFormScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/coordinator/time-slots/:deliveryId',
-            builder: (_, st) => TimeSlotFormScreen(
-              tenantId: _requireTenant(authBloc),
-              deliveryId: st.pathParameters['deliveryId'],
+            builder: (_, st) => tenantScoped(
+              (tenantId) => TimeSlotFormScreen(
+                tenantId: tenantId,
+                deliveryId: st.pathParameters['deliveryId'],
+              ),
             ),
           ),
           GoRoute(
             path: '/coordinator/attendance',
-            builder: (_, _) =>
-                AttendanceSheetsScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => AttendanceSheetsScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/coordinator/tracking/:deliveryId',
-            builder: (_, st) => CoordinatorDeliveryTrackingScreen(
-              tenantId: _requireTenant(authBloc),
-              deliveryId: st.pathParameters['deliveryId'] ?? '',
+            builder: (_, st) => tenantScoped(
+              (tenantId) => CoordinatorDeliveryTrackingScreen(
+                tenantId: tenantId,
+                deliveryId: st.pathParameters['deliveryId'] ?? '',
+              ),
             ),
           ),
           GoRoute(
             path: '/coordinator/post-delivery/:deliveryId',
-            builder: (_, st) => CoordinatorPostDeliverySyncScreen(
-              tenantId: _requireTenant(authBloc),
-              deliveryId: st.pathParameters['deliveryId'] ?? '',
+            builder: (_, st) => tenantScoped(
+              (tenantId) => CoordinatorPostDeliverySyncScreen(
+                tenantId: tenantId,
+                deliveryId: st.pathParameters['deliveryId'] ?? '',
+              ),
             ),
           ),
           GoRoute(
@@ -458,15 +497,17 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
           ),
           GoRoute(
             path: '/members',
-            builder: (_, _) => UserManagementScreen(
-              organizationId: _requireTenant(authBloc),
-              canEditAdminRole: authBloc.state.isAdmin,
+            builder: (_, _) => tenantScoped(
+              (tenantId) => UserManagementScreen(
+                organizationId: tenantId,
+                canEditAdminRole: authBloc.state.isAdmin,
+              ),
             ),
           ),
           GoRoute(
             path: '/admin/membership-requests',
-            builder: (_, _) => MembershipRequestsScreen(
-              organizationId: _requireTenant(authBloc),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => MembershipRequestsScreen(organizationId: tenantId),
             ),
           ),
           GoRoute(
@@ -477,19 +518,24 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
           ),
           GoRoute(
             path: '/admin/organization-config',
-            builder: (_, _) =>
-                OrganizationConfigScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => OrganizationConfigScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/producer-dashboard',
-            builder: (_, _) =>
-                ProducerDashboardScreen(tenantId: _requireTenant(authBloc)),
+            builder: (_, _) => tenantScoped(
+              (tenantId) => ProducerDashboardScreen(tenantId: tenantId),
+            ),
           ),
           GoRoute(
             path: '/producer-deliveries',
-            builder: (_, _) => ProducerDeliveriesScreen(
-              tenantId: _requireTenant(authBloc),
-              producerAccountId: authBloc.state.producerId ?? '',
+            builder: (_, _) => tenantScoped(
+              (tenantId) => ProducerDeliveriesScreen(
+                tenantId: tenantId,
+                // A producer's tenant is its account id.
+                producerAccountId: tenantId,
+              ),
             ),
           ),
           GoRoute(
@@ -497,17 +543,26 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
             builder: (context, _) {
               final sub = _resolveSub(context);
               final role = authBloc.state.role;
+              if (role == UserRole.producer) {
+                // Keyed on the resolved producer account id (see tenantScoped).
+                return tenantScoped(
+                  (tenantId) => BlocProvider(
+                    create: (_) => UserPreferencesBloc(
+                      source: ProducerSource(
+                        producerAccountId: tenantId,
+                        producerAccountRepository: context
+                            .read<ProducerAccountRepository>(),
+                      ),
+                    ),
+                    child: const UserPreferencesScreen(),
+                  ),
+                );
+              }
               final UserPreferencesSource source;
               if (role == UserRole.owner) {
                 source = OwnerSource(
                   ownerId: sub,
                   ownerRepository: context.read<OwnerRepository>(),
-                );
-              } else if (role == UserRole.producer) {
-                source = ProducerSource(
-                  producerAccountId: authBloc.state.producerId ?? '',
-                  producerAccountRepository: context
-                      .read<ProducerAccountRepository>(),
                 );
               } else {
                 source = MemberSource(
@@ -519,22 +574,24 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
               // backed by a dedicated AlertTemplatesBloc on the org scope.
               final isOrgAdmin = role == UserRole.admin;
               if (isOrgAdmin) {
-                return MultiBlocProvider(
-                  providers: [
-                    BlocProvider(
-                      create: (_) => UserPreferencesBloc(source: source),
-                    ),
-                    BlocProvider(
-                      create: (_) => AlertTemplatesBloc(
-                        organizationRepository: context
-                            .read<OrganizationRepository>(),
-                        tenantId: _requireTenant(authBloc),
+                return tenantScoped(
+                  (tenantId) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider(
+                        create: (_) => UserPreferencesBloc(source: source),
                       ),
+                      BlocProvider(
+                        create: (_) => AlertTemplatesBloc(
+                          organizationRepository: context
+                              .read<OrganizationRepository>(),
+                          tenantId: tenantId,
+                        ),
+                      ),
+                    ],
+                    child: UserPreferencesScreen(
+                      showAlertTemplates: true,
+                      backupOrganizationId: tenantId,
                     ),
-                  ],
-                  child: UserPreferencesScreen(
-                    showAlertTemplates: true,
-                    backupOrganizationId: _requireTenant(authBloc),
                   ),
                 );
               }
@@ -586,17 +643,35 @@ String? _decodeRequestedRoute(String? encodedTarget) {
   return parsed.toString();
 }
 
-String _requireTenant(AuthBloc bloc) {
-  final state = bloc.state;
-  final id = state.organizationId ?? state.producerId;
-  if (id == null) {
-    // The redirect above prevents this branch in normal flow, but a
-    // mid-navigation logout can race a builder — return a sentinel that
-    // the StreamBuilder will treat as "no rows" until the redirect fires.
-    return '';
-  }
-  return id;
-}
+/// The current tenant: a producer's account id (resolved from the synced
+/// scope, it may differ from the auth `sub` in `producerId`), otherwise the
+/// member's organization id; the `sub` until either is resolved.
+@visibleForTesting
+String tenantOf(AuthViewState state) =>
+    (state.role == UserRole.producer
+        ? state.producerAccountId
+        : state.organizationId) ??
+    state.producerId ??
+    '';
+
+/// Builds a tenant-scoped screen, rebuilt from scratch — its blocs included —
+/// whenever the tenant changes.
+///
+/// It listens to [AuthBloc] itself: go_router does not re-run the builder of
+/// a page already on screen when the auth state changes. On a page reload the
+/// tenant starts as the `sub` (Cognito tokens carry no tenant claim) until
+/// [AuthBloc] resolves the real organization / producer account id from the
+/// local cache; without the remount the screen would keep reading and writing
+/// under the `sub` (e.g. invitations missing, producer catalog empty).
+@visibleForTesting
+Widget tenantScoped(Widget Function(String tenantId) buildScreen) =>
+    BlocSelector<AuthBloc, AuthViewState, String>(
+      selector: tenantOf,
+      builder: (context, tenantId) => KeyedSubtree(
+        key: ValueKey('tenant:$tenantId'),
+        child: buildScreen(tenantId),
+      ),
+    );
 
 /// Adapts an `AuthBloc` into a `Listenable` consumable by go_router's
 /// `refreshListenable`. Notifies on every state change and is disposed via

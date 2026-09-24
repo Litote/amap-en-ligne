@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'change_page.dart';
@@ -9,6 +9,7 @@ part of 'change_page.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $ChangePageCopyWith<ChangePage> get copyWith => _$ChangePageCopyWithImpl<ChangeP
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChangePage&&const DeepCollectionEquality().equals(other.changes, changes)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore));
+  final _this = this as ChangePage;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChangePage&&const DeepCollectionEquality().equals(other.changes, _this.changes)&&(identical(other.nextCursor, _this.nextCursor) || other.nextCursor == _this.nextCursor)&&(identical(other.hasMore, _this.hasMore) || other.hasMore == _this.hasMore));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(changes),nextCursor,hasMore);
+int get hashCode {
+  final _this = this as ChangePage;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.changes),_this.nextCursor,_this.hasMore);
+}
 
 @override
 String toString() {
-  return 'ChangePage(changes: $changes, nextCursor: $nextCursor, hasMore: $hasMore)';
+  final _this = this as ChangePage;
+  return 'ChangePage(changes: ${_this.changes}, nextCursor: ${_this.nextCursor}, hasMore: ${_this.hasMore})';
 }
 
 
@@ -66,7 +72,7 @@ class _$ChangePageCopyWithImpl<$Res>
 /// Create a copy of ChangePage
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? changes = null,Object? nextCursor = freezed,Object? hasMore = null,}) {
-  return _then(_self.copyWith(
+  return _then(ChangePage(
 changes: null == changes ? _self.changes : changes // ignore: cast_nullable_to_non_nullable
 as List<Change>,nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
 as String?,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
@@ -211,7 +217,7 @@ return $default(_that.changes,_that.nextCursor,_that.hasMore);case _:
 @JsonSerializable()
 
 class _ChangePage implements ChangePage {
-  const _ChangePage({final  List<Change> changes = const <Change>[], @JsonKey(name: 'next_cursor') this.nextCursor, @JsonKey(name: 'has_more') required this.hasMore}): _changes = changes;
+  const _ChangePage({ List<Change> changes = const <Change>[], @JsonKey(name: 'next_cursor') this.nextCursor, @JsonKey(name: 'has_more') required this.hasMore}): _changes = changes;
   factory _ChangePage.fromJson(Map<String, dynamic> json) => _$ChangePageFromJson(json);
 
  final  List<Change> _changes;
@@ -237,16 +243,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChangePage&&const DeepCollectionEquality().equals(other._changes, _changes)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChangePage&&const DeepCollectionEquality().equals(other.changes, _changes)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_changes),nextCursor,hasMore);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_changes),nextCursor,hasMore);
+}
 
 @override
 String toString() {
-  return 'ChangePage(changes: $changes, nextCursor: $nextCursor, hasMore: $hasMore)';
+    return 'ChangePage(changes: $changes, nextCursor: $nextCursor, hasMore: $hasMore)';
 }
 
 

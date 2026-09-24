@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'basket_exchange_state.dart';
@@ -9,6 +9,7 @@ part of 'basket_exchange_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$BasketExchangeDialogState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeDialogState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeDialogState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeDialogState()';
+    return 'BasketExchangeDialogState()';
 }
 
 
@@ -191,7 +192,7 @@ class _None implements BasketExchangeDialogState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _None);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _None);
 }
 
 
@@ -200,7 +201,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeDialogState.none()';
+    return 'BasketExchangeDialogState.none()';
 }
 
 
@@ -223,7 +224,7 @@ class _Propose implements BasketExchangeDialogState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Propose);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Propose);
 }
 
 
@@ -232,7 +233,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeDialogState.propose()';
+    return 'BasketExchangeDialogState.propose()';
 }
 
 
@@ -260,16 +261,18 @@ _$SubmitRequestCopyWith<_SubmitRequest> get copyWith => __$SubmitRequestCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmitRequest&&(identical(other.offer, offer) || other.offer == offer));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmitRequest&&(identical(other.offer, offer) || other.offer == offer));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,offer);
+int get hashCode {
+    return Object.hash(runtimeType,offer);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeDialogState.submitRequest(offer: $offer)';
+    return 'BasketExchangeDialogState.submitRequest(offer: $offer)';
 }
 
 
@@ -325,7 +328,7 @@ mixin _$BasketExchangeState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeState);
 }
 
 
@@ -334,7 +337,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeState()';
+    return 'BasketExchangeState()';
 }
 
 
@@ -496,7 +499,7 @@ class BasketExchangeLoading implements BasketExchangeState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeLoading);
 }
 
 
@@ -505,7 +508,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeState.loading()';
+    return 'BasketExchangeState.loading()';
 }
 
 
@@ -528,7 +531,7 @@ class BasketExchangeUnauthorized implements BasketExchangeState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeUnauthorized);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeUnauthorized);
 }
 
 
@@ -537,7 +540,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeState.unauthorized()';
+    return 'BasketExchangeState.unauthorized()';
 }
 
 
@@ -550,7 +553,7 @@ String toString() {
 
 
 class BasketExchangeReady implements BasketExchangeState {
-  const BasketExchangeReady({required this.me, required this.org, required final  List<BasketExchange> allExchanges, final  List<Member> members = const <Member>[], final  List<Contract> contracts = const <Contract>[], this.dialogState = const BasketExchangeDialogState.none(), this.saveStatus = BasketExchangeSaveStatus.idle, this.errorMessage}): _allExchanges = allExchanges,_members = members,_contracts = contracts;
+  const BasketExchangeReady({required this.me, required this.org, required  List<BasketExchange> allExchanges,  List<Member> members = const <Member>[],  List<Contract> contracts = const <Contract>[], this.dialogState = const BasketExchangeDialogState.none(), this.saveStatus = BasketExchangeSaveStatus.idle, this.errorMessage}): _allExchanges = allExchanges,_members = members,_contracts = contracts;
   
 
  final  Member me;
@@ -590,16 +593,18 @@ $BasketExchangeReadyCopyWith<BasketExchangeReady> get copyWith => _$BasketExchan
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeReady&&(identical(other.me, me) || other.me == me)&&(identical(other.org, org) || other.org == org)&&const DeepCollectionEquality().equals(other._allExchanges, _allExchanges)&&const DeepCollectionEquality().equals(other._members, _members)&&const DeepCollectionEquality().equals(other._contracts, _contracts)&&(identical(other.dialogState, dialogState) || other.dialogState == dialogState)&&(identical(other.saveStatus, saveStatus) || other.saveStatus == saveStatus)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeReady&&(identical(other.me, me) || other.me == me)&&(identical(other.org, org) || other.org == org)&&const DeepCollectionEquality().equals(other.allExchanges, _allExchanges)&&const DeepCollectionEquality().equals(other.members, _members)&&const DeepCollectionEquality().equals(other.contracts, _contracts)&&(identical(other.dialogState, dialogState) || other.dialogState == dialogState)&&(identical(other.saveStatus, saveStatus) || other.saveStatus == saveStatus)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,me,org,const DeepCollectionEquality().hash(_allExchanges),const DeepCollectionEquality().hash(_members),const DeepCollectionEquality().hash(_contracts),dialogState,saveStatus,errorMessage);
+int get hashCode {
+    return Object.hash(runtimeType,me,org,const DeepCollectionEquality().hash(_allExchanges),const DeepCollectionEquality().hash(_members),const DeepCollectionEquality().hash(_contracts),dialogState,saveStatus,errorMessage);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeState.ready(me: $me, org: $org, allExchanges: $allExchanges, members: $members, contracts: $contracts, dialogState: $dialogState, saveStatus: $saveStatus, errorMessage: $errorMessage)';
+    return 'BasketExchangeState.ready(me: $me, org: $org, allExchanges: $allExchanges, members: $members, contracts: $contracts, dialogState: $dialogState, saveStatus: $saveStatus, errorMessage: $errorMessage)';
 }
 
 

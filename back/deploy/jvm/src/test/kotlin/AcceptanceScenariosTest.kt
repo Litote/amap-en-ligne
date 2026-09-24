@@ -63,9 +63,9 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
                     null
                 }
 
-            step.save?.cursorRefs?.forEach { (entityType, refName) ->
-                val cursor = lastDecodedResponse?.cursorFor(entityType)
-                assertNotNull(cursor, "Missing cursor for $entityType in ${scenario.id}")
+            step.save?.cursorRefs?.forEach { (scopeKey, refName) ->
+                val cursor = lastDecodedResponse?.cursorFor(scopeKey)
+                assertNotNull(cursor, "Missing cursor for $scopeKey in ${scenario.id}")
                 savedCursorRefs[refName] = cursor
             }
         }
@@ -93,8 +93,7 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
     ): SyncRequest =
         request.copy(
             cursors =
-                request.cursors.entries.associate { (rawKey, rawCursor) ->
-                    val scopeKey = legacyCursorKeyToScopeKey(rawKey)
+                request.cursors.entries.associate { (scopeKey, rawCursor) ->
                     val cursor =
                         rawCursor?.let {
                             if (it.startsWith("\$ref:")) {
@@ -106,21 +105,6 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
                     scopeKey to cursor
                 },
         )
-
-    private fun legacyCursorKeyToScopeKey(rawKey: String): String =
-        when (runCatching { EntityType.valueOf(rawKey) }.getOrNull()) {
-            EntityType.ProductType -> SyncScope.ProducerAccount(tenantId).key
-
-            EntityType.OrganizationRequest,
-            EntityType.Owner,
-            EntityType.OwnerInvitation,
-            EntityType.Member,
-            -> SyncScope.InstanceOwner.key
-
-            null -> rawKey
-
-            else -> rawKey
-        }
 
     private fun assertSyncResponse(
         scenarioId: String,
@@ -217,12 +201,13 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
         }
     }
 
-    private fun SyncResponse.cursorFor(entityType: EntityType): String? =
-        when (val result = resultFor(entityType)) {
+    private fun SyncResponse.cursorFor(scopeKey: String): String? {
+        val result = results[scopeKey] ?: return null
+        return when (result) {
             is BootstrapScopeResult -> result.nextCursor
             is IncrementalScopeResult -> result.nextCursor
-            null -> null
         }
+    }
 
     private fun SyncResponse.bootstrapResultFor(entityType: EntityType): BootstrapScopeResult? =
         resultFor(entityType) as? BootstrapScopeResult

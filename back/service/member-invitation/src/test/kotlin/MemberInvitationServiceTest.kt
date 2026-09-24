@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.runTest
 import persistence.changes.ClientMutation
 import persistence.changes.Delete
 import persistence.changes.MemberInvitationPayload
+import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
 import persistence.changes.Upsert
 import persistence.dao.ActivationTokenDAO
@@ -307,5 +308,30 @@ internal class MemberInvitationServiceTest {
             coVerify { memberInvitationDAO.put(capture(updatedSlot), any()) }
             assertEquals(MemberInvitationStatus.CANCELLED, updatedSlot.captured.status)
             coVerify { activationTokenDAO.invalidateByMemberInvitationId("inv-2".toId(), any()) }
+        }
+
+    @Test
+    fun `GIVEN invitations breaking the form rules WHEN applyUpsert THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val invalid =
+                listOf(
+                    buildInvitation().copy(firstName = " "),
+                    buildInvitation().copy(lastName = ""),
+                    buildInvitation().copy(email = "not-an-email"),
+                    buildInvitation().copy(roles = emptySet()),
+                )
+
+            invalid.forEach { invitation ->
+                val outcome =
+                    service.applyUpsert(
+                        auth = adminAuth,
+                        mutation = ClientMutation("op-1", Upsert(MemberInvitationPayload(invitation))),
+                        payload = MemberInvitationPayload(invitation),
+                    )
+
+                assertEquals(MutationStatus.REJECTED, outcome.status, "expected rejection for $invitation")
+                assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            }
+            coVerify(exactly = 0) { memberInvitationDAO.put(any(), any()) }
         }
 }

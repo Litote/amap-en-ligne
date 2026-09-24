@@ -147,11 +147,13 @@ internal class ProducerAccountServiceTest {
         }
 
     @Test
-    fun `GIVEN ProducerAccount scope WHEN snapshot THEN returns empty list`() =
+    fun `GIVEN ProducerAccount scope WHEN snapshot THEN returns the producer's own account (profile, name)`() =
         runTest {
-            val payloads =
-                service.snapshot(adminAuth, SyncScope.ProducerAccount("pa-1"))
-            assertTrue(payloads.isEmpty())
+            coEvery { producerAccountSyncDAO.findById("pa-1".toId()) } returns producer("pa-1")
+
+            val payloads = service.snapshot(adminAuth, SyncScope.ProducerAccount("pa-1"))
+
+            assertEquals(listOf("pa-1"), payloads.map { it.producerAccount.producerAccountId.id })
         }
 
     // -------------------------------------------------------------------------
@@ -198,6 +200,10 @@ internal class ProducerAccountServiceTest {
             // At minimum, one Change is fanned out on the instance-owner scope.
             assertTrue(
                 changesSlot.captured.any { it.scopeKey == SyncScope.InstanceOwner.key },
+            )
+            // The producer's own feed also gets the update (its profile / status).
+            assertTrue(
+                changesSlot.captured.any { it.scopeKey == SyncScope.ProducerAccount("pa-1").key },
             )
         }
 
@@ -355,6 +361,7 @@ internal class ProducerAccountServiceTest {
                         producerAccountId = "tmp_new".toId(),
                         managementMode = ProducerManagementMode.NO_ACCOUNT,
                         organizations = emptyList(),
+                        products = listOf(ProducerProduct("Oeufs", "pt-1".toId(), emptyList())),
                     ),
                 )
             val mutation = ClientMutation(clientOpId = "op-create", op = Upsert(payload = payload))
@@ -906,5 +913,56 @@ internal class ProducerAccountServiceTest {
             assertEquals(MutationStatus.APPLIED, outcome.status)
             coVerify(exactly = 1) { organizationSyncDAO.put(any(), any()) }
             assertTrue(orgSlot.captured.products.isEmpty())
+        }
+
+    @Test
+    fun `GIVEN no-account producer creations breaking the form rules WHEN applyUpsert THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val base =
+                producer("tmp_new").copy(
+                    producerAccountId = "tmp_new".toId(),
+                    managementMode = ProducerManagementMode.NO_ACCOUNT,
+                    organizations = emptyList(),
+                    products = listOf(ProducerProduct("Oeufs", "pt-1".toId(), emptyList())),
+                )
+            val invalid =
+                listOf(
+                    base.copy(name = " "),
+                    base.copy(products = emptyList()),
+                    base.copy(products = listOf(ProducerProduct(" ", "pt-1".toId(), emptyList()))),
+                    base.copy(contactEmail = "not-an-email"),
+                    base.copy(website = "poulailler.example.org"),
+                )
+
+            invalid.forEach { producer ->
+                val payload = ProducerAccountPayload(producer)
+                val outcome = service.applyUpsert(adminAuth, ClientMutation("op-invalid", Upsert(payload)), payload)
+
+                assertEquals(MutationStatus.REJECTED, outcome.status, "expected rejection for $producer")
+                assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            }
+            coVerify(exactly = 0) { producerAccountSyncDAO.put(any(), any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN PRODUCER self profile edits breaking the form rules WHEN sync upsert THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val producer = producer("producer-sub-123").copy(producerAccountId = "producer-sub-123".toId())
+            coEvery { producerAccountSyncDAO.findById("producer-sub-123".toId()) } returns producer
+            val invalid =
+                listOf(
+                    producer.copy(name = " "),
+                    producer.copy(contactEmail = "farm@nowhere"),
+                    producer.copy(website = "www.farm.example"),
+                )
+
+            invalid.forEach { updated ->
+                val payload = ProducerAccountPayload(updated)
+                val outcome = service.applyUpsert(producerAuth, ClientMutation("op-self", Upsert(payload)), payload)
+
+                assertEquals(MutationStatus.REJECTED, outcome.status, "expected rejection for $updated")
+                assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            }
+            coVerify(exactly = 0) { producerAccountSyncDAO.updateProfile(any(), any()) }
         }
 }

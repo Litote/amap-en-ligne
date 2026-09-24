@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:amap_en_ligne/data/network/public_api.dart';
 import 'package:amap_en_ligne/domain/model/member_join_request.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,13 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockPublicApi extends Mock implements PublicApi {}
+
+const _stubServerConfig = GoTrueServerConfig(
+  id: 'test',
+  name: 'Test',
+  backendUrl: 'https://test.example',
+  gotrueUrl: 'https://test.example/auth',
+);
 
 const _orgA = Organization(
   organizationId: 'org-a',
@@ -51,8 +59,11 @@ void main() {
         ),
         GoRoute(
           path: '/search',
-          builder: (_, _) => RepositoryProvider<PublicApi>.value(
-            value: publicApi,
+          builder: (_, _) => MultiRepositoryProvider(
+            providers: [
+              RepositoryProvider<PublicApi>.value(value: publicApi),
+              RepositoryProvider<ServerConfig>.value(value: _stubServerConfig),
+            ],
             child: const AmapSearchScreen(),
           ),
         ),
@@ -150,12 +161,36 @@ void main() {
     await tester.tap(find.text('Les Jardins de Provence'));
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('submit')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Requis.'), findsWidgets);
-    expect(find.text("L'email est requis."), findsOneWidget);
+    // Same wording as the other public forms (shared input rules).
+    expect(find.text('Ce champ est requis.'), findsNWidgets(3));
     verifyNever(() => publicApi.createMemberJoinRequest(any()));
+  });
+
+  testWidgets('submit stays disabled until the terms are accepted', (
+    tester,
+  ) async {
+    when(
+      () => publicApi.listOrganizations(),
+    ).thenAnswer((_) async => const [_orgA]);
+
+    await pump(tester);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Les Jardins de Provence'));
+    await tester.pumpAndSettle();
+
+    FilledButton submit() =>
+        tester.widget<FilledButton>(find.byKey(const Key('submit')));
+    expect(submit().onPressed, isNull);
+
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+
+    expect(submit().onPressed, isNotNull);
   });
 
   testWidgets('successful submission shows the confirmation view', (
@@ -179,6 +214,8 @@ void main() {
     await tester.enterText(find.byKey(const Key('first_name')), 'Alice');
     await tester.enterText(find.byKey(const Key('last_name')), 'Martin');
     await tester.enterText(find.byKey(const Key('email')), 'alice@example.com');
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('submit')));
     await tester.pumpAndSettle();
 
@@ -204,6 +241,8 @@ void main() {
     await tester.enterText(find.byKey(const Key('first_name')), 'Alice');
     await tester.enterText(find.byKey(const Key('last_name')), 'Martin');
     await tester.enterText(find.byKey(const Key('email')), 'dup@example.com');
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('submit')));
     await tester.pumpAndSettle();
 

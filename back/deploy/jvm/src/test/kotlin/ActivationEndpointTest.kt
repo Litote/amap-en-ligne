@@ -160,7 +160,7 @@ class ActivationEndpointTest {
             val orgId = insertOrganization()
             val token = insertActivationToken(requestId, orgId)
 
-            val response = postActivate(token, "newpassword123")
+            val response = postActivate(token, "NewPassword123")
 
             assertEquals(200, response.statusCode())
             val body = json.parseToJsonElement(response.body())
@@ -171,7 +171,7 @@ class ActivationEndpointTest {
     @Test
     fun `GIVEN unknown token WHEN POST activate THEN 404`() =
         runTest {
-            val response = postActivate("nonexistent-token", "password")
+            val response = postActivate("nonexistent-token", "NewPassword123")
             assertEquals(404, response.statusCode())
         }
 
@@ -182,8 +182,8 @@ class ActivationEndpointTest {
             val orgId = insertOrganization()
             val token = insertActivationToken(requestId, orgId)
 
-            postActivate(token, "newpassword123")
-            val second = postActivate(token, "newpassword123")
+            postActivate(token, "NewPassword123")
+            val second = postActivate(token, "NewPassword123")
 
             assertEquals(409, second.statusCode())
         }
@@ -195,7 +195,7 @@ class ActivationEndpointTest {
             val producerAccountId = insertProducerAccount()
             val token = insertProducerActivationToken(requestId, producerAccountId)
 
-            val response = postActivate(token, "newpassword123")
+            val response = postActivate(token, "NewPassword123")
 
             assertEquals(200, response.statusCode())
             val body = json.parseToJsonElement(response.body()) as kotlinx.serialization.json.JsonObject

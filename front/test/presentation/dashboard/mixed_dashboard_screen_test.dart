@@ -190,7 +190,7 @@ void main() {
       // Allow the StatefulWidget streams to settle.
       await tester.pump(const Duration(milliseconds: 50));
 
-      expect(find.text('— Bénévole —'), findsNothing);
+      expect(find.text('— Amapien —'), findsNothing);
       expect(find.text('— Coordinateur —'), findsNothing);
       expect(find.text('— Admin —'), findsNothing);
       expect(find.text('📋 Prochaines livraisons'), findsOneWidget);
@@ -243,7 +243,7 @@ void main() {
           templateRepo: templateRepo,
         );
 
-        expect(find.text('— Bénévole —'), findsNothing);
+        expect(find.text('— Amapien —'), findsNothing);
         expect(find.text('— Coordinateur —'), findsOneWidget);
         expect(find.text('— Admin —'), findsOneWidget);
 
@@ -280,11 +280,11 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 50));
 
-      expect(find.text('— Bénévole —'), findsOneWidget);
+      expect(find.text('— Amapien —'), findsOneWidget);
       expect(find.text('— Coordinateur —'), findsOneWidget);
       expect(find.text('— Admin —'), findsOneWidget);
 
-      final volunteerY = tester.getTopLeft(find.text('— Bénévole —')).dy;
+      final volunteerY = tester.getTopLeft(find.text('— Amapien —')).dy;
       final coordinatorY = tester.getTopLeft(find.text('— Coordinateur —')).dy;
       final adminY = tester.getTopLeft(find.text('— Admin —')).dy;
       expect(volunteerY, lessThan(coordinatorY));
@@ -318,13 +318,11 @@ void main() {
             memberId: 'm-1',
             organizationId: 'org-1',
             roles: {Role.coordinator},
-            activeStatus: true,
           ),
           const Member(
             memberId: 'm-2',
             organizationId: 'org-1',
             roles: {Role.volunteer},
-            activeStatus: true,
           ),
         ]),
       );

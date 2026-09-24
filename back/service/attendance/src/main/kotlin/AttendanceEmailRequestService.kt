@@ -5,6 +5,7 @@ package attendance
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
+import core.InputRules
 import email.AttendanceEmailPort
 import id.generateId
 import id.toId
@@ -62,6 +63,10 @@ internal class AttendanceEmailRequestService(
 
         if (incoming.organizationId.id != organizationId) {
             return rejected(mutation, MutationErrorCode.FORBIDDEN, "organization_id mismatch")
+        }
+
+        InputRules.requireEmail("recipient_email", incoming.recipientEmail)?.let {
+            return rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, it)
         }
 
         val org =

@@ -519,7 +519,7 @@ class _ActionFooter extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Tooltip(
-          message: 'Phase 8',
+          message: 'Bientôt disponible',
           child: OutlinedButton.icon(
             key: const Key('export_button'),
             onPressed: null,

@@ -48,6 +48,9 @@ jobs:
 
   deploy:
     needs: build
+    # GitHub Pages is not enabled on the repository yet: set the repository
+    # variable PAGES_ENABLED=true (Settings → Variables) once it is.
+    if: vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

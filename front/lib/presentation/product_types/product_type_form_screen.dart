@@ -1,5 +1,6 @@
 import 'package:amap_en_ligne/data/repositories/product_type_repository.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class ProductTypeFormScreen extends StatefulWidget {
 }
 
 class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
+  bool _submitAttempted = false;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -100,7 +102,16 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
     context.pop();
   }
 
+  Future<ProductType> _latestExisting(ProductTypeRepository repo) async {
+    final cached = await repo.watch(widget.tenantId).first;
+    return cached
+            .where((e) => e.productTypeId == _existing!.productTypeId)
+            .firstOrNull ??
+        _existing!;
+  }
+
   Future<void> _submit() async {
+    if (!_submitAttempted) setState(() => _submitAttempted = true);
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final repo = context.read<ProductTypeRepository>();
     final basketSizes = _basketSizesController.text
@@ -119,8 +130,12 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
         supportedBasketSizes: basketSizes,
       );
     } else {
+      // Re-read the cached product type: its component catalog may have been
+      // edited on the catalog screen since this form was loaded, and the
+      // upsert carries the whole aggregate (a stale copy would wipe it).
+      final latest = await _latestExisting(repo);
       await repo.update(
-        _existing!.copyWith(
+        latest.copyWith(
           name: _nameController.text.trim(),
           description: description.isEmpty ? null : description,
           supportedBasketSizes: basketSizes,
@@ -158,17 +173,21 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
+          // Revalidate while typing once a submit failed, so a fixed field
+          // loses its error immediately.
+          autovalidateMode: _submitAttempted
+              ? AutovalidateMode.onUserInteraction
+              : AutovalidateMode.disabled,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Nom',
+                  labelText: 'Nom *',
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Requis.' : null,
+                validator: requiredName,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -198,10 +217,16 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
                       '${_existing!.itemTypes.length > 1 ? 's' : ''}',
                     ),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push(
-                      '/product-types/${_existing!.productTypeId}/items',
-                      extra: _existing,
-                    ),
+                    onTap: () async {
+                      final repo = context.read<ProductTypeRepository>();
+                      await context.push(
+                        '/product-types/${_existing!.productTypeId}/items',
+                        extra: _existing,
+                      );
+                      // Refresh the component count after catalog edits.
+                      final latest = await _latestExisting(repo);
+                      if (mounted) setState(() => _existing = latest);
+                    },
                   ),
                 ),
               ],

@@ -23,6 +23,15 @@ sealed class DeliveryDescriptionEvent with _$DeliveryDescriptionEvent {
     String? weight,
   }) = WeightChanged;
 
+  /// Adds a component typed by hand — for products whose producer has no
+  /// component catalog (e.g. a producer without an account).
+  const factory DeliveryDescriptionEvent.freeItemAdded({
+    required String productTypeId,
+    required String basketSizeName,
+    required String name,
+    String? weight,
+  }) = FreeItemAdded;
+
   const factory DeliveryDescriptionEvent.saveRequested() =
       DeliveryDescriptionSaveRequested;
 }

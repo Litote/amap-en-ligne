@@ -28,13 +28,10 @@ import persistence.dao.OrganizationSyncDAO
 import persistence.dao.OwnerSyncDAO
 import persistence.dao.ProducerAccountSyncDAO
 import persistence.dao.ProductTypeSyncDAO
-import persistence.model.AccessibilityOptions
-import persistence.model.DeliveryReminders
 import persistence.model.Member
 import persistence.model.MemberInvitation
 import persistence.model.MemberInvitationStatus
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Organization
 import persistence.model.Owner
 import persistence.model.UserPreferences
@@ -79,13 +76,6 @@ internal class ImportServiceTest {
         Member(
             memberId = "member-1".toId(),
             organizationId = sourceOrgId.toId(),
-            activeStatus = true,
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(1, "08:00"),
-                    accessibilityOptions = AccessibilityOptions(false, false, false),
-                    lastUpdatedInstant = now,
-                ),
             memberPreferences = MemberPreferences(true, true, now),
             userPreferences = UserPreferences(true, false, now),
             userSettings =

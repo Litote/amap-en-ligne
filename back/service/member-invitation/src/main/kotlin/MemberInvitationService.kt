@@ -5,6 +5,7 @@ package memberinvitation
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
+import core.InputRules
 import email.MemberInvitationEmailPort
 import id.generateId
 import id.toId
@@ -123,6 +124,13 @@ class MemberInvitationService(
         organizationId: String,
         incoming: MemberInvitation,
     ): MutationOutcome {
+        // Mirrors the "Inviter un membre" dialog (user_management_bloc.dart).
+        (
+            InputRules.requireName("first_name", incoming.firstName)
+                ?: InputRules.requireName("last_name", incoming.lastName)
+                ?: InputRules.requireEmail("email", incoming.email)
+                ?: "roles must not be empty".takeIf { incoming.roles.isEmpty() }
+        )?.let { return rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, it) }
         val resolvedOrganizationId = organizationId.toId<Organization>()
         // OWNER role is exclusive: an email already belonging to an instance owner may not be invited
         // as a member, which would otherwise collide with the owner's auth identity at activation.

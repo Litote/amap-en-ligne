@@ -327,21 +327,19 @@ WITH member_seed(member_id, first_name, last_name, email, roles_array) AS (
     ('${USER_IDS[admin-coordinator-volunteer@${DEV_DOMAIN}]}',  'Auguste',  'AllRoles',  'admin-coordinator-volunteer@${DEV_DOMAIN}',  ARRAY['ADMIN','COORDINATOR','VOLUNTEER']::TEXT[])
 )
 INSERT INTO member (
-  member_id, organization_id, roles, active_status,
+  member_id, organization_id, roles,
   first_name, last_name, email, account_status,
-  member_settings, member_preferences, user_preferences, user_settings,
+  member_preferences, user_preferences, user_settings,
   created_instant, last_updated_instant
 )
 SELECT
   member_id,
   'amap-dev',
   roles_array,
-  true,
   first_name,
   last_name,
   email,
   'ACTIVE',
-  '{"delivery_reminders":{"days_before":1,"reminder_time":"08:00"},"accessibility_options":{"high_contrast":false,"large_text":false,"screen_reader":false},"last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
   '{"delivery_reminders_enabled":true,"volunteer_alerts_enabled":true,"last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
   '{"email_notifications_enabled":true,"push_notifications_enabled":true,"last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
   '{"language":"fr","timezone":"Europe/Paris","server_id":"server-dev","last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
@@ -359,21 +357,19 @@ ON CONFLICT (member_id) DO UPDATE SET
 -- organization from this row (findOrganizationIdBySub), and members do not count
 -- as content for the empty-target check, so the org stays importable.
 INSERT INTO member (
-  member_id, organization_id, roles, active_status,
+  member_id, organization_id, roles,
   first_name, last_name, email, account_status,
-  member_settings, member_preferences, user_preferences, user_settings,
+  member_preferences, user_preferences, user_settings,
   created_instant, last_updated_instant
 )
 VALUES (
   '${USER_IDS[import-admin@${DEV_DOMAIN}]}',
   'amap-import',
   ARRAY['ADMIN']::TEXT[],
-  true,
   'Iris',
   'Import',
   'import-admin@${DEV_DOMAIN}',
   'ACTIVE',
-  '{"delivery_reminders":{"days_before":1,"reminder_time":"08:00"},"accessibility_options":{"high_contrast":false,"large_text":false,"screen_reader":false},"last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
   '{"delivery_reminders_enabled":true,"volunteer_alerts_enabled":true,"last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
   '{"email_notifications_enabled":true,"push_notifications_enabled":true,"last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,
   '{"language":"fr","timezone":"Europe/Paris","server_id":"server-dev","last_updated_instant":"1970-01-01T00:00:00Z"}'::jsonb,

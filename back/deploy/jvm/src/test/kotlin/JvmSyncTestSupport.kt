@@ -249,8 +249,6 @@ abstract class JvmSyncTestSupport {
         roles: List<String>,
     ) {
         val roleArray = roles.joinToString(",", "{", "}") { "\"$it\"" }
-        val memberSettingsJson =
-            """{"delivery_reminders":{"days_before":1,"reminder_time":"08:00"},"accessibility_options":{"high_contrast":false,"large_text":false,"screen_reader":false},"last_updated_instant":"1970-01-01T00:00:00Z"}"""
         val memberPreferencesJson =
             """{"delivery_reminders_enabled":true,"volunteer_alerts_enabled":true,"last_updated_instant":"1970-01-01T00:00:00Z"}"""
         val userPreferencesJson =
@@ -264,20 +262,19 @@ abstract class JvmSyncTestSupport {
                     .prepareStatement(
                         """
                         INSERT INTO member (
-                            member_id, organization_id, roles, active_status,
-                            member_settings, member_preferences, user_preferences, user_settings
+                            member_id, organization_id, roles,
+                            member_preferences, user_preferences, user_settings
                         )
-                        VALUES (?, ?, ?::TEXT[], true, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb)
+                        VALUES (?, ?, ?::TEXT[], ?::jsonb, ?::jsonb, ?::jsonb)
                         ON CONFLICT (member_id) DO UPDATE SET roles = EXCLUDED.roles
                         """.trimIndent(),
                     ).use { stmt ->
                         stmt.setString(1, memberId)
                         stmt.setString(2, organizationId)
                         stmt.setString(3, roleArray)
-                        stmt.setString(4, memberSettingsJson)
-                        stmt.setString(5, memberPreferencesJson)
-                        stmt.setString(6, userPreferencesJson)
-                        stmt.setString(7, userSettingsJson)
+                        stmt.setString(4, memberPreferencesJson)
+                        stmt.setString(5, userPreferencesJson)
+                        stmt.setString(6, userSettingsJson)
                         stmt.executeUpdate()
                     }
             }

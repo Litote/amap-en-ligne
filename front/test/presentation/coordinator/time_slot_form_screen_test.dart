@@ -301,6 +301,19 @@ void main() {
     registerFallbackValue(const SyncEvent.mutationApplied());
   });
 
+  testWidgets('the delivery form offers a back button, not the menu', (
+    tester,
+  ) async {
+    await _pumpScreen(
+      tester,
+      organizationRepository: organizationRepository,
+      deliveryTemplateRepository: deliveryTemplateRepository,
+      syncBloc: syncBloc,
+    );
+
+    expect(find.byType(BackButton), findsOneWidget);
+  });
+
   testWidgets('editing a delivery persists the selected delivery_template_id', (
     tester,
   ) async {
@@ -311,9 +324,10 @@ void main() {
       syncBloc: syncBloc,
     );
 
+    // The evening template matches the delivery's 18:00 start time.
     await tester.tap(find.text('Aucun modèle'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Marché du samedi').last);
+    await tester.tap(find.text('Marché du soir').last);
     await tester.pumpAndSettle();
     await _tapSaveButton(tester);
     await tester.pumpAndSettle();
@@ -326,13 +340,46 @@ void main() {
           that: isA<Delivery>().having(
             (delivery) => delivery.deliveryTemplateId,
             'deliveryTemplateId',
-            'dt-2',
+            'dt-1',
           ),
         ),
       ),
     ).called(1);
     verify(() => syncBloc.add(const SyncEvent.mutationApplied())).called(1);
   });
+
+  testWidgets(
+    'saving slot times incoherent with the delivery start time is blocked',
+    (tester) async {
+      await _pumpScreen(
+        tester,
+        organizationRepository: organizationRepository,
+        deliveryTemplateRepository: deliveryTemplateRepository,
+        syncBloc: syncBloc,
+      );
+
+      // Editing keeps the 18:00 start but the morning template ends at 11:00.
+      await tester.tap(find.text('Aucun modèle'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Marché du samedi').last);
+      await tester.pumpAndSettle();
+      await _tapSaveButton(tester);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          "L'heure de fin doit être après l'heure de début de la livraison.",
+        ),
+        findsOneWidget,
+      );
+      verifyNever(
+        () => organizationRepository.updateDelivery(
+          currentOrg: any(named: 'currentOrg'),
+          delivery: any(named: 'delivery'),
+        ),
+      );
+    },
+  );
 
   testWidgets(
     'a failing save shows the generic error snackbar, never the raw exception',

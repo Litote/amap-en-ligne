@@ -23,6 +23,13 @@ void main() {
 
   setUp(() {
     api = _MockPublicApi();
+    when(() => api.describeActivation(any())).thenAnswer(
+      (_) async => const ActivationResult(
+        kind: ActivationKind.organizationAdmin,
+        organizationName: 'AMAP des Collines',
+        email: 'admin@example.com',
+      ),
+    );
   });
 
   testWidgets('shows password validation errors on empty submit', (
@@ -44,15 +51,85 @@ void main() {
     await tester.pump();
 
     expect(
-      find.text('Le mot de passe doit contenir au moins 8 caractères.'),
+      find.text('Le mot de passe doit contenir au moins 12 caractères.'),
       findsOneWidget,
     );
   });
 
+  testWidgets('rejects a long password without uppercase nor digit', (
+    tester,
+  ) async {
+    await _pump(tester, api, 'tok');
+
+    await tester.enterText(find.byKey(const Key('password')), 'abcdefghijkl');
+    await tester.enterText(
+      find.byKey(const Key('confirm_password')),
+      'abcdefghijkl',
+    );
+    await tester.tap(find.byKey(const Key('submit')));
+    await tester.pump();
+
+    expect(
+      find.text('Le mot de passe doit contenir au moins une majuscule.'),
+      findsOneWidget,
+    );
+    verifyNever(
+      () => api.activate(
+        token: any(named: 'token'),
+        password: any(named: 'password'),
+      ),
+    );
+  });
+
+  testWidgets('displays the password rules and the account being activated', (
+    tester,
+  ) async {
+    await _pump(tester, api, 'tok');
+    await tester.pump();
+
+    expect(find.textContaining('admin@example.com'), findsOneWidget);
+    expect(find.textContaining('AMAP des Collines'), findsOneWidget);
+    expect(
+      find.text(
+        'Au moins 12 caractères, dont une minuscule, une majuscule et un chiffre.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+    'shows the policy message when the server reports a weak password',
+    (tester) async {
+      when(
+        () => api.activate(
+          token: any(named: 'token'),
+          password: any(named: 'password'),
+        ),
+      ).thenThrow(const ActivationException(ActivationError.weakPassword));
+      await _pump(tester, api, 'tok');
+
+      await tester.enterText(find.byKey(const Key('password')), 'Password1234');
+      await tester.enterText(
+        find.byKey(const Key('confirm_password')),
+        'Password1234',
+      );
+      await tester.tap(find.byKey(const Key('submit')));
+      await tester.pump();
+      await tester.pump();
+
+      expect(
+        find.text(
+          "Ce mot de passe n'est pas accepté. Au moins 12 caractères, dont une minuscule, une majuscule et un chiffre.",
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
   testWidgets('shows mismatch error when passwords differ', (tester) async {
     await _pump(tester, api, 'tok');
 
-    await tester.enterText(find.byKey(const Key('password')), 'Password1');
+    await tester.enterText(find.byKey(const Key('password')), 'Password1234');
     await tester.enterText(
       find.byKey(const Key('confirm_password')),
       'Other999',
@@ -88,10 +165,10 @@ void main() {
 
     await _pump(tester, api, 'valid-token');
 
-    await tester.enterText(find.byKey(const Key('password')), 'Password1');
+    await tester.enterText(find.byKey(const Key('password')), 'Password1234');
     await tester.enterText(
       find.byKey(const Key('confirm_password')),
-      'Password1',
+      'Password1234',
     );
     await tester.tap(find.byKey(const Key('submit')));
     await tester.pump(); // setState loading
@@ -116,10 +193,10 @@ void main() {
 
       await _pump(tester, api, 'bad-token');
 
-      await tester.enterText(find.byKey(const Key('password')), 'Password1');
+      await tester.enterText(find.byKey(const Key('password')), 'Password1234');
       await tester.enterText(
         find.byKey(const Key('confirm_password')),
-        'Password1',
+        'Password1234',
       );
       await tester.tap(find.byKey(const Key('submit')));
       await tester.pump();
@@ -141,10 +218,10 @@ void main() {
 
     await _pump(tester, api, 'old-token');
 
-    await tester.enterText(find.byKey(const Key('password')), 'Password1');
+    await tester.enterText(find.byKey(const Key('password')), 'Password1234');
     await tester.enterText(
       find.byKey(const Key('confirm_password')),
-      'Password1',
+      'Password1234',
     );
     await tester.tap(find.byKey(const Key('submit')));
     await tester.pump();
@@ -168,10 +245,10 @@ void main() {
 
       await _pump(tester, api, 'used-token');
 
-      await tester.enterText(find.byKey(const Key('password')), 'Password1');
+      await tester.enterText(find.byKey(const Key('password')), 'Password1234');
       await tester.enterText(
         find.byKey(const Key('confirm_password')),
-        'Password1',
+        'Password1234',
       );
       await tester.tap(find.byKey(const Key('submit')));
       await tester.pump();
@@ -194,10 +271,10 @@ void main() {
 
     await _pump(tester, api, 'any-token');
 
-    await tester.enterText(find.byKey(const Key('password')), 'Password1');
+    await tester.enterText(find.byKey(const Key('password')), 'Password1234');
     await tester.enterText(
       find.byKey(const Key('confirm_password')),
-      'Password1',
+      'Password1234',
     );
     await tester.tap(find.byKey(const Key('submit')));
     await tester.pump();
@@ -224,10 +301,10 @@ void main() {
 
     await _pump(tester, api, 'owner-token');
 
-    await tester.enterText(find.byKey(const Key('password')), 'Password1');
+    await tester.enterText(find.byKey(const Key('password')), 'Password1234');
     await tester.enterText(
       find.byKey(const Key('confirm_password')),
-      'Password1',
+      'Password1234',
     );
     await tester.tap(find.byKey(const Key('submit')));
     await tester.pump();
@@ -260,10 +337,10 @@ void main() {
 
     await _pump(tester, api, 'producer-token');
 
-    await tester.enterText(find.byKey(const Key('password')), 'Password1');
+    await tester.enterText(find.byKey(const Key('password')), 'Password1234');
     await tester.enterText(
       find.byKey(const Key('confirm_password')),
-      'Password1',
+      'Password1234',
     );
     await tester.tap(find.byKey(const Key('submit')));
     await tester.pump();

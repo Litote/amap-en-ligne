@@ -20,7 +20,7 @@
       "action": "sync",
       "request": {
         "cursors": {
-          "ProductType": "previous-bootstrap-cursor"
+          "producer-account:producerAccountId": "previous-bootstrap-cursor"
         },
         "mutations": [
           {
@@ -50,7 +50,7 @@
       "action": "sync",
       "request": {
         "cursors": {
-          "ProductType": "previous-bootstrap-cursor"
+          "producer-account:producerAccountId": "previous-bootstrap-cursor"
         },
         "mutations": [
           {

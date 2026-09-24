@@ -68,6 +68,22 @@ suivant s'affiche : « Cette livraison ne peut pas être confirmée : aucun coor
 sur le(s) contrat(s) … ». Affectez d'abord un coordinateur (voir
 [La coordination par contrat](06-coordination-par-contrat.md)).
 
+## Décrire la composition du panier
+
+Depuis **Modifier la livraison**, le bouton **[Composition du panier]** permet d'indiquer
+aux amapiens ce que contient leur panier cette semaine. Pour chaque produit et chaque
+taille de panier, touchez **[Ajouter]** :
+
+- si le producteur a défini un **catalogue de composants** (producteur avec compte),
+  choisissez les composants dans la liste (avec leur icône) ;
+- sinon — par exemple pour un **producteur sans compte** — saisissez le composant
+  vous-même : un **nom** (obligatoire, ex. « Courge butternut ») et, si vous le
+  souhaitez, un **poids** (ex. « 500 g », « 1 pièce »).
+
+Vous pouvez ensuite ajuster le poids de chaque composant ou le retirer, puis touchez
+**[Enregistrer]**. Les amapiens voient la composition sur leur planning, dans la
+section repliable **« Composition du panier »** de la livraison.
+
 ## Voir aussi
 
 - [Gérer les bénévoles et les créneaux](02-benevoles-et-creneaux.md)

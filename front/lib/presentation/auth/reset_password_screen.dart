@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:amap_en_ligne/data/web_initial_fragment.dart';
 import 'package:amap_en_ligne/domain/auth/auth_error.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
+import 'package:amap_en_ligne/domain/auth/password_policy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -147,10 +149,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   String? _passwordValidator(String? v) {
     final val = v ?? '';
     if (val.isEmpty) return 'Le mot de passe est requis.';
-    if (val.length < 8) {
-      return 'Le mot de passe doit contenir au moins 8 caractères.';
-    }
-    return null;
+    return passwordPolicyViolation(val);
   }
 
   String? _confirmValidator(String? v) {
@@ -193,6 +192,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     autofillHints: const [AutofillHints.newPassword],
                     decoration: InputDecoration(
                       labelText: 'Nouveau mot de passe *',
+                      helperText: kPasswordPolicyHint,
+                      helperMaxLines: 2,
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(

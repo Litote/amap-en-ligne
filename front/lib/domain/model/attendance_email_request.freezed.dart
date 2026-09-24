@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'attendance_email_request.dart';
@@ -9,15 +9,14 @@ part of 'attendance_email_request.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$AttendanceEmailRequest {
 
-@JsonKey(name: 'attendance_email_request_id') String get attendanceEmailRequestId;@JsonKey(name: 'organization_id') String get organizationId;@JsonKey(name: 'delivery_id') String get deliveryId;@JsonKey(name: 'recipient_email') String get recipientEmail;// ISO-8601 instant string, e.g. "2026-06-04T10:00:00Z".
-@JsonKey(name: 'requested_at') String get requestedAt;// ISO-8601 instant string; null/absent until the email has been sent.
-@JsonKey(name: 'sent_at') String? get sentAt;
+@JsonKey(name: 'attendance_email_request_id') String get attendanceEmailRequestId;@JsonKey(name: 'organization_id') String get organizationId;@JsonKey(name: 'delivery_id') String get deliveryId;@JsonKey(name: 'recipient_email') String get recipientEmail;@JsonKey(name: 'requested_at') String get requestedAt;@JsonKey(name: 'sent_at') String? get sentAt;
 /// Create a copy of AttendanceEmailRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +29,21 @@ $AttendanceEmailRequestCopyWith<AttendanceEmailRequest> get copyWith => _$Attend
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceEmailRequest&&(identical(other.attendanceEmailRequestId, attendanceEmailRequestId) || other.attendanceEmailRequestId == attendanceEmailRequestId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.recipientEmail, recipientEmail) || other.recipientEmail == recipientEmail)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt));
+  final _this = this as AttendanceEmailRequest;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceEmailRequest&&(identical(other.attendanceEmailRequestId, _this.attendanceEmailRequestId) || other.attendanceEmailRequestId == _this.attendanceEmailRequestId)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.deliveryId, _this.deliveryId) || other.deliveryId == _this.deliveryId)&&(identical(other.recipientEmail, _this.recipientEmail) || other.recipientEmail == _this.recipientEmail)&&(identical(other.requestedAt, _this.requestedAt) || other.requestedAt == _this.requestedAt)&&(identical(other.sentAt, _this.sentAt) || other.sentAt == _this.sentAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,attendanceEmailRequestId,organizationId,deliveryId,recipientEmail,requestedAt,sentAt);
+int get hashCode {
+  final _this = this as AttendanceEmailRequest;
+  return Object.hash(runtimeType,_this.attendanceEmailRequestId,_this.organizationId,_this.deliveryId,_this.recipientEmail,_this.requestedAt,_this.sentAt);
+}
 
 @override
 String toString() {
-  return 'AttendanceEmailRequest(attendanceEmailRequestId: $attendanceEmailRequestId, organizationId: $organizationId, deliveryId: $deliveryId, recipientEmail: $recipientEmail, requestedAt: $requestedAt, sentAt: $sentAt)';
+  final _this = this as AttendanceEmailRequest;
+  return 'AttendanceEmailRequest(attendanceEmailRequestId: ${_this.attendanceEmailRequestId}, organizationId: ${_this.organizationId}, deliveryId: ${_this.deliveryId}, recipientEmail: ${_this.recipientEmail}, requestedAt: ${_this.requestedAt}, sentAt: ${_this.sentAt})';
 }
 
 
@@ -68,7 +72,7 @@ class _$AttendanceEmailRequestCopyWithImpl<$Res>
 /// Create a copy of AttendanceEmailRequest
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? attendanceEmailRequestId = null,Object? organizationId = null,Object? deliveryId = null,Object? recipientEmail = null,Object? requestedAt = null,Object? sentAt = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(AttendanceEmailRequest(
 attendanceEmailRequestId: null == attendanceEmailRequestId ? _self.attendanceEmailRequestId : attendanceEmailRequestId // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,deliveryId: null == deliveryId ? _self.deliveryId : deliveryId // ignore: cast_nullable_to_non_nullable
@@ -223,9 +227,7 @@ class _AttendanceEmailRequest implements AttendanceEmailRequest {
 @override@JsonKey(name: 'organization_id') final  String organizationId;
 @override@JsonKey(name: 'delivery_id') final  String deliveryId;
 @override@JsonKey(name: 'recipient_email') final  String recipientEmail;
-// ISO-8601 instant string, e.g. "2026-06-04T10:00:00Z".
 @override@JsonKey(name: 'requested_at') final  String requestedAt;
-// ISO-8601 instant string; null/absent until the email has been sent.
 @override@JsonKey(name: 'sent_at') final  String? sentAt;
 
 /// Create a copy of AttendanceEmailRequest
@@ -241,16 +243,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AttendanceEmailRequest&&(identical(other.attendanceEmailRequestId, attendanceEmailRequestId) || other.attendanceEmailRequestId == attendanceEmailRequestId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.recipientEmail, recipientEmail) || other.recipientEmail == recipientEmail)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AttendanceEmailRequest&&(identical(other.attendanceEmailRequestId, attendanceEmailRequestId) || other.attendanceEmailRequestId == attendanceEmailRequestId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.recipientEmail, recipientEmail) || other.recipientEmail == recipientEmail)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,attendanceEmailRequestId,organizationId,deliveryId,recipientEmail,requestedAt,sentAt);
+int get hashCode {
+    return Object.hash(runtimeType,attendanceEmailRequestId,organizationId,deliveryId,recipientEmail,requestedAt,sentAt);
+}
 
 @override
 String toString() {
-  return 'AttendanceEmailRequest(attendanceEmailRequestId: $attendanceEmailRequestId, organizationId: $organizationId, deliveryId: $deliveryId, recipientEmail: $recipientEmail, requestedAt: $requestedAt, sentAt: $sentAt)';
+    return 'AttendanceEmailRequest(attendanceEmailRequestId: $attendanceEmailRequestId, organizationId: $organizationId, deliveryId: $deliveryId, recipientEmail: $recipientEmail, requestedAt: $requestedAt, sentAt: $sentAt)';
 }
 
 

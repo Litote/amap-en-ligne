@@ -54,6 +54,13 @@ resource "aws_apigatewayv2_route" "activate" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
+# Account activation preview (describes the token before the password is chosen)
+resource "aws_apigatewayv2_route" "activate_get" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "GET /v1/activate"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
 # Admin REST — producer account search + organization export (Lambda validates JWT internally)
 resource "aws_apigatewayv2_route" "admin_get" {
   api_id    = aws_apigatewayv2_api.main.id

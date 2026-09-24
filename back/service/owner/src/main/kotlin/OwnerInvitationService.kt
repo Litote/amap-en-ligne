@@ -5,6 +5,7 @@ package owner
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
+import core.InputRules
 import email.OwnerActivationEmailPort
 import id.Id
 import id.generateId
@@ -101,6 +102,12 @@ class OwnerInvitationService(
         mutation: ClientMutation,
         incoming: OwnerInvitation,
     ): MutationOutcome {
+        // Mirrors the "Nouvel Administrateur" form (invite_owner_screen.dart).
+        (
+            InputRules.requireName("first_name", incoming.firstName)
+                ?: InputRules.requireName("last_name", incoming.lastName)
+                ?: InputRules.requireEmail("email", incoming.email)
+        )?.let { return rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, it) }
         if (ownerDAO.existsByEmail(incoming.email) || ownerInvitationDAO.existsPendingByEmail(incoming.email)) {
             return rejected(mutation, MutationErrorCode.UNIQUE_VIOLATION, "email already invited")
         }

@@ -34,12 +34,12 @@ class _DeliveryTemplateListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final organizationRepository = context.read<OrganizationRepository>();
     return ConnectedScaffold(
-      title: 'Modèles de livraison',
+      title: 'Templates de livraison',
       actions: const [SyncButton()],
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/admin/delivery-templates/new'),
         icon: const Icon(Icons.add),
-        label: const Text('Nouveau modèle'),
+        label: const Text('Nouveau template'),
       ),
       body: StreamBuilder<Organization?>(
         stream: organizationRepository.watch(organizationId),
@@ -57,7 +57,7 @@ class _DeliveryTemplateListView extends StatelessWidget {
                 DeliveryTemplateLoaded(:final templates) =>
                   templates.isEmpty
                       ? const Center(
-                          child: Text('Aucun modèle de livraison configuré.'),
+                          child: Text('Aucun template de livraison configuré.'),
                         )
                       : _TemplateList(
                           templates: templates,

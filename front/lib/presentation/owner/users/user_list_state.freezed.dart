@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'user_list_state.dart';
@@ -9,6 +9,7 @@ part of 'user_list_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$UserListState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserListState()';
+    return 'UserListState()';
 }
 
 
@@ -197,7 +198,7 @@ class UserListInitial implements UserListState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListInitial);
 }
 
 
@@ -206,7 +207,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserListState.initial()';
+    return 'UserListState.initial()';
 }
 
 
@@ -229,7 +230,7 @@ class UserListLoading implements UserListState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListLoading);
 }
 
 
@@ -238,7 +239,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserListState.loading()';
+    return 'UserListState.loading()';
 }
 
 
@@ -251,7 +252,7 @@ String toString() {
 
 
 class UserListLoaded implements UserListState {
-  const UserListLoaded({required final  List<Organization> allOrganizations, required final  List<ProducerAccount> allProducerAccounts, required final  List<UserRow> visibleRows, required this.totalCount, required this.currentPage, required this.totalPages, this.searchQuery = '', this.amapIdFilter, this.producerIdFilter, this.roleFilter, this.statusFilter}): _allOrganizations = allOrganizations,_allProducerAccounts = allProducerAccounts,_visibleRows = visibleRows;
+  const UserListLoaded({required  List<Organization> allOrganizations, required  List<ProducerAccount> allProducerAccounts, required  List<UserRow> visibleRows, required this.totalCount, required this.currentPage, required this.totalPages, this.searchQuery = '', this.amapIdFilter, this.producerIdFilter, this.roleFilter, this.statusFilter}): _allOrganizations = allOrganizations,_allProducerAccounts = allProducerAccounts,_visibleRows = visibleRows;
   
 
 /// All organisations available for the AMAP filter dropdown.
@@ -287,7 +288,6 @@ class UserListLoaded implements UserListState {
  final  int currentPage;
 /// Total number of pages (50 rows per page).
  final  int totalPages;
-// --- active filter state ---
 @JsonKey() final  String searchQuery;
  final  String? amapIdFilter;
  final  String? producerIdFilter;
@@ -304,16 +304,18 @@ $UserListLoadedCopyWith<UserListLoaded> get copyWith => _$UserListLoadedCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListLoaded&&const DeepCollectionEquality().equals(other._allOrganizations, _allOrganizations)&&const DeepCollectionEquality().equals(other._allProducerAccounts, _allProducerAccounts)&&const DeepCollectionEquality().equals(other._visibleRows, _visibleRows)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.totalPages, totalPages) || other.totalPages == totalPages)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.amapIdFilter, amapIdFilter) || other.amapIdFilter == amapIdFilter)&&(identical(other.producerIdFilter, producerIdFilter) || other.producerIdFilter == producerIdFilter)&&(identical(other.roleFilter, roleFilter) || other.roleFilter == roleFilter)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListLoaded&&const DeepCollectionEquality().equals(other.allOrganizations, _allOrganizations)&&const DeepCollectionEquality().equals(other.allProducerAccounts, _allProducerAccounts)&&const DeepCollectionEquality().equals(other.visibleRows, _visibleRows)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.totalPages, totalPages) || other.totalPages == totalPages)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.amapIdFilter, amapIdFilter) || other.amapIdFilter == amapIdFilter)&&(identical(other.producerIdFilter, producerIdFilter) || other.producerIdFilter == producerIdFilter)&&(identical(other.roleFilter, roleFilter) || other.roleFilter == roleFilter)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_allOrganizations),const DeepCollectionEquality().hash(_allProducerAccounts),const DeepCollectionEquality().hash(_visibleRows),totalCount,currentPage,totalPages,searchQuery,amapIdFilter,producerIdFilter,roleFilter,statusFilter);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_allOrganizations),const DeepCollectionEquality().hash(_allProducerAccounts),const DeepCollectionEquality().hash(_visibleRows),totalCount,currentPage,totalPages,searchQuery,amapIdFilter,producerIdFilter,roleFilter,statusFilter);
+}
 
 @override
 String toString() {
-  return 'UserListState.loaded(allOrganizations: $allOrganizations, allProducerAccounts: $allProducerAccounts, visibleRows: $visibleRows, totalCount: $totalCount, currentPage: $currentPage, totalPages: $totalPages, searchQuery: $searchQuery, amapIdFilter: $amapIdFilter, producerIdFilter: $producerIdFilter, roleFilter: $roleFilter, statusFilter: $statusFilter)';
+    return 'UserListState.loaded(allOrganizations: $allOrganizations, allProducerAccounts: $allProducerAccounts, visibleRows: $visibleRows, totalCount: $totalCount, currentPage: $currentPage, totalPages: $totalPages, searchQuery: $searchQuery, amapIdFilter: $amapIdFilter, producerIdFilter: $producerIdFilter, roleFilter: $roleFilter, statusFilter: $statusFilter)';
 }
 
 
@@ -380,16 +382,18 @@ $UserListErrorCopyWith<UserListError> get copyWith => _$UserListErrorCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'UserListState.error(message: $message)';
+    return 'UserListState.error(message: $message)';
 }
 
 

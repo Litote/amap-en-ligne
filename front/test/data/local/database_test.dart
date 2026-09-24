@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:amap_en_ligne/data/local/database.dart';
 import 'package:amap_en_ligne/domain/model/admin_organization_request.dart';
 import 'package:amap_en_ligne/domain/model/admin_producer_request.dart';
@@ -10,13 +8,11 @@ import 'package:amap_en_ligne/domain/model/error_report.dart';
 import 'package:amap_en_ligne/domain/model/invitation_status.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/member_invitation.dart';
+import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_creation_request.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
-import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
-import 'package:amap_en_ligne/domain/sync/entity_payload.dart';
-import 'package:amap_en_ligne/domain/sync/entity_type.dart';
+import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/sync/mutation_op.dart';
-import 'package:amap_en_ligne/domain/sync/sync_scope.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,6 +29,66 @@ void main() {
     await db.close();
   });
 
+  group('watchEffectiveProducerAccountId', () {
+    test('is null before any producer-account scope was synced', () async {
+      expect(await db.watchEffectiveProducerAccountId().first, isNull);
+    });
+
+    test('returns the id of the synced producer-account scope (the account id, '
+        'which may differ from the auth sub)', () async {
+      await db.writeCursor('organization:org-1', 'c-0');
+      await db.writeCursor('producer-account:pa-real', 'c-1');
+
+      expect(await db.watchEffectiveProducerAccountId().first, 'pa-real');
+    });
+  });
+
+  group('product types synced on an organization scope', () {
+    const orgId = 'org-1';
+
+    test(
+      'deleteProductTypeById removes the row whatever its producer',
+      () async {
+        await db.upsertProductType(
+          buildProductType(productTypeId: 'pt-9', producerAccountId: 'pa-9'),
+        );
+
+        await db.deleteProductTypeById('pt-9');
+
+        expect(await db.watchProductTypes('pa-9').first, isEmpty);
+      },
+    );
+
+    test('clearScopeData(organization) drops the catalogs of the organization '
+        'producers so a re-bootstrap does not keep stale ones', () async {
+      await db.upsertOrganization(
+        const Organization(
+          organizationId: orgId,
+          name: 'AMAP',
+          contactEmail: 'amap@example.com',
+          producers: [
+            OrganizationProducer(
+              producerAccountId: 'pa-9',
+              associationInstant: '2026-01-01T00:00:00Z',
+              status: OrganizationProducerStatus.active,
+            ),
+          ],
+        ),
+      );
+      await db.upsertProductType(
+        buildProductType(productTypeId: 'pt-9', producerAccountId: 'pa-9'),
+      );
+      await db.upsertProductType(
+        buildProductType(productTypeId: 'pt-other', producerAccountId: 'pa-x'),
+      );
+
+      await db.clearScopeData('organization:$orgId');
+
+      expect(await db.watchProductTypes('pa-9').first, isEmpty);
+      expect(await db.watchProductTypes('pa-x').first, hasLength(1));
+    });
+  });
+
   group('product_type CRUD', () {
     final pt = buildProductType(
       supportedBasketSizes: const [smallBasketSize, largeBasketSize],
@@ -47,6 +103,19 @@ void main() {
         expect(rows, [pt]);
       },
     );
+
+    test('upsert + read round-trip preserves the component catalog', () async {
+      final withCatalog = pt.copyWith(
+        itemTypes: const [
+          ItemType(id: 'it-1', name: 'Comté', imageSvg: '<svg/>'),
+          ItemType(id: 'it-2', name: 'Morbier'),
+        ],
+      );
+      await db.upsertProductType(withCatalog);
+
+      final rows = await db.watchProductTypes(testTenantId).first;
+      expect(rows.single.itemTypes, withCatalog.itemTypes);
+    });
 
     test('upsert is idempotent (replaces previous row)', () async {
       await db.upsertProductType(pt);
@@ -234,60 +303,6 @@ void main() {
       await db.drainPendingMutations(<String>[]);
       expect((await db.readPendingMutations()).length, 1);
     });
-
-    test(
-      'legacy upsert without scope is backfilled from its payload scope',
-      () async {
-        await db.customStatement(
-          'INSERT INTO pending_mutations (client_op_id, scope_key, payload_json, created_at) '
-          'VALUES (?, NULL, ?, ?)',
-          [upsertMutation.clientOpId, jsonEncode(upsertMutation), 1],
-        );
-
-        final pending = await db.readPendingMutationEntries();
-
-        expect(pending.single.scopeKey, testProducerScopeKey);
-        final stored =
-            await (db.select(
-                  db.pendingMutations,
-                )..where((t) => t.clientOpId.equals(upsertMutation.clientOpId)))
-                .getSingle();
-        expect(stored.scopeKey, testProducerScopeKey);
-      },
-    );
-
-    test(
-      'legacy delete without scope resolves from a matching queued upsert',
-      () async {
-        const member = Member(memberId: 'tmp_member', organizationId: 'org-1');
-        const upsertMutation = ClientMutation(
-          clientOpId: 'op-upsert',
-          op: Upsert(payload: MemberPayload(member: member)),
-        );
-        const deleteMutation = ClientMutation(
-          clientOpId: 'op-delete',
-          op: Delete(entityType: EntityType.member, entityId: 'tmp_member'),
-        );
-
-        await db.customStatement(
-          'INSERT INTO pending_mutations (client_op_id, scope_key, payload_json, created_at) '
-          'VALUES (?, NULL, ?, ?)',
-          [upsertMutation.clientOpId, jsonEncode(upsertMutation), 1],
-        );
-        await db.customStatement(
-          'INSERT INTO pending_mutations (client_op_id, scope_key, payload_json, created_at) '
-          'VALUES (?, NULL, ?, ?)',
-          [deleteMutation.clientOpId, jsonEncode(deleteMutation), 2],
-        );
-
-        final pending = await db.readPendingMutationEntries();
-
-        expect(pending.map((entry) => entry.scopeKey), [
-          organizationScopeKey('org-1'),
-          organizationScopeKey('org-1'),
-        ]);
-      },
-    );
   });
 
   group('members CRUD', () {
@@ -307,9 +322,12 @@ void main() {
     test('upsert is idempotent', () async {
       final m = buildMember();
       await db.upsertMember(orgId, m);
-      await db.upsertMember(orgId, m.copyWith(activeStatus: false));
+      await db.upsertMember(
+        orgId,
+        m.copyWith(accountStatus: MemberAccountStatus.suspended),
+      );
       final rows = await db.watchMembers(orgId).first;
-      expect(rows.single.activeStatus, false);
+      expect(rows.single.accountStatus, MemberAccountStatus.suspended);
     });
 
     test('delete removes the row', () async {
@@ -475,6 +493,44 @@ void main() {
       await db.upsertDeliveryTemplate(orgId, t.copyWith(name: 'Updated'));
       final rows = await db.watchDeliveryTemplates(orgId).first;
       expect(rows.single.name, 'Updated');
+    });
+
+    test('remapDeliveryTemplateId rewrites the organization default template '
+        'and delivery references', () async {
+      await db.upsertDeliveryTemplate(
+        orgId,
+        buildTemplate(templateId: 'tmp_1'),
+      );
+      await db.upsertOrganization(
+        const Organization(
+          organizationId: orgId,
+          name: 'AMAP',
+          contactEmail: 'amap@example.com',
+          defaultDeliveryTemplateId: 'tmp_1',
+          deliveries: [
+            Delivery(
+              deliveryId: 'd-1',
+              organizationId: orgId,
+              scheduledDate: '2026-10-01T18:00:00',
+              status: DeliveryStatus.planned,
+              minVolunteersRequired: 1,
+              deliveryTemplateId: 'tmp_1',
+            ),
+          ],
+        ),
+      );
+
+      await db.remapDeliveryTemplateId(
+        organizationId: orgId,
+        oldId: 'tmp_1',
+        newId: 'dt-real',
+      );
+
+      final org = await db.watchOrganizationForTenant(orgId).first;
+      expect(org?.defaultDeliveryTemplateId, 'dt-real');
+      expect(org?.deliveries.single.deliveryTemplateId, 'dt-real');
+      final templates = await db.watchDeliveryTemplates(orgId).first;
+      expect(templates.single.deliveryTemplateId, 'dt-real');
     });
 
     test('delete removes the row', () async {
@@ -867,5 +923,59 @@ void main() {
       expect(rows.single.errorReportId, 'er-real-1');
       expect(rows.single.errorMessage, 'Error');
     });
+  });
+
+  group('schema version mismatch', () {
+    Future<AppDatabase> openLegacy(int userVersion) async {
+      final legacy = AppDatabase(
+        NativeDatabase.memory(
+          setup: (raw) {
+            // Pre-squash layout: an obsolete table plus a current table with
+            // an incompatible shape, stamped with a foreign schema version.
+            raw
+              ..execute('CREATE TABLE legacy_table (id TEXT)')
+              ..execute('CREATE TABLE sync_cursors (legacy TEXT)')
+              ..execute("INSERT INTO sync_cursors VALUES ('stale')")
+              ..execute('PRAGMA user_version = $userVersion');
+          },
+        ),
+      );
+      addTearDown(legacy.close);
+      return legacy;
+    }
+
+    Future<List<String>> tableNames(AppDatabase database) async {
+      final rows = await database
+          .customSelect(
+            "SELECT name FROM sqlite_master WHERE type = 'table' "
+            "AND name NOT LIKE 'sqlite_%'",
+          )
+          .get();
+      return rows.map((row) => row.read<String>('name')).toList();
+    }
+
+    for (final userVersion in [5, 42]) {
+      test(
+        'user_version $userVersion rebuilds the cache instead of throwing',
+        () async {
+          final legacy = await openLegacy(userVersion);
+
+          expect(await legacy.readAllScopeCursors(), isEmpty);
+          await legacy.writeCursor(testProducerScopeKey, 'cursor-1');
+          expect(await legacy.readCursor(testProducerScopeKey), 'cursor-1');
+
+          final names = await tableNames(legacy);
+          expect(names, isNot(contains('legacy_table')));
+          expect(
+            names.toSet(),
+            legacy.allTables.map((table) => table.actualTableName).toSet(),
+          );
+          final version = await legacy
+              .customSelect('PRAGMA user_version')
+              .getSingle();
+          expect(version.read<int>('user_version'), legacy.schemaVersion);
+        },
+      );
+    }
   });
 }

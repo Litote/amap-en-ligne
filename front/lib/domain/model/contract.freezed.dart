@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'contract.dart';
@@ -9,6 +9,7 @@ part of 'contract.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $MemberSubscriptionCopyWith<MemberSubscription> get copyWith => _$MemberSubscrip
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberSubscription&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSize, basketSize) || other.basketSize == basketSize));
+  final _this = this as MemberSubscription;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberSubscription&&(identical(other.productTypeId, _this.productTypeId) || other.productTypeId == _this.productTypeId)&&(identical(other.basketSize, _this.basketSize) || other.basketSize == _this.basketSize));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSize);
+int get hashCode {
+  final _this = this as MemberSubscription;
+  return Object.hash(runtimeType,_this.productTypeId,_this.basketSize);
+}
 
 @override
 String toString() {
-  return 'MemberSubscription(productTypeId: $productTypeId, basketSize: $basketSize)';
+  final _this = this as MemberSubscription;
+  return 'MemberSubscription(productTypeId: ${_this.productTypeId}, basketSize: ${_this.basketSize})';
 }
 
 
@@ -66,7 +72,7 @@ class _$MemberSubscriptionCopyWithImpl<$Res>
 /// Create a copy of MemberSubscription
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? productTypeId = null,Object? basketSize = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(MemberSubscription(
 productTypeId: null == productTypeId ? _self.productTypeId : productTypeId // ignore: cast_nullable_to_non_nullable
 as String,basketSize: freezed == basketSize ? _self.basketSize : basketSize // ignore: cast_nullable_to_non_nullable
 as BasketSize?,
@@ -241,16 +247,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberSubscription&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSize, basketSize) || other.basketSize == basketSize));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberSubscription&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSize, basketSize) || other.basketSize == basketSize));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSize);
+int get hashCode {
+    return Object.hash(runtimeType,productTypeId,basketSize);
+}
 
 @override
 String toString() {
-  return 'MemberSubscription(productTypeId: $productTypeId, basketSize: $basketSize)';
+    return 'MemberSubscription(productTypeId: $productTypeId, basketSize: $basketSize)';
 }
 
 
@@ -318,16 +326,21 @@ $ProductPriceCopyWith<ProductPrice> get copyWith => _$ProductPriceCopyWithImpl<P
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductPrice&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSize, basketSize) || other.basketSize == basketSize)&&(identical(other.price, price) || other.price == price));
+  final _this = this as ProductPrice;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductPrice&&(identical(other.productTypeId, _this.productTypeId) || other.productTypeId == _this.productTypeId)&&(identical(other.basketSize, _this.basketSize) || other.basketSize == _this.basketSize)&&(identical(other.price, _this.price) || other.price == _this.price));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSize,price);
+int get hashCode {
+  final _this = this as ProductPrice;
+  return Object.hash(runtimeType,_this.productTypeId,_this.basketSize,_this.price);
+}
 
 @override
 String toString() {
-  return 'ProductPrice(productTypeId: $productTypeId, basketSize: $basketSize, price: $price)';
+  final _this = this as ProductPrice;
+  return 'ProductPrice(productTypeId: ${_this.productTypeId}, basketSize: ${_this.basketSize}, price: ${_this.price})';
 }
 
 
@@ -356,7 +369,7 @@ class _$ProductPriceCopyWithImpl<$Res>
 /// Create a copy of ProductPrice
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? productTypeId = null,Object? basketSize = freezed,Object? price = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(ProductPrice(
 productTypeId: null == productTypeId ? _self.productTypeId : productTypeId // ignore: cast_nullable_to_non_nullable
 as String,basketSize: freezed == basketSize ? _self.basketSize : basketSize // ignore: cast_nullable_to_non_nullable
 as BasketSize?,price: freezed == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
@@ -533,16 +546,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductPrice&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSize, basketSize) || other.basketSize == basketSize)&&(identical(other.price, price) || other.price == price));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductPrice&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSize, basketSize) || other.basketSize == basketSize)&&(identical(other.price, price) || other.price == price));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSize,price);
+int get hashCode {
+    return Object.hash(runtimeType,productTypeId,basketSize,price);
+}
 
 @override
 String toString() {
-  return 'ProductPrice(productTypeId: $productTypeId, basketSize: $basketSize, price: $price)';
+    return 'ProductPrice(productTypeId: $productTypeId, basketSize: $basketSize, price: $price)';
 }
 
 
@@ -611,16 +626,21 @@ $ContractMemberCopyWith<ContractMember> get copyWith => _$ContractMemberCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContractMember&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.subscriptionInstant, subscriptionInstant) || other.subscriptionInstant == subscriptionInstant)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.subscriptions, subscriptions));
+  final _this = this as ContractMember;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContractMember&&(identical(other.memberId, _this.memberId) || other.memberId == _this.memberId)&&(identical(other.subscriptionInstant, _this.subscriptionInstant) || other.subscriptionInstant == _this.subscriptionInstant)&&(identical(other.status, _this.status) || other.status == _this.status)&&const DeepCollectionEquality().equals(other.subscriptions, _this.subscriptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,memberId,subscriptionInstant,status,const DeepCollectionEquality().hash(subscriptions));
+int get hashCode {
+  final _this = this as ContractMember;
+  return Object.hash(runtimeType,_this.memberId,_this.subscriptionInstant,_this.status,const DeepCollectionEquality().hash(_this.subscriptions));
+}
 
 @override
 String toString() {
-  return 'ContractMember(memberId: $memberId, subscriptionInstant: $subscriptionInstant, status: $status, subscriptions: $subscriptions)';
+  final _this = this as ContractMember;
+  return 'ContractMember(memberId: ${_this.memberId}, subscriptionInstant: ${_this.subscriptionInstant}, status: ${_this.status}, subscriptions: ${_this.subscriptions})';
 }
 
 
@@ -649,7 +669,7 @@ class _$ContractMemberCopyWithImpl<$Res>
 /// Create a copy of ContractMember
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? memberId = null,Object? subscriptionInstant = null,Object? status = null,Object? subscriptions = null,}) {
-  return _then(_self.copyWith(
+  return _then(ContractMember(
 memberId: null == memberId ? _self.memberId : memberId // ignore: cast_nullable_to_non_nullable
 as String,subscriptionInstant: null == subscriptionInstant ? _self.subscriptionInstant : subscriptionInstant // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -795,7 +815,7 @@ return $default(_that.memberId,_that.subscriptionInstant,_that.status,_that.subs
 @JsonSerializable()
 
 class _ContractMember implements ContractMember {
-  const _ContractMember({@JsonKey(name: 'member_id') required this.memberId, @JsonKey(name: 'subscription_instant') required this.subscriptionInstant, required this.status, final  List<MemberSubscription> subscriptions = const []}): _subscriptions = subscriptions;
+  const _ContractMember({@JsonKey(name: 'member_id') required this.memberId, @JsonKey(name: 'subscription_instant') required this.subscriptionInstant, required this.status,  List<MemberSubscription> subscriptions = const []}): _subscriptions = subscriptions;
   factory _ContractMember.fromJson(Map<String, dynamic> json) => _$ContractMemberFromJson(json);
 
 @override@JsonKey(name: 'member_id') final  String memberId;
@@ -822,16 +842,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContractMember&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.subscriptionInstant, subscriptionInstant) || other.subscriptionInstant == subscriptionInstant)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._subscriptions, _subscriptions));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContractMember&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.subscriptionInstant, subscriptionInstant) || other.subscriptionInstant == subscriptionInstant)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.subscriptions, _subscriptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,memberId,subscriptionInstant,status,const DeepCollectionEquality().hash(_subscriptions));
+int get hashCode {
+    return Object.hash(runtimeType,memberId,subscriptionInstant,status,const DeepCollectionEquality().hash(_subscriptions));
+}
 
 @override
 String toString() {
-  return 'ContractMember(memberId: $memberId, subscriptionInstant: $subscriptionInstant, status: $status, subscriptions: $subscriptions)';
+    return 'ContractMember(memberId: $memberId, subscriptionInstant: $subscriptionInstant, status: $status, subscriptions: $subscriptions)';
 }
 
 
@@ -889,16 +911,21 @@ $SharedBasketCopyWith<SharedBasket> get copyWith => _$SharedBasketCopyWithImpl<S
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SharedBasket&&(identical(other.sharedBasketId, sharedBasketId) || other.sharedBasketId == sharedBasketId)&&const DeepCollectionEquality().equals(other.memberIds, memberIds)&&(identical(other.anchorDeliveryId, anchorDeliveryId) || other.anchorDeliveryId == anchorDeliveryId));
+  final _this = this as SharedBasket;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SharedBasket&&(identical(other.sharedBasketId, _this.sharedBasketId) || other.sharedBasketId == _this.sharedBasketId)&&const DeepCollectionEquality().equals(other.memberIds, _this.memberIds)&&(identical(other.anchorDeliveryId, _this.anchorDeliveryId) || other.anchorDeliveryId == _this.anchorDeliveryId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,sharedBasketId,const DeepCollectionEquality().hash(memberIds),anchorDeliveryId);
+int get hashCode {
+  final _this = this as SharedBasket;
+  return Object.hash(runtimeType,_this.sharedBasketId,const DeepCollectionEquality().hash(_this.memberIds),_this.anchorDeliveryId);
+}
 
 @override
 String toString() {
-  return 'SharedBasket(sharedBasketId: $sharedBasketId, memberIds: $memberIds, anchorDeliveryId: $anchorDeliveryId)';
+  final _this = this as SharedBasket;
+  return 'SharedBasket(sharedBasketId: ${_this.sharedBasketId}, memberIds: ${_this.memberIds}, anchorDeliveryId: ${_this.anchorDeliveryId})';
 }
 
 
@@ -927,7 +954,7 @@ class _$SharedBasketCopyWithImpl<$Res>
 /// Create a copy of SharedBasket
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? sharedBasketId = null,Object? memberIds = null,Object? anchorDeliveryId = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(SharedBasket(
 sharedBasketId: null == sharedBasketId ? _self.sharedBasketId : sharedBasketId // ignore: cast_nullable_to_non_nullable
 as String,memberIds: null == memberIds ? _self.memberIds : memberIds // ignore: cast_nullable_to_non_nullable
 as List<String>,anchorDeliveryId: freezed == anchorDeliveryId ? _self.anchorDeliveryId : anchorDeliveryId // ignore: cast_nullable_to_non_nullable
@@ -1072,7 +1099,7 @@ return $default(_that.sharedBasketId,_that.memberIds,_that.anchorDeliveryId);cas
 @JsonSerializable()
 
 class _SharedBasket implements SharedBasket {
-  const _SharedBasket({@JsonKey(name: 'shared_basket_id') required this.sharedBasketId, @JsonKey(name: 'member_ids') final  List<String> memberIds = const [], @JsonKey(name: 'anchor_delivery_id') this.anchorDeliveryId}): _memberIds = memberIds;
+  const _SharedBasket({@JsonKey(name: 'shared_basket_id') required this.sharedBasketId, @JsonKey(name: 'member_ids')  List<String> memberIds = const [], @JsonKey(name: 'anchor_delivery_id') this.anchorDeliveryId}): _memberIds = memberIds;
   factory _SharedBasket.fromJson(Map<String, dynamic> json) => _$SharedBasketFromJson(json);
 
 @override@JsonKey(name: 'shared_basket_id') final  String sharedBasketId;
@@ -1098,16 +1125,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SharedBasket&&(identical(other.sharedBasketId, sharedBasketId) || other.sharedBasketId == sharedBasketId)&&const DeepCollectionEquality().equals(other._memberIds, _memberIds)&&(identical(other.anchorDeliveryId, anchorDeliveryId) || other.anchorDeliveryId == anchorDeliveryId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SharedBasket&&(identical(other.sharedBasketId, sharedBasketId) || other.sharedBasketId == sharedBasketId)&&const DeepCollectionEquality().equals(other.memberIds, _memberIds)&&(identical(other.anchorDeliveryId, anchorDeliveryId) || other.anchorDeliveryId == anchorDeliveryId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,sharedBasketId,const DeepCollectionEquality().hash(_memberIds),anchorDeliveryId);
+int get hashCode {
+    return Object.hash(runtimeType,sharedBasketId,const DeepCollectionEquality().hash(_memberIds),anchorDeliveryId);
+}
 
 @override
 String toString() {
-  return 'SharedBasket(sharedBasketId: $sharedBasketId, memberIds: $memberIds, anchorDeliveryId: $anchorDeliveryId)';
+    return 'SharedBasket(sharedBasketId: $sharedBasketId, memberIds: $memberIds, anchorDeliveryId: $anchorDeliveryId)';
 }
 
 
@@ -1164,16 +1193,21 @@ $ContractCopyWith<Contract> get copyWith => _$ContractCopyWithImpl<Contract>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Contract&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.name, name) || other.name == name)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.minDeliveryDate, minDeliveryDate) || other.minDeliveryDate == minDeliveryDate)&&(identical(other.maxDeliveryDate, maxDeliveryDate) || other.maxDeliveryDate == maxDeliveryDate)&&(identical(other.deliveryCount, deliveryCount) || other.deliveryCount == deliveryCount)&&(identical(other.seasonYear, seasonYear) || other.seasonYear == seasonYear)&&const DeepCollectionEquality().equals(other.productPrices, productPrices)&&const DeepCollectionEquality().equals(other.coordinators, coordinators)&&const DeepCollectionEquality().equals(other.members, members)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryTemplateId, deliveryTemplateId) || other.deliveryTemplateId == deliveryTemplateId)&&const DeepCollectionEquality().equals(other.sharedBaskets, sharedBaskets)&&(identical(other.isMainContract, isMainContract) || other.isMainContract == isMainContract));
+  final _this = this as Contract;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Contract&&(identical(other.contractId, _this.contractId) || other.contractId == _this.contractId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.producerAccountId, _this.producerAccountId) || other.producerAccountId == _this.producerAccountId)&&(identical(other.minDeliveryDate, _this.minDeliveryDate) || other.minDeliveryDate == _this.minDeliveryDate)&&(identical(other.maxDeliveryDate, _this.maxDeliveryDate) || other.maxDeliveryDate == _this.maxDeliveryDate)&&(identical(other.deliveryCount, _this.deliveryCount) || other.deliveryCount == _this.deliveryCount)&&(identical(other.seasonYear, _this.seasonYear) || other.seasonYear == _this.seasonYear)&&const DeepCollectionEquality().equals(other.productPrices, _this.productPrices)&&const DeepCollectionEquality().equals(other.coordinators, _this.coordinators)&&const DeepCollectionEquality().equals(other.members, _this.members)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.deliveryTemplateId, _this.deliveryTemplateId) || other.deliveryTemplateId == _this.deliveryTemplateId)&&const DeepCollectionEquality().equals(other.sharedBaskets, _this.sharedBaskets)&&(identical(other.isMainContract, _this.isMainContract) || other.isMainContract == _this.isMainContract));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contractId,name,organizationId,producerAccountId,minDeliveryDate,maxDeliveryDate,deliveryCount,seasonYear,const DeepCollectionEquality().hash(productPrices),const DeepCollectionEquality().hash(coordinators),const DeepCollectionEquality().hash(members),status,deliveryTemplateId,const DeepCollectionEquality().hash(sharedBaskets),isMainContract);
+int get hashCode {
+  final _this = this as Contract;
+  return Object.hash(runtimeType,_this.contractId,_this.name,_this.organizationId,_this.producerAccountId,_this.minDeliveryDate,_this.maxDeliveryDate,_this.deliveryCount,_this.seasonYear,const DeepCollectionEquality().hash(_this.productPrices),const DeepCollectionEquality().hash(_this.coordinators),const DeepCollectionEquality().hash(_this.members),_this.status,_this.deliveryTemplateId,const DeepCollectionEquality().hash(_this.sharedBaskets),_this.isMainContract);
+}
 
 @override
 String toString() {
-  return 'Contract(contractId: $contractId, name: $name, organizationId: $organizationId, producerAccountId: $producerAccountId, minDeliveryDate: $minDeliveryDate, maxDeliveryDate: $maxDeliveryDate, deliveryCount: $deliveryCount, seasonYear: $seasonYear, productPrices: $productPrices, coordinators: $coordinators, members: $members, status: $status, deliveryTemplateId: $deliveryTemplateId, sharedBaskets: $sharedBaskets, isMainContract: $isMainContract)';
+  final _this = this as Contract;
+  return 'Contract(contractId: ${_this.contractId}, name: ${_this.name}, organizationId: ${_this.organizationId}, producerAccountId: ${_this.producerAccountId}, minDeliveryDate: ${_this.minDeliveryDate}, maxDeliveryDate: ${_this.maxDeliveryDate}, deliveryCount: ${_this.deliveryCount}, seasonYear: ${_this.seasonYear}, productPrices: ${_this.productPrices}, coordinators: ${_this.coordinators}, members: ${_this.members}, status: ${_this.status}, deliveryTemplateId: ${_this.deliveryTemplateId}, sharedBaskets: ${_this.sharedBaskets}, isMainContract: ${_this.isMainContract})';
 }
 
 
@@ -1202,7 +1236,7 @@ class _$ContractCopyWithImpl<$Res>
 /// Create a copy of Contract
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? contractId = null,Object? name = null,Object? organizationId = null,Object? producerAccountId = null,Object? minDeliveryDate = null,Object? maxDeliveryDate = null,Object? deliveryCount = null,Object? seasonYear = null,Object? productPrices = null,Object? coordinators = null,Object? members = null,Object? status = null,Object? deliveryTemplateId = freezed,Object? sharedBaskets = null,Object? isMainContract = null,}) {
-  return _then(_self.copyWith(
+  return _then(Contract(
 contractId: null == contractId ? _self.contractId : contractId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
@@ -1359,7 +1393,7 @@ return $default(_that.contractId,_that.name,_that.organizationId,_that.producerA
 @JsonSerializable()
 
 class _Contract implements Contract {
-  const _Contract({@JsonKey(name: 'contract_id') required this.contractId, @JsonKey(name: 'name') required this.name, @JsonKey(name: 'organization_id') required this.organizationId, @JsonKey(name: 'producer_account_id') required this.producerAccountId, @JsonKey(name: 'min_delivery_date') required this.minDeliveryDate, @JsonKey(name: 'max_delivery_date') required this.maxDeliveryDate, @JsonKey(name: 'delivery_count') required this.deliveryCount, @JsonKey(name: 'season_year') required this.seasonYear, @JsonKey(name: 'product_prices') final  List<ProductPrice> productPrices = const [], final  List<String> coordinators = const [], final  List<ContractMember> members = const [], this.status = ContractStatus.inPreparation, @JsonKey(name: 'delivery_template_id') this.deliveryTemplateId, @JsonKey(name: 'shared_baskets') final  List<SharedBasket> sharedBaskets = const [], @JsonKey(name: 'is_main_contract') this.isMainContract = false}): _productPrices = productPrices,_coordinators = coordinators,_members = members,_sharedBaskets = sharedBaskets;
+  const _Contract({@JsonKey(name: 'contract_id') required this.contractId, @JsonKey(name: 'name') required this.name, @JsonKey(name: 'organization_id') required this.organizationId, @JsonKey(name: 'producer_account_id') required this.producerAccountId, @JsonKey(name: 'min_delivery_date') required this.minDeliveryDate, @JsonKey(name: 'max_delivery_date') required this.maxDeliveryDate, @JsonKey(name: 'delivery_count') required this.deliveryCount, @JsonKey(name: 'season_year') required this.seasonYear, @JsonKey(name: 'product_prices')  List<ProductPrice> productPrices = const [],  List<String> coordinators = const [],  List<ContractMember> members = const [], this.status = ContractStatus.inPreparation, @JsonKey(name: 'delivery_template_id') this.deliveryTemplateId, @JsonKey(name: 'shared_baskets')  List<SharedBasket> sharedBaskets = const [], @JsonKey(name: 'is_main_contract') this.isMainContract = false}): _productPrices = productPrices,_coordinators = coordinators,_members = members,_sharedBaskets = sharedBaskets;
   factory _Contract.fromJson(Map<String, dynamic> json) => _$ContractFromJson(json);
 
 @override@JsonKey(name: 'contract_id') final  String contractId;
@@ -1415,16 +1449,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Contract&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.name, name) || other.name == name)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.minDeliveryDate, minDeliveryDate) || other.minDeliveryDate == minDeliveryDate)&&(identical(other.maxDeliveryDate, maxDeliveryDate) || other.maxDeliveryDate == maxDeliveryDate)&&(identical(other.deliveryCount, deliveryCount) || other.deliveryCount == deliveryCount)&&(identical(other.seasonYear, seasonYear) || other.seasonYear == seasonYear)&&const DeepCollectionEquality().equals(other._productPrices, _productPrices)&&const DeepCollectionEquality().equals(other._coordinators, _coordinators)&&const DeepCollectionEquality().equals(other._members, _members)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryTemplateId, deliveryTemplateId) || other.deliveryTemplateId == deliveryTemplateId)&&const DeepCollectionEquality().equals(other._sharedBaskets, _sharedBaskets)&&(identical(other.isMainContract, isMainContract) || other.isMainContract == isMainContract));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Contract&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.name, name) || other.name == name)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.minDeliveryDate, minDeliveryDate) || other.minDeliveryDate == minDeliveryDate)&&(identical(other.maxDeliveryDate, maxDeliveryDate) || other.maxDeliveryDate == maxDeliveryDate)&&(identical(other.deliveryCount, deliveryCount) || other.deliveryCount == deliveryCount)&&(identical(other.seasonYear, seasonYear) || other.seasonYear == seasonYear)&&const DeepCollectionEquality().equals(other.productPrices, _productPrices)&&const DeepCollectionEquality().equals(other.coordinators, _coordinators)&&const DeepCollectionEquality().equals(other.members, _members)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryTemplateId, deliveryTemplateId) || other.deliveryTemplateId == deliveryTemplateId)&&const DeepCollectionEquality().equals(other.sharedBaskets, _sharedBaskets)&&(identical(other.isMainContract, isMainContract) || other.isMainContract == isMainContract));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contractId,name,organizationId,producerAccountId,minDeliveryDate,maxDeliveryDate,deliveryCount,seasonYear,const DeepCollectionEquality().hash(_productPrices),const DeepCollectionEquality().hash(_coordinators),const DeepCollectionEquality().hash(_members),status,deliveryTemplateId,const DeepCollectionEquality().hash(_sharedBaskets),isMainContract);
+int get hashCode {
+    return Object.hash(runtimeType,contractId,name,organizationId,producerAccountId,minDeliveryDate,maxDeliveryDate,deliveryCount,seasonYear,const DeepCollectionEquality().hash(_productPrices),const DeepCollectionEquality().hash(_coordinators),const DeepCollectionEquality().hash(_members),status,deliveryTemplateId,const DeepCollectionEquality().hash(_sharedBaskets),isMainContract);
+}
 
 @override
 String toString() {
-  return 'Contract(contractId: $contractId, name: $name, organizationId: $organizationId, producerAccountId: $producerAccountId, minDeliveryDate: $minDeliveryDate, maxDeliveryDate: $maxDeliveryDate, deliveryCount: $deliveryCount, seasonYear: $seasonYear, productPrices: $productPrices, coordinators: $coordinators, members: $members, status: $status, deliveryTemplateId: $deliveryTemplateId, sharedBaskets: $sharedBaskets, isMainContract: $isMainContract)';
+    return 'Contract(contractId: $contractId, name: $name, organizationId: $organizationId, producerAccountId: $producerAccountId, minDeliveryDate: $minDeliveryDate, maxDeliveryDate: $maxDeliveryDate, deliveryCount: $deliveryCount, seasonYear: $seasonYear, productPrices: $productPrices, coordinators: $coordinators, members: $members, status: $status, deliveryTemplateId: $deliveryTemplateId, sharedBaskets: $sharedBaskets, isMainContract: $isMainContract)';
 }
 
 

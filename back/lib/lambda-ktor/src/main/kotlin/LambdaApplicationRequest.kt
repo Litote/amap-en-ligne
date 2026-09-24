@@ -5,6 +5,7 @@ import io.ktor.http.HeadersBuilder
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
 import io.ktor.http.RequestConnectionPoint
+import io.ktor.http.parseQueryString
 import io.ktor.server.application.PipelineCall
 import io.ktor.server.engine.BaseApplicationRequest
 import io.ktor.server.request.RequestCookies
@@ -39,9 +40,9 @@ internal class LambdaApplicationRequest(
             }
         }
 
-    override val queryParameters: Parameters = Parameters.Empty
+    override val queryParameters: Parameters = parseQueryString(event.rawQueryString)
 
-    override val rawQueryParameters: Parameters = Parameters.Empty
+    override val rawQueryParameters: Parameters = parseQueryString(event.rawQueryString, decode = false)
 
     override val local: RequestConnectionPoint =
         LambdaConnectionPoint(

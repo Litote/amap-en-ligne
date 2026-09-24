@@ -1070,6 +1070,17 @@ class _AlertTemplatesCardState extends State<_AlertTemplatesCard> {
   }
 
   void _save(BuildContext context) {
+    final hasPlaceholder = kCustomisableAlertCategories.any(
+      (category) =>
+          alertOverrideError(_titleControllers[category]!.text) != null ||
+          alertOverrideError(_bodyControllers[category]!.text) != null,
+    );
+    if (hasPlaceholder) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(kAlertPlaceholderMessage)));
+      return;
+    }
     final overrides = <NotificationCategory, NotificationCopyOverride>{};
     for (final category in kCustomisableAlertCategories) {
       overrides[category] = NotificationCopyOverride(
@@ -1188,9 +1199,11 @@ class _AlertCategoryFields extends StatelessWidget {
             Expanded(child: _SectionLabel(label)),
             TextButton.icon(
               key: Key('alert_reset_$categoryKey'),
+              // Empty fields = the default message, sent with its real dates
+              // and names (a copied `{date}` template would be sent verbatim).
               onPressed: () {
-                titleController.text = defaultTitle;
-                bodyController.text = defaultBody;
+                titleController.clear();
+                bodyController.clear();
               },
               style: TextButton.styleFrom(
                 visualDensity: VisualDensity.compact,
@@ -1201,31 +1214,41 @@ class _AlertCategoryFields extends StatelessWidget {
             ),
           ],
         ),
-        TextField(
-          key: Key('alert_title_$categoryKey'),
-          controller: titleController,
-          decoration: InputDecoration(
-            labelText: 'Titre (optionnel)',
-            hintText: defaultTitle,
-            helperText: 'Par défaut : $defaultTitle',
-            helperMaxLines: 2,
-            border: const OutlineInputBorder(),
-            isDense: true,
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: titleController,
+          builder: (context, value, _) => TextField(
+            key: Key('alert_title_$categoryKey'),
+            controller: titleController,
+            decoration: InputDecoration(
+              labelText: 'Titre (optionnel)',
+              hintText: defaultTitle,
+              helperText: 'Par défaut : $defaultTitle',
+              helperMaxLines: 2,
+              errorText: alertOverrideError(value.text),
+              errorMaxLines: 4,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
           ),
         ),
         const SizedBox(height: 8),
-        TextField(
-          key: Key('alert_body_$categoryKey'),
-          controller: bodyController,
-          minLines: 2,
-          maxLines: 4,
-          decoration: InputDecoration(
-            labelText: 'Corps (optionnel)',
-            hintText: defaultBody,
-            helperText: 'Par défaut : $defaultBody',
-            helperMaxLines: 3,
-            border: const OutlineInputBorder(),
-            isDense: true,
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: bodyController,
+          builder: (context, value, _) => TextField(
+            key: Key('alert_body_$categoryKey'),
+            controller: bodyController,
+            minLines: 2,
+            maxLines: 4,
+            decoration: InputDecoration(
+              labelText: 'Corps (optionnel)',
+              hintText: defaultBody,
+              helperText: 'Par défaut : $defaultBody',
+              helperMaxLines: 3,
+              errorText: alertOverrideError(value.text),
+              errorMaxLines: 4,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
           ),
         ),
       ],

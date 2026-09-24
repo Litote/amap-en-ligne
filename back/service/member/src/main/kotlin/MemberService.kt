@@ -3,24 +3,15 @@ package member
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
+import core.InputRules
 import core.MemberRoleProvisioningPort
 import core.RoleService
 import core.UserProvisioningPort
 import email.AccountLifecycleEmailPort
-import email.AccountLifecycleRole
-import email.AccountLifecycleTarget
-import email.OwnersBroadcastEvent
-import id.Id
 import id.generateId
 import id.toId
-import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.todayIn
 import org.koin.core.annotation.Single
-import persistence.changes.Change
-import persistence.changes.ChangeOp
 import persistence.changes.ClientMutation
-import persistence.changes.Cursor
 import persistence.changes.Delete
 import persistence.changes.MemberPayload
 import persistence.changes.MutationErrorCode
@@ -30,14 +21,9 @@ import persistence.dao.AccountDeletionLogDAO
 import persistence.dao.ContractSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationSyncDAO
-import persistence.model.AccountDeletionLog
-import persistence.model.ContractStatus
-import persistence.model.DeletedAccountRole
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
-import java.security.MessageDigest
-import kotlin.time.Clock
 
 @Single(createdAtStart = true, binds = [EntityTypeService::class])
 class MemberService(
@@ -50,6 +36,10 @@ class MemberService(
     private val contractSyncDAO: ContractSyncDAO,
     private val organizationSyncDAO: OrganizationSyncDAO,
 ) : EntityTypeService<MemberPayload>(EntityType.Member) {
+    private val contractSubscriptionGuard = MemberContractSubscriptionGuard(contractSyncDAO, organizationSyncDAO)
+    private val lifecycleSideEffects =
+        MemberLifecycleSideEffects(userProvisioningPort, accountLifecycleEmailPort, accountDeletionLogDAO)
+
     override suspend fun applyUpsert(
         auth: AuthenticatedInfo,
         mutation: ClientMutation,
@@ -90,10 +80,40 @@ class MemberService(
             )
         }
 
+        memberProfileError(existingMember, payload.member)
+            ?.let { return rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, it) }
+
         validateUpsertContractAndRoleGuards(auth, mutation, payload, organizationId, existingMembers, existingMember)
             ?.let { return it }
 
         return persistMemberUpsert(mutation, payload, organizationId, existingMember, isTmpId)
+    }
+
+    /**
+     * Mirrors the profile / roles dialogs (`edit_profile_dialog.dart`,
+     * `modify_membership_dialog.dart`). Only fields that change are checked, so
+     * legacy or anonymised rows (null PII) stay editable for unrelated updates.
+     */
+    private fun memberProfileError(
+        existing: Member?,
+        incoming: Member,
+    ): String? {
+        val firstName = incoming.firstName
+        if (firstName != existing?.firstName && firstName != null) {
+            InputRules.requireName("first_name", firstName)?.let { return it }
+        }
+        val lastName = incoming.lastName
+        if (lastName != existing?.lastName && lastName != null) {
+            InputRules.requireName("last_name", lastName)?.let { return it }
+        }
+        val email = incoming.email
+        if (email != existing?.email && email != null) {
+            InputRules.requireEmail("email", email)?.let { return it }
+        }
+        if (incoming.roles != existing?.roles && incoming.roles.isEmpty()) {
+            return "roles must not be empty"
+        }
+        return null
     }
 
     /** Authorization guards independent of contract/role state: MIXED_ROLES on create, self-edit. */
@@ -129,14 +149,26 @@ class MemberService(
         val roleChangeError = validateRoleChange(auth, mutation, payload, existingMembers, existingMember)
         if (roleChangeError != null) return roleChangeError
 
-        val contractEndedError = checkNoNewEndedContractSubscriptions(organizationId, existingMember, payload.member, mutation)
-        if (contractEndedError != null) return contractEndedError
+        val endedIds = contractSubscriptionGuard.endedContractIds(organizationId, existingMember, payload.member)
+        if (endedIds.isNotEmpty()) {
+            return rejected(
+                mutation,
+                MutationErrorCode.CONTRACT_ENDED,
+                "cannot add member subscription to ended contract(s): ${endedIds.joinToString(",") { it.id }}",
+            )
+        }
 
         val isPrivilegedCaller = auth.roles.any { it == Role.OWNER || it == Role.ADMIN || it == Role.COORDINATOR }
         if (!isPrivilegedCaller) {
-            val inPreparationError =
-                checkNoNewInPreparationContractSubscriptions(organizationId, existingMember, payload.member, mutation)
-            if (inPreparationError != null) return inPreparationError
+            val inPreparationIds =
+                contractSubscriptionGuard.inPreparationContractIds(organizationId, existingMember, payload.member)
+            if (inPreparationIds.isNotEmpty()) {
+                return rejected(
+                    mutation,
+                    MutationErrorCode.FORBIDDEN,
+                    "contract not open for subscription: ${inPreparationIds.joinToString(",") { it.id }}",
+                )
+            }
         }
         return null
     }
@@ -171,13 +203,8 @@ class MemberService(
         updated: Member,
     ): MemberAccountStatus? {
         if (existing == null) return null
-        val payloadStatus = updated.accountStatus ?: return null
-        if (payloadStatus != MemberAccountStatus.ACTIVE && payloadStatus != MemberAccountStatus.SUSPENDED) {
-            return null
-        }
-        val previousStatus =
-            existing.accountStatus
-                ?: if (existing.activeStatus) MemberAccountStatus.ACTIVE else MemberAccountStatus.SUSPENDED
+        val payloadStatus = updated.accountStatus
+        val previousStatus = existing.accountStatus
         return if (payloadStatus != previousStatus) payloadStatus else null
     }
 
@@ -212,54 +239,16 @@ class MemberService(
             }
         }
 
-        val activeStatus = targetStatus == MemberAccountStatus.ACTIVE
         val updatedMembers =
             members.map {
                 it.copy(
-                    activeStatus = activeStatus,
                     accountStatus = targetStatus,
                 )
             }
-        memberSyncDAO.setActiveStatusBySub(targetSub, activeStatus, buildLifecycleChanges(updatedMembers))
+        memberSyncDAO.setAccountStatusBySub(targetSub, targetStatus, buildLifecycleChanges(updatedMembers))
 
-        fireMemberLifecycleSideEffects(updatedMembers, auth, targetSub, activeStatus)
+        lifecycleSideEffects.onStatusChanged(updatedMembers, auth, targetSub, targetStatus)
         return applied(mutation, resolvedMemberId)
-    }
-
-    /** Best-effort auth-provider ban/unban + lifecycle notifications for a member status change. */
-    private suspend fun fireMemberLifecycleSideEffects(
-        updatedMembers: List<Member>,
-        auth: AuthenticatedInfo,
-        targetSub: String,
-        activeStatus: Boolean,
-    ) {
-        runCatching {
-            if (activeStatus) {
-                userProvisioningPort.unbanUser(targetSub)
-            } else {
-                userProvisioningPort.banUser(targetSub)
-            }
-        }.onFailure { error ->
-            logger.error(error) { "Auth provider ${if (activeStatus) "unban" else "ban"} failed for $targetSub" }
-        }
-        notifyMemberLifecycle(
-            members = updatedMembers,
-            auth = auth,
-            targetSub = targetSub,
-            ownersEvent =
-                if (activeStatus) {
-                    OwnersBroadcastEvent.ACCOUNT_REACTIVATED
-                } else {
-                    OwnersBroadcastEvent.ACCOUNT_SUSPENDED
-                },
-            notifyTarget = { target ->
-                if (activeStatus) {
-                    accountLifecycleEmailPort.notifyAccountReactivated(target)
-                } else {
-                    accountLifecycleEmailPort.notifyAccountSuspended(target)
-                }
-            },
-        )
     }
 
     private suspend fun validateMixedRoles(
@@ -373,7 +362,6 @@ class MemberService(
         val anonymisedMembers =
             members.map {
                 it.copy(
-                    activeStatus = false,
                     firstName = null,
                     lastName = null,
                     email = null,
@@ -383,32 +371,7 @@ class MemberService(
             }
         memberSyncDAO.anonymiseBySub(targetSub, buildLifecycleChanges(anonymisedMembers))
 
-        runCatching { userProvisioningPort.deleteUser(targetSub) }
-            .onFailure { error -> logger.error(error) { "deleteUser($targetSub) failed in auth provider" } }
-
-        val deletedSubHash = sha256(targetSub)
-        members.forEach {
-            runCatching {
-                accountDeletionLogDAO.append(
-                    AccountDeletionLog(
-                        id = generateId(),
-                        deletedSubHash = deletedSubHash,
-                        deletedRole = DeletedAccountRole.AMAP_MEMBER,
-                        deletedAt = Clock.System.now(),
-                        actorOwnerId = Id(auth.memberId),
-                    ),
-                )
-            }.onFailure { error ->
-                logger.error(error) { "audit log append failed for $targetSub" }
-            }
-        }
-        notifyMemberLifecycle(
-            members = members,
-            auth = auth,
-            targetSub = targetSub,
-            ownersEvent = OwnersBroadcastEvent.ACCOUNT_DELETED,
-            notifyTarget = { target -> accountLifecycleEmailPort.notifyAccountDeleted(target) },
-        )
+        lifecycleSideEffects.onDeleted(members, auth, targetSub)
         return applied(mutation, memberId)
     }
 
@@ -443,170 +406,9 @@ class MemberService(
         }
     }
 
-    private suspend fun notifyMemberLifecycle(
-        members: List<Member>,
-        auth: AuthenticatedInfo,
-        targetSub: String,
-        ownersEvent: OwnersBroadcastEvent,
-        notifyTarget: suspend (AccountLifecycleTarget) -> Unit,
-    ) {
-        val firstMember = members.firstOrNull() ?: return
-        runCatching { notifyTarget(firstMember.toLifecycleTarget(targetSub)) }
-            .onFailure { error -> logger.error(error) { "Member lifecycle email failed for $targetSub" } }
-        runCatching {
-            accountLifecycleEmailPort.notifyOwnersOfLifecycleEvent(
-                event = ownersEvent,
-                actorOwnerEmail = auth.email,
-                impactedRole = AccountLifecycleRole.AMAP_MEMBER,
-            )
-        }.onFailure { error ->
-            logger.error(error) { "Members lifecycle Owners broadcast failed" }
-        }
-    }
-
-    private fun Member.toLifecycleTarget(targetSub: String): AccountLifecycleTarget =
-        AccountLifecycleTarget(
-            sub = targetSub,
-            email = email ?: "(member email unavailable)",
-            firstName = firstName.orEmpty(),
-            lastName = lastName.orEmpty(),
-            role = AccountLifecycleRole.AMAP_MEMBER,
-        )
-
     private suspend fun findMemberById(memberId: String): Member? = memberSyncDAO.listAll().find { it.memberId.id == memberId }
 
-    private fun buildUpsertChanges(
-        organizationId: String,
-        member: Member,
-    ): List<Change> =
-        listOf(
-            Change(
-                cursor = Cursor.next(),
-                entityType = EntityType.Member,
-                entityId = member.memberId.id,
-                scopeKey = SyncScope.Organization(organizationId).key,
-                op = ChangeOp.UPSERT,
-                payload = MemberPayload(member),
-                producedAt = System.currentTimeMillis(),
-            ),
-            Change(
-                cursor = Cursor.next(),
-                entityType = EntityType.Member,
-                entityId = member.memberId.id,
-                scopeKey = SyncScope.InstanceOwner.key,
-                op = ChangeOp.UPSERT,
-                payload = MemberPayload(member),
-                producedAt = System.currentTimeMillis(),
-            ),
-        )
-
-    private fun buildLifecycleChanges(members: List<Member>): List<Change> =
-        buildList {
-            members.forEach { member ->
-                addAll(buildUpsertChanges(member.organizationId.id, member))
-            }
-        }
-
-    private fun buildDeleteChanges(
-        organizationId: String,
-        entityId: String,
-    ): List<Change> =
-        listOf(
-            Change(
-                cursor = Cursor.next(),
-                entityType = EntityType.Member,
-                entityId = entityId,
-                scopeKey = SyncScope.Organization(organizationId).key,
-                op = ChangeOp.DELETE,
-                payload = null,
-                producedAt = System.currentTimeMillis(),
-            ),
-            Change(
-                cursor = Cursor.next(),
-                entityType = EntityType.Member,
-                entityId = entityId,
-                scopeKey = SyncScope.InstanceOwner.key,
-                op = ChangeOp.DELETE,
-                payload = null,
-                producedAt = System.currentTimeMillis(),
-            ),
-        )
-
-    /**
-     * Rejects the upsert if any newly-added [Member.contracts] entry references a contract whose
-     * [persistence.model.Contract.maxDeliveryDate] is in the past.
-     *
-     * Only new contract ids (present in [updated] but absent in [existing]) are checked.
-     * A null [existing] means a new member row — all its contract ids are considered new.
-     * Unknown contract ids (not returned by the DAO) pass through without error.
-     */
-    private suspend fun checkNoNewEndedContractSubscriptions(
-        organizationId: String,
-        existing: Member?,
-        updated: Member,
-        mutation: ClientMutation,
-    ): MutationOutcome? {
-        val existingContractIds = existing?.contracts?.map { it.contractId }?.toSet() ?: emptySet()
-        val newContractIds = updated.contracts.map { it.contractId }.toSet() - existingContractIds
-        if (newContractIds.isEmpty()) return null
-
-        val today = resolveToday(organizationId)
-        val orgContracts = contractSyncDAO.getByOrganizationId(organizationId.toId())
-        val endedIds =
-            newContractIds.filter { contractId ->
-                orgContracts.find { it.contractId == contractId }?.isEffectivelyEnded(today) == true
-            }
-        if (endedIds.isEmpty()) return null
-        return rejected(
-            mutation,
-            MutationErrorCode.CONTRACT_ENDED,
-            "cannot add member subscription to ended contract(s): ${endedIds.joinToString(",") { it.id }}",
-        )
-    }
-
-    /**
-     * Rejects a non-privileged self-subscription attempt when any newly added contract entry
-     * points to a contract that is still [ContractStatus.IN_PREPARATION].
-     *
-     * Privileged callers (OWNER / ADMIN / COORDINATOR) may pre-subscribe members to contracts
-     * that are not yet open. Unknown contract ids pass through without error.
-     */
-    private suspend fun checkNoNewInPreparationContractSubscriptions(
-        organizationId: String,
-        existing: Member?,
-        updated: Member,
-        mutation: ClientMutation,
-    ): MutationOutcome? {
-        val existingContractIds = existing?.contracts?.map { it.contractId }?.toSet() ?: emptySet()
-        val newContractIds = updated.contracts.map { it.contractId }.toSet() - existingContractIds
-        if (newContractIds.isEmpty()) return null
-
-        val orgContracts = contractSyncDAO.getByOrganizationId(organizationId.toId())
-        val inPreparationIds =
-            newContractIds.filter { contractId ->
-                orgContracts.find { it.contractId == contractId }?.status == ContractStatus.IN_PREPARATION
-            }
-        if (inPreparationIds.isEmpty()) return null
-        return rejected(
-            mutation,
-            MutationErrorCode.FORBIDDEN,
-            "contract not open for subscription: ${inPreparationIds.joinToString(",") { it.id }}",
-        )
-    }
-
-    private suspend fun resolveToday(organizationId: String): kotlinx.datetime.LocalDate {
-        val timezone = organizationSyncDAO.getById(organizationId.toId())?.timezone ?: TimeZone.UTC
-        return Clock.System.todayIn(timezone)
-    }
-
     private companion object {
-        private val logger = KotlinLogging.logger {}
         private const val MEMBER_NOT_FOUND = "member not found"
-
-        private fun sha256(input: String): String =
-            MessageDigest
-                .getInstance("SHA-256")
-                .digest(input.toByteArray(Charsets.UTF_8))
-                .joinToString("") { "%02x".format(it) }
     }
 }

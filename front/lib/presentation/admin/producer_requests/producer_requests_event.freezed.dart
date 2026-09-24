@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'producer_requests_event.dart';
@@ -9,6 +9,7 @@ part of 'producer_requests_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$ProducerRequestsEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerRequestsEvent()';
+    return 'ProducerRequestsEvent()';
 }
 
 
@@ -202,16 +203,18 @@ $ProducerRequestsLoadRequestedCopyWith<ProducerRequestsLoadRequested> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsLoadRequested&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsLoadRequested&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,statusFilter);
+int get hashCode {
+    return Object.hash(runtimeType,statusFilter);
+}
 
 @override
 String toString() {
-  return 'ProducerRequestsEvent.loadRequested(statusFilter: $statusFilter)';
+    return 'ProducerRequestsEvent.loadRequested(statusFilter: $statusFilter)';
 }
 
 
@@ -268,16 +271,18 @@ $ProducerRequestsApproveRequestedCopyWith<ProducerRequestsApproveRequested> get 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsApproveRequested&&(identical(other.request, request) || other.request == request));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsApproveRequested&&(identical(other.request, request) || other.request == request));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,request);
+int get hashCode {
+    return Object.hash(runtimeType,request);
+}
 
 @override
 String toString() {
-  return 'ProducerRequestsEvent.approveRequested(request: $request)';
+    return 'ProducerRequestsEvent.approveRequested(request: $request)';
 }
 
 
@@ -344,16 +349,18 @@ $ProducerRequestsRejectRequestedCopyWith<ProducerRequestsRejectRequested> get co
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsRejectRequested&&(identical(other.request, request) || other.request == request)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsRejectRequested&&(identical(other.request, request) || other.request == request)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,request,reviewComment);
+int get hashCode {
+    return Object.hash(runtimeType,request,reviewComment);
+}
 
 @override
 String toString() {
-  return 'ProducerRequestsEvent.rejectRequested(request: $request, reviewComment: $reviewComment)';
+    return 'ProducerRequestsEvent.rejectRequested(request: $request, reviewComment: $reviewComment)';
 }
 
 
@@ -420,16 +427,18 @@ $ProducerRequestsResendRequestedCopyWith<ProducerRequestsResendRequested> get co
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsResendRequested&&(identical(other.request, request) || other.request == request));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsResendRequested&&(identical(other.request, request) || other.request == request));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,request);
+int get hashCode {
+    return Object.hash(runtimeType,request);
+}
 
 @override
 String toString() {
-  return 'ProducerRequestsEvent.resendRequested(request: $request)';
+    return 'ProducerRequestsEvent.resendRequested(request: $request)';
 }
 
 

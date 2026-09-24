@@ -115,6 +115,11 @@ class PublicService(
             logger.warn(e) { "Failed to notify owners for organization request ${request.requestId.id}" }
         }
         try {
+            organizationRequestNotificationEmailPort.acknowledgeRequester(request)
+        } catch (e: Exception) {
+            logger.warn(e) { "Failed to acknowledge organization request ${request.requestId.id} to its requester" }
+        }
+        try {
             notifyAllOwners(
                 category = NotificationCategory.ORGANIZATION_REQUEST_SUBMITTED,
                 title = "Nouvelle demande de création d'AMAP",
@@ -159,6 +164,11 @@ class PublicService(
             logger.warn(e) { "Failed to notify owners for producer request ${request.requestId.id}" }
         }
         try {
+            producerRequestNotificationEmailPort.acknowledgeRequester(request)
+        } catch (e: Exception) {
+            logger.warn(e) { "Failed to acknowledge producer request ${request.requestId.id} to its requester" }
+        }
+        try {
             notifyAllOwners(
                 category = NotificationCategory.PRODUCER_REQUEST_SUBMITTED,
                 title = "Nouvelle demande de compte producteur",
@@ -173,6 +183,10 @@ class PublicService(
 
     suspend fun createMemberJoinRequest(body: CreateMemberJoinRequestBody): CreateMemberJoinOutcome {
         val organizationId = body.organizationId.toId<Organization>()
+        // Only organizations listed publicly (active) accept join requests.
+        val organization =
+            organizationSyncDAO.getById(organizationId)?.takeIf { it.activeStatus }
+                ?: return CreateMemberJoinOutcome.OrganizationNotFound
         if (memberSyncDAO.listAll().any {
                 it.email.equals(
                     body.email,
@@ -203,10 +217,7 @@ class PublicService(
             )
         memberJoinRequestSyncDAO.put(request, buildChange(request))
         try {
-            memberJoinRequestNotificationEmailPort.notifyAdmins(
-                request,
-                organizationSyncDAO.getById(request.organizationId)?.name,
-            )
+            memberJoinRequestNotificationEmailPort.notifyAdmins(request, organization.name)
         } catch (e: Exception) {
             logger.warn(e) { "Failed to notify admins for member join request ${request.requestId.id}" }
         }
@@ -257,7 +268,7 @@ class PublicService(
         val copy = overrides.resolveCopy(category, defaultTitle, defaultBody)
         memberSyncDAO
             .getByOrganizationId(organizationId)
-            .filter { it.activeStatus && Role.ADMIN in it.roles }
+            .filter { it.accountStatus == MemberAccountStatus.ACTIVE && Role.ADMIN in it.roles }
             .forEach { admin ->
                 // memberId == sub by convention
                 val sub = admin.memberId.id
@@ -330,6 +341,8 @@ sealed class CreateMemberJoinOutcome {
     data class Conflict(
         val field: String,
     ) : CreateMemberJoinOutcome()
+
+    data object OrganizationNotFound : CreateMemberJoinOutcome()
 }
 
 sealed class CreateProducerOutcome {

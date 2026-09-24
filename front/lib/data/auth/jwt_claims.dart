@@ -8,9 +8,9 @@ import 'dart:convert';
 /// claims it can trust transitively: any token that reaches us came from a
 /// successful sign-in or refresh call against the configured provider.
 ///
-/// After the `producerAccountId == sub` invariant was established on the back,
-/// the auth services derive the tenant id directly from `sub`. Other claims
-/// (roles, organization_id) are still read from the token payload.
+/// The auth services keep the `sub` as the user identity; the tenant
+/// (organization / producer account) is resolved by `AuthBloc` from the synced
+/// scopes. Other claims (roles, organization_id) are read from the payload.
 class JwtClaims {
   const JwtClaims(this._claims);
 

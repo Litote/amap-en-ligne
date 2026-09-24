@@ -44,6 +44,9 @@ class ContractService(
         if (payload.contract.organizationId.id != organizationId) {
             return rejected(mutation, MutationErrorCode.FORBIDDEN, "organization_id mismatch")
         }
+        payload.contract.fieldValidationError()?.let {
+            return rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, it)
+        }
         validateSubscriptions(mutation, payload.contract)?.let { return it }
         validateSharedBaskets(mutation, payload.contract)?.let { return it }
 
@@ -72,6 +75,19 @@ class ContractService(
             )
 
         val persisted = existingContracts.find { it.contractId == contract.contractId }
+
+        // The form requires at least one product when the producer sells some. Only
+        // enforced when the price list is (re)authored, so legacy contracts stay editable.
+        if (contract.productPrices.isEmpty() && persisted?.productPrices?.isEmpty() != true) {
+            val producerSellsProducts =
+                organizationSyncDAO
+                    .getById(organizationId.toId())
+                    ?.products
+                    ?.any { it.producerAccountId == contract.producerAccountId } == true
+            if (producerSellsProducts) {
+                return rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, "a contract must include at least one product")
+            }
+        }
 
         if (persisted != null) {
             val newMemberIds =

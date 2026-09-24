@@ -834,23 +834,6 @@
       ]
     },
     {
-      "type": "persistence.model.AccessibilityOptions",
-      "fields": [
-        {
-          "name": "Companion"
-        }
-      ]
-    },
-    {
-      "type": "persistence.model.AccessibilityOptions$Companion",
-      "methods": [
-        {
-          "name": "serializer",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
       "type": "persistence.model.AccountDeletionLog",
       "fields": [
         {
@@ -1217,23 +1200,6 @@
     },
     {
       "type": "persistence.model.DeliveryItem$Companion",
-      "methods": [
-        {
-          "name": "serializer",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "persistence.model.DeliveryReminders",
-      "fields": [
-        {
-          "name": "Companion"
-        }
-      ]
-    },
-    {
-      "type": "persistence.model.DeliveryReminders$Companion",
       "methods": [
         {
           "name": "serializer",
@@ -1642,23 +1608,6 @@
     },
     {
       "type": "persistence.model.MemberRegistration$Companion",
-      "methods": [
-        {
-          "name": "serializer",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "persistence.model.MemberSettings",
-      "fields": [
-        {
-          "name": "Companion"
-        }
-      ]
-    },
-    {
-      "type": "persistence.model.MemberSettings$Companion",
       "methods": [
         {
           "name": "serializer",

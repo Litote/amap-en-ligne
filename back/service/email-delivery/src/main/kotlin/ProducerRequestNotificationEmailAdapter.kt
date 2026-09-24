@@ -10,7 +10,7 @@ import persistence.model.ProducerRequest
 
 /**
  * Notifies every active instance owner (best-effort) that a new producer
- * account request was submitted.
+ * account request was submitted, and acknowledges it to the requester.
  */
 @Single(createdAtStart = true, binds = [ProducerRequestNotificationEmailPort::class])
 internal class ProducerRequestNotificationEmailAdapter(
@@ -25,5 +25,10 @@ internal class ProducerRequestNotificationEmailAdapter(
             .forEach { owner ->
                 gateway.deliver(EmailMessage(to = owner.email, subject = content.subject, body = content.body))
             }
+    }
+
+    override suspend fun acknowledgeRequester(request: ProducerRequest) {
+        val content = EmailTemplates.producerRequestReceived(request)
+        gateway.deliver(EmailMessage(to = request.adminEmail, subject = content.subject, body = content.body))
     }
 }

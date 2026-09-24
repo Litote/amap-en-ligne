@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/sync/sync_outcome.dart';
 import 'package:amap_en_ligne/data/sync/sync_repository.dart';
 import 'package:amap_en_ligne/domain/sync/mutation_outcome.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,10 +38,6 @@ class _InviteOwnerScreenState extends State<InviteOwnerScreen> {
   String? _conflictError;
   String? _confirmedEmail;
 
-  static final _emailRegex = RegExp(
-    r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$',
-  );
-
   @override
   void dispose() {
     _firstNameController.dispose();
@@ -50,12 +48,12 @@ class _InviteOwnerScreenState extends State<InviteOwnerScreen> {
 
   String? _validateRequired(String? value) {
     if (value == null || value.trim().isEmpty) return 'Ce champ est requis.';
-    return null;
+    return requiredName(value);
   }
 
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) return 'Ce champ est requis.';
-    if (!_emailRegex.hasMatch(value.trim())) {
+    if (!isValidEmail(value)) {
       return 'Adresse email invalide.';
     }
     return null;

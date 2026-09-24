@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'attendance_sheets_bloc.dart';
@@ -9,6 +9,7 @@ part of 'attendance_sheets_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $AttendanceSheetsEventCopyWith<AttendanceSheetsEvent> get copyWith => _$Attendan
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsEvent&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
+  final _this = this as AttendanceSheetsEvent;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsEvent&&(identical(other.deliveryId, _this.deliveryId) || other.deliveryId == _this.deliveryId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deliveryId);
+int get hashCode {
+  final _this = this as AttendanceSheetsEvent;
+  return Object.hash(runtimeType,_this.deliveryId);
+}
 
 @override
 String toString() {
-  return 'AttendanceSheetsEvent(deliveryId: $deliveryId)';
+  final _this = this as AttendanceSheetsEvent;
+  return 'AttendanceSheetsEvent(deliveryId: ${_this.deliveryId})';
 }
 
 
@@ -63,7 +69,7 @@ class _$AttendanceSheetsEventCopyWithImpl<$Res>
 /// Create a copy of AttendanceSheetsEvent
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? deliveryId = null,}) {
-  return _then(_self.copyWith(
+  return _then(AttendanceSheetsEvent.deliverySelected(
 deliveryId: null == deliveryId ? _self.deliveryId : deliveryId // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -215,16 +221,18 @@ $AttendanceSheetsDeliverySelectedCopyWith<AttendanceSheetsDeliverySelected> get 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsDeliverySelected&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsDeliverySelected&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deliveryId);
+int get hashCode {
+    return Object.hash(runtimeType,deliveryId);
+}
 
 @override
 String toString() {
-  return 'AttendanceSheetsEvent.deliverySelected(deliveryId: $deliveryId)';
+    return 'AttendanceSheetsEvent.deliverySelected(deliveryId: $deliveryId)';
 }
 
 
@@ -271,7 +279,7 @@ mixin _$AttendanceSheetsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsState);
 }
 
 
@@ -280,7 +288,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AttendanceSheetsState()';
+    return 'AttendanceSheetsState()';
 }
 
 
@@ -436,7 +444,7 @@ class AttendanceSheetsIdle implements AttendanceSheetsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsIdle);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsIdle);
 }
 
 
@@ -445,7 +453,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AttendanceSheetsState.idle()';
+    return 'AttendanceSheetsState.idle()';
 }
 
 
@@ -474,16 +482,18 @@ $AttendanceSheetsDeliveryShownCopyWith<AttendanceSheetsDeliveryShown> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsDeliveryShown&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.delivery, delivery) || other.delivery == delivery));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceSheetsDeliveryShown&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.delivery, delivery) || other.delivery == delivery));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deliveryId,delivery);
+int get hashCode {
+    return Object.hash(runtimeType,deliveryId,delivery);
+}
 
 @override
 String toString() {
-  return 'AttendanceSheetsState.deliverySelected(deliveryId: $deliveryId, delivery: $delivery)';
+    return 'AttendanceSheetsState.deliverySelected(deliveryId: $deliveryId, delivery: $delivery)';
 }
 
 

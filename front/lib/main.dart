@@ -260,10 +260,7 @@ class AmapEnLigneApp extends StatefulWidget {
 
 class _AmapEnLigneAppState extends State<AmapEnLigneApp> {
   late final _serverStorage = ServerConfigStorage(prefs: widget.prefs);
-  late final _tokenStorage = AdaptiveAuthTokenStorage(
-    prefs: widget.prefs,
-    isWeb: kIsWeb,
-  );
+  late final _tokenStorage = AdaptiveAuthTokenStorage(isWeb: kIsWeb);
   late final RememberedUserContextStore _rememberedUserContextStore =
       SharedPreferencesRememberedUserContextStore(prefs: widget.prefs);
 

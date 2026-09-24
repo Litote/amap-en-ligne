@@ -14,7 +14,6 @@ import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 const _kMyContractsTitle = 'Mes contrats';
 
@@ -272,9 +271,12 @@ class _ContractCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    contractProductLabel(contract, organization),
-                    style: theme.textTheme.titleMedium,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(contract.name, style: theme.textTheme.titleMedium),
+                      Text(contractProductLabel(contract, organization)),
+                    ],
                   ),
                 ),
                 Chip(label: Text(contractStatusLabel(status))),
@@ -283,7 +285,7 @@ class _ContractCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text('Saison : ${contract.seasonYear}'),
             Text(
-              'Période : ${_formatDate(contract.minDeliveryDate)} → ${_formatDate(contract.maxDeliveryDate)}',
+              'Période : ${formatContractDate(contract.minDeliveryDate)} → ${formatContractDate(contract.maxDeliveryDate)}',
             ),
             Text('Livraisons : ${contract.deliveryCount}'),
             if (subscriptions.isNotEmpty) ...[
@@ -299,7 +301,7 @@ class _ContractCard extends StatelessWidget {
               currentMemberId: currentMemberId,
             ),
             if (subscriptionInstant != null)
-              Text('Souscrit le : ${_formatDate(subscriptionInstant)}'),
+              Text('Souscrit le : ${formatContractDate(subscriptionInstant)}'),
           ],
         ),
       ),
@@ -345,7 +347,7 @@ class _SharedBasketInfo extends StatelessWidget {
           ),
           if (myPickups.isNotEmpty)
             Text(
-              'Vos distributions : ${myPickups.map((d) => _formatDate(d.scheduledDate)).join(' • ')}',
+              'Vos distributions : ${myPickups.map((d) => formatContractDate(d.scheduledDate)).join(' • ')}',
               style: theme.textTheme.bodySmall,
             ),
         ],
@@ -388,12 +390,6 @@ String _filterLabel(ContractFilter filter) => switch (filter) {
   ContractFilter.upcoming => 'À venir',
   ContractFilter.ended => 'Terminés',
 };
-
-String _formatDate(String value) {
-  final date = DateTime.tryParse(value);
-  if (date == null) return value;
-  return DateFormat('d MMM yyyy', 'fr').format(date);
-}
 
 class _MemberSubscriptionSummary extends StatelessWidget {
   const _MemberSubscriptionSummary({

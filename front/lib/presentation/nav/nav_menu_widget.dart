@@ -99,12 +99,13 @@ String _displayName(AuthViewState authState) {
   final firstName = authState.firstName?.trim() ?? '';
   final lastName = authState.lastName?.trim() ?? '';
   final fullName = [firstName, lastName].where((s) => s.isNotEmpty).join(' ');
-  return fullName.isNotEmpty ? fullName : (authState.producerId ?? '');
+  // Never fall back to the technical id (UUID): it means nothing to users.
+  return fullName.isNotEmpty ? fullName : 'Mon compte';
 }
 
 /// Returns the subtitle shown under the user's name in the menu header.
 ///
-/// Multi-role: "Rôles : BÉNÉVOLE · COORDINATEUR" (ascending privilege order).
+/// Multi-role: "Rôles : AMAPIEN · COORDINATEUR" (ascending privilege order).
 /// Single MemberRole or platform role: the role's display name.
 String _roleSubtitle(AuthViewState authState) {
   final memberRoles = authState.memberRoles;
@@ -119,14 +120,14 @@ String _roleSubtitle(AuthViewState authState) {
 }
 
 String _memberRoleLabel(Role role) => switch (role) {
-  Role.volunteer => 'BÉNÉVOLE',
+  Role.volunteer => 'AMAPIEN',
   Role.coordinator => 'COORDINATEUR',
   Role.admin => 'ADMIN',
   Role.owner || Role.producer => '',
 };
 
 String _platformRoleLabel(UserRole role) => switch (role) {
-  UserRole.volunteer => 'Bénévole',
+  UserRole.volunteer => 'Amapien',
   UserRole.coordinator => 'Coordinateur',
   UserRole.memberNoRole => 'Membre',
   UserRole.admin => 'Administrateur',

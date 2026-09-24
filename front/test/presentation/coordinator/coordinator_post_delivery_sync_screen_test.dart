@@ -128,6 +128,7 @@ void main() {
               buildSlot(
                 registrations: [
                   buildRegistration(
+                    memberId: 'volunteer-1',
                     displayName: 'Sophie Martin',
                     status: RegistrationStatus.confirmed,
                   ),
@@ -162,7 +163,10 @@ void main() {
             slots: [
               buildSlot(
                 registrations: [
-                  buildRegistration(status: RegistrationStatus.confirmed),
+                  buildRegistration(
+                    memberId: 'volunteer-1',
+                    status: RegistrationStatus.confirmed,
+                  ),
                 ],
               ),
             ],
@@ -193,7 +197,10 @@ void main() {
             slots: [
               buildSlot(
                 registrations: [
-                  buildRegistration(status: RegistrationStatus.cancelled),
+                  buildRegistration(
+                    memberId: 'volunteer-1',
+                    status: RegistrationStatus.cancelled,
+                  ),
                 ],
               ),
             ],
@@ -224,7 +231,10 @@ void main() {
             slots: [
               buildSlot(
                 registrations: [
-                  buildRegistration(status: RegistrationStatus.registered),
+                  buildRegistration(
+                    memberId: 'volunteer-1',
+                    status: RegistrationStatus.registered,
+                  ),
                 ],
               ),
             ],
@@ -304,7 +314,10 @@ void main() {
             slots: [
               buildSlot(
                 registrations: [
-                  buildRegistration(status: RegistrationStatus.confirmed),
+                  buildRegistration(
+                    memberId: 'volunteer-1',
+                    status: RegistrationStatus.confirmed,
+                  ),
                 ],
               ),
             ],
@@ -412,7 +425,10 @@ void main() {
             slots: [
               buildSlot(
                 registrations: [
-                  buildRegistration(status: RegistrationStatus.completed),
+                  buildRegistration(
+                    memberId: 'volunteer-1',
+                    status: RegistrationStatus.completed,
+                  ),
                 ],
               ),
             ],
@@ -433,6 +449,52 @@ void main() {
 
       expect(find.text('✅ Présent'), findsOneWidget);
     });
+
+    testWidgets(
+      'a coordinator registered on a slot is not counted as a volunteer '
+      '(consistent with the tracking screen)',
+      (tester) async {
+        final delivery = buildDelivery(
+          contracts: [
+            buildContract(
+              coordinators: const ['coord-1'],
+              slots: [
+                buildSlot(
+                  registrations: [
+                    buildRegistration(
+                      memberId: 'coord-1',
+                      displayName: 'Chloé Coordo',
+                    ),
+                    buildRegistration(
+                      memberId: 'm-1',
+                      displayName: 'Victor Bénévole',
+                      status: RegistrationStatus.confirmed,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+
+        await _pumpWith(
+          tester,
+          repo: repo,
+          attendanceRepo: attendanceRepo,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        orgStream.add(buildOrg(deliveries: [delivery]));
+        await tester.pump();
+
+        // Sub-screen of the tracking screen: back button instead of the menu.
+        expect(find.byType(BackButton), findsOneWidget);
+        expect(find.text('Chloé Coordo'), findsNothing);
+        expect(find.text('Victor Bénévole'), findsOneWidget);
+        expect(find.text('100% (1/1)'), findsOneWidget);
+      },
+    );
 
     testWidgets('stats show correct presence percentage', (tester) async {
       final delivery = buildDelivery(

@@ -136,6 +136,9 @@ class _DeliveryList extends StatelessWidget {
             child: const Icon(Icons.delete),
           ),
           direction: DismissDirection.endToStart,
+          // A swipe is easy to trigger by accident (e.g. while scrolling on
+          // mobile) and the deletion cannot be undone.
+          confirmDismiss: (_) => _confirmDeletion(context, delivery),
           onDismissed: (_) {
             context.read<TimeSlotsBloc>().add(
               TimeSlotsEvent.deleteRequested(
@@ -153,6 +156,42 @@ class _DeliveryList extends StatelessWidget {
       const SizedBox(height: 16),
     ];
   }
+
+  static Future<bool> _confirmDeletion(
+    BuildContext context,
+    Delivery delivery,
+  ) async {
+    final registered = [
+      for (final link in delivery.contracts)
+        for (final slot in link.slots) activeRegistrationsCount(slot),
+    ].fold(0, (a, b) => a + b);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Supprimer la livraison ?'),
+        content: Text(
+          'La livraison du ${formatDeliveryDateTime(delivery.scheduledDate)} '
+          'sera supprimée. Cette action est irréversible.'
+          '${registered == 0 ? '' : '\n\n${_registeredWarning(registered)}'}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('ANNULER'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('SUPPRIMER'),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
+
+  static String _registeredWarning(int count) => count == 1
+      ? '1 bénévole inscrit perdra son inscription.'
+      : '$count bénévoles inscrits perdront leur inscription.';
 
   static void _sortByDate(List<Delivery> deliveries) {
     deliveries.sort(

@@ -61,7 +61,7 @@ Interface de génération des feuilles d'émargement pour validation des présen
 - **[← Retour Dashboard]** : Retour au dashboard coordination ([Écran 1](screen-coordinator-01-home.md))
 - **[📄 TÉLÉCHARGER PDF]** : Génération et téléchargement du PDF complet
 - **[🖨️ IMPRIMER]** : Impression directe des feuilles sélectionnées
-- **[📧 ENVOYER EMAIL]** : Envoi par email aux coordinateurs de terrain
+- **[📧 ENVOYER EMAIL]** : Envoi par email aux coordinateurs de terrain — l'adresse destinataire est obligatoire et doit être valide (« Adresse email invalide. » sinon, envoi bloqué ; le serveur la vérifie aussi)
 
 ### Configuration des feuilles
 - **Cases à cocher Types** : Sélection des feuilles à générer

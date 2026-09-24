@@ -204,11 +204,9 @@ CREATE TABLE public.error_report (
 CREATE TABLE public.member (
     member_id text NOT NULL,
     organization_id text NOT NULL,
-    active_status boolean DEFAULT true NOT NULL,
     contracts jsonb DEFAULT '[]'::jsonb NOT NULL,
     notifications jsonb DEFAULT '[]'::jsonb NOT NULL,
     registrations jsonb DEFAULT '[]'::jsonb NOT NULL,
-    member_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     member_preferences jsonb DEFAULT '{}'::jsonb NOT NULL,
     user_preferences jsonb DEFAULT '{}'::jsonb NOT NULL,
     user_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -219,7 +217,7 @@ CREATE TABLE public.member (
     last_name text,
     email text,
     phone text,
-    account_status text
+    account_status text DEFAULT 'ACTIVE'::text NOT NULL
 );
 
 
@@ -414,7 +412,8 @@ CREATE TABLE public.producer_account (
     user_preferences jsonb DEFAULT '{"last_updated_instant": "1970-01-01T00:00:00Z", "sms_notifications_enabled": false, "push_notifications_enabled": false, "email_notifications_enabled": true}'::jsonb NOT NULL,
     management_mode text DEFAULT 'ACCOUNT_BACKED'::text NOT NULL,
     linked_producer_account_id text,
-    linked_producer_account_name text
+    linked_producer_account_name text,
+    pending_activation boolean DEFAULT false NOT NULL
 );
 
 

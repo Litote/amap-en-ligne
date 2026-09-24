@@ -76,7 +76,10 @@ Lorsqu'un administrateur vous invite, ou après l'approbation de votre demande d
 création d'organisation, vous recevez un **e-mail d'activation**.
 
 1. Ouvrez l'e-mail et touchez le lien d'activation.
-2. Choisissez un **mot de passe** (au moins 8 caractères) et confirmez-le.
+2. Vérifiez le **compte** affiché (votre adresse e-mail et, le cas échéant, le nom de
+   votre AMAP ou de votre ferme), puis choisissez un **mot de passe** et confirmez-le.
+   Le mot de passe doit contenir **au moins 12 caractères, dont une minuscule, une
+   majuscule et un chiffre**.
 3. Touchez **[ACTIVER MON COMPTE]**.
 4. Une fois le message « Compte activé » affiché, touchez **[SE CONNECTER]**.
 
@@ -99,6 +102,8 @@ Vous n'avez pas encore de compte et souhaitez rejoindre une AMAP existante :
 
 1. Sur l'écran d'accueil, choisissez votre AMAP dans la liste **« Choisir une AMAP »**.
 2. Touchez **[S'INSCRIRE À UNE AMAP]** et renseignez les informations demandées.
+3. Cochez **« J'accepte les conditions d'utilisation du service »**, puis touchez
+   **[S'INSCRIRE]** (le bouton reste grisé tant que la case n'est pas cochée).
 
 Votre demande est transmise à l'AMAP. Après acceptation par un administrateur, vous
 recevez une invitation par e-mail pour activer votre compte.
@@ -123,10 +128,11 @@ définir votre mot de passe et accéder à votre espace.
 Une fois connecté, le **menu principal** s'ouvre via le bouton **[Menu]** en haut de
 l'écran. Son contenu s'adapte à vos rôles.
 
-- Si vous cumulez plusieurs rôles (par exemple bénévole et coordinateur), le menu
+- Si vous cumulez plusieurs rôles (par exemple amapien et coordinateur), le menu
   regroupe les entrées par section de rôle.
-- Les entrées **[PRÉFÉRENCES]** et **[DÉCONNEXION]** sont toujours présentes en bas
-  du menu.
+- Les entrées **[NOTIFICATIONS]**, **[PRÉFÉRENCES]**, **[AIDE]** et **[DÉCONNEXION]**
+  sont toujours présentes en bas du menu. **[NOTIFICATIONS]** ouvre votre boîte de
+  réception (alertes de créneaux, échanges de paniers, demandes…).
 
 ## Régler ses préférences et notifications
 

@@ -1,11 +1,20 @@
 name: Deploy — Web (AWS)
 
+# The automatic dev deploy is NOT triggered by `push` here: `ci.yml` calls this
+# workflow (`workflow_call`) on a push to main only once the back, front and
+# acceptance test jobs have passed. `workflow_dispatch` is the manual deploy.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'front/**'
-      - '.github/workflows/deploy-web.yml'
+  workflow_call:
+    inputs:
+      target:
+        description: 'Deployment target'
+        type: string
+        default: dev
+    # Declared optional: environment secrets (production / prod) are resolved by
+    # the jobs' `environment:` and take precedence over what the caller passes.
+    secrets:
+      AWS_ROLE_ARN:
+        required: false
   workflow_dispatch:
     inputs:
       target:
@@ -26,8 +35,8 @@ permissions:
 
 jobs:
   # ── Build Flutter web + sync to S3 + invalidate CloudFront ────────────────
-  # Independent of front-ci (mirrors deploy-lambda): push to main → dev,
-  # manual dispatch → the chosen target. The GitHub environment selects the
+  # Called by ci.yml after the tests pass on a push to main → dev (mirrors
+  # deploy-lambda); manual dispatch → the chosen target. The GitHub environment selects the
   # per-target variables/secrets; prod lives in a separate AWS account behind
   # the `prod` environment's protection rules.
   deploy-web:
@@ -102,6 +111,10 @@ jobs:
           WEB_BUCKET: ${{ steps.tf.outputs.web_bucket }}
         run: |
           aws s3 sync front/build/web/ "s3://${WEB_BUCKET}/" --delete --exclude "cgu.html"
+          # index.html is also served for every SPA deep link (CloudFront rewrite on
+          # the default behavior): never let the edge cache the app shell.
+          aws s3 cp front/build/web/index.html "s3://${WEB_BUCKET}/index.html" \
+            --cache-control "no-cache" --content-type "text/html"
 
       - name: Invalidate CloudFront
         env:

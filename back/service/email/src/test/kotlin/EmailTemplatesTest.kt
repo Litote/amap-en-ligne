@@ -82,6 +82,23 @@ internal class EmailTemplatesTest {
     }
 
     @Test
+    fun `GIVEN an organization request WHEN acknowledgement rendered THEN it confirms reception to the requester`() {
+        val request = organizationRequest()
+        val content = EmailTemplates.organizationRequestReceived(request)
+        assertEquals("Votre demande de création d'AMAP a bien été reçue", content.subject)
+        assertContains(content.body, "« ${request.organizationName} »")
+        assertContains(content.body, "Bonjour ${request.adminFirstName} ${request.adminLastName},")
+    }
+
+    @Test
+    fun `GIVEN a producer request WHEN acknowledgement rendered THEN it confirms reception to the requester`() {
+        val request = producerRequest()
+        val content = EmailTemplates.producerRequestReceived(request)
+        assertEquals("Votre demande de compte producteur a bien été reçue", content.subject)
+        assertContains(content.body, "« ${request.producerName} »")
+    }
+
+    @Test
     fun `GIVEN an organization name WHEN amapEmailSubject THEN the subject is prefixed with the AMAP name`() {
         assertEquals("[Ma Super AMAP] Coucou", amapEmailSubject("Ma Super AMAP", "Coucou"))
     }
@@ -109,7 +126,19 @@ internal class EmailTemplatesTest {
                 expiresAt = expiresAt,
                 organizationName = "AMAP des Collines",
             )
-        assertEquals("[AMAP des Collines] Invitation à rejoindre votre AMAP", content.subject)
+        assertEquals("[AMAP des Collines] Invitation à rejoindre l'AMAP", content.subject)
+    }
+
+    @Test
+    fun `GIVEN member invitation with an organization name WHEN rendered THEN the body names the AMAP`() {
+        val content =
+            EmailTemplates.memberInvitation(
+                invitation = memberInvitation(),
+                activationUrl = "https://amap.example/activate?token=tok-x",
+                expiresAt = expiresAt,
+                organizationName = "AMAP des Collines",
+            )
+        assertContains(content.body, "Vous avez été invité(e) à rejoindre l'AMAP « AMAP des Collines » sur l'application AmapEnLigne.")
     }
 
     @Test
@@ -139,7 +168,7 @@ internal class EmailTemplatesTest {
         assertEquals("Rejoins-nous !", content.subject)
         assertContains(content.body, "Salut, connecte-toi pour finaliser ton inscription.")
         // The default intro is replaced...
-        assertTrue(!content.body.contains("Vous avez été invité(e) à rejoindre votre AMAP"))
+        assertTrue(!content.body.contains("Vous avez été invité(e) à rejoindre une AMAP"))
         // ...but the activation link footer is always appended.
         assertContains(content.body, "https://amap.example/activate?token=tok-3")
     }
@@ -152,8 +181,9 @@ internal class EmailTemplatesTest {
                 activationUrl = "https://amap.example/activate?token=tok-4",
                 expiresAt = expiresAt,
             )
-        assertEquals("Invitation à rejoindre votre AMAP", content.subject)
-        assertContains(content.body, "Vous avez été invité(e) à rejoindre votre AMAP")
+        // The invitee is not a member yet: never "votre AMAP".
+        assertEquals("Invitation à rejoindre l'AMAP", content.subject)
+        assertContains(content.body, "Vous avez été invité(e) à rejoindre une AMAP")
     }
 
     @Test

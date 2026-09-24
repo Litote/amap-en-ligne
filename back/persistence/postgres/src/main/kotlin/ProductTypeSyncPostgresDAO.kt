@@ -7,6 +7,7 @@ import org.koin.core.annotation.Single
 import persistence.changes.Change
 import persistence.dao.ProductTypeSyncDAO
 import persistence.model.BasketSize
+import persistence.model.ItemType
 import persistence.model.ProducerAccount
 import persistence.model.ProductType
 import serialization.json
@@ -21,7 +22,7 @@ internal class ProductTypeSyncPostgresDAO(
             conn
                 .prepareStatement(
                     """
-                    SELECT product_type_id, name, description, supported_basket_sizes
+                    SELECT product_type_id, name, description, supported_basket_sizes, item_types
                     FROM product_type
                     WHERE producer_account_id = ?
                     """.trimIndent(),
@@ -40,19 +41,21 @@ internal class ProductTypeSyncPostgresDAO(
     override suspend fun put(
         productType: ProductType,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
         client.dataSource.tx { conn ->
             conn
                 .prepareStatement(
                     """
                     INSERT INTO product_type (
-                        producer_account_id, product_type_id, name, description, supported_basket_sizes
-                    ) VALUES (?, ?, ?, ?, ?::jsonb)
+                        producer_account_id, product_type_id, name, description, supported_basket_sizes, item_types
+                    ) VALUES (?, ?, ?, ?, ?::jsonb, ?::jsonb)
                     ON CONFLICT (producer_account_id, product_type_id)
                     DO UPDATE SET
                         name = EXCLUDED.name,
                         description = EXCLUDED.description,
-                        supported_basket_sizes = EXCLUDED.supported_basket_sizes
+                        supported_basket_sizes = EXCLUDED.supported_basket_sizes,
+                        item_types = EXCLUDED.item_types
                     """.trimIndent(),
                 ).use { stmt ->
                     stmt.setString(1, productType.producerAccountId.id)
@@ -66,9 +69,11 @@ internal class ProductTypeSyncPostgresDAO(
                             productType.supportedBasketSizes,
                         ),
                     )
+                    stmt.setString(6, json.encodeToString(ListSerializer(ItemType.serializer()), productType.itemTypes))
                     stmt.executeUpdate()
                 }
             upsertChange(conn, change)
+            fanOutChanges.forEach { upsertChange(conn, it) }
         }
     }
 
@@ -76,6 +81,7 @@ internal class ProductTypeSyncPostgresDAO(
         id: Id<ProductType>,
         producerAccountId: Id<ProducerAccount>,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
         client.dataSource.tx { conn ->
             conn
@@ -90,6 +96,7 @@ internal class ProductTypeSyncPostgresDAO(
                     stmt.executeUpdate()
                 }
             upsertChange(conn, change)
+            fanOutChanges.forEach { upsertChange(conn, it) }
         }
     }
 }
@@ -105,4 +112,5 @@ private fun ResultSet.toProductType(producerAccountId: Id<ProducerAccount>): Pro
             ),
         name = getString("name"),
         description = getString("description"),
+        itemTypes = json.decodeFromString(ListSerializer(ItemType.serializer()), getString("item_types")),
     )

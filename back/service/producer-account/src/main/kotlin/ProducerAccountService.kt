@@ -3,6 +3,7 @@ package produceraccount
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
+import core.InputRules
 import id.toId
 import org.koin.core.annotation.Single
 import persistence.changes.Change
@@ -82,6 +83,12 @@ class ProducerAccountService(
         if (incoming.producerAccountId.id != auth.memberId) {
             return rejected(mutation, MutationErrorCode.FORBIDDEN, "PRODUCER may only update their own profile")
         }
+        // Mirrors the producer profile dialog (edit_profile_dialog.dart).
+        (
+            InputRules.requireName("name", incoming.name)
+                ?: InputRules.optionalEmail("contact_email", incoming.contactEmail)
+                ?: InputRules.optionalHttpUrl("website", incoming.website)
+        )?.let { return rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, it) }
         val outcome =
             lifecycleService.updateProfile(
                 producerAccountId = incoming.producerAccountId.id,
@@ -203,7 +210,10 @@ class ProducerAccountService(
     ): List<ProducerAccountPayload> =
         when (scope) {
             is SyncScope.ProducerAccount -> {
-                emptyList()
+                // The producer's own account (name, profile, preferences).
+                listOfNotNull(
+                    producerAccountSyncDAO.findById(scope.producerAccountId.toId())?.let { ProducerAccountPayload(it) },
+                )
             }
 
             is SyncScope.Organization -> {

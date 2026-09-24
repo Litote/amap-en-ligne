@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'mutation_outcome.dart';
@@ -9,6 +9,7 @@ part of 'mutation_outcome.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $MutationOutcomeCopyWith<MutationOutcome> get copyWith => _$MutationOutcomeCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MutationOutcome&&(identical(other.clientOpId, clientOpId) || other.clientOpId == clientOpId)&&(identical(other.status, status) || other.status == status)&&(identical(other.serverEntityId, serverEntityId) || other.serverEntityId == serverEntityId)&&(identical(other.error, error) || other.error == error));
+  final _this = this as MutationOutcome;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MutationOutcome&&(identical(other.clientOpId, _this.clientOpId) || other.clientOpId == _this.clientOpId)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.serverEntityId, _this.serverEntityId) || other.serverEntityId == _this.serverEntityId)&&(identical(other.error, _this.error) || other.error == _this.error));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,clientOpId,status,serverEntityId,error);
+int get hashCode {
+  final _this = this as MutationOutcome;
+  return Object.hash(runtimeType,_this.clientOpId,_this.status,_this.serverEntityId,_this.error);
+}
 
 @override
 String toString() {
-  return 'MutationOutcome(clientOpId: $clientOpId, status: $status, serverEntityId: $serverEntityId, error: $error)';
+  final _this = this as MutationOutcome;
+  return 'MutationOutcome(clientOpId: ${_this.clientOpId}, status: ${_this.status}, serverEntityId: ${_this.serverEntityId}, error: ${_this.error})';
 }
 
 
@@ -66,7 +72,7 @@ class _$MutationOutcomeCopyWithImpl<$Res>
 /// Create a copy of MutationOutcome
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? clientOpId = null,Object? status = null,Object? serverEntityId = freezed,Object? error = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(MutationOutcome(
 clientOpId: null == clientOpId ? _self.clientOpId : clientOpId // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as MutationStatus,serverEntityId: freezed == serverEntityId ? _self.serverEntityId : serverEntityId // ignore: cast_nullable_to_non_nullable
@@ -245,16 +251,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MutationOutcome&&(identical(other.clientOpId, clientOpId) || other.clientOpId == clientOpId)&&(identical(other.status, status) || other.status == status)&&(identical(other.serverEntityId, serverEntityId) || other.serverEntityId == serverEntityId)&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MutationOutcome&&(identical(other.clientOpId, clientOpId) || other.clientOpId == clientOpId)&&(identical(other.status, status) || other.status == status)&&(identical(other.serverEntityId, serverEntityId) || other.serverEntityId == serverEntityId)&&(identical(other.error, error) || other.error == error));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,clientOpId,status,serverEntityId,error);
+int get hashCode {
+    return Object.hash(runtimeType,clientOpId,status,serverEntityId,error);
+}
 
 @override
 String toString() {
-  return 'MutationOutcome(clientOpId: $clientOpId, status: $status, serverEntityId: $serverEntityId, error: $error)';
+    return 'MutationOutcome(clientOpId: $clientOpId, status: $status, serverEntityId: $serverEntityId, error: $error)';
 }
 
 
@@ -324,16 +332,21 @@ $MutationErrorCopyWith<MutationError> get copyWith => _$MutationErrorCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MutationError&&(identical(other.code, code) || other.code == code)&&(identical(other.message, message) || other.message == message));
+  final _this = this as MutationError;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MutationError&&(identical(other.code, _this.code) || other.code == _this.code)&&(identical(other.message, _this.message) || other.message == _this.message));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,code,message);
+int get hashCode {
+  final _this = this as MutationError;
+  return Object.hash(runtimeType,_this.code,_this.message);
+}
 
 @override
 String toString() {
-  return 'MutationError(code: $code, message: $message)';
+  final _this = this as MutationError;
+  return 'MutationError(code: ${_this.code}, message: ${_this.message})';
 }
 
 
@@ -362,7 +375,7 @@ class _$MutationErrorCopyWithImpl<$Res>
 /// Create a copy of MutationError
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? code = null,Object? message = null,}) {
-  return _then(_self.copyWith(
+  return _then(MutationError(
 code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
 as MutationErrorCode,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,
@@ -525,16 +538,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MutationError&&(identical(other.code, code) || other.code == code)&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MutationError&&(identical(other.code, code) || other.code == code)&&(identical(other.message, message) || other.message == message));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,code,message);
+int get hashCode {
+    return Object.hash(runtimeType,code,message);
+}
 
 @override
 String toString() {
-  return 'MutationError(code: $code, message: $message)';
+    return 'MutationError(code: $code, message: $message)';
 }
 
 

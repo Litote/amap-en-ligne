@@ -69,7 +69,7 @@ Member _member({
   String? lastName,
   String? email,
   String? phone,
-  MemberAccountStatus? accountStatus,
+  MemberAccountStatus accountStatus = MemberAccountStatus.active,
 }) => Member(
   memberId: id,
   organizationId: orgId,
@@ -375,7 +375,9 @@ void main() {
       expect(button.onPressed, isNull);
     });
 
-    testWidgets('EXPORTER LA LISTE has tooltip (Phase 8)', (tester) async {
+    testWidgets('EXPORTER LA LISTE has a "coming soon" tooltip', (
+      tester,
+    ) async {
       await _pump(
         tester,
         ownerRepo: ownerRepo,
@@ -391,7 +393,7 @@ void main() {
           matching: find.byType(Tooltip),
         ),
       );
-      expect(tooltip.message, 'Phase 8');
+      expect(tooltip.message, 'Bientôt disponible');
     });
   });
 

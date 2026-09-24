@@ -25,6 +25,17 @@ interface ProducerAccountSyncDAO {
         changes: List<Change>,
     )
 
+    /**
+     * Atomically sets [pendingActivation] on every stored row of the producer (standalone
+     * and per-organization) and writes the [changes] records. Used when the producer
+     * activates its account.
+     */
+    suspend fun updatePendingActivation(
+        producerAccountId: Id<ProducerAccount>,
+        pendingActivation: Boolean,
+        changes: List<Change>,
+    )
+
     /** Atomically writes the producer account and its scope change records. */
     suspend fun put(
         producerAccount: ProducerAccount,
@@ -45,8 +56,14 @@ interface ProducerAccountSyncDAO {
         organizationId: Id<Organization>,
     )
 
-    /** Creates a standalone ProducerAccount without any organization link and without writing a Change record. */
-    suspend fun createStandalone(producerAccount: ProducerAccount)
+    /**
+     * Atomically creates a standalone ProducerAccount (no organization link) and writes the
+     * [changes] records (typically the `instance-owner` upsert).
+     */
+    suspend fun createStandalone(
+        producerAccount: ProducerAccount,
+        changes: List<Change>,
+    )
 
     /**
      * Atomically updates the producer account profile fields (name, contactEmail, address, website,

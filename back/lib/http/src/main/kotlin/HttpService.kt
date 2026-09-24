@@ -11,7 +11,10 @@ import kotlin.time.Instant
 class HttpService {
     private companion object {
         private const val INTERNAL_SERVER_ERROR = "Internal Server Error"
-        private const val PROBLEM_UNAUTHORIZED = "https://nyd.com/problems/unauthorized"
+        private const val BAD_REQUEST = "Bad Request"
+        private const val PROBLEM_TYPE_PREFIX = "urn:amap-en-ligne:problem:"
+        private const val PROBLEM_UNAUTHORIZED = "${PROBLEM_TYPE_PREFIX}unauthorized"
+        private const val PROBLEM_BAD_REQUEST = "${PROBLEM_TYPE_PREFIX}bad-request"
     }
 
     fun internalServerError(
@@ -19,7 +22,7 @@ class HttpService {
         timestamp: Instant = Clock.System.now(),
     ): ErrorResponse =
         ErrorResponse(
-            type = "https://nyd.com/problems/technical",
+            type = "${PROBLEM_TYPE_PREFIX}technical",
             title = INTERNAL_SERVER_ERROR,
             status = 500,
             detail = INTERNAL_SERVER_ERROR,
@@ -58,13 +61,13 @@ class HttpService {
             type = PROBLEM_UNAUTHORIZED,
             title = "Unauthorized",
             status = 401,
-            detail = "no authentication token provided",
+            detail = "missing or invalid authentication token",
             instance = instance,
             timestamp = timestamp,
             error =
                 ErrorDetails(
                     code = "INVALID_AUTH_TOKEN",
-                    details = mapOf("reason" to "Token expired"),
+                    details = mapOf("reason" to "Token missing or invalid"),
                 ),
         )
 
@@ -75,7 +78,7 @@ class HttpService {
         timestamp: Instant = Clock.System.now(),
     ): ErrorResponse =
         ErrorResponse(
-            type = "https://nyd.com/problems/conflict",
+            type = "${PROBLEM_TYPE_PREFIX}conflict",
             title = "Conflict",
             status = 409,
             detail = "a resource with the same value already exists",
@@ -97,7 +100,7 @@ class HttpService {
         timestamp: Instant = Clock.System.now(),
     ): ErrorResponse =
         ErrorResponse(
-            type = "https://nyd.com/problems/forbidden",
+            type = "${PROBLEM_TYPE_PREFIX}forbidden",
             title = "Forbidden",
             status = 403,
             detail = "insufficient permissions",
@@ -115,7 +118,7 @@ class HttpService {
         timestamp: Instant = Clock.System.now(),
     ): ErrorResponse =
         ErrorResponse(
-            type = "https://nyd.com/problems/not-found",
+            type = "${PROBLEM_TYPE_PREFIX}not-found",
             title = "Not Found",
             status = 404,
             detail = "resource not found",
@@ -128,14 +131,32 @@ class HttpService {
                 ),
         )
 
+    fun goneError(
+        instance: String,
+        timestamp: Instant = Clock.System.now(),
+    ): ErrorResponse =
+        ErrorResponse(
+            type = "${PROBLEM_TYPE_PREFIX}gone",
+            title = "Gone",
+            status = 410,
+            detail = "resource is no longer available",
+            instance = instance,
+            timestamp = timestamp,
+            error =
+                ErrorDetails(
+                    code = "GONE",
+                    details = mapOf("reason" to "Resource expired"),
+                ),
+        )
+
     fun invalidPayloadError(
         instance: String,
         reason: String,
         timestamp: Instant = Clock.System.now(),
     ): ErrorResponse =
         ErrorResponse(
-            type = "https://nyd.com/problems/bad-request",
-            title = "Bad Request",
+            type = PROBLEM_BAD_REQUEST,
+            title = BAD_REQUEST,
             status = 400,
             detail = reason,
             instance = instance,
@@ -147,6 +168,25 @@ class HttpService {
                 ),
         )
 
+    fun weakPasswordError(
+        instance: String,
+        reason: String,
+        timestamp: Instant = Clock.System.now(),
+    ): ErrorResponse =
+        ErrorResponse(
+            type = PROBLEM_BAD_REQUEST,
+            title = BAD_REQUEST,
+            status = 400,
+            detail = reason,
+            instance = instance,
+            timestamp = timestamp,
+            error =
+                ErrorDetails(
+                    code = "WEAK_PASSWORD",
+                    details = mapOf("reason" to reason),
+                ),
+        )
+
     fun mutationBatchTooLargeError(
         instance: String,
         limit: Int,
@@ -154,8 +194,8 @@ class HttpService {
         timestamp: Instant = Clock.System.now(),
     ): ErrorResponse =
         ErrorResponse(
-            type = "https://nyd.com/problems/bad-request",
-            title = "Bad Request",
+            type = PROBLEM_BAD_REQUEST,
+            title = BAD_REQUEST,
             status = 400,
             detail = "mutation batch size $actual exceeds the limit of $limit",
             instance = instance,

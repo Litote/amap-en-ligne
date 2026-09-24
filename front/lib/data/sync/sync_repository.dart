@@ -64,19 +64,16 @@ class SyncRepository {
     try {
       final cursors = await _db.readAllScopeCursors();
       final pending = await _db.readPendingMutationEntries();
-      final scopedPending = pending
-          .where((entry) => entry.scopeKey != null)
-          .toList();
 
       final response = await _api.sync(
         SyncRequest(
           cursors: cursors,
-          mutations: scopedPending.map((entry) => entry.mutation).toList(),
+          mutations: pending.map((entry) => entry.mutation).toList(),
         ),
       );
       final memberOrOwnerUpdated = await _applyResponse(
         response,
-        scopedPending,
+        pending,
       );
       final rejected = response.mutations
           .where((m) => m.status == MutationStatus.rejected)
@@ -136,6 +133,8 @@ class SyncRepository {
     DioExceptionType.unknown => e.error.toString().contains('SocketException'),
     DioExceptionType.badResponse ||
     DioExceptionType.badCertificate ||
+    // The response arrived; only its decoding exceeded the timeout.
+    DioExceptionType.transformTimeout ||
     DioExceptionType.cancel => false,
   };
 
@@ -170,7 +169,6 @@ class SyncRepository {
       await _db.deleteCursor(scopeKey);
     }
     await _db.dropPendingMutationsForScopes(removed);
-    await _db.dropPendingMutationsWithoutScope();
     for (final scopeKey in authorized.difference(known)) {
       await _db.writeCursor(scopeKey, null);
     }
@@ -300,20 +298,14 @@ class SyncRepository {
     final pending = await _db.readPendingMutationEntries();
     for (final entry in pending) {
       if (entry.clientOpId == original.clientOpId) continue;
-      if (entry.scopeKey != null && entry.scopeKey != originalEntry.scopeKey) {
-        continue;
-      }
+      if (entry.scopeKey != originalEntry.scopeKey) continue;
       final rewritten = handler.rewriteMutationReference(
         entry.mutation,
         oldId: oldId,
         newId: serverEntityId,
       );
       if (rewritten != entry.mutation) {
-        await _db.replacePendingMutation(
-          entry,
-          mutation: rewritten,
-          scopeKey: entry.scopeKey ?? originalEntry.scopeKey,
-        );
+        await _db.replacePendingMutation(entry, mutation: rewritten);
       }
     }
   }

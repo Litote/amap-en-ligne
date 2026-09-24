@@ -279,7 +279,7 @@ Un membre peut cumuler plusieurs rôles simultanément (ex : Coordinateur + Admi
 
 ### Email d'invitation type
 ```
-Subject: Invitation à rejoindre AMAP des Collines
+Subject: [AMAP des Collines] Invitation à rejoindre l'AMAP
 
 Bonjour Marie,
 

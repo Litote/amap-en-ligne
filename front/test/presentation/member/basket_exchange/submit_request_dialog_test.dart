@@ -63,7 +63,7 @@ Future<void> _open(
                 builder: (_) => SubmitRequestDialog(
                   offer: _offer,
                   offererDisplayName: 'Bob Durand',
-                  contractDescription: 'Panier Légumes',
+                  offerLabel: 'Samedi 14 juin • Panier Légumes',
                   org: org,
                   memberId: 'm-me',
                   allExchanges: const [],

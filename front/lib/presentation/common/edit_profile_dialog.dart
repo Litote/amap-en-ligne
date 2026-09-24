@@ -1,6 +1,7 @@
 import 'package:amap_en_ligne/domain/model/owner.dart' show Owner;
 import 'package:amap_en_ligne/domain/model/producer_account.dart'
     show ProducerAccount;
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:flutter/material.dart';
 
 /// Which entity type the dialog is editing.
@@ -165,53 +166,58 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   );
 
   List<Widget> _ownerFields() => [
-    _field(controller: _firstNameCtrl, label: 'Prénom', required: true),
+    _field(
+      controller: _firstNameCtrl,
+      label: 'Prénom',
+      validator: requiredName,
+    ),
     const SizedBox(height: 12),
-    _field(controller: _lastNameCtrl, label: 'Nom', required: true),
+    _field(controller: _lastNameCtrl, label: 'Nom', validator: requiredName),
     const SizedBox(height: 12),
     _field(
       controller: _emailCtrl,
       label: 'Email',
-      required: true,
+      validator: requiredEmail,
       keyboardType: TextInputType.emailAddress,
     ),
     const SizedBox(height: 12),
     _field(
       controller: _phoneCtrl,
       label: 'Téléphone (optionnel)',
-      required: false,
       keyboardType: TextInputType.phone,
     ),
   ];
 
   List<Widget> _producerFields() => [
-    _field(controller: _nameCtrl, label: "Nom de l'entreprise", required: true),
+    _field(
+      controller: _nameCtrl,
+      label: "Nom de l'entreprise",
+      validator: requiredName,
+    ),
     const SizedBox(height: 12),
     _field(
       controller: _contactEmailCtrl,
       label: 'Email de contact (optionnel)',
-      required: false,
+      validator: optionalEmail,
       keyboardType: TextInputType.emailAddress,
     ),
     const SizedBox(height: 12),
-    _field(
-      controller: _addressCtrl,
-      label: 'Adresse (optionnel)',
-      required: false,
-    ),
+    _field(controller: _addressCtrl, label: 'Adresse (optionnel)'),
     const SizedBox(height: 12),
     _field(
       controller: _websiteCtrl,
       label: 'Site web (optionnel)',
-      required: false,
+      validator: optionalHttpUrl,
       keyboardType: TextInputType.url,
     ),
   ];
 
+  /// [validator] comes from `domain/validation/input_rules.dart` so the
+  /// dialog enforces the same rules as the back profile updates.
   Widget _field({
     required TextEditingController controller,
     required String label,
-    required bool required,
+    String? Function(String?)? validator,
     TextInputType? keyboardType,
   }) => TextFormField(
     controller: controller,
@@ -220,8 +226,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       border: const OutlineInputBorder(),
     ),
     keyboardType: keyboardType,
-    validator: required
-        ? (v) => (v == null || v.trim().isEmpty) ? 'Ce champ est requis' : null
-        : null,
+    validator: validator,
   );
 }

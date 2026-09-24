@@ -6,6 +6,8 @@ import 'package:amap_en_ligne/domain/model/organization_creation_request.dart';
 import 'package:amap_en_ligne/presentation/admin/admin_requests_bloc.dart';
 import 'package:amap_en_ligne/presentation/admin/admin_requests_event.dart';
 import 'package:amap_en_ligne/presentation/admin/admin_requests_state.dart';
+import 'package:amap_en_ligne/presentation/admin/approve_confirmation_dialog.dart';
+import 'package:amap_en_ligne/presentation/common/instant_format.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_status_banner.dart';
@@ -17,8 +19,16 @@ const _kStatusPending = 'En attente';
 const _kStatusApproved = 'Approuvée';
 const _kStatusRejected = 'Rejetée';
 
+/// Tab shown first on [AdminRequestsScreen].
+enum AdminRequestsTab { amap, producers }
+
 class AdminRequestsScreen extends StatelessWidget {
-  const AdminRequestsScreen({super.key});
+  const AdminRequestsScreen({
+    super.key,
+    this.initialTab = AdminRequestsTab.amap,
+  });
+
+  final AdminRequestsTab initialTab;
 
   @override
   Widget build(BuildContext context) {
@@ -29,15 +39,21 @@ class AdminRequestsScreen extends StatelessWidget {
             organizationRequestRepository: context
                 .read<OrganizationRequestRepository>(),
           )..add(
-            const AdminRequestsEvent.loadRequested(
+            AdminRequestsEvent.loadRequested(
               statusFilter: OrganizationRequestStatus.pendingValidation,
+              organizationTypeFilter: initialTab == AdminRequestsTab.producers
+                  ? OrganizationType.producer
+                  : OrganizationType.amap,
             ),
           ),
       child: StreamBuilder<List<AdminProducerRequest>>(
         stream: producerRequestRepository.watch(),
         builder: (context, snapshot) {
           final producerRequests = snapshot.data ?? const [];
-          return _AdminRequestsView(producerRequests: producerRequests);
+          return _AdminRequestsView(
+            producerRequests: producerRequests,
+            initialTab: initialTab,
+          );
         },
       ),
     );
@@ -45,9 +61,13 @@ class AdminRequestsScreen extends StatelessWidget {
 }
 
 class _AdminRequestsView extends StatefulWidget {
-  const _AdminRequestsView({required this.producerRequests});
+  const _AdminRequestsView({
+    required this.producerRequests,
+    required this.initialTab,
+  });
 
   final List<AdminProducerRequest> producerRequests;
+  final AdminRequestsTab initialTab;
 
   @override
   State<_AdminRequestsView> createState() => _AdminRequestsViewState();
@@ -60,10 +80,18 @@ class _AdminRequestsViewState extends State<_AdminRequestsView>
       ProducerRequestStatus.pendingValidation;
   late final TabController _tabController;
 
+  /// Success message of the action in flight, shown once it completes.
+  String? _pendingSuccessMessage;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTab == AdminRequestsTab.producers ? 1 : 0,
+    );
+
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) return;
       final orgType = _tabController.index == 0
@@ -94,14 +122,21 @@ class _AdminRequestsViewState extends State<_AdminRequestsView>
         return previous.actionInProgress && !current.actionInProgress;
       },
       listener: (context, state) {
+        final successMessage = _pendingSuccessMessage;
+        _pendingSuccessMessage = null;
         if (state is AdminRequestsLoaded && state.actionError != null) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.actionError!)));
           return;
         }
-        // Success: close detail view if open.
+        // Success: close detail view if open and confirm the outcome.
         setState(() => _selectedRequest = null);
+        if (successMessage != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(successMessage)));
+        }
       },
       builder: (context, state) => switch (state) {
         AdminRequestsInitial() || AdminRequestsLoading() => const Center(
@@ -152,18 +187,27 @@ class _AdminRequestsViewState extends State<_AdminRequestsView>
         actionInProgress: actionInProgress,
         actionError: actionError,
         onBack: () => setState(() => _selectedRequest = null),
-        onApprove: () => context.read<AdminRequestsBloc>().add(
-          AdminRequestsEvent.approveRequested(_selectedRequest!),
-        ),
-        onReject: (comment) => context.read<AdminRequestsBloc>().add(
-          AdminRequestsEvent.rejectRequested(
-            request: _selectedRequest!,
-            reviewComment: comment,
-          ),
-        ),
-        onResend: () => context.read<AdminRequestsBloc>().add(
-          AdminRequestsEvent.resendRequested(updated ?? _selectedRequest!),
-        ),
+        onApprove: () {
+          _pendingSuccessMessage = kApprovalSuccessMessage;
+          context.read<AdminRequestsBloc>().add(
+            AdminRequestsEvent.approveRequested(_selectedRequest!),
+          );
+        },
+        onReject: (comment) {
+          _pendingSuccessMessage = kRejectionSuccessMessage;
+          context.read<AdminRequestsBloc>().add(
+            AdminRequestsEvent.rejectRequested(
+              request: _selectedRequest!,
+              reviewComment: comment,
+            ),
+          );
+        },
+        onResend: () {
+          _pendingSuccessMessage = kResendSuccessMessage;
+          context.read<AdminRequestsBloc>().add(
+            AdminRequestsEvent.resendRequested(updated ?? _selectedRequest!),
+          );
+        },
       );
     }
 
@@ -373,13 +417,13 @@ class _StatusFilterBar extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         FilterChip(
-          label: const Text(_kStatusApproved),
+          label: const Text('Approuvées'),
           selected: selected == OrganizationRequestStatus.approved,
           onSelected: (_) => onSelected(OrganizationRequestStatus.approved),
         ),
         const SizedBox(width: 8),
         FilterChip(
-          label: const Text(_kStatusRejected),
+          label: const Text('Rejetées'),
           selected: selected == OrganizationRequestStatus.rejected,
           onSelected: (_) => onSelected(OrganizationRequestStatus.rejected),
         ),
@@ -485,7 +529,10 @@ class _DetailView extends StatelessWidget {
                   _InfoRow(label: 'Email', value: request.adminEmail),
                   _InfoRow(label: 'Fuseau horaire', value: request.timezone),
                   _InfoRow(label: 'Langue', value: request.defaultLanguage),
-                  _InfoRow(label: 'Soumise le', value: request.submittedAt),
+                  _InfoRow(
+                    label: 'Soumise le',
+                    value: formatInstantFr(request.submittedAt),
+                  ),
                   if (request.reviewedAt != null)
                     _InfoRow(label: 'Traitée le', value: request.reviewedAt!),
                   if (request.submitterComment != null)
@@ -518,7 +565,7 @@ class _DetailView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: FilledButton(
-                      onPressed: onApprove,
+                      onPressed: () => _confirmApprove(context),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),
@@ -553,6 +600,16 @@ class _DetailView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmApprove(BuildContext context) async {
+    final confirmed = await confirmApproval(
+      context,
+      message:
+          "L'AMAP « ${request.organizationName} » sera créée et un lien "
+          "d'activation sera envoyé à ${request.adminEmail}.",
+    );
+    if (confirmed) onApprove();
   }
 
   Future<void> _showRejectDialog(BuildContext context) async {

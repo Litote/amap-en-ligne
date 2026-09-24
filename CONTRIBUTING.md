@@ -199,7 +199,7 @@ One single version covers the whole monorepo. The bump is propagated through `re
 | `front/pubspec.yaml` | `# x-release-please-version` inline marker on the `version:` line |
 | `gradle.properties` | `x-release-please-start-version` / `end` block around `VERSION_NAME` |
 
-**Build numbers are not part of the released version.** CI stamps them at build time with the workflow run number (`--build-number="${GITHUB_RUN_NUMBER}"`): `front-ci.yml` for the APK (keeps `versionCode` increasing so successive artifacts install over each other) and `deploy-web.yml` for the web build (so `version.json` / the "À propos" screen reflect deploy freshness). Note that release-please rewrites the whole semver token in `pubspec.yaml`, dropping any local `+N` suffix — that is expected.
+**Build numbers are not part of the released version.** CI stamps them at build time with the workflow run number (`--build-number="${GITHUB_RUN_NUMBER}"`): `front-ci.yml` for the APK (keeps `versionCode` increasing so successive artifacts install over each other) and `deploy-web.yml` for the web build (so `version.json` / the "À propos" screen reflect deploy freshness; for the automatic deploy — called by `ci.yml` after the tests pass — the run number is the CI run's). Note that release-please rewrites the whole semver token in `pubspec.yaml`, dropping any local `+N` suffix — that is expected.
 
 The workflow authenticates with a **GitHub App token** (secrets `RELEASE_PLEASE_APP_ID` / `RELEASE_PLEASE_APP_PRIVATE_KEY`, provided at the Litote organization level) instead of the built-in `GITHUB_TOKEN`, because PRs opened with the default token never trigger other workflows — CI would not run on the release PR.
 
@@ -247,11 +247,11 @@ Current contract reminder:
 
 | Workflow | Trigger | What it does |
 |----------|---------|--------------|
-| `ci.yml` | push/PR on `back/**`, `front/**`, `acceptance/**`, `convention/**`, `gradle/**` | Four jobs (Java 25): `back` (`./gradlew check`, unit), `front` (analyze + codegen check + `frontTest --coverage`), `acceptance` (`./gradlew allAcceptanceTests`: back acceptance + cross-component API/Web E2E via Testcontainers + Playwright; Android mobile UI skipped in CI). Each emits one coverage report; the `sonar` job `needs:` all three and runs a scan-only SonarCloud analysis aggregating unit ∪ acceptance ∪ e2e coverage (if `SONAR_TOKEN` set). |
+| `ci.yml` | push/PR on `back/**`, `front/**`, `acceptance/**`, `convention/**`, `gradle/**` (push also on `infra/**` and the deploy workflows) | Four test/quality jobs (Java 25): `back` (`./gradlew check`, unit), `front` (analyze + codegen check + `frontTest --coverage`), `acceptance` (`./gradlew allAcceptanceTests`: back acceptance + cross-component API/Web E2E via Testcontainers + Playwright; Android mobile UI skipped in CI). Each emits one coverage report; the `sonar` job `needs:` all three and runs a scan-only SonarCloud analysis aggregating unit ∪ acceptance ∪ e2e coverage (if `SONAR_TOKEN` set). On a push to `main`, a `changes` job picks the needed deploy(s) from the diff, and `deploy-lambda` / `deploy-web` call the deploy workflows **only once `back`, `front` and `acceptance` pass** (Sonar does not gate deploys). |
 | `front-ci.yml` | push/PR on `front/**` | Front artifact builds only: Android APK · Web WASM · iOS build + golden tests (macOS). Front analyze/tests/coverage run in `ci.yml`. |
 | `front-update-goldens.yml` | Manual only | Regenerates golden screenshots on macOS, opens a PR with verified commit |
-| `deploy-lambda.yml` | push/PR on `back/**`, `infra/**` | PR: GraalVM native build + `terraform plan`. Push to `main`: native build + `terraform apply` + `aws lambda update-function-code`. |
-| `deploy-web.yml` | push on `front/**` to `main`, or manual dispatch (`dev`/`prod` target) | Builds Flutter web (WASM, build number = run number), syncs to S3, invalidates CloudFront. |
+| `deploy-lambda.yml` | PR on `back/**`, `infra/**`; called by `ci.yml` after the tests on a push to `main`; manual dispatch | PR: GraalVM native build + `terraform plan`. Push to `main` (via `ci.yml`) / dispatch: native build + `terraform apply` + `aws lambda update-function-code`. |
+| `deploy-web.yml` | called by `ci.yml` after the tests on a push touching `front/**` to `main`, or manual dispatch (`dev`/`prod` target) | Builds Flutter web (WASM, build number = run number), syncs to S3, invalidates CloudFront. |
 | `release-please.yml` | push on `main` | Maintains the running release PR from Conventional Commits (see [Releases & versioning](#releases--versioning)). |
 | `docs.yml` | push on `documentation/guide/fr/**`, `site/**` | Builds and publishes the MkDocs help site to GitHub Pages |
 | `zizmor.yml` | push/PR on `main` | Security scan of all workflow files |

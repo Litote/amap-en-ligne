@@ -22,7 +22,6 @@ import persistence.model.MemberAccountStatus
 import persistence.model.MemberContract
 import persistence.model.MemberPreferences
 import persistence.model.MemberRegistration
-import persistence.model.MemberSettings
 import persistence.model.Organization
 import persistence.model.UserPreferences
 import persistence.model.UserSettings
@@ -209,9 +208,9 @@ internal class MemberSyncDynamoDAO(
         )
     }
 
-    override suspend fun setActiveStatusBySub(
+    override suspend fun setAccountStatusBySub(
         sub: String,
-        activeStatus: Boolean,
+        accountStatus: MemberAccountStatus,
         changes: List<Change>,
     ) {
         // Since memberId == sub, we find the member via the lookup item
@@ -235,18 +234,10 @@ internal class MemberSyncDynamoDAO(
                                                         ),
                                                     "sk" to AttributeValue.S(member.memberId.id),
                                                 )
-                                            updateExpression = "SET active_status = :status, account_status = :account_status"
+                                            updateExpression = "SET account_status = :account_status"
                                             expressionAttributeValues =
                                                 mapOf(
-                                                    ":status" to AttributeValue.Bool(activeStatus),
-                                                    ":account_status" to
-                                                        AttributeValue.S(
-                                                            if (activeStatus) {
-                                                                MemberAccountStatus.ACTIVE.name
-                                                            } else {
-                                                                MemberAccountStatus.SUSPENDED.name
-                                                            },
-                                                        ),
+                                                    ":account_status" to AttributeValue.S(accountStatus.name),
                                                 )
                                         }
                                 },
@@ -294,10 +285,9 @@ internal class MemberSyncDynamoDAO(
                                                 )
                                             updateExpression =
                                                 "REMOVE first_name, last_name, email, phone " +
-                                                "SET active_status = :false_val, account_status = :account_status"
+                                                "SET account_status = :account_status"
                                             expressionAttributeValues =
                                                 mapOf(
-                                                    ":false_val" to AttributeValue.Bool(false),
                                                     ":account_status" to AttributeValue.S(MemberAccountStatus.SUSPENDED.name),
                                                 )
                                         }
@@ -329,12 +319,11 @@ private fun Member.toAttributeValueMap(): Map<String, AttributeValue> =
         put("member_id", AttributeValue.S(memberId.id))
         put("organization_id", AttributeValue.S(organizationId.id))
         put("roles", AttributeValue.Ss(roles.map { it.name }))
-        put("active_status", AttributeValue.Bool(activeStatus))
         firstName?.let { put("first_name", AttributeValue.S(it)) }
         lastName?.let { put("last_name", AttributeValue.S(it)) }
         email?.let { put("email", AttributeValue.S(it)) }
         phone?.let { put("phone", AttributeValue.S(it)) }
-        accountStatus?.let { put("account_status", AttributeValue.S(it.name)) }
+        put("account_status", AttributeValue.S(accountStatus.name))
         put(
             "contracts",
             AttributeValue.S(json.encodeToString(ListSerializer(MemberContract.serializer()), contracts)),
@@ -343,7 +332,6 @@ private fun Member.toAttributeValueMap(): Map<String, AttributeValue> =
             "registrations",
             AttributeValue.S(json.encodeToString(ListSerializer(MemberRegistration.serializer()), registrations)),
         )
-        put("member_settings", AttributeValue.S(json.encodeToString(MemberSettings.serializer(), memberSettings)))
         put(
             "member_preferences",
             AttributeValue.S(json.encodeToString(MemberPreferences.serializer(), memberPreferences)),
@@ -357,15 +345,14 @@ private fun Map<String, AttributeValue>.toMember(): Member =
         memberId = getValue("member_id").asS().toId(),
         organizationId = getValue("organization_id").asS().toId(),
         roles = get("roles")?.asSs()?.mapNotNull { Role.fromString(it) }?.toSet() ?: setOf(Role.VOLUNTEER),
-        activeStatus = getValue("active_status").asBool(),
         firstName = get("first_name")?.asS(),
         lastName = get("last_name")?.asS(),
         email = get("email")?.asS(),
         phone = get("phone")?.asS(),
         accountStatus =
             get("account_status")?.asS()?.let { value ->
-                runCatching { MemberAccountStatus.valueOf(value) }.getOrNull()
-            },
+                MemberAccountStatus.valueOf(value)
+            } ?: MemberAccountStatus.ACTIVE,
         contracts =
             json.decodeFromString(
                 ListSerializer(MemberContract.serializer()),
@@ -375,11 +362,6 @@ private fun Map<String, AttributeValue>.toMember(): Member =
             json.decodeFromString(
                 ListSerializer(MemberRegistration.serializer()),
                 get("registrations")?.asS() ?: "[]",
-            ),
-        memberSettings =
-            json.decodeFromString(
-                MemberSettings.serializer(),
-                getValue("member_settings").asS(),
             ),
         memberPreferences =
             json.decodeFromString(

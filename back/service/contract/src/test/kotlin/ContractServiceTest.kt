@@ -32,6 +32,8 @@ import persistence.model.Delivery
 import persistence.model.EntityType
 import persistence.model.MemberContractStatus
 import persistence.model.MemberSubscription
+import persistence.model.Organization
+import persistence.model.Product
 import persistence.model.ProductPrice
 import persistence.model.SharedBasket
 import persistence.model.pickerFor
@@ -917,4 +919,64 @@ internal class ContractServiceTest {
         val basket = SharedBasket(sharedBasketId = "sb-1".toId(), memberIds = listOf("a".toId(), "b".toId()))
         assertNull(basket.pickerFor(deliveries("d0"), "other".toId()))
     }
+
+    @Test
+    fun `GIVEN contracts breaking the form rules WHEN upsert THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val dao = mockk<ContractSyncDAO>()
+            coEvery { dao.getByOrganizationId(any()) } returns emptyList()
+            val service = buildService(dao)
+            val valid = buildContract()
+            val invalidContracts =
+                listOf(
+                    valid.copy(name = "  "),
+                    valid.copy(producerAccountId = " ".toId()),
+                    valid.copy(minDeliveryDate = LocalDate(2026, 1, 1), maxDeliveryDate = LocalDate(2025, 1, 1)),
+                    valid.copy(deliveryCount = 0),
+                    valid.copy(seasonYear = 1999),
+                )
+
+            invalidContracts.forEach { contract ->
+                val outcome = service.applyUpsert(adminAuth, buildMutation(contract), ContractPayload(contract))
+
+                assertEquals(MutationStatus.REJECTED, outcome.status, "expected rejection for $contract")
+                assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            }
+            coVerify(exactly = 0) { dao.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN a new contract without any product while the producer sells products WHEN upsert THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val dao = mockk<ContractSyncDAO>()
+            coEvery { dao.getByOrganizationId(any()) } returns emptyList()
+            val orgDAO = mockk<OrganizationSyncDAO>()
+            coEvery { orgDAO.getById(any()) } returns
+                Organization(
+                    organizationId = organizationId.toId(),
+                    name = "AMAP",
+                    contactEmail = "amap@example.com",
+                    activeStatus = true,
+                    timezone = TimeZone.of("Europe/Paris"),
+                    defaultLanguage = "fr",
+                    createdInstant = Instant.fromEpochMilliseconds(0),
+                    lastUpdatedInstant = Instant.fromEpochMilliseconds(0),
+                    products =
+                        listOf(
+                            Product(
+                                name = "Oeufs",
+                                productTypeId = "pt-eggs".toId(),
+                                producerAccountId = "producer-1".toId(),
+                                supportedBasketSizes = emptyList(),
+                            ),
+                        ),
+                )
+            val service = buildService(dao, orgDAO)
+            val contract = buildContract(productPrices = emptyList())
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(contract), ContractPayload(contract))
+
+            assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            coVerify(exactly = 0) { dao.put(any(), any()) }
+        }
 }

@@ -72,7 +72,7 @@ class MixedDashboardScreen extends StatelessWidget {
 /// Label used as a section header in the multi-role dashboard. Mirrors the
 /// labels in the navigation menu (`nav_items_builder.dart`).
 String memberRoleLabel(Role role) => switch (role) {
-  Role.volunteer => '— Bénévole —',
+  Role.volunteer => '— Amapien —',
   Role.coordinator => '— Coordinateur —',
   Role.admin => '— Admin —',
   Role.owner || Role.producer => '',

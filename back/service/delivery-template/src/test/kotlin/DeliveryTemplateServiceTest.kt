@@ -6,6 +6,7 @@ import id.toId
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import persistence.changes.ClientMutation
 import persistence.changes.Delete
@@ -15,9 +16,11 @@ import persistence.changes.MutationStatus
 import persistence.changes.Upsert
 import persistence.dao.DeliveryTemplateSyncDAO
 import persistence.model.DeliveryTemplate
+import persistence.model.EarlySlot
 import persistence.model.EntityType
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 internal class DeliveryTemplateServiceTest {
     private val organizationId = "org-1"
@@ -60,6 +63,8 @@ internal class DeliveryTemplateServiceTest {
             name = "Livraison du jeudi",
             standardStartTime = "18:00",
             standardEndTime = "20:00",
+            volunteerArrivalTime = "17:45",
+            desiredVolunteerCount = 2,
         )
 
     private fun buildMutation(template: DeliveryTemplate): ClientMutation =
@@ -67,6 +72,40 @@ internal class DeliveryTemplateServiceTest {
             clientOpId = "op-1",
             op = Upsert(DeliveryTemplatePayload(template)),
         )
+
+    @Test
+    fun `GIVEN a tmp template id WHEN upsert THEN a real id is allocated and returned`() =
+        runTest {
+            val dao = mockk<DeliveryTemplateSyncDAO>(relaxed = true)
+            coEvery { dao.getByOrganizationId(any()) } returns emptyList()
+            val service = DeliveryTemplateService(dao)
+            val template = buildDeliveryTemplate(id = "tmp_123")
+            val stored = slot<DeliveryTemplate>()
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(template), DeliveryTemplatePayload(template))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            coVerify { dao.put(capture(stored), any()) }
+            val realId = stored.captured.deliveryTemplateId.id
+            assertFalse(realId.startsWith(ClientMutation.TMP_ID_PREFIX))
+            assertEquals(realId, outcome.serverEntityId)
+        }
+
+    @Test
+    fun `GIVEN a legacy template already stored under a tmp id WHEN upsert THEN the id is kept`() =
+        runTest {
+            val dao = mockk<DeliveryTemplateSyncDAO>(relaxed = true)
+            val legacy = buildDeliveryTemplate(id = "tmp_123")
+            coEvery { dao.getByOrganizationId(any()) } returns listOf(legacy)
+            val service = DeliveryTemplateService(dao)
+            val edited = legacy.copy(name = "Renamed")
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(edited), DeliveryTemplatePayload(edited))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            assertEquals("tmp_123", outcome.serverEntityId)
+            coVerify { dao.put(match { it.deliveryTemplateId.id == "tmp_123" && it.name == "Renamed" }, any()) }
+        }
 
     @Test
     fun `GIVEN caller without organization id WHEN upsert THEN REJECTED FORBIDDEN`() =
@@ -195,5 +234,46 @@ internal class DeliveryTemplateServiceTest {
             assertEquals(MutationStatus.REJECTED, outcome.status)
             assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
             coVerify(exactly = 0) { dao.delete(any(), any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN templates breaking the form rules WHEN upsert THEN REJECTED INVALID_PAYLOAD and nothing persisted`() =
+        runTest {
+            val dao = mockk<DeliveryTemplateSyncDAO>()
+            val service = DeliveryTemplateService(dao)
+            val valid = buildDeliveryTemplate()
+            val invalidTemplates =
+                listOf(
+                    valid.copy(name = "  "),
+                    valid.copy(standardStartTime = "18h00"),
+                    valid.copy(standardEndTime = "25:00"),
+                    valid.copy(standardEndTime = "17:00"),
+                    valid.copy(standardEndTime = "18:00"),
+                    valid.copy(volunteerArrivalTime = "18:30"),
+                    valid.copy(desiredVolunteerCount = 0),
+                    valid.copy(earlySlot = EarlySlot(arrivalTime = "18:00", maxVolunteers = 2)),
+                    valid.copy(earlySlot = EarlySlot(arrivalTime = "17:00", maxVolunteers = 0)),
+                )
+
+            invalidTemplates.forEach { template ->
+                val outcome = service.applyUpsert(adminAuth, buildMutation(template), DeliveryTemplatePayload(template))
+
+                assertEquals(MutationStatus.REJECTED, outcome.status, "expected rejection for $template")
+                assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            }
+            coVerify(exactly = 0) { dao.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN a template with a valid early slot WHEN upsert THEN APPLIED`() =
+        runTest {
+            val dao = mockk<DeliveryTemplateSyncDAO>()
+            coEvery { dao.put(any(), any()) } returns Unit
+            val service = DeliveryTemplateService(dao)
+            val template = buildDeliveryTemplate().copy(earlySlot = EarlySlot(arrivalTime = "17:00", maxVolunteers = 2))
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(template), DeliveryTemplatePayload(template))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
         }
 }

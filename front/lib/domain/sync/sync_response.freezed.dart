@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'sync_response.dart';
@@ -9,6 +9,7 @@ part of 'sync_response.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $SyncResponseCopyWith<SyncResponse> get copyWith => _$SyncResponseCopyWithImpl<S
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncResponse&&const DeepCollectionEquality().equals(other.authorizedScopes, authorizedScopes)&&const DeepCollectionEquality().equals(other.results, results)&&const DeepCollectionEquality().equals(other.mutations, mutations));
+  final _this = this as SyncResponse;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncResponse&&const DeepCollectionEquality().equals(other.authorizedScopes, _this.authorizedScopes)&&const DeepCollectionEquality().equals(other.results, _this.results)&&const DeepCollectionEquality().equals(other.mutations, _this.mutations));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(authorizedScopes),const DeepCollectionEquality().hash(results),const DeepCollectionEquality().hash(mutations));
+int get hashCode {
+  final _this = this as SyncResponse;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.authorizedScopes),const DeepCollectionEquality().hash(_this.results),const DeepCollectionEquality().hash(_this.mutations));
+}
 
 @override
 String toString() {
-  return 'SyncResponse(authorizedScopes: $authorizedScopes, results: $results, mutations: $mutations)';
+  final _this = this as SyncResponse;
+  return 'SyncResponse(authorizedScopes: ${_this.authorizedScopes}, results: ${_this.results}, mutations: ${_this.mutations})';
 }
 
 
@@ -66,7 +72,7 @@ class _$SyncResponseCopyWithImpl<$Res>
 /// Create a copy of SyncResponse
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? authorizedScopes = null,Object? results = null,Object? mutations = null,}) {
-  return _then(_self.copyWith(
+  return _then(SyncResponse(
 authorizedScopes: null == authorizedScopes ? _self.authorizedScopes : authorizedScopes // ignore: cast_nullable_to_non_nullable
 as List<String>,results: null == results ? _self.results : results // ignore: cast_nullable_to_non_nullable
 as Map<String, ScopeSyncResult>,mutations: null == mutations ? _self.mutations : mutations // ignore: cast_nullable_to_non_nullable
@@ -211,7 +217,7 @@ return $default(_that.authorizedScopes,_that.results,_that.mutations);case _:
 @JsonSerializable()
 
 class _SyncResponse implements SyncResponse {
-  const _SyncResponse({@JsonKey(name: 'authorized_scopes') final  List<String> authorizedScopes = const <String>[], final  Map<String, ScopeSyncResult> results = const <String, ScopeSyncResult>{}, final  List<MutationOutcome> mutations = const <MutationOutcome>[]}): _authorizedScopes = authorizedScopes,_results = results,_mutations = mutations;
+  const _SyncResponse({@JsonKey(name: 'authorized_scopes')  List<String> authorizedScopes = const <String>[],  Map<String, ScopeSyncResult> results = const <String, ScopeSyncResult>{},  List<MutationOutcome> mutations = const <MutationOutcome>[]}): _authorizedScopes = authorizedScopes,_results = results,_mutations = mutations;
   factory _SyncResponse.fromJson(Map<String, dynamic> json) => _$SyncResponseFromJson(json);
 
  final  List<String> _authorizedScopes;
@@ -249,16 +255,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SyncResponse&&const DeepCollectionEquality().equals(other._authorizedScopes, _authorizedScopes)&&const DeepCollectionEquality().equals(other._results, _results)&&const DeepCollectionEquality().equals(other._mutations, _mutations));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SyncResponse&&const DeepCollectionEquality().equals(other.authorizedScopes, _authorizedScopes)&&const DeepCollectionEquality().equals(other.results, _results)&&const DeepCollectionEquality().equals(other.mutations, _mutations));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_authorizedScopes),const DeepCollectionEquality().hash(_results),const DeepCollectionEquality().hash(_mutations));
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_authorizedScopes),const DeepCollectionEquality().hash(_results),const DeepCollectionEquality().hash(_mutations));
+}
 
 @override
 String toString() {
-  return 'SyncResponse(authorizedScopes: $authorizedScopes, results: $results, mutations: $mutations)';
+    return 'SyncResponse(authorizedScopes: $authorizedScopes, results: $results, mutations: $mutations)';
 }
 
 

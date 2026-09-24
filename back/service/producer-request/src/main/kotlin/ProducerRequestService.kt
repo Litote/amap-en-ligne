@@ -16,6 +16,7 @@ import persistence.changes.Cursor
 import persistence.changes.Delete
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationOutcome
+import persistence.changes.ProducerAccountPayload
 import persistence.changes.ProducerRequestPayload
 import persistence.changes.SyncScope
 import persistence.dao.ActivationTokenDAO
@@ -87,8 +88,11 @@ class ProducerRequestService(
                     organizations = emptyList(),
                     products = emptyList(),
                     managementMode = ProducerManagementMode.ACCOUNT_BACKED,
+                    pendingActivation = true,
                 )
-            producerAccountSyncDAO.createStandalone(producerAccount)
+            // Fan out on `instance-owner` so owners see the new producer on their next
+            // incremental sync (no full bootstrap needed).
+            producerAccountSyncDAO.createStandalone(producerAccount, listOf(buildProducerAccountChange(producerAccount)))
             val activationToken =
                 ActivationToken(
                     token = UUID.randomUUID().toString(),
@@ -158,6 +162,17 @@ class ProducerRequestService(
         producerRequestSyncDAO.put(updated, buildChange(updated))
         return applied(mutation, updated.requestId.id)
     }
+
+    private fun buildProducerAccountChange(producerAccount: ProducerAccount): Change =
+        Change(
+            cursor = Cursor.next(),
+            entityType = EntityType.ProducerAccount,
+            entityId = producerAccount.producerAccountId.id,
+            scopeKey = SyncScope.InstanceOwner.key,
+            op = ChangeOp.UPSERT,
+            payload = ProducerAccountPayload(producerAccount),
+            producedAt = System.currentTimeMillis(),
+        )
 
     private fun buildChange(request: ProducerRequest): Change =
         Change(

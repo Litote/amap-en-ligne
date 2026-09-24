@@ -2,7 +2,7 @@
 
 ## Description
 
-Écran d'accueil unifié (*MixedDashboardScreen*) pour les membres AMAP qui cumulent un ou plusieurs rôles contextuels : **BÉNÉVOLE** (*VOLUNTEER*), **COORDINATEUR** (*COORDINATOR*) et/ou **ADMIN** (*ADMIN*).
+Écran d'accueil unifié (*MixedDashboardScreen*) pour les membres AMAP qui cumulent un ou plusieurs rôles contextuels : **AMAPIEN** (*VOLUNTEER*), **COORDINATEUR** (*COORDINATOR*) et/ou **ADMIN** (*ADMIN*).
 
 | Attribut | Valeur |
 |----------|--------|
@@ -49,16 +49,16 @@ Lorsqu'un seul rôle AMAP est détenu, aucun en-tête de section n'est affiché 
 └─────────────────────────────────────────────┘
 ```
 
-### Variante multi-rôles (exemple : BÉNÉVOLE + COORDINATEUR + ADMIN)
+### Variante multi-rôles (exemple : AMAPIEN + COORDINATEUR + ADMIN)
 
-Lorsque l'utilisateur détient au moins 2 rôles AMAP, chaque section est précédée d'un en-tête centré libellé `— Bénévole —`, `— Coordinateur —` ou `— Admin —`. Les sections s'empilent dans l'ordre VOLUNTEER → COORDINATOR → ADMIN (même ordre que le menu de navigation).
+Lorsque l'utilisateur détient au moins 2 rôles AMAP, chaque section est précédée d'un en-tête centré libellé `— Amapien —`, `— Coordinateur —` ou `— Admin —`. Les sections s'empilent dans l'ordre VOLUNTEER → COORDINATOR → ADMIN (même ordre que le menu de navigation).
 
 ```
 ┌─────────────────────────────────────────────┐
 │ ☰  Tableau de bord                          │
 ├─────────────────────────────────────────────┤
 │                                             │
-│              — Bénévole —                   │
+│              — Amapien —                   │
 │                                             │
 │  Prochaines livraisons                      │
 │  ┌──────────────────────────────────────┐   │
@@ -125,19 +125,19 @@ Lorsque l'utilisateur détient au moins 2 rôles AMAP, chaque section est préc�
 
 ### Règle d'affichage des en-têtes de section
 
-L'en-tête de section (`— Bénévole —`, `— Coordinateur —`, `— Admin —`) est affiché **uniquement si l'utilisateur détient au moins 2 rôles AMAP**. En cas de rôle unique, la section s'affiche sans intitulé.
+L'en-tête de section (`— Amapien —`, `— Coordinateur —`, `— Admin —`) est affiché **uniquement si l'utilisateur détient au moins 2 rôles AMAP**. En cas de rôle unique, la section s'affiche sans intitulé.
 
 ### Ordre des sections
 
 Les sections sont toujours empilées dans l'ordre suivant, identique au menu de navigation :
 
-1. VOLUNTEER (Bénévole)
+1. VOLUNTEER (Amapien)
 2. COORDINATOR (Coordinateur)
 3. ADMIN (Admin)
 
 Seules les sections correspondant aux rôles effectivement détenus sont rendues.
 
-### Section Bénévole (VOLUNTEER)
+### Section Amapien (VOLUNTEER)
 
 Voir la spécification complète dans [`../member/screen-member-01-home.md`](../member/screen-member-01-home.md).
 
@@ -179,7 +179,7 @@ Les données de la section Admin sont alimentées en temps réel depuis les flux
 
 ### État de chargement
 
-Pendant la synchronisation initiale, les sections Bénévole et Coordinateur affichent un `CircularProgressIndicator` jusqu'à ce que l'organisation soit disponible dans le cache local. La section Admin affiche immédiatement un état vide (0 membres, 0 producteurs) puis se met à jour à la réception des données.
+Pendant la synchronisation initiale, les sections Amapien et Coordinateur affichent un `CircularProgressIndicator` jusqu'à ce que l'organisation soit disponible dans le cache local. La section Admin affiche immédiatement un état vide (0 membres, 0 producteurs) puis se met à jour à la réception des données.
 
 ### État « aucun rôle »
 
@@ -196,8 +196,8 @@ Si l'utilisateur ne détient aucun rôle AMAP (cas transitoire possible juste ap
 | Tuile « Templates de livraison » | Admin | `/admin/delivery-templates` | Navigation vers les templates de livraison |
 | Tuile « Préférences » | Admin | `/preferences` | Navigation vers les préférences utilisateur |
 | Tuile « Demandes d'adhésion » | Admin | `/admin/membership-requests` | Navigation vers les demandes d'adhésion |
-| `[VOIR PLANNING]` | Bénévole | `/planning` | Navigation vers le planning des livraisons |
-| `[MON HISTORIQUE]` | Bénévole | `/history` | Navigation vers l'historique personnel |
+| `[VOIR PLANNING]` | Amapien | `/planning` | Navigation vers le planning des livraisons |
+| `[MON HISTORIQUE]` | Amapien | `/history` | Navigation vers l'historique personnel |
 | `[ME PORTER COORDINATEUR]` | Coordinateur | reste sur le dashboard | Affiche un sélecteur listant les livraisons-contrats sans coordinateur ; valide l'auto-affectation via mutation sync (cf. [Dashboard coordinateur](../coordinator/screen-coordinator-01-home.md)) |
 
 ## Règles métier
@@ -218,12 +218,12 @@ L'ordre d'empilement (VOLUNTEER → COORDINATOR → ADMIN) est déterminé stati
 
 ### Isolation par organisation
 
-Les sections Bénévole et Coordinateur s'appuient sur l'`organizationId` dérivé de la session (`producerAccountId`) pour filtrer les livraisons de l'AMAP courante. Un membre ne voit jamais les données d'une autre AMAP.
+Les sections Amapien et Coordinateur s'appuient sur l'`organizationId` dérivé de la session (`producerAccountId`) pour filtrer les livraisons de l'AMAP courante. Un membre ne voit jamais les données d'une autre AMAP.
 
 ## Références
 
 - [`../spec-ui.md`](../spec-ui.md) — conventions UI globales
-- [`../member/screen-member-01-home.md`](../member/screen-member-01-home.md) — section Bénévole (détail complet)
+- [`../member/screen-member-01-home.md`](../member/screen-member-01-home.md) — section Amapien (détail complet)
 - [`../coordinator/screen-coordinator-01-home.md`](../coordinator/screen-coordinator-01-home.md) — section Coordinateur (détail complet)
 - [`../admin/screen-admin-01-home.md`](../admin/screen-admin-01-home.md) — section Admin (détail complet)
 - [`screen-common-01-menu.md`](screen-common-01-menu.md) — libellés et ordre du menu de navigation

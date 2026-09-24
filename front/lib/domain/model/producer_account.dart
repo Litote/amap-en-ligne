@@ -66,6 +66,11 @@ abstract class ProducerAccount with _$ProducerAccount {
     @Default([]) List<ProducerProduct> products,
     @Default([]) List<ProducerOrganization> organizations,
     @JsonKey(name: 'user_preferences') UserPreferences? userPreferences,
+    // True between the owner approval of a producer request and the
+    // producer's first activation (omitted on the wire when false).
+    @JsonKey(name: 'pending_activation', includeIfNull: false)
+    @Default(false)
+    bool pendingActivation,
   }) = _ProducerAccount;
 
   factory ProducerAccount.fromJson(Map<String, Object?> json) =>

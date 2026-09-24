@@ -201,12 +201,84 @@ abstract class ProducerAccountSyncDAOContractTest {
         runTest {
             val producer = buildProducerAccount()
 
-            producerAccountSyncDAO.createStandalone(producer)
+            producerAccountSyncDAO.createStandalone(producer, emptyList())
 
             val found = producerAccountSyncDAO.findById(producer.producerAccountId)
             assertNotNull(found)
             assertEquals(producer.producerAccountId, found.producerAccountId)
             assertTrue(producerAccountSyncDAO.listAll().any { it.producerAccountId == producer.producerAccountId })
+        }
+
+    @Test
+    fun `GIVEN standalone producer and instance-owner change WHEN createStandalone THEN change is recorded`() =
+        runTest {
+            val producer = buildProducerAccount()
+            val change =
+                Change(
+                    cursor = Cursor.next(),
+                    entityType = EntityType.ProducerAccount,
+                    entityId = producer.producerAccountId.id,
+                    scopeKey = SyncScope.InstanceOwner.key,
+                    op = ChangeOp.UPSERT,
+                    payload = ProducerAccountPayload(producer),
+                    producedAt = System.currentTimeMillis(),
+                )
+
+            producerAccountSyncDAO.createStandalone(producer, listOf(change))
+
+            assertNotNull(producerAccountSyncDAO.findById(producer.producerAccountId))
+            assertTrue(
+                changeDAO
+                    .since(SyncScope.InstanceOwner.key, null)
+                    .any { it.entityId == producer.producerAccountId.id && it.op == ChangeOp.UPSERT },
+            )
+        }
+
+    @Test
+    fun `GIVEN standalone producer pending activation WHEN updatePendingActivation false THEN cleared and change recorded`() =
+        runTest {
+            val producer = buildProducerAccount().copy(pendingActivation = true)
+            producerAccountSyncDAO.createStandalone(producer, emptyList())
+            assertEquals(true, producerAccountSyncDAO.findById(producer.producerAccountId)?.pendingActivation)
+            val change =
+                Change(
+                    cursor = Cursor.next(),
+                    entityType = EntityType.ProducerAccount,
+                    entityId = producer.producerAccountId.id,
+                    scopeKey = SyncScope.InstanceOwner.key,
+                    op = ChangeOp.UPSERT,
+                    payload = ProducerAccountPayload(producer.copy(pendingActivation = false)),
+                    producedAt = System.currentTimeMillis(),
+                )
+
+            producerAccountSyncDAO.updatePendingActivation(producer.producerAccountId, false, listOf(change))
+
+            assertEquals(false, producerAccountSyncDAO.findById(producer.producerAccountId)?.pendingActivation)
+            assertTrue(
+                changeDAO
+                    .since(SyncScope.InstanceOwner.key, null)
+                    .any { it.entityId == producer.producerAccountId.id && it.cursor == change.cursor },
+            )
+        }
+
+    @Test
+    fun `GIVEN producer linked to an organization and pending activation WHEN updatePendingActivation false THEN org row is cleared too`() =
+        runTest {
+            val orgId = newOrganizationId()
+            insertOrganization(orgId)
+            val producer = buildProducerAccount().copy(pendingActivation = true)
+            producerAccountSyncDAO.createStandalone(producer, emptyList())
+            producerAccountSyncDAO.put(producer, orgId.toId(), listOf(buildUpsertChange(producer, orgId)))
+
+            producerAccountSyncDAO.updatePendingActivation(producer.producerAccountId, false, emptyList())
+
+            assertTrue(
+                producerAccountSyncDAO
+                    .getByOrganizationId(orgId.toId())
+                    .filter { it.producerAccountId == producer.producerAccountId }
+                    .all { !it.pendingActivation },
+            )
+            assertEquals(false, producerAccountSyncDAO.findById(producer.producerAccountId)?.pendingActivation)
         }
 
     @Test
@@ -216,7 +288,7 @@ abstract class ProducerAccountSyncDAOContractTest {
             insertOrganization(orgId)
             val producer = buildProducerAccount().copy(name = "Standalone Producer")
 
-            producerAccountSyncDAO.createStandalone(producer)
+            producerAccountSyncDAO.createStandalone(producer, emptyList())
 
             val result = producerAccountSyncDAO.search(orgId.toId(), "standalone")
             assertTrue(result.any { it.producerAccountId == producer.producerAccountId })

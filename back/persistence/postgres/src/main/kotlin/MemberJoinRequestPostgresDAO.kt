@@ -52,7 +52,7 @@ internal class MemberJoinRequestPostgresDAO(
         client.dataSource.query { conn ->
             conn
                 .prepareStatement(
-                    "SELECT 1 FROM member_join_request WHERE email = ? AND organization_id = ? AND status = 'PENDING'",
+                    "SELECT 1 FROM member_join_request WHERE lower(email) = lower(?) AND organization_id = ? AND status = 'PENDING'",
                 ).use { stmt ->
                     stmt.setString(1, email)
                     stmt.setString(2, organizationId.id)

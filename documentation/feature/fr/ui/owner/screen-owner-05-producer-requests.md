@@ -124,7 +124,7 @@ Interface réservée aux propriétaires d'instance (*OWNER*) permettant de consu
 
 | Action | Comportement |
 |--------|-------------|
-| [APPROUVER] | Marque la demande comme approuvée ; retour liste avec bandeau succès |
+| [APPROUVER] | Ouvre une confirmation « Approuver la demande ? » (Le compte producteur « {nom} » sera créé et un lien d'activation sera envoyé à {email}. — [Annuler] / [Approuver]) ; après confirmation, marque la demande comme approuvée ; retour liste avec bandeau succès « Demande approuvée : le lien d'activation a été envoyé. » |
 | [REFUSER] | Ouvre le modal de refus |
 | ← Retour | Revient à la liste sans modifier la demande |
 

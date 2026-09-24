@@ -58,6 +58,27 @@ resource "aws_cloudfront_response_headers_policy" "wasm" {
 
 # ─── CloudFront distribution ─────────────────────────────────────────────────
 
+# SPA deep links (e.g. /planning, /activate?token=…) have no file extension:
+# rewrite them to /index.html so go_router can resolve them client-side.
+# index.html itself is uploaded with `Cache-Control: no-cache` so rewritten
+# deep links never serve a stale app shell from the default behavior's cache.
+resource "aws_cloudfront_function" "spa_rewrite" {
+  name    = "${var.name}-spa-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Rewrite extension-less SPA paths to /index.html"
+  publish = true
+  code    = <<-EOT
+    function handler(event) {
+      var request = event.request;
+      var lastSegment = request.uri.substring(request.uri.lastIndexOf('/') + 1);
+      if (lastSegment.indexOf('.') === -1) {
+        request.uri = '/index.html';
+      }
+      return request;
+    }
+  EOT
+}
+
 resource "aws_cloudfront_distribution" "web" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -209,22 +230,16 @@ resource "aws_cloudfront_distribution" "web" {
     viewer_protocol_policy     = "redirect-to-https"
     compress                   = true
     response_headers_policy_id = aws_cloudfront_response_headers_policy.wasm.id
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.spa_rewrite.arn
+    }
   }
 
-  # SPA fallback: 403/404 from S3 → serve index.html
-  custom_error_response {
-    error_code            = 403
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 10
-  }
-
-  custom_error_response {
-    error_code            = 404
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 10
-  }
+  # SPA fallback is done by the `spa_rewrite` viewer-request function on the
+  # default (S3) behavior only. No distribution-wide custom_error_response: it
+  # would also turn API Gateway 404s (unknown /v1/* routes) into index.html 200s.
 
   restrictions {
     geo_restriction {

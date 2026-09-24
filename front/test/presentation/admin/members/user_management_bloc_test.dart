@@ -340,6 +340,55 @@ void main() {
     );
 
     blocTest<UserManagementBloc, UserManagementState>(
+      'submitInvitation rejects blank names and a malformed email like the back',
+      build: buildBloc,
+      seed: () => UserManagementState.loaded(
+        members: _members,
+        inviteFirstName: 'Alice',
+        inviteLastName: 'Smith',
+        inviteEmail: 'alice@example',
+        inviteRoles: const {Role.volunteer},
+      ),
+      act: (bloc) => bloc.add(const UserManagementEvent.submitInvitation()),
+      expect: () => [
+        isA<UserManagementLoaded>().having(
+          (s) => s.inviteError,
+          'inviteError',
+          'Adresse email invalide.',
+        ),
+      ],
+      verify: (_) => verifyNever(
+        () => memberInvitationRepo.create(
+          organizationId: any(named: 'organizationId'),
+          email: any(named: 'email'),
+          firstName: any(named: 'firstName'),
+          lastName: any(named: 'lastName'),
+          roles: any(named: 'roles'),
+        ),
+      ),
+    );
+
+    blocTest<UserManagementBloc, UserManagementState>(
+      'submitInvitation treats whitespace-only names as missing',
+      build: buildBloc,
+      seed: () => UserManagementState.loaded(
+        members: _members,
+        inviteFirstName: '  ',
+        inviteLastName: 'Smith',
+        inviteEmail: 'alice@example.com',
+        inviteRoles: const {Role.volunteer},
+      ),
+      act: (bloc) => bloc.add(const UserManagementEvent.submitInvitation()),
+      expect: () => [
+        isA<UserManagementLoaded>().having(
+          (s) => s.inviteError,
+          'inviteError',
+          'Veuillez remplir tous les champs obligatoires.',
+        ),
+      ],
+    );
+
+    blocTest<UserManagementBloc, UserManagementState>(
       'submitInvitation sets inviteError on API failure',
       setUp: () => when(
         () => memberInvitationRepo.create(

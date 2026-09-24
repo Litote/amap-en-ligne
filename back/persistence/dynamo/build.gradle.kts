@@ -23,6 +23,8 @@ dependencies {
     implementation(libs.aws.dynamodb.mapper)
     implementation(libs.aws.dynamodb.mapper.annotations)
     implementation(libs.aws.smithy.http.client.engine.crt)
+    implementation(libs.aws.http)
+    implementation(libs.aws.crt)
 
     testImplementation(testFixtures(project(":persistence:dao")))
     testImplementation(libs.coroutines)

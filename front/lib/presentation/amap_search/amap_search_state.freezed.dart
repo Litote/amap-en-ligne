@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'amap_search_state.dart';
@@ -9,6 +9,7 @@ part of 'amap_search_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$AmapSearchState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AmapSearchState()';
+    return 'AmapSearchState()';
 }
 
 
@@ -209,7 +210,7 @@ class AmapSearchInitial implements AmapSearchState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchInitial);
 }
 
 
@@ -218,7 +219,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AmapSearchState.initial()';
+    return 'AmapSearchState.initial()';
 }
 
 
@@ -241,7 +242,7 @@ class AmapSearchLoadingOrgs implements AmapSearchState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchLoadingOrgs);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchLoadingOrgs);
 }
 
 
@@ -250,7 +251,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AmapSearchState.loadingOrgs()';
+    return 'AmapSearchState.loadingOrgs()';
 }
 
 
@@ -263,7 +264,7 @@ String toString() {
 
 
 class AmapSearchOrgsLoaded implements AmapSearchState {
-  const AmapSearchOrgsLoaded({required final  List<Organization> orgs, this.selectedOrg, this.searchQuery = ''}): _orgs = orgs;
+  const AmapSearchOrgsLoaded({required  List<Organization> orgs, this.selectedOrg, this.searchQuery = ''}): _orgs = orgs;
   
 
  final  List<Organization> _orgs;
@@ -286,16 +287,18 @@ $AmapSearchOrgsLoadedCopyWith<AmapSearchOrgsLoaded> get copyWith => _$AmapSearch
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchOrgsLoaded&&const DeepCollectionEquality().equals(other._orgs, _orgs)&&(identical(other.selectedOrg, selectedOrg) || other.selectedOrg == selectedOrg)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchOrgsLoaded&&const DeepCollectionEquality().equals(other.orgs, _orgs)&&(identical(other.selectedOrg, selectedOrg) || other.selectedOrg == selectedOrg)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_orgs),selectedOrg,searchQuery);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_orgs),selectedOrg,searchQuery);
+}
 
 @override
 String toString() {
-  return 'AmapSearchState.orgsLoaded(orgs: $orgs, selectedOrg: $selectedOrg, searchQuery: $searchQuery)';
+    return 'AmapSearchState.orgsLoaded(orgs: $orgs, selectedOrg: $selectedOrg, searchQuery: $searchQuery)';
 }
 
 
@@ -366,16 +369,18 @@ $AmapSearchSubmittingCopyWith<AmapSearchSubmitting> get copyWith => _$AmapSearch
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchSubmitting&&(identical(other.org, org) || other.org == org));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchSubmitting&&(identical(other.org, org) || other.org == org));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,org);
+int get hashCode {
+    return Object.hash(runtimeType,org);
+}
 
 @override
 String toString() {
-  return 'AmapSearchState.submitting(org: $org)';
+    return 'AmapSearchState.submitting(org: $org)';
 }
 
 
@@ -442,16 +447,18 @@ $AmapSearchSuccessCopyWith<AmapSearchSuccess> get copyWith => _$AmapSearchSucces
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchSuccess&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.organizationName, organizationName) || other.organizationName == organizationName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchSuccess&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.organizationName, organizationName) || other.organizationName == organizationName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,requestId,organizationName);
+int get hashCode {
+    return Object.hash(runtimeType,requestId,organizationName);
+}
 
 @override
 String toString() {
-  return 'AmapSearchState.success(requestId: $requestId, organizationName: $organizationName)';
+    return 'AmapSearchState.success(requestId: $requestId, organizationName: $organizationName)';
 }
 
 
@@ -510,16 +517,18 @@ $AmapSearchErrorCopyWith<AmapSearchError> get copyWith => _$AmapSearchErrorCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchError&&(identical(other.message, message) || other.message == message)&&(identical(other.selectedOrg, selectedOrg) || other.selectedOrg == selectedOrg));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchError&&(identical(other.message, message) || other.message == message)&&(identical(other.selectedOrg, selectedOrg) || other.selectedOrg == selectedOrg));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,selectedOrg);
+int get hashCode {
+    return Object.hash(runtimeType,message,selectedOrg);
+}
 
 @override
 String toString() {
-  return 'AmapSearchState.error(message: $message, selectedOrg: $selectedOrg)';
+    return 'AmapSearchState.error(message: $message, selectedOrg: $selectedOrg)';
 }
 
 

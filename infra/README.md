@@ -50,12 +50,10 @@ Bootstrap creates:
 - the IAM policy and `amap-en-ligne-deployer` group for subsequent deployments
 - the GitHub Actions **OIDC provider** + the `github-actions-deploy-lambda` role (used by
   the CI deploy — see *Continuous deployment* below; `bootstrap/github_oidc.tf`)
-- a legacy DynamoDB lock table kept only for backward compatibility with older
-  Terraform S3 backend locking setups
 
 ### Before running bootstrap
 
-Bootstrap must be run **once by an AWS admin account** (or a user with broad S3, DynamoDB, and IAM permissions). This is the only moment admin rights are required — subsequent deployments use the restricted policy created by bootstrap.
+Bootstrap must be run **once by an AWS admin account** (or a user with broad S3 and IAM permissions). This is the only moment admin rights are required — subsequent deployments use the restricted policy created by bootstrap.
 
 Checklist before running:
 
@@ -93,9 +91,8 @@ bucket = "amap-en-ligne-tfstate-123456789012"  # ← bootstrap output
 `make init` passes this file to Terraform via `terraform init -backend-config=backend.hcl`
 (partial backend configuration). The rest of the backend settings stay in `backend.tf`.
 
-The root Terraform backend now uses S3 native lockfiles (`use_lockfile = true`).
-The bootstrap DynamoDB lock table remains in place only to ease migration from
-older Terraform setups that still relied on `dynamodb_table`.
+The root Terraform backend uses S3 native lockfiles (`use_lockfile = true`),
+so no DynamoDB lock table is needed.
 
 ---
 
@@ -175,9 +172,17 @@ make plan-prod
 
 | Event | Jobs | Workspace |
 |-------|------|-----------|
-| **Push to `main`** (paths `back/**`, `infra/**`, the workflow) | `build-native` → `terraform-apply` → `deploy-function` | `dev` |
+| **Push to `main`** (paths `back/**`, `infra/**`, the workflow) — called by `ci.yml` (`workflow_call`) **only after its `back`, `front` and `acceptance` test jobs pass** | `build-native` → `terraform-apply` → `deploy-function` | `dev` |
 | **Pull request** | `build-native` → `terraform-plan` (read-only) | `dev` |
 | **Manual** (`workflow_dispatch`) | `build-native` → `terraform-apply` → `deploy-function` | `dev` |
+
+The automatic dev deploys are gated on the tests: `ci.yml` has a `changes` job that diffs
+the push (`github.event.before..github.sha`) to decide which deploy is needed, then calls
+`deploy-lambda.yml` / `deploy-web.yml` with `needs: [back, front, acceptance, changes]` — a
+red test job means no deploy. Manual `workflow_dispatch` runs are **not** gated (they deploy
+the chosen ref as-is). Secrets are passed explicitly by `ci.yml` (no `secrets: inherit`); a
+new secret used by a deploy workflow must be declared under its `on.workflow_call.secrets`
+and passed by the matching `ci.yml` job.
 
 `terraform-apply` and `deploy-function` run in the GitHub **`production` environment**,
 which is restricted by a *deployment branch policy* to `main` — so a deploy can only
@@ -186,7 +191,8 @@ originate from `main`, even via `workflow_dispatch`.
 ### Web deployment (`deploy-web.yml`)
 
 `.github/workflows/deploy-web.yml` publishes the Flutter web build, independently of
-`front-ci.yml` (which only builds + archives an artifact) and of `deploy-lambda.yml`.
+`front-ci.yml` (which only builds + archives an artifact) and of `deploy-lambda.yml`
+(the automatic run is chained after the `ci.yml` tests, see above).
 It builds `flutter build web --wasm`, reads `web_bucket` / `cloudfront_distribution_id`
 from the Terraform outputs (read-only, no apply — same source as the Makefile
 `deploy-web-*` targets), then `aws s3 sync … --delete --exclude "cgu.html"` and a
@@ -194,7 +200,7 @@ CloudFront `create-invalidation`.
 
 | Event | Workspace |
 |-------|-----------|
-| **Push to `main`** (paths `front/**`, the workflow) | `dev` |
+| **Push to `main`** (paths `front/**`, the workflow) — called by `ci.yml` (`workflow_call`) **only after its `back`, `front` and `acceptance` test jobs pass** | `dev` |
 | **Manual** (`workflow_dispatch`, `target: dev \| prod`) | chosen target |
 
 It reuses the same OIDC role and `production` / `prod` environments as the Lambda
@@ -234,6 +240,7 @@ Actions **variables** (`gh variable set …`):
 | `TF_STATE_BUCKET` | `amap-en-ligne-tfstate-<account_id>` | Terraform S3 backend bucket |
 | `AWS_LAMBDA_FUNCTION_NAME` | `amap-en-ligne-dev` | Target of `deploy-function` |
 | `INSTANCE_API_URL` | `https://<id>.cloudfront.net` | Public API base (Cognito callback/logout + discovery). **No trailing slash** |
+| `SES_CREATE_IDENTITY` | `false` (optional, default `true`) | Maps to `var.ses_create_identity`. Set `false` when the sender's domain is already a verified SES domain identity: no address identity is created, so no verification email is sent to a mailbox nobody reads |
 
 Actions **secrets** (`gh secret set …`):
 
@@ -244,7 +251,7 @@ Actions **secrets** (`gh secret set …`):
 | `TF_VAR_COGNITO_CLIENT_ID` | `var.cognito_client_id` | |
 | `TF_VAR_INITIAL_OWNER_EMAIL` | `var.initial_owner_email` | bootstrap owner |
 | `TF_VAR_INITIAL_OWNER_TEMP_PASSWORD` | `var.initial_owner_temp_password` | schema-validated only (≥12 chars, upper/lower/digit); ignored on the existing user via `ignore_changes = [password]` |
-| `TF_VAR_SES_FROM_EMAIL` | `var.ses_from_email` | SES sender identity |
+| `TF_VAR_SES_FROM_EMAIL` | `var.ses_from_email` | SES sender identity — also the FROM of Cognito emails (forgot password, verification codes); empty = Cognito default sender `no-reply@verificationemail.com` (~50 emails/day) |
 
 > **Why all these `TF_VAR_*`?** Several resources use `count = var.x != "" ? 1 : 0`
 > (initial owner, SES identity, discovery server item). If the CI apply does **not**
@@ -436,7 +443,7 @@ needing SnapStart.
 
 ```
 infra/
-├── bootstrap/          ← State bucket + DynamoDB lock (run once)
+├── bootstrap/          ← State bucket + deployer IAM + GitHub OIDC (run once)
 ├── modules/
 │   ├── storage/        ← S3 bucket for the Lambda ZIP (private, encrypted, versioned)
 │   ├── lambda/         ← Lambda + IAM + CloudWatch + alias
@@ -480,11 +487,12 @@ cd infra/bootstrap && terraform apply
 |---------|---------|-------|
 | **STS** | `GetCallerIdentity` | `*` |
 | **S3** | Full bucket + object management (`s3:*`) | Buckets `amap-en-ligne-*` (artifacts, web, tfstate) |
-| **DynamoDB** | CRUD app table (+ GSIs, PITR, TTL) and legacy lock table | Table `amap-en-ligne-tflock` + `data` (+ `/index/*`) |
+| **DynamoDB** | CRUD app table (+ GSIs, PITR, TTL) | Table `data` (+ `/index/*`) |
 | **CloudWatch Logs** | Create/delete log groups, retention | Log groups `/aws/lambda/*` and `/aws/apigateway/*` |
 | **CloudWatch Logs** | `DescribeLogGroups` + log-delivery API (API GW access logs) | `*` (no resource-level support) |
 | **IAM** | Create/manage Lambda roles and policies | `role/*-lambda-role` + `policy/amap-en-ligne-*` |
 | **IAM** | `PassRole` to `lambda.amazonaws.com` | Role `*-lambda-role` |
+| **IAM** | `CreateServiceLinkedRole` (Cognito SES email role, created on first user pool update) | `role/aws-service-role/email.cognito-idp.amazonaws.com/*` |
 | **Lambda** | Create/manage function, versions, aliases, permissions | Functions `amap-en-ligne-*` |
 | **API Gateway v2** | `GET/POST/PUT/PATCH/DELETE` on APIs, sub-resources and tags | `arn:aws:apigateway:*::/apis/*`, `/tags/*` |
 | **Cognito** | User pool, client, resource server, domain, groups, bootstrap admin user | `*` |

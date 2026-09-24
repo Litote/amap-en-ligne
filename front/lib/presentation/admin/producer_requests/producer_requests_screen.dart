@@ -1,13 +1,16 @@
 import 'package:amap_en_ligne/data/repositories/producer_request_repository.dart';
 import 'package:amap_en_ligne/domain/model/admin_producer_request.dart';
+import 'package:amap_en_ligne/presentation/admin/approve_confirmation_dialog.dart';
 import 'package:amap_en_ligne/presentation/admin/producer_requests/producer_requests_bloc.dart';
 import 'package:amap_en_ligne/presentation/admin/producer_requests/producer_requests_event.dart';
 import 'package:amap_en_ligne/presentation/admin/producer_requests/producer_requests_state.dart';
+import 'package:amap_en_ligne/presentation/common/instant_format.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_status_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class ProducerRequestsScreen extends StatelessWidget {
   const ProducerRequestsScreen({super.key, this.initialRequest});
@@ -40,6 +43,22 @@ class _ProducerRequestsView extends StatefulWidget {
 class _ProducerRequestsViewState extends State<_ProducerRequestsView> {
   AdminProducerRequest? _selectedRequest;
 
+  /// Success message of the action in flight, shown once it completes.
+  String? _pendingSuccessMessage;
+
+  /// Opened from a request tile of the tabbed "Demandes d'organisation"
+  /// screen: leaving the detail returns there (Producteurs tab) instead of
+  /// this standalone list, which has no AMAP tab.
+  bool get _openedFromTabbedScreen => widget.initialRequest != null;
+
+  void _closeDetail() {
+    if (_openedFromTabbedScreen) {
+      context.go('/admin/organization-requests?tab=producers');
+    } else {
+      setState(() => _selectedRequest = null);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -59,14 +78,21 @@ class _ProducerRequestsViewState extends State<_ProducerRequestsView> {
         return previous.actionInProgress && !current.actionInProgress;
       },
       listener: (context, state) {
+        final successMessage = _pendingSuccessMessage;
+        _pendingSuccessMessage = null;
         if (state is ProducerRequestsLoaded && state.actionError != null) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.actionError!)));
           return;
         }
-        // Success: close detail view if open.
-        setState(() => _selectedRequest = null);
+        // Success: confirm the outcome, then close the detail view.
+        if (successMessage != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(successMessage)));
+        }
+        _closeDetail();
       },
       builder: (context, state) => switch (state) {
         ProducerRequestsInitial() || ProducerRequestsLoading() => const Center(
@@ -110,23 +136,32 @@ class _ProducerRequestsViewState extends State<_ProducerRequestsView> {
         request: updated ?? _selectedRequest!,
         actionInProgress: actionInProgress,
         actionError: actionError,
-        onBack: () => setState(() => _selectedRequest = null),
-        onApprove: () => context.read<ProducerRequestsBloc>().add(
-          ProducerRequestsEvent.approveRequested(
-            request: updated ?? _selectedRequest!,
-          ),
-        ),
-        onReject: (comment) => context.read<ProducerRequestsBloc>().add(
-          ProducerRequestsEvent.rejectRequested(
-            request: updated ?? _selectedRequest!,
-            reviewComment: comment,
-          ),
-        ),
-        onResend: () => context.read<ProducerRequestsBloc>().add(
-          ProducerRequestsEvent.resendRequested(
-            request: updated ?? _selectedRequest!,
-          ),
-        ),
+        onBack: _closeDetail,
+        onApprove: () {
+          _pendingSuccessMessage = kApprovalSuccessMessage;
+          context.read<ProducerRequestsBloc>().add(
+            ProducerRequestsEvent.approveRequested(
+              request: updated ?? _selectedRequest!,
+            ),
+          );
+        },
+        onReject: (comment) {
+          _pendingSuccessMessage = kRejectionSuccessMessage;
+          context.read<ProducerRequestsBloc>().add(
+            ProducerRequestsEvent.rejectRequested(
+              request: updated ?? _selectedRequest!,
+              reviewComment: comment,
+            ),
+          );
+        },
+        onResend: () {
+          _pendingSuccessMessage = kResendSuccessMessage;
+          context.read<ProducerRequestsBloc>().add(
+            ProducerRequestsEvent.resendRequested(
+              request: updated ?? _selectedRequest!,
+            ),
+          );
+        },
       );
     }
 
@@ -313,7 +348,10 @@ class _DetailView extends StatelessWidget {
                     value: '${request.adminFirstName} ${request.adminLastName}',
                   ),
                   _InfoRow(label: 'Email', value: request.adminEmail),
-                  _InfoRow(label: 'Soumise le', value: request.submittedAt),
+                  _InfoRow(
+                    label: 'Soumise le',
+                    value: formatInstantFr(request.submittedAt),
+                  ),
                   if (request.reviewedAt != null)
                     _InfoRow(label: 'Traitée le', value: request.reviewedAt!),
                   if (request.submitterComment != null)
@@ -346,7 +384,7 @@ class _DetailView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: FilledButton(
-                      onPressed: onApprove,
+                      onPressed: () => _confirmApprove(context),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),
@@ -381,6 +419,16 @@ class _DetailView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmApprove(BuildContext context) async {
+    final confirmed = await confirmApproval(
+      context,
+      message:
+          'Le compte producteur « ${request.producerName} » sera créé et un '
+          "lien d'activation sera envoyé à ${request.adminEmail}.",
+    );
+    if (confirmed) onApprove();
   }
 
   Future<void> _showRejectDialog(BuildContext context) async {

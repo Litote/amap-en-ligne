@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'forgot_password_view_state.dart';
@@ -9,6 +9,7 @@ part of 'forgot_password_view_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $ForgotPasswordViewStateCopyWith<ForgotPasswordViewState> get copyWith => _$Forg
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordViewState&&(identical(other.codeSent, codeSent) || other.codeSent == codeSent)&&(identical(other.submitting, submitting) || other.submitting == submitting)&&(identical(other.success, success) || other.success == success)&&(identical(other.email, email) || other.email == email)&&(identical(other.lastError, lastError) || other.lastError == lastError));
+  final _this = this as ForgotPasswordViewState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordViewState&&(identical(other.codeSent, _this.codeSent) || other.codeSent == _this.codeSent)&&(identical(other.submitting, _this.submitting) || other.submitting == _this.submitting)&&(identical(other.success, _this.success) || other.success == _this.success)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.lastError, _this.lastError) || other.lastError == _this.lastError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,codeSent,submitting,success,email,lastError);
+int get hashCode {
+  final _this = this as ForgotPasswordViewState;
+  return Object.hash(runtimeType,_this.codeSent,_this.submitting,_this.success,_this.email,_this.lastError);
+}
 
 @override
 String toString() {
-  return 'ForgotPasswordViewState(codeSent: $codeSent, submitting: $submitting, success: $success, email: $email, lastError: $lastError)';
+  final _this = this as ForgotPasswordViewState;
+  return 'ForgotPasswordViewState(codeSent: ${_this.codeSent}, submitting: ${_this.submitting}, success: ${_this.success}, email: ${_this.email}, lastError: ${_this.lastError})';
 }
 
 
@@ -63,7 +69,7 @@ class _$ForgotPasswordViewStateCopyWithImpl<$Res>
 /// Create a copy of ForgotPasswordViewState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? codeSent = null,Object? submitting = null,Object? success = null,Object? email = freezed,Object? lastError = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(ForgotPasswordViewState(
 codeSent: null == codeSent ? _self.codeSent : codeSent // ignore: cast_nullable_to_non_nullable
 as bool,submitting: null == submitting ? _self.submitting : submitting // ignore: cast_nullable_to_non_nullable
 as bool,success: null == success ? _self.success : success // ignore: cast_nullable_to_non_nullable
@@ -229,16 +235,18 @@ _$ForgotPasswordViewStateCopyWith<_ForgotPasswordViewState> get copyWith => __$F
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ForgotPasswordViewState&&(identical(other.codeSent, codeSent) || other.codeSent == codeSent)&&(identical(other.submitting, submitting) || other.submitting == submitting)&&(identical(other.success, success) || other.success == success)&&(identical(other.email, email) || other.email == email)&&(identical(other.lastError, lastError) || other.lastError == lastError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ForgotPasswordViewState&&(identical(other.codeSent, codeSent) || other.codeSent == codeSent)&&(identical(other.submitting, submitting) || other.submitting == submitting)&&(identical(other.success, success) || other.success == success)&&(identical(other.email, email) || other.email == email)&&(identical(other.lastError, lastError) || other.lastError == lastError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,codeSent,submitting,success,email,lastError);
+int get hashCode {
+    return Object.hash(runtimeType,codeSent,submitting,success,email,lastError);
+}
 
 @override
 String toString() {
-  return 'ForgotPasswordViewState(codeSent: $codeSent, submitting: $submitting, success: $success, email: $email, lastError: $lastError)';
+    return 'ForgotPasswordViewState(codeSent: $codeSent, submitting: $submitting, success: $success, email: $email, lastError: $lastError)';
 }
 
 

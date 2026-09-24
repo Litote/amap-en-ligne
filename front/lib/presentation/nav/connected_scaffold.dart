@@ -12,6 +12,9 @@ const _desktopBreakpoint = 1024.0;
 /// On screens narrower than [_desktopBreakpoint] the AppBar shows a hamburger
 /// icon that dispatches [NavEvent.opened] to the nearest [NavBloc]. On wider
 /// screens the sidebar is always visible, so the hamburger is omitted.
+///
+/// Sub-screens (forms, wizard steps) pass [onBack]: the AppBar then shows a
+/// back button instead of the hamburger, on every screen size.
 class ConnectedScaffold extends StatelessWidget {
   const ConnectedScaffold({
     super.key,
@@ -19,12 +22,16 @@ class ConnectedScaffold extends StatelessWidget {
     required this.body,
     this.actions,
     this.floatingActionButton,
+    this.onBack,
   });
 
   final String title;
   final Widget body;
   final List<Widget>? actions;
   final Widget? floatingActionButton;
+
+  /// When set, replaces the navigation-menu button with a back button.
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -33,7 +40,9 @@ class ConnectedScaffold extends StatelessWidget {
       return Scaffold(
         appBar: AppBar(
           title: Text(title),
-          leading: isDesktop
+          leading: onBack != null
+              ? BackButton(onPressed: onBack)
+              : isDesktop
               ? null
               : Semantics(
                   button: true,
@@ -49,7 +58,7 @@ class ConnectedScaffold extends StatelessWidget {
                         context.read<NavBloc>().add(const NavEvent.opened()),
                   ),
                 ),
-          automaticallyImplyLeading: !isDesktop,
+          automaticallyImplyLeading: onBack != null || !isDesktop,
           actions: actions,
         ),
         body: body,

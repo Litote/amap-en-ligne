@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'producer_creation_request.dart';
@@ -9,6 +9,7 @@ part of 'producer_creation_request.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $ProducerCreationRequestCopyWith<ProducerCreationRequest> get copyWith => _$Prod
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerCreationRequest&&(identical(other.producerName, producerName) || other.producerName == producerName)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment));
+  final _this = this as ProducerCreationRequest;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerCreationRequest&&(identical(other.producerName, _this.producerName) || other.producerName == _this.producerName)&&(identical(other.adminFirstName, _this.adminFirstName) || other.adminFirstName == _this.adminFirstName)&&(identical(other.adminLastName, _this.adminLastName) || other.adminLastName == _this.adminLastName)&&(identical(other.adminEmail, _this.adminEmail) || other.adminEmail == _this.adminEmail)&&(identical(other.submitterComment, _this.submitterComment) || other.submitterComment == _this.submitterComment));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,producerName,adminFirstName,adminLastName,adminEmail,submitterComment);
+int get hashCode {
+  final _this = this as ProducerCreationRequest;
+  return Object.hash(runtimeType,_this.producerName,_this.adminFirstName,_this.adminLastName,_this.adminEmail,_this.submitterComment);
+}
 
 @override
 String toString() {
-  return 'ProducerCreationRequest(producerName: $producerName, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, submitterComment: $submitterComment)';
+  final _this = this as ProducerCreationRequest;
+  return 'ProducerCreationRequest(producerName: ${_this.producerName}, adminFirstName: ${_this.adminFirstName}, adminLastName: ${_this.adminLastName}, adminEmail: ${_this.adminEmail}, submitterComment: ${_this.submitterComment})';
 }
 
 
@@ -66,7 +72,7 @@ class _$ProducerCreationRequestCopyWithImpl<$Res>
 /// Create a copy of ProducerCreationRequest
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? producerName = null,Object? adminFirstName = null,Object? adminLastName = null,Object? adminEmail = null,Object? submitterComment = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(ProducerCreationRequest(
 producerName: null == producerName ? _self.producerName : producerName // ignore: cast_nullable_to_non_nullable
 as String,adminFirstName: null == adminFirstName ? _self.adminFirstName : adminFirstName // ignore: cast_nullable_to_non_nullable
 as String,adminLastName: null == adminLastName ? _self.adminLastName : adminLastName // ignore: cast_nullable_to_non_nullable
@@ -235,16 +241,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerCreationRequest&&(identical(other.producerName, producerName) || other.producerName == producerName)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerCreationRequest&&(identical(other.producerName, producerName) || other.producerName == producerName)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,producerName,adminFirstName,adminLastName,adminEmail,submitterComment);
+int get hashCode {
+    return Object.hash(runtimeType,producerName,adminFirstName,adminLastName,adminEmail,submitterComment);
+}
 
 @override
 String toString() {
-  return 'ProducerCreationRequest(producerName: $producerName, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, submitterComment: $submitterComment)';
+    return 'ProducerCreationRequest(producerName: $producerName, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, submitterComment: $submitterComment)';
 }
 
 

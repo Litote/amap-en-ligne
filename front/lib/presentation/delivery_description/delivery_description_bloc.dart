@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:amap_en_ligne/data/id_generator.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/data/repositories/product_type_repository.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
@@ -21,11 +22,13 @@ class DeliveryDescriptionBloc
     on<DeliveryDescriptionRequested>(_onRequested);
     on<ItemToggled>(_onItemToggled);
     on<WeightChanged>(_onWeightChanged);
+    on<FreeItemAdded>(_onFreeItemAdded);
     on<DeliveryDescriptionSaveRequested>(_onSaveRequested);
   }
 
   final OrganizationRepository _orgRepository;
   final ProductTypeRepository _productTypeRepository;
+  final _idGenerator = IdGenerator();
 
   Future<void> _onRequested(
     DeliveryDescriptionRequested event,
@@ -36,13 +39,16 @@ class DeliveryDescriptionBloc
         (d) => d.deliveryId == event.deliveryId,
       );
 
-      // Derive tenant id from the organization's products (first available
-      // producerAccountId), falling back to empty string when no products exist.
-      final tenantId = event.org.products.isNotEmpty
-          ? event.org.products.first.producerAccountId
-          : '';
-
-      final productTypes = await _productTypeRepository.watch(tenantId).first;
+      // Component catalogs of every producer of the organization (synced
+      // read-only on the organization scope); a producer without an account
+      // has none — its components are then typed freely.
+      final producerIds = {
+        for (final product in event.org.products) product.producerAccountId,
+      };
+      final productTypes = <ProductType>[
+        for (final producerId in producerIds)
+          ...await _productTypeRepository.watch(producerId).first,
+      ];
 
       emit(
         DeliveryDescriptionState.loaded(
@@ -179,6 +185,44 @@ class DeliveryDescriptionBloc
       return desc.copyWith(items: newItems);
     }).toList();
 
+    emit(current.copyWith(localDescriptions: descriptions));
+  }
+
+  void _onFreeItemAdded(
+    FreeItemAdded event,
+    Emitter<DeliveryDescriptionState> emit,
+  ) {
+    final current = state;
+    if (current is! DeliveryDescriptionLoaded) return;
+    // Local, non-`tmp_` id: a free component has no catalog entry (no icon);
+    // members read its name snapshot.
+    final item = DeliveryItem(
+      itemTypeId: 'free-${_idGenerator.next()}',
+      name: event.name.trim(),
+      weight: event.weight?.trim().isEmpty ?? true
+          ? null
+          : event.weight!.trim(),
+    );
+    final descriptions = List<BasketDeliveryDescription>.from(
+      current.localDescriptions,
+    );
+    final descIndex = descriptions.indexWhere(
+      (d) =>
+          d.productTypeId == event.productTypeId &&
+          d.basketSizeName == event.basketSizeName,
+    );
+    if (descIndex == -1) {
+      descriptions.add(
+        BasketDeliveryDescription(
+          productTypeId: event.productTypeId,
+          basketSizeName: event.basketSizeName,
+          items: [item],
+        ),
+      );
+    } else {
+      final desc = descriptions[descIndex];
+      descriptions[descIndex] = desc.copyWith(items: [...desc.items, item]);
+    }
     emit(current.copyWith(localDescriptions: descriptions));
   }
 

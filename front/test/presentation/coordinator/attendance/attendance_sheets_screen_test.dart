@@ -6,6 +6,7 @@ import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/model/basket_exchange.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/coordinator/attendance/attendance_sheets_screen.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
@@ -173,6 +174,26 @@ void main() {
     );
   });
 
+  testWidgets('a malformed address is rejected before sending', (tester) async {
+    await pumpAndSelectDelivery(tester);
+
+    await tester.tap(find.text('Envoyer email'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'pas-un-email');
+    await tester.tap(find.text('Envoyer'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(kInvalidEmailMessage), findsOneWidget);
+    expect(find.text('Envoyer par email'), findsOneWidget);
+    verifyNever(
+      () => attendanceRepo.create(
+        organizationId: any(named: 'organizationId'),
+        deliveryId: any(named: 'deliveryId'),
+        recipientEmail: any(named: 'recipientEmail'),
+      ),
+    );
+  });
+
   testWidgets('sending the email creates the request and triggers a sync', (
     tester,
   ) async {
@@ -205,5 +226,32 @@ void main() {
     // Let the snackbar auto-dismiss so no timer is left pending.
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
+  });
+
+  test('names the PDF after the delivery date, not its technical id', () {
+    final delivery = buildDelivery(
+      deliveryId: 'tmp_delivery_1',
+      scheduledDate: '2026-10-01T18:00:00',
+    );
+
+    expect(attendanceSheetFilename(delivery), 'emargement-2026-10-01.pdf');
+  });
+
+  group('PDF titles', () {
+    final delivery = buildDelivery(scheduledDate: '2026-10-01T18:00:00');
+
+    test('volunteer sheet shows a French date, not the raw ISO instant', () {
+      expect(
+        attendanceVolunteerSheetTitle(delivery),
+        'Émargement bénévoles - 1 octobre 2026',
+      );
+    });
+
+    test('basket sheet avoids glyphs missing from the default PDF font', () {
+      expect(
+        attendanceBasketSheetTitle('Oeufs — Boîte de 12', delivery),
+        'Récupération paniers - Oeufs - Boîte de 12 - 1 octobre 2026',
+      );
+    });
   });
 }

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+/// Formats a stored price for the editor field: always two decimals
+/// ("3.50", not "3.5"), empty when unset.
+String formatPriceForInput(num? price) => price?.toStringAsFixed(2) ?? '';
+
 /// One row in the price section of the contract editor: a text field for the
 /// price of a single basket size (or the overall price when sizes are not used).
 class ContractPriceRow extends StatelessWidget {
@@ -39,6 +43,7 @@ class ContractPriceRow extends StatelessWidget {
               ),
               decoration: const InputDecoration(
                 hintText: 'Prix (€)',
+                suffixText: '€',
                 isDense: true,
               ),
             ),

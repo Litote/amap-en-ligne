@@ -1,5 +1,13 @@
+import 'dart:async';
+
 import 'package:amap_en_ligne/domain/auth/user_role.dart';
+import 'package:amap_en_ligne/presentation/auth/auth_bloc.dart';
+import 'package:amap_en_ligne/presentation/auth/auth_event.dart';
+import 'package:amap_en_ligne/presentation/auth/auth_view_state.dart';
 import 'package:amap_en_ligne/presentation/router.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -431,4 +439,101 @@ void main() {
       expect(decodeEmailQueryParam(Uri.parse('/login?')), isNull);
     });
   });
+
+  group('tenantOf', () {
+    test('a producer uses its resolved account id, never an organization', () {
+      expect(
+        tenantOf(
+          const AuthViewState(
+            role: UserRole.producer,
+            producerId: 'sub',
+            producerAccountId: 'pa-1',
+            organizationId: 'stale-org',
+          ),
+        ),
+        'pa-1',
+      );
+    });
+
+    test('a member uses the resolved organization, the sub until then', () {
+      expect(
+        tenantOf(
+          const AuthViewState(
+            role: UserRole.admin,
+            producerId: 'sub',
+            organizationId: 'org-1',
+          ),
+        ),
+        'org-1',
+      );
+      expect(
+        tenantOf(const AuthViewState(role: UserRole.admin, producerId: 'sub')),
+        'sub',
+      );
+    });
+  });
+
+  group('tenantScoped', () {
+    // Cognito access tokens carry no tenant claim: after a page reload the
+    // tenant is the user's `sub` until AuthBloc resolves the real one. The
+    // screen must then be rebuilt from scratch — by listening to AuthBloc
+    // itself, since go_router does not re-run an on-screen page's builder.
+    testWidgets(
+      'remounts the screen when the resolved tenant changes and keeps it '
+      'otherwise',
+      (tester) async {
+        final authBloc = _MockAuthBloc();
+        final states = StreamController<AuthViewState>();
+        const initial = AuthViewState(role: UserRole.admin, producerId: 'sub');
+        whenListen(authBloc, states.stream, initialState: initial);
+        final mountedFor = <String>[];
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: BlocProvider<AuthBloc>.value(
+              value: authBloc,
+              child: tenantScoped(
+                (tenantId) =>
+                    _MountProbe(tenantId: tenantId, onMount: mountedFor.add),
+              ),
+            ),
+          ),
+        );
+        states.add(initial.copyWith(firstName: 'Alice'));
+        await tester.pump();
+        expect(mountedFor, ['sub']);
+
+        states.add(initial.copyWith(organizationId: 'org-1'));
+        await tester.pump();
+        expect(mountedFor, ['sub', 'org-1']);
+
+        await states.close();
+      },
+    );
+  });
+}
+
+class _MockAuthBloc extends MockBloc<AuthEvent, AuthViewState>
+    implements AuthBloc {}
+
+class _MountProbe extends StatefulWidget {
+  const _MountProbe({required this.tenantId, required this.onMount});
+
+  final String tenantId;
+  final void Function(String tenantId) onMount;
+
+  @override
+  State<_MountProbe> createState() => _MountProbeState();
+}
+
+class _MountProbeState extends State<_MountProbe> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onMount(widget.tenantId);
+  }
+
+  @override
+  Widget build(BuildContext context) => Text(widget.tenantId);
 }

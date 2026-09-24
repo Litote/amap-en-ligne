@@ -47,10 +47,8 @@ abstract class AuthTokenStorage {
   Future<void> clear();
 }
 
-/// Legacy plain-text mobile storage. Kept only to support the one-time
-/// migration path that moves existing sessions into [FlutterSecureStorage].
-/// Web still uses it for its own legacy migration from pre-browser-storage
-/// sessions.
+/// Legacy plain-text mobile storage. Kept for direct use in cross-component
+/// E2E tests that need to inject sessions without going through secure storage.
 class SharedPreferencesAuthTokenStorage implements AuthTokenStorage {
   SharedPreferencesAuthTokenStorage({required this.prefs});
 
@@ -114,17 +112,12 @@ class _NoopSecureStorageBackend implements SecureStorageBackend {
 /// Selects the right persistence strategy at runtime:
 ///
 /// * **Mobile (non-web):** [FlutterSecureStorage] — Keychain (iOS) or
-///   EncryptedSharedPreferences (Android). On first read after upgrading from
-///   a pre-secure-storage build, any session found in plain SharedPreferences
-///   under the legacy key is automatically migrated and the old entry cleared.
+///   EncryptedSharedPreferences (Android).
 ///
 /// * **Web:** `sessionStorage` for temporary sessions (default) or
-///   `localStorage` for durable sessions (remember-me). A one-time migration
-///   moves sessions that were written to SharedPreferences before the
-///   browser-storage split.
+///   `localStorage` for durable sessions (remember-me).
 class AdaptiveAuthTokenStorage implements AuthTokenStorage {
   AdaptiveAuthTokenStorage({
-    required this.prefs,
     required this.isWeb,
     SecureStorageBackend? secureStorage,
     BrowserStorageBackend? sessionStorage,
@@ -134,21 +127,17 @@ class AdaptiveAuthTokenStorage implements AuthTokenStorage {
            (isWeb
                ? const _NoopSecureStorageBackend()
                : const _FlutterSecureStorageBackend(FlutterSecureStorage())),
-       _prefsStorage = SharedPreferencesAuthTokenStorage(prefs: prefs),
        _sessionStorage = sessionStorage ?? createSessionBrowserStorageBackend(),
        _localStorage = localStorage ?? createLocalBrowserStorageBackend();
 
-  // Shared by both mobile secure storage and the legacy SharedPreferences key
-  // so that migration reads the same slot name from the old store.
+  // Shared key name for mobile secure storage.
   static const _mobileStorageKey = 'auth.session.v1';
 
   static const _webSessionStorageKey = 'auth.session.session.v1';
   static const _webLocalStorageKey = 'auth.session.local.v1';
 
-  final SharedPreferences prefs;
   final bool isWeb;
   final SecureStorageBackend _secureStorage;
-  final SharedPreferencesAuthTokenStorage _prefsStorage;
   final BrowserStorageBackend _sessionStorage;
   final BrowserStorageBackend _localStorage;
 
@@ -157,21 +146,9 @@ class AdaptiveAuthTokenStorage implements AuthTokenStorage {
   @override
   Future<StoredSession?> read() async {
     if (!isWeb) {
-      // Normal path: read from secure storage.
       final secureRaw = await _secureStorage.read(_mobileStorageKey);
       if (secureRaw != null) return _decode(secureRaw);
-
-      // One-time migration: existing sessions written to plain SharedPreferences
-      // by earlier builds are transparently moved into secure storage so users
-      // are not logged out after the upgrade.
-      final legacy = await _prefsStorage.read();
-      if (legacy == null) return null;
-      await _secureStorage.write(
-        _mobileStorageKey,
-        jsonEncode(legacy.toJson()),
-      );
-      await _prefsStorage.clear();
-      return legacy;
+      return null;
     }
 
     // Web: try sessionStorage (temporary) then localStorage (durable).
@@ -187,13 +164,7 @@ class AdaptiveAuthTokenStorage implements AuthTokenStorage {
       return _decode(localRaw);
     }
 
-    // Web legacy migration from SharedPreferences (pre-browser-storage builds).
-    final legacy = await _prefsStorage.read();
-    if (legacy == null) return null;
-    _lastWriteDurable = true;
-    await write(legacy, durable: true);
-    await _prefsStorage.clear();
-    return legacy;
+    return null;
   }
 
   @override
@@ -217,24 +188,18 @@ class AdaptiveAuthTokenStorage implements AuthTokenStorage {
       _sessionStorage.setItem(_webSessionStorageKey, encoded);
       _localStorage.removeItem(_webLocalStorageKey);
     }
-
-    await _prefsStorage.clear();
   }
 
   @override
   Future<void> clear() async {
     if (!isWeb) {
       await _secureStorage.delete(_mobileStorageKey);
-      // Belt-and-suspenders: also clear any leftover legacy SharedPreferences
-      // entry that pre-dates the secure-storage migration.
-      await _prefsStorage.clear();
       return;
     }
 
     _lastWriteDurable = null;
     _sessionStorage.removeItem(_webSessionStorageKey);
     _localStorage.removeItem(_webLocalStorageKey);
-    await _prefsStorage.clear();
   }
 
   StoredSession _decode(String raw) {

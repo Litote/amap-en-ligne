@@ -67,6 +67,10 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
   bool _didInitializeDefaultTemplate = false;
   bool _saving = false;
 
+  /// Set on the first save attempt: from then on the form revalidates live so
+  /// "Champ requis." disappears as soon as a field gets a value.
+  bool _submitAttempted = false;
+
   @override
   void initState() {
     super.initState();
@@ -132,6 +136,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
   }
 
   Future<void> _save(Organization organization) async {
+    if (!_submitAttempted) setState(() => _submitAttempted = true);
     if (!_formKey.currentState!.validate()) return;
 
     final earlySlot = _buildEarlySlot();
@@ -191,7 +196,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
     );
     if (picked == null) return;
     setState(() => _standardStartTime = picked);
-    _formKey.currentState?.validate();
+    _revalidateAfterRebuild();
   }
 
   Future<void> _pickVolunteerArrivalTime() async {
@@ -204,7 +209,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
     );
     if (picked == null) return;
     setState(() => _volunteerArrivalTime = picked);
-    _formKey.currentState?.validate();
+    _revalidateAfterRebuild();
   }
 
   Future<void> _pickStandardEndTime() async {
@@ -214,7 +219,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
     );
     if (picked == null) return;
     setState(() => _standardEndTime = picked);
-    _formKey.currentState?.validate();
+    _revalidateAfterRebuild();
   }
 
   Future<void> _pickEarlyArrivalTime() async {
@@ -224,7 +229,15 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
     );
     if (picked == null) return;
     setState(() => _earlyArrivalTime = picked);
-    _formKey.currentState?.validate();
+    _revalidateAfterRebuild();
+  }
+
+  /// Time-field validators read the picked value from widget params, so they
+  /// must run after the rebuild triggered by the pick's `setState`.
+  void _revalidateAfterRebuild() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _formKey.currentState?.validate();
+    });
   }
 
   String? _validateRequired(String? v) =>
@@ -253,7 +266,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
       _maxVolunteersController.text = _defaultEarlySlotMaxVolunteers.toString();
     }
     setState(() => _hasEarlySlot = value);
-    _formKey.currentState?.validate();
+    _revalidateAfterRebuild();
   }
 
   List<Widget> _earlySlotFields() => [
@@ -289,11 +302,36 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
     ),
   ];
 
+  void _goBack() => context.canPop()
+      ? context.pop()
+      : context.go('/admin/delivery-templates');
+
+  void _initDefaultTemplateOnce(Organization organization) {
+    if (_didInitializeDefaultTemplate) return;
+    final template = widget.template;
+    _isDefaultTemplate =
+        template != null &&
+        organization.defaultDeliveryTemplateId == template.deliveryTemplateId;
+    _didInitializeDefaultTemplate = true;
+  }
+
+  Widget _saveButtonLabel({required bool isEdit}) {
+    if (_saving) {
+      return const SizedBox(
+        height: 18,
+        width: 18,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+    return Text(isEdit ? 'Enregistrer' : 'Créer');
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.template != null;
     return ConnectedScaffold(
-      title: isEdit ? 'Modifier le modèle' : 'Nouveau modèle',
+      title: isEdit ? 'Modifier le template' : 'Nouveau template',
+      onBack: _goBack,
       body: StreamBuilder<Organization?>(
         stream: context.read<OrganizationRepository>().watch(
           widget.organizationId,
@@ -303,22 +341,19 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
           if (organization == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (!_didInitializeDefaultTemplate) {
-            _isDefaultTemplate =
-                widget.template != null &&
-                organization.defaultDeliveryTemplateId ==
-                    widget.template!.deliveryTemplateId;
-            _didInitializeDefaultTemplate = true;
-          }
+          _initDefaultTemplateOnce(organization);
           return Form(
             key: _formKey,
+            autovalidateMode: _submitAttempted
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Nom du modèle',
+                    labelText: 'Nom du template',
                     hintText: 'Ex. Livraison standard',
                   ),
                   validator: _validateRequired,
@@ -363,7 +398,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
                 ),
                 const SizedBox(height: 24),
                 SwitchListTile(
-                  title: const Text('Modèle par défaut'),
+                  title: const Text('Définir comme template par défaut'),
                   value: _isDefaultTemplate,
                   onChanged: (value) =>
                       setState(() => _isDefaultTemplate = value),
@@ -380,13 +415,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
                 const SizedBox(height: 32),
                 FilledButton(
                   onPressed: _saving ? null : () => _save(organization),
-                  child: _saving
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(isEdit ? 'Enregistrer' : 'Créer'),
+                  child: _saveButtonLabel(isEdit: isEdit),
                 ),
               ],
             ),

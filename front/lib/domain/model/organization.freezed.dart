@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'organization.dart';
@@ -9,14 +9,14 @@ part of 'organization.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$MemberRegistration {
 
-@JsonKey(name: 'member_id') String get memberId;@JsonKey(name: 'display_name') String get displayName;@JsonKey(name: 'member_email') String get memberEmail;// ISO-8601 instant string, e.g. "2026-05-26T12:00:00Z".
-@JsonKey(name: 'registration_instant') String get registrationInstant; RegistrationStatus get status;
+@JsonKey(name: 'member_id') String get memberId;@JsonKey(name: 'display_name') String get displayName;@JsonKey(name: 'member_email') String get memberEmail;@JsonKey(name: 'registration_instant') String get registrationInstant; RegistrationStatus get status;
 /// Create a copy of MemberRegistration
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +29,21 @@ $MemberRegistrationCopyWith<MemberRegistration> get copyWith => _$MemberRegistra
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberRegistration&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.memberEmail, memberEmail) || other.memberEmail == memberEmail)&&(identical(other.registrationInstant, registrationInstant) || other.registrationInstant == registrationInstant)&&(identical(other.status, status) || other.status == status));
+  final _this = this as MemberRegistration;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberRegistration&&(identical(other.memberId, _this.memberId) || other.memberId == _this.memberId)&&(identical(other.displayName, _this.displayName) || other.displayName == _this.displayName)&&(identical(other.memberEmail, _this.memberEmail) || other.memberEmail == _this.memberEmail)&&(identical(other.registrationInstant, _this.registrationInstant) || other.registrationInstant == _this.registrationInstant)&&(identical(other.status, _this.status) || other.status == _this.status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,memberId,displayName,memberEmail,registrationInstant,status);
+int get hashCode {
+  final _this = this as MemberRegistration;
+  return Object.hash(runtimeType,_this.memberId,_this.displayName,_this.memberEmail,_this.registrationInstant,_this.status);
+}
 
 @override
 String toString() {
-  return 'MemberRegistration(memberId: $memberId, displayName: $displayName, memberEmail: $memberEmail, registrationInstant: $registrationInstant, status: $status)';
+  final _this = this as MemberRegistration;
+  return 'MemberRegistration(memberId: ${_this.memberId}, displayName: ${_this.displayName}, memberEmail: ${_this.memberEmail}, registrationInstant: ${_this.registrationInstant}, status: ${_this.status})';
 }
 
 
@@ -67,7 +72,7 @@ class _$MemberRegistrationCopyWithImpl<$Res>
 /// Create a copy of MemberRegistration
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? memberId = null,Object? displayName = null,Object? memberEmail = null,Object? registrationInstant = null,Object? status = null,}) {
-  return _then(_self.copyWith(
+  return _then(MemberRegistration(
 memberId: null == memberId ? _self.memberId : memberId // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,memberEmail: null == memberEmail ? _self.memberEmail : memberEmail // ignore: cast_nullable_to_non_nullable
@@ -220,7 +225,6 @@ class _MemberRegistration implements MemberRegistration {
 @override@JsonKey(name: 'member_id') final  String memberId;
 @override@JsonKey(name: 'display_name') final  String displayName;
 @override@JsonKey(name: 'member_email') final  String memberEmail;
-// ISO-8601 instant string, e.g. "2026-05-26T12:00:00Z".
 @override@JsonKey(name: 'registration_instant') final  String registrationInstant;
 @override final  RegistrationStatus status;
 
@@ -237,16 +241,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberRegistration&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.memberEmail, memberEmail) || other.memberEmail == memberEmail)&&(identical(other.registrationInstant, registrationInstant) || other.registrationInstant == registrationInstant)&&(identical(other.status, status) || other.status == status));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberRegistration&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.memberEmail, memberEmail) || other.memberEmail == memberEmail)&&(identical(other.registrationInstant, registrationInstant) || other.registrationInstant == registrationInstant)&&(identical(other.status, status) || other.status == status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,memberId,displayName,memberEmail,registrationInstant,status);
+int get hashCode {
+    return Object.hash(runtimeType,memberId,displayName,memberEmail,registrationInstant,status);
+}
 
 @override
 String toString() {
-  return 'MemberRegistration(memberId: $memberId, displayName: $displayName, memberEmail: $memberEmail, registrationInstant: $registrationInstant, status: $status)';
+    return 'MemberRegistration(memberId: $memberId, displayName: $displayName, memberEmail: $memberEmail, registrationInstant: $registrationInstant, status: $status)';
 }
 
 
@@ -294,8 +300,7 @@ mixin _$MemberSlot {
 
 /// Server-allocated slot identity (nullable for legacy slots not yet
 /// backfilled). Preserved as-is on edits — never generated client-side.
-@JsonKey(name: 'slot_id') String? get slotId;// ISO-8601 string, e.g. "2025-06-14T09:00:00"
-@JsonKey(name: 'start_time') String get startTime;@JsonKey(name: 'end_time') String get endTime;@JsonKey(name: 'activity_type') ActivityType get activityType;@JsonKey(name: 'required_volunteers') int get requiredVolunteers;@JsonKey(name: 'current_registrations') int get currentRegistrations; SlotStatus get status;/// Distinguishes standard slots from early-arrival slots.
+@JsonKey(name: 'slot_id') String? get slotId;@JsonKey(name: 'start_time') String get startTime;@JsonKey(name: 'end_time') String get endTime;@JsonKey(name: 'activity_type') ActivityType get activityType;@JsonKey(name: 'required_volunteers') int get requiredVolunteers;@JsonKey(name: 'current_registrations') int get currentRegistrations; SlotStatus get status;/// Distinguishes standard slots from early-arrival slots.
 /// Defaults to [SlotKind.standard] so legacy JSON without this field
 /// deserializes correctly.
 @JsonKey(name: 'slot_kind') SlotKind get slotKind; List<MemberRegistration> get registrations;
@@ -311,16 +316,21 @@ $MemberSlotCopyWith<MemberSlot> get copyWith => _$MemberSlotCopyWithImpl<MemberS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberSlot&&(identical(other.slotId, slotId) || other.slotId == slotId)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.activityType, activityType) || other.activityType == activityType)&&(identical(other.requiredVolunteers, requiredVolunteers) || other.requiredVolunteers == requiredVolunteers)&&(identical(other.currentRegistrations, currentRegistrations) || other.currentRegistrations == currentRegistrations)&&(identical(other.status, status) || other.status == status)&&(identical(other.slotKind, slotKind) || other.slotKind == slotKind)&&const DeepCollectionEquality().equals(other.registrations, registrations));
+  final _this = this as MemberSlot;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberSlot&&(identical(other.slotId, _this.slotId) || other.slotId == _this.slotId)&&(identical(other.startTime, _this.startTime) || other.startTime == _this.startTime)&&(identical(other.endTime, _this.endTime) || other.endTime == _this.endTime)&&(identical(other.activityType, _this.activityType) || other.activityType == _this.activityType)&&(identical(other.requiredVolunteers, _this.requiredVolunteers) || other.requiredVolunteers == _this.requiredVolunteers)&&(identical(other.currentRegistrations, _this.currentRegistrations) || other.currentRegistrations == _this.currentRegistrations)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.slotKind, _this.slotKind) || other.slotKind == _this.slotKind)&&const DeepCollectionEquality().equals(other.registrations, _this.registrations));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,slotId,startTime,endTime,activityType,requiredVolunteers,currentRegistrations,status,slotKind,const DeepCollectionEquality().hash(registrations));
+int get hashCode {
+  final _this = this as MemberSlot;
+  return Object.hash(runtimeType,_this.slotId,_this.startTime,_this.endTime,_this.activityType,_this.requiredVolunteers,_this.currentRegistrations,_this.status,_this.slotKind,const DeepCollectionEquality().hash(_this.registrations));
+}
 
 @override
 String toString() {
-  return 'MemberSlot(slotId: $slotId, startTime: $startTime, endTime: $endTime, activityType: $activityType, requiredVolunteers: $requiredVolunteers, currentRegistrations: $currentRegistrations, status: $status, slotKind: $slotKind, registrations: $registrations)';
+  final _this = this as MemberSlot;
+  return 'MemberSlot(slotId: ${_this.slotId}, startTime: ${_this.startTime}, endTime: ${_this.endTime}, activityType: ${_this.activityType}, requiredVolunteers: ${_this.requiredVolunteers}, currentRegistrations: ${_this.currentRegistrations}, status: ${_this.status}, slotKind: ${_this.slotKind}, registrations: ${_this.registrations})';
 }
 
 
@@ -349,7 +359,7 @@ class _$MemberSlotCopyWithImpl<$Res>
 /// Create a copy of MemberSlot
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? slotId = freezed,Object? startTime = null,Object? endTime = null,Object? activityType = null,Object? requiredVolunteers = null,Object? currentRegistrations = null,Object? status = null,Object? slotKind = null,Object? registrations = null,}) {
-  return _then(_self.copyWith(
+  return _then(MemberSlot(
 slotId: freezed == slotId ? _self.slotId : slotId // ignore: cast_nullable_to_non_nullable
 as String?,startTime: null == startTime ? _self.startTime : startTime // ignore: cast_nullable_to_non_nullable
 as String,endTime: null == endTime ? _self.endTime : endTime // ignore: cast_nullable_to_non_nullable
@@ -500,13 +510,12 @@ return $default(_that.slotId,_that.startTime,_that.endTime,_that.activityType,_t
 @JsonSerializable()
 
 class _MemberSlot implements MemberSlot {
-  const _MemberSlot({@JsonKey(name: 'slot_id') this.slotId, @JsonKey(name: 'start_time') required this.startTime, @JsonKey(name: 'end_time') required this.endTime, @JsonKey(name: 'activity_type') required this.activityType, @JsonKey(name: 'required_volunteers') required this.requiredVolunteers, @JsonKey(name: 'current_registrations') required this.currentRegistrations, required this.status, @JsonKey(name: 'slot_kind') this.slotKind = SlotKind.standard, final  List<MemberRegistration> registrations = const []}): _registrations = registrations;
+  const _MemberSlot({@JsonKey(name: 'slot_id') this.slotId, @JsonKey(name: 'start_time') required this.startTime, @JsonKey(name: 'end_time') required this.endTime, @JsonKey(name: 'activity_type') required this.activityType, @JsonKey(name: 'required_volunteers') required this.requiredVolunteers, @JsonKey(name: 'current_registrations') required this.currentRegistrations, required this.status, @JsonKey(name: 'slot_kind') this.slotKind = SlotKind.standard,  List<MemberRegistration> registrations = const []}): _registrations = registrations;
   factory _MemberSlot.fromJson(Map<String, dynamic> json) => _$MemberSlotFromJson(json);
 
 /// Server-allocated slot identity (nullable for legacy slots not yet
 /// backfilled). Preserved as-is on edits — never generated client-side.
 @override@JsonKey(name: 'slot_id') final  String? slotId;
-// ISO-8601 string, e.g. "2025-06-14T09:00:00"
 @override@JsonKey(name: 'start_time') final  String startTime;
 @override@JsonKey(name: 'end_time') final  String endTime;
 @override@JsonKey(name: 'activity_type') final  ActivityType activityType;
@@ -538,16 +547,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberSlot&&(identical(other.slotId, slotId) || other.slotId == slotId)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.activityType, activityType) || other.activityType == activityType)&&(identical(other.requiredVolunteers, requiredVolunteers) || other.requiredVolunteers == requiredVolunteers)&&(identical(other.currentRegistrations, currentRegistrations) || other.currentRegistrations == currentRegistrations)&&(identical(other.status, status) || other.status == status)&&(identical(other.slotKind, slotKind) || other.slotKind == slotKind)&&const DeepCollectionEquality().equals(other._registrations, _registrations));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberSlot&&(identical(other.slotId, slotId) || other.slotId == slotId)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.activityType, activityType) || other.activityType == activityType)&&(identical(other.requiredVolunteers, requiredVolunteers) || other.requiredVolunteers == requiredVolunteers)&&(identical(other.currentRegistrations, currentRegistrations) || other.currentRegistrations == currentRegistrations)&&(identical(other.status, status) || other.status == status)&&(identical(other.slotKind, slotKind) || other.slotKind == slotKind)&&const DeepCollectionEquality().equals(other.registrations, _registrations));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,slotId,startTime,endTime,activityType,requiredVolunteers,currentRegistrations,status,slotKind,const DeepCollectionEquality().hash(_registrations));
+int get hashCode {
+    return Object.hash(runtimeType,slotId,startTime,endTime,activityType,requiredVolunteers,currentRegistrations,status,slotKind,const DeepCollectionEquality().hash(_registrations));
+}
 
 @override
 String toString() {
-  return 'MemberSlot(slotId: $slotId, startTime: $startTime, endTime: $endTime, activityType: $activityType, requiredVolunteers: $requiredVolunteers, currentRegistrations: $currentRegistrations, status: $status, slotKind: $slotKind, registrations: $registrations)';
+    return 'MemberSlot(slotId: $slotId, startTime: $startTime, endTime: $endTime, activityType: $activityType, requiredVolunteers: $requiredVolunteers, currentRegistrations: $currentRegistrations, status: $status, slotKind: $slotKind, registrations: $registrations)';
 }
 
 
@@ -610,16 +621,21 @@ $DeliveryContractCopyWith<DeliveryContract> get copyWith => _$DeliveryContractCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryContract&&(identical(other.contractId, contractId) || other.contractId == contractId)&&const DeepCollectionEquality().equals(other.coordinators, coordinators)&&(identical(other.basketQuantity, basketQuantity) || other.basketQuantity == basketQuantity)&&(identical(other.deliveryDescription, deliveryDescription) || other.deliveryDescription == deliveryDescription)&&(identical(other.preparationNotes, preparationNotes) || other.preparationNotes == preparationNotes)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.slots, slots));
+  final _this = this as DeliveryContract;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryContract&&(identical(other.contractId, _this.contractId) || other.contractId == _this.contractId)&&const DeepCollectionEquality().equals(other.coordinators, _this.coordinators)&&(identical(other.basketQuantity, _this.basketQuantity) || other.basketQuantity == _this.basketQuantity)&&(identical(other.deliveryDescription, _this.deliveryDescription) || other.deliveryDescription == _this.deliveryDescription)&&(identical(other.preparationNotes, _this.preparationNotes) || other.preparationNotes == _this.preparationNotes)&&(identical(other.status, _this.status) || other.status == _this.status)&&const DeepCollectionEquality().equals(other.slots, _this.slots));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contractId,const DeepCollectionEquality().hash(coordinators),basketQuantity,deliveryDescription,preparationNotes,status,const DeepCollectionEquality().hash(slots));
+int get hashCode {
+  final _this = this as DeliveryContract;
+  return Object.hash(runtimeType,_this.contractId,const DeepCollectionEquality().hash(_this.coordinators),_this.basketQuantity,_this.deliveryDescription,_this.preparationNotes,_this.status,const DeepCollectionEquality().hash(_this.slots));
+}
 
 @override
 String toString() {
-  return 'DeliveryContract(contractId: $contractId, coordinators: $coordinators, basketQuantity: $basketQuantity, deliveryDescription: $deliveryDescription, preparationNotes: $preparationNotes, status: $status, slots: $slots)';
+  final _this = this as DeliveryContract;
+  return 'DeliveryContract(contractId: ${_this.contractId}, coordinators: ${_this.coordinators}, basketQuantity: ${_this.basketQuantity}, deliveryDescription: ${_this.deliveryDescription}, preparationNotes: ${_this.preparationNotes}, status: ${_this.status}, slots: ${_this.slots})';
 }
 
 
@@ -648,7 +664,7 @@ class _$DeliveryContractCopyWithImpl<$Res>
 /// Create a copy of DeliveryContract
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? contractId = null,Object? coordinators = null,Object? basketQuantity = null,Object? deliveryDescription = null,Object? preparationNotes = freezed,Object? status = null,Object? slots = null,}) {
-  return _then(_self.copyWith(
+  return _then(DeliveryContract(
 contractId: null == contractId ? _self.contractId : contractId // ignore: cast_nullable_to_non_nullable
 as String,coordinators: null == coordinators ? _self.coordinators : coordinators // ignore: cast_nullable_to_non_nullable
 as List<String>,basketQuantity: null == basketQuantity ? _self.basketQuantity : basketQuantity // ignore: cast_nullable_to_non_nullable
@@ -797,7 +813,7 @@ return $default(_that.contractId,_that.coordinators,_that.basketQuantity,_that.d
 @JsonSerializable()
 
 class _DeliveryContract implements DeliveryContract {
-  const _DeliveryContract({@JsonKey(name: 'contract_id') required this.contractId, @JsonKey(name: 'coordinators') final  List<String> coordinators = const <String>[], @JsonKey(name: 'basket_quantity') required this.basketQuantity, @JsonKey(name: 'delivery_description') required this.deliveryDescription, @JsonKey(name: 'preparation_notes') this.preparationNotes, required this.status, final  List<MemberSlot> slots = const []}): _coordinators = coordinators,_slots = slots;
+  const _DeliveryContract({@JsonKey(name: 'contract_id') required this.contractId, @JsonKey(name: 'coordinators')  List<String> coordinators = const <String>[], @JsonKey(name: 'basket_quantity') required this.basketQuantity, @JsonKey(name: 'delivery_description') required this.deliveryDescription, @JsonKey(name: 'preparation_notes') this.preparationNotes, required this.status,  List<MemberSlot> slots = const []}): _coordinators = coordinators,_slots = slots;
   factory _DeliveryContract.fromJson(Map<String, dynamic> json) => _$DeliveryContractFromJson(json);
 
 @override@JsonKey(name: 'contract_id') final  String contractId;
@@ -833,16 +849,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeliveryContract&&(identical(other.contractId, contractId) || other.contractId == contractId)&&const DeepCollectionEquality().equals(other._coordinators, _coordinators)&&(identical(other.basketQuantity, basketQuantity) || other.basketQuantity == basketQuantity)&&(identical(other.deliveryDescription, deliveryDescription) || other.deliveryDescription == deliveryDescription)&&(identical(other.preparationNotes, preparationNotes) || other.preparationNotes == preparationNotes)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._slots, _slots));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeliveryContract&&(identical(other.contractId, contractId) || other.contractId == contractId)&&const DeepCollectionEquality().equals(other.coordinators, _coordinators)&&(identical(other.basketQuantity, basketQuantity) || other.basketQuantity == basketQuantity)&&(identical(other.deliveryDescription, deliveryDescription) || other.deliveryDescription == deliveryDescription)&&(identical(other.preparationNotes, preparationNotes) || other.preparationNotes == preparationNotes)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.slots, _slots));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contractId,const DeepCollectionEquality().hash(_coordinators),basketQuantity,deliveryDescription,preparationNotes,status,const DeepCollectionEquality().hash(_slots));
+int get hashCode {
+    return Object.hash(runtimeType,contractId,const DeepCollectionEquality().hash(_coordinators),basketQuantity,deliveryDescription,preparationNotes,status,const DeepCollectionEquality().hash(_slots));
+}
 
 @override
 String toString() {
-  return 'DeliveryContract(contractId: $contractId, coordinators: $coordinators, basketQuantity: $basketQuantity, deliveryDescription: $deliveryDescription, preparationNotes: $preparationNotes, status: $status, slots: $slots)';
+    return 'DeliveryContract(contractId: $contractId, coordinators: $coordinators, basketQuantity: $basketQuantity, deliveryDescription: $deliveryDescription, preparationNotes: $preparationNotes, status: $status, slots: $slots)';
 }
 
 
@@ -890,9 +908,7 @@ as List<MemberSlot>,
 /// @nodoc
 mixin _$DeliveryItem {
 
-@JsonKey(name: 'item_type_id') String get itemTypeId;// Tiny denormalised label snapshot (historical accuracy / resilience); the heavy SVG icon is
-// resolved by itemTypeId from the org-level Organization.itemTypes catalog, never duplicated here.
- String get name; String? get weight;
+@JsonKey(name: 'item_type_id') String get itemTypeId; String get name; String? get weight;
 /// Create a copy of DeliveryItem
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -905,16 +921,21 @@ $DeliveryItemCopyWith<DeliveryItem> get copyWith => _$DeliveryItemCopyWithImpl<D
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryItem&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId)&&(identical(other.name, name) || other.name == name)&&(identical(other.weight, weight) || other.weight == weight));
+  final _this = this as DeliveryItem;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryItem&&(identical(other.itemTypeId, _this.itemTypeId) || other.itemTypeId == _this.itemTypeId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.weight, _this.weight) || other.weight == _this.weight));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,itemTypeId,name,weight);
+int get hashCode {
+  final _this = this as DeliveryItem;
+  return Object.hash(runtimeType,_this.itemTypeId,_this.name,_this.weight);
+}
 
 @override
 String toString() {
-  return 'DeliveryItem(itemTypeId: $itemTypeId, name: $name, weight: $weight)';
+  final _this = this as DeliveryItem;
+  return 'DeliveryItem(itemTypeId: ${_this.itemTypeId}, name: ${_this.name}, weight: ${_this.weight})';
 }
 
 
@@ -943,7 +964,7 @@ class _$DeliveryItemCopyWithImpl<$Res>
 /// Create a copy of DeliveryItem
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? itemTypeId = null,Object? name = null,Object? weight = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DeliveryItem(
 itemTypeId: null == itemTypeId ? _self.itemTypeId : itemTypeId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,weight: freezed == weight ? _self.weight : weight // ignore: cast_nullable_to_non_nullable
@@ -1092,8 +1113,6 @@ class _DeliveryItem implements DeliveryItem {
   factory _DeliveryItem.fromJson(Map<String, dynamic> json) => _$DeliveryItemFromJson(json);
 
 @override@JsonKey(name: 'item_type_id') final  String itemTypeId;
-// Tiny denormalised label snapshot (historical accuracy / resilience); the heavy SVG icon is
-// resolved by itemTypeId from the org-level Organization.itemTypes catalog, never duplicated here.
 @override@JsonKey() final  String name;
 @override final  String? weight;
 
@@ -1110,16 +1129,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeliveryItem&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId)&&(identical(other.name, name) || other.name == name)&&(identical(other.weight, weight) || other.weight == weight));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeliveryItem&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId)&&(identical(other.name, name) || other.name == name)&&(identical(other.weight, weight) || other.weight == weight));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,itemTypeId,name,weight);
+int get hashCode {
+    return Object.hash(runtimeType,itemTypeId,name,weight);
+}
 
 @override
 String toString() {
-  return 'DeliveryItem(itemTypeId: $itemTypeId, name: $name, weight: $weight)';
+    return 'DeliveryItem(itemTypeId: $itemTypeId, name: $name, weight: $weight)';
 }
 
 
@@ -1176,16 +1197,21 @@ $BasketDeliveryDescriptionCopyWith<BasketDeliveryDescription> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketDeliveryDescription&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&const DeepCollectionEquality().equals(other.items, items));
+  final _this = this as BasketDeliveryDescription;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketDeliveryDescription&&(identical(other.productTypeId, _this.productTypeId) || other.productTypeId == _this.productTypeId)&&(identical(other.basketSizeName, _this.basketSizeName) || other.basketSizeName == _this.basketSizeName)&&const DeepCollectionEquality().equals(other.items, _this.items));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSizeName,const DeepCollectionEquality().hash(items));
+int get hashCode {
+  final _this = this as BasketDeliveryDescription;
+  return Object.hash(runtimeType,_this.productTypeId,_this.basketSizeName,const DeepCollectionEquality().hash(_this.items));
+}
 
 @override
 String toString() {
-  return 'BasketDeliveryDescription(productTypeId: $productTypeId, basketSizeName: $basketSizeName, items: $items)';
+  final _this = this as BasketDeliveryDescription;
+  return 'BasketDeliveryDescription(productTypeId: ${_this.productTypeId}, basketSizeName: ${_this.basketSizeName}, items: ${_this.items})';
 }
 
 
@@ -1214,7 +1240,7 @@ class _$BasketDeliveryDescriptionCopyWithImpl<$Res>
 /// Create a copy of BasketDeliveryDescription
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? productTypeId = null,Object? basketSizeName = null,Object? items = null,}) {
-  return _then(_self.copyWith(
+  return _then(BasketDeliveryDescription(
 productTypeId: null == productTypeId ? _self.productTypeId : productTypeId // ignore: cast_nullable_to_non_nullable
 as String,basketSizeName: null == basketSizeName ? _self.basketSizeName : basketSizeName // ignore: cast_nullable_to_non_nullable
 as String,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
@@ -1359,7 +1385,7 @@ return $default(_that.productTypeId,_that.basketSizeName,_that.items);case _:
 @JsonSerializable()
 
 class _BasketDeliveryDescription implements BasketDeliveryDescription {
-  const _BasketDeliveryDescription({@JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'basket_size_name') required this.basketSizeName, final  List<DeliveryItem> items = const <DeliveryItem>[]}): _items = items;
+  const _BasketDeliveryDescription({@JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'basket_size_name') required this.basketSizeName,  List<DeliveryItem> items = const <DeliveryItem>[]}): _items = items;
   factory _BasketDeliveryDescription.fromJson(Map<String, dynamic> json) => _$BasketDeliveryDescriptionFromJson(json);
 
 @override@JsonKey(name: 'product_type_id') final  String productTypeId;
@@ -1385,16 +1411,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketDeliveryDescription&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&const DeepCollectionEquality().equals(other._items, _items));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketDeliveryDescription&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&const DeepCollectionEquality().equals(other.items, _items));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSizeName,const DeepCollectionEquality().hash(_items));
+int get hashCode {
+    return Object.hash(runtimeType,productTypeId,basketSizeName,const DeepCollectionEquality().hash(_items));
+}
 
 @override
 String toString() {
-  return 'BasketDeliveryDescription(productTypeId: $productTypeId, basketSizeName: $basketSizeName, items: $items)';
+    return 'BasketDeliveryDescription(productTypeId: $productTypeId, basketSizeName: $basketSizeName, items: $items)';
 }
 
 
@@ -1438,11 +1466,7 @@ as List<DeliveryItem>,
 /// @nodoc
 mixin _$Delivery {
 
-@JsonKey(name: 'delivery_id') String get deliveryId;@JsonKey(name: 'organization_id') String get organizationId;// ISO-8601 string, e.g. "2025-06-14T09:00:00"
-@JsonKey(name: 'scheduled_date') String get scheduledDate; DeliveryStatus get status;@JsonKey(name: 'min_volunteers_required') int get minVolunteersRequired;@JsonKey(name: 'delivery_template_id') String? get deliveryTemplateId;// Per-delivery overrides of the template's slot times ("HH:MM"); null falls back
-// to the linked template, then to the hard-coded defaults. An early slot may be
-// defined here even without a template.
-@JsonKey(name: 'standard_end_time') String? get standardEndTime;@JsonKey(name: 'volunteer_arrival_time') String? get volunteerArrivalTime;@JsonKey(name: 'early_slot') EarlySlot? get earlySlot; List<DeliveryContract> get contracts;@JsonKey(name: 'basket_descriptions') List<BasketDeliveryDescription> get basketDescriptions;
+@JsonKey(name: 'delivery_id') String get deliveryId;@JsonKey(name: 'organization_id') String get organizationId;@JsonKey(name: 'scheduled_date') String get scheduledDate; DeliveryStatus get status;@JsonKey(name: 'min_volunteers_required') int get minVolunteersRequired;@JsonKey(name: 'delivery_template_id') String? get deliveryTemplateId;@JsonKey(name: 'standard_end_time') String? get standardEndTime;@JsonKey(name: 'volunteer_arrival_time') String? get volunteerArrivalTime;@JsonKey(name: 'early_slot') EarlySlot? get earlySlot; List<DeliveryContract> get contracts;@JsonKey(name: 'basket_descriptions') List<BasketDeliveryDescription> get basketDescriptions;
 /// Create a copy of Delivery
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1455,16 +1479,21 @@ $DeliveryCopyWith<Delivery> get copyWith => _$DeliveryCopyWithImpl<Delivery>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Delivery&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.scheduledDate, scheduledDate) || other.scheduledDate == scheduledDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.minVolunteersRequired, minVolunteersRequired) || other.minVolunteersRequired == minVolunteersRequired)&&(identical(other.deliveryTemplateId, deliveryTemplateId) || other.deliveryTemplateId == deliveryTemplateId)&&(identical(other.standardEndTime, standardEndTime) || other.standardEndTime == standardEndTime)&&(identical(other.volunteerArrivalTime, volunteerArrivalTime) || other.volunteerArrivalTime == volunteerArrivalTime)&&(identical(other.earlySlot, earlySlot) || other.earlySlot == earlySlot)&&const DeepCollectionEquality().equals(other.contracts, contracts)&&const DeepCollectionEquality().equals(other.basketDescriptions, basketDescriptions));
+  final _this = this as Delivery;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Delivery&&(identical(other.deliveryId, _this.deliveryId) || other.deliveryId == _this.deliveryId)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.scheduledDate, _this.scheduledDate) || other.scheduledDate == _this.scheduledDate)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.minVolunteersRequired, _this.minVolunteersRequired) || other.minVolunteersRequired == _this.minVolunteersRequired)&&(identical(other.deliveryTemplateId, _this.deliveryTemplateId) || other.deliveryTemplateId == _this.deliveryTemplateId)&&(identical(other.standardEndTime, _this.standardEndTime) || other.standardEndTime == _this.standardEndTime)&&(identical(other.volunteerArrivalTime, _this.volunteerArrivalTime) || other.volunteerArrivalTime == _this.volunteerArrivalTime)&&(identical(other.earlySlot, _this.earlySlot) || other.earlySlot == _this.earlySlot)&&const DeepCollectionEquality().equals(other.contracts, _this.contracts)&&const DeepCollectionEquality().equals(other.basketDescriptions, _this.basketDescriptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deliveryId,organizationId,scheduledDate,status,minVolunteersRequired,deliveryTemplateId,standardEndTime,volunteerArrivalTime,earlySlot,const DeepCollectionEquality().hash(contracts),const DeepCollectionEquality().hash(basketDescriptions));
+int get hashCode {
+  final _this = this as Delivery;
+  return Object.hash(runtimeType,_this.deliveryId,_this.organizationId,_this.scheduledDate,_this.status,_this.minVolunteersRequired,_this.deliveryTemplateId,_this.standardEndTime,_this.volunteerArrivalTime,_this.earlySlot,const DeepCollectionEquality().hash(_this.contracts),const DeepCollectionEquality().hash(_this.basketDescriptions));
+}
 
 @override
 String toString() {
-  return 'Delivery(deliveryId: $deliveryId, organizationId: $organizationId, scheduledDate: $scheduledDate, status: $status, minVolunteersRequired: $minVolunteersRequired, deliveryTemplateId: $deliveryTemplateId, standardEndTime: $standardEndTime, volunteerArrivalTime: $volunteerArrivalTime, earlySlot: $earlySlot, contracts: $contracts, basketDescriptions: $basketDescriptions)';
+  final _this = this as Delivery;
+  return 'Delivery(deliveryId: ${_this.deliveryId}, organizationId: ${_this.organizationId}, scheduledDate: ${_this.scheduledDate}, status: ${_this.status}, minVolunteersRequired: ${_this.minVolunteersRequired}, deliveryTemplateId: ${_this.deliveryTemplateId}, standardEndTime: ${_this.standardEndTime}, volunteerArrivalTime: ${_this.volunteerArrivalTime}, earlySlot: ${_this.earlySlot}, contracts: ${_this.contracts}, basketDescriptions: ${_this.basketDescriptions})';
 }
 
 
@@ -1493,7 +1522,7 @@ class _$DeliveryCopyWithImpl<$Res>
 /// Create a copy of Delivery
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? deliveryId = null,Object? organizationId = null,Object? scheduledDate = null,Object? status = null,Object? minVolunteersRequired = null,Object? deliveryTemplateId = freezed,Object? standardEndTime = freezed,Object? volunteerArrivalTime = freezed,Object? earlySlot = freezed,Object? contracts = null,Object? basketDescriptions = null,}) {
-  return _then(_self.copyWith(
+  return _then(Delivery(
 deliveryId: null == deliveryId ? _self.deliveryId : deliveryId // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,scheduledDate: null == scheduledDate ? _self.scheduledDate : scheduledDate // ignore: cast_nullable_to_non_nullable
@@ -1658,19 +1687,15 @@ return $default(_that.deliveryId,_that.organizationId,_that.scheduledDate,_that.
 @JsonSerializable()
 
 class _Delivery implements Delivery {
-  const _Delivery({@JsonKey(name: 'delivery_id') required this.deliveryId, @JsonKey(name: 'organization_id') required this.organizationId, @JsonKey(name: 'scheduled_date') required this.scheduledDate, required this.status, @JsonKey(name: 'min_volunteers_required') required this.minVolunteersRequired, @JsonKey(name: 'delivery_template_id') this.deliveryTemplateId, @JsonKey(name: 'standard_end_time') this.standardEndTime, @JsonKey(name: 'volunteer_arrival_time') this.volunteerArrivalTime, @JsonKey(name: 'early_slot') this.earlySlot, final  List<DeliveryContract> contracts = const [], @JsonKey(name: 'basket_descriptions') final  List<BasketDeliveryDescription> basketDescriptions = const <BasketDeliveryDescription>[]}): _contracts = contracts,_basketDescriptions = basketDescriptions;
+  const _Delivery({@JsonKey(name: 'delivery_id') required this.deliveryId, @JsonKey(name: 'organization_id') required this.organizationId, @JsonKey(name: 'scheduled_date') required this.scheduledDate, required this.status, @JsonKey(name: 'min_volunteers_required') required this.minVolunteersRequired, @JsonKey(name: 'delivery_template_id') this.deliveryTemplateId, @JsonKey(name: 'standard_end_time') this.standardEndTime, @JsonKey(name: 'volunteer_arrival_time') this.volunteerArrivalTime, @JsonKey(name: 'early_slot') this.earlySlot,  List<DeliveryContract> contracts = const [], @JsonKey(name: 'basket_descriptions')  List<BasketDeliveryDescription> basketDescriptions = const <BasketDeliveryDescription>[]}): _contracts = contracts,_basketDescriptions = basketDescriptions;
   factory _Delivery.fromJson(Map<String, dynamic> json) => _$DeliveryFromJson(json);
 
 @override@JsonKey(name: 'delivery_id') final  String deliveryId;
 @override@JsonKey(name: 'organization_id') final  String organizationId;
-// ISO-8601 string, e.g. "2025-06-14T09:00:00"
 @override@JsonKey(name: 'scheduled_date') final  String scheduledDate;
 @override final  DeliveryStatus status;
 @override@JsonKey(name: 'min_volunteers_required') final  int minVolunteersRequired;
 @override@JsonKey(name: 'delivery_template_id') final  String? deliveryTemplateId;
-// Per-delivery overrides of the template's slot times ("HH:MM"); null falls back
-// to the linked template, then to the hard-coded defaults. An early slot may be
-// defined here even without a template.
 @override@JsonKey(name: 'standard_end_time') final  String? standardEndTime;
 @override@JsonKey(name: 'volunteer_arrival_time') final  String? volunteerArrivalTime;
 @override@JsonKey(name: 'early_slot') final  EarlySlot? earlySlot;
@@ -1702,16 +1727,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Delivery&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.scheduledDate, scheduledDate) || other.scheduledDate == scheduledDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.minVolunteersRequired, minVolunteersRequired) || other.minVolunteersRequired == minVolunteersRequired)&&(identical(other.deliveryTemplateId, deliveryTemplateId) || other.deliveryTemplateId == deliveryTemplateId)&&(identical(other.standardEndTime, standardEndTime) || other.standardEndTime == standardEndTime)&&(identical(other.volunteerArrivalTime, volunteerArrivalTime) || other.volunteerArrivalTime == volunteerArrivalTime)&&(identical(other.earlySlot, earlySlot) || other.earlySlot == earlySlot)&&const DeepCollectionEquality().equals(other._contracts, _contracts)&&const DeepCollectionEquality().equals(other._basketDescriptions, _basketDescriptions));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Delivery&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.scheduledDate, scheduledDate) || other.scheduledDate == scheduledDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.minVolunteersRequired, minVolunteersRequired) || other.minVolunteersRequired == minVolunteersRequired)&&(identical(other.deliveryTemplateId, deliveryTemplateId) || other.deliveryTemplateId == deliveryTemplateId)&&(identical(other.standardEndTime, standardEndTime) || other.standardEndTime == standardEndTime)&&(identical(other.volunteerArrivalTime, volunteerArrivalTime) || other.volunteerArrivalTime == volunteerArrivalTime)&&(identical(other.earlySlot, earlySlot) || other.earlySlot == earlySlot)&&const DeepCollectionEquality().equals(other.contracts, _contracts)&&const DeepCollectionEquality().equals(other.basketDescriptions, _basketDescriptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deliveryId,organizationId,scheduledDate,status,minVolunteersRequired,deliveryTemplateId,standardEndTime,volunteerArrivalTime,earlySlot,const DeepCollectionEquality().hash(_contracts),const DeepCollectionEquality().hash(_basketDescriptions));
+int get hashCode {
+    return Object.hash(runtimeType,deliveryId,organizationId,scheduledDate,status,minVolunteersRequired,deliveryTemplateId,standardEndTime,volunteerArrivalTime,earlySlot,const DeepCollectionEquality().hash(_contracts),const DeepCollectionEquality().hash(_basketDescriptions));
+}
 
 @override
 String toString() {
-  return 'Delivery(deliveryId: $deliveryId, organizationId: $organizationId, scheduledDate: $scheduledDate, status: $status, minVolunteersRequired: $minVolunteersRequired, deliveryTemplateId: $deliveryTemplateId, standardEndTime: $standardEndTime, volunteerArrivalTime: $volunteerArrivalTime, earlySlot: $earlySlot, contracts: $contracts, basketDescriptions: $basketDescriptions)';
+    return 'Delivery(deliveryId: $deliveryId, organizationId: $organizationId, scheduledDate: $scheduledDate, status: $status, minVolunteersRequired: $minVolunteersRequired, deliveryTemplateId: $deliveryTemplateId, standardEndTime: $standardEndTime, volunteerArrivalTime: $volunteerArrivalTime, earlySlot: $earlySlot, contracts: $contracts, basketDescriptions: $basketDescriptions)';
 }
 
 
@@ -1775,8 +1802,7 @@ $EarlySlotCopyWith<$Res>? get earlySlot {
 /// @nodoc
 mixin _$OrganizationProducer {
 
-@JsonKey(name: 'producer_account_id') String get producerAccountId;// ISO-8601 instant string, e.g. "2026-05-18T22:23:25.095Z".
-@JsonKey(name: 'association_instant') String get associationInstant; OrganizationProducerStatus get status;
+@JsonKey(name: 'producer_account_id') String get producerAccountId;@JsonKey(name: 'association_instant') String get associationInstant; OrganizationProducerStatus get status;
 /// Create a copy of OrganizationProducer
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1789,16 +1815,21 @@ $OrganizationProducerCopyWith<OrganizationProducer> get copyWith => _$Organizati
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationProducer&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.associationInstant, associationInstant) || other.associationInstant == associationInstant)&&(identical(other.status, status) || other.status == status));
+  final _this = this as OrganizationProducer;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationProducer&&(identical(other.producerAccountId, _this.producerAccountId) || other.producerAccountId == _this.producerAccountId)&&(identical(other.associationInstant, _this.associationInstant) || other.associationInstant == _this.associationInstant)&&(identical(other.status, _this.status) || other.status == _this.status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,producerAccountId,associationInstant,status);
+int get hashCode {
+  final _this = this as OrganizationProducer;
+  return Object.hash(runtimeType,_this.producerAccountId,_this.associationInstant,_this.status);
+}
 
 @override
 String toString() {
-  return 'OrganizationProducer(producerAccountId: $producerAccountId, associationInstant: $associationInstant, status: $status)';
+  final _this = this as OrganizationProducer;
+  return 'OrganizationProducer(producerAccountId: ${_this.producerAccountId}, associationInstant: ${_this.associationInstant}, status: ${_this.status})';
 }
 
 
@@ -1827,7 +1858,7 @@ class _$OrganizationProducerCopyWithImpl<$Res>
 /// Create a copy of OrganizationProducer
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? producerAccountId = null,Object? associationInstant = null,Object? status = null,}) {
-  return _then(_self.copyWith(
+  return _then(OrganizationProducer(
 producerAccountId: null == producerAccountId ? _self.producerAccountId : producerAccountId // ignore: cast_nullable_to_non_nullable
 as String,associationInstant: null == associationInstant ? _self.associationInstant : associationInstant // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -1976,7 +2007,6 @@ class _OrganizationProducer implements OrganizationProducer {
   factory _OrganizationProducer.fromJson(Map<String, dynamic> json) => _$OrganizationProducerFromJson(json);
 
 @override@JsonKey(name: 'producer_account_id') final  String producerAccountId;
-// ISO-8601 instant string, e.g. "2026-05-18T22:23:25.095Z".
 @override@JsonKey(name: 'association_instant') final  String associationInstant;
 @override final  OrganizationProducerStatus status;
 
@@ -1993,16 +2023,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrganizationProducer&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.associationInstant, associationInstant) || other.associationInstant == associationInstant)&&(identical(other.status, status) || other.status == status));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrganizationProducer&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.associationInstant, associationInstant) || other.associationInstant == associationInstant)&&(identical(other.status, status) || other.status == status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,producerAccountId,associationInstant,status);
+int get hashCode {
+    return Object.hash(runtimeType,producerAccountId,associationInstant,status);
+}
 
 @override
 String toString() {
-  return 'OrganizationProducer(producerAccountId: $producerAccountId, associationInstant: $associationInstant, status: $status)';
+    return 'OrganizationProducer(producerAccountId: $producerAccountId, associationInstant: $associationInstant, status: $status)';
 }
 
 
@@ -2059,16 +2091,21 @@ $OrgProductCopyWith<OrgProduct> get copyWith => _$OrgProductCopyWithImpl<OrgProd
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgProduct&&(identical(other.name, name) || other.name == name)&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&const DeepCollectionEquality().equals(other.supportedBasketSizes, supportedBasketSizes)&&(identical(other.description, description) || other.description == description));
+  final _this = this as OrgProduct;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgProduct&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.productTypeId, _this.productTypeId) || other.productTypeId == _this.productTypeId)&&(identical(other.producerAccountId, _this.producerAccountId) || other.producerAccountId == _this.producerAccountId)&&const DeepCollectionEquality().equals(other.supportedBasketSizes, _this.supportedBasketSizes)&&(identical(other.description, _this.description) || other.description == _this.description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,productTypeId,producerAccountId,const DeepCollectionEquality().hash(supportedBasketSizes),description);
+int get hashCode {
+  final _this = this as OrgProduct;
+  return Object.hash(runtimeType,_this.name,_this.productTypeId,_this.producerAccountId,const DeepCollectionEquality().hash(_this.supportedBasketSizes),_this.description);
+}
 
 @override
 String toString() {
-  return 'OrgProduct(name: $name, productTypeId: $productTypeId, producerAccountId: $producerAccountId, supportedBasketSizes: $supportedBasketSizes, description: $description)';
+  final _this = this as OrgProduct;
+  return 'OrgProduct(name: ${_this.name}, productTypeId: ${_this.productTypeId}, producerAccountId: ${_this.producerAccountId}, supportedBasketSizes: ${_this.supportedBasketSizes}, description: ${_this.description})';
 }
 
 
@@ -2097,7 +2134,7 @@ class _$OrgProductCopyWithImpl<$Res>
 /// Create a copy of OrgProduct
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? productTypeId = null,Object? producerAccountId = null,Object? supportedBasketSizes = null,Object? description = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(OrgProduct(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,productTypeId: null == productTypeId ? _self.productTypeId : productTypeId // ignore: cast_nullable_to_non_nullable
 as String,producerAccountId: null == producerAccountId ? _self.producerAccountId : producerAccountId // ignore: cast_nullable_to_non_nullable
@@ -2244,7 +2281,7 @@ return $default(_that.name,_that.productTypeId,_that.producerAccountId,_that.sup
 @JsonSerializable()
 
 class _OrgProduct implements OrgProduct {
-  const _OrgProduct({required this.name, @JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'producer_account_id') required this.producerAccountId, @JsonKey(name: 'supported_basket_sizes') final  List<BasketSize> supportedBasketSizes = const [], this.description}): _supportedBasketSizes = supportedBasketSizes;
+  const _OrgProduct({required this.name, @JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'producer_account_id') required this.producerAccountId, @JsonKey(name: 'supported_basket_sizes')  List<BasketSize> supportedBasketSizes = const [], this.description}): _supportedBasketSizes = supportedBasketSizes;
   factory _OrgProduct.fromJson(Map<String, dynamic> json) => _$OrgProductFromJson(json);
 
 @override final  String name;
@@ -2272,16 +2309,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrgProduct&&(identical(other.name, name) || other.name == name)&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&const DeepCollectionEquality().equals(other._supportedBasketSizes, _supportedBasketSizes)&&(identical(other.description, description) || other.description == description));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrgProduct&&(identical(other.name, name) || other.name == name)&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&const DeepCollectionEquality().equals(other.supportedBasketSizes, _supportedBasketSizes)&&(identical(other.description, description) || other.description == description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,productTypeId,producerAccountId,const DeepCollectionEquality().hash(_supportedBasketSizes),description);
+int get hashCode {
+    return Object.hash(runtimeType,name,productTypeId,producerAccountId,const DeepCollectionEquality().hash(_supportedBasketSizes),description);
+}
 
 @override
 String toString() {
-  return 'OrgProduct(name: $name, productTypeId: $productTypeId, producerAccountId: $producerAccountId, supportedBasketSizes: $supportedBasketSizes, description: $description)';
+    return 'OrgProduct(name: $name, productTypeId: $productTypeId, producerAccountId: $producerAccountId, supportedBasketSizes: $supportedBasketSizes, description: $description)';
 }
 
 
@@ -2327,10 +2366,7 @@ as String?,
 /// @nodoc
 mixin _$Organization {
 
-@JsonKey(name: 'organization_id') String get organizationId; String get name;@JsonKey(name: 'contact_email') String get contactEmail;@JsonKey(name: 'active_status') bool get activeStatus; String? get timezone;@JsonKey(name: 'default_language') String? get defaultLanguage;@JsonKey(name: 'default_delivery_template_id', includeIfNull: false) String? get defaultDeliveryTemplateId; String? get website;// ISO-8601 instant strings, e.g. "2026-05-18T22:23:25.095Z".
-@JsonKey(name: 'created_instant') String? get createdInstant;@JsonKey(name: 'last_updated_instant') String? get lastUpdatedInstant; List<OrganizationProducer> get producers; List<OrgProduct> get products; List<Delivery> get deliveries;// Flat, deduplicated catalog of basket components (with their inline SVG icons) referenced by
-// deliveries' basketDescriptions. Stored once per component (not per delivery) and member-synced.
-@JsonKey(name: 'item_types') List<ItemType> get itemTypes;@JsonKey(name: 'notification_overrides') Map<NotificationCategory, NotificationCopyOverride> get notificationOverrides;
+@JsonKey(name: 'organization_id') String get organizationId; String get name;@JsonKey(name: 'contact_email') String get contactEmail;@JsonKey(name: 'active_status') bool get activeStatus; String? get timezone;@JsonKey(name: 'default_language') String? get defaultLanguage;@JsonKey(name: 'default_delivery_template_id', includeIfNull: false) String? get defaultDeliveryTemplateId; String? get website;@JsonKey(name: 'created_instant') String? get createdInstant;@JsonKey(name: 'last_updated_instant') String? get lastUpdatedInstant; List<OrganizationProducer> get producers; List<OrgProduct> get products; List<Delivery> get deliveries;@JsonKey(name: 'item_types') List<ItemType> get itemTypes;@JsonKey(name: 'notification_overrides') Map<NotificationCategory, NotificationCopyOverride> get notificationOverrides;
 /// Create a copy of Organization
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2343,16 +2379,21 @@ $OrganizationCopyWith<Organization> get copyWith => _$OrganizationCopyWithImpl<O
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Organization&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.activeStatus, activeStatus) || other.activeStatus == activeStatus)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.defaultDeliveryTemplateId, defaultDeliveryTemplateId) || other.defaultDeliveryTemplateId == defaultDeliveryTemplateId)&&(identical(other.website, website) || other.website == website)&&(identical(other.createdInstant, createdInstant) || other.createdInstant == createdInstant)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant)&&const DeepCollectionEquality().equals(other.producers, producers)&&const DeepCollectionEquality().equals(other.products, products)&&const DeepCollectionEquality().equals(other.deliveries, deliveries)&&const DeepCollectionEquality().equals(other.itemTypes, itemTypes)&&const DeepCollectionEquality().equals(other.notificationOverrides, notificationOverrides));
+  final _this = this as Organization;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Organization&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.contactEmail, _this.contactEmail) || other.contactEmail == _this.contactEmail)&&(identical(other.activeStatus, _this.activeStatus) || other.activeStatus == _this.activeStatus)&&(identical(other.timezone, _this.timezone) || other.timezone == _this.timezone)&&(identical(other.defaultLanguage, _this.defaultLanguage) || other.defaultLanguage == _this.defaultLanguage)&&(identical(other.defaultDeliveryTemplateId, _this.defaultDeliveryTemplateId) || other.defaultDeliveryTemplateId == _this.defaultDeliveryTemplateId)&&(identical(other.website, _this.website) || other.website == _this.website)&&(identical(other.createdInstant, _this.createdInstant) || other.createdInstant == _this.createdInstant)&&(identical(other.lastUpdatedInstant, _this.lastUpdatedInstant) || other.lastUpdatedInstant == _this.lastUpdatedInstant)&&const DeepCollectionEquality().equals(other.producers, _this.producers)&&const DeepCollectionEquality().equals(other.products, _this.products)&&const DeepCollectionEquality().equals(other.deliveries, _this.deliveries)&&const DeepCollectionEquality().equals(other.itemTypes, _this.itemTypes)&&const DeepCollectionEquality().equals(other.notificationOverrides, _this.notificationOverrides));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,organizationId,name,contactEmail,activeStatus,timezone,defaultLanguage,defaultDeliveryTemplateId,website,createdInstant,lastUpdatedInstant,const DeepCollectionEquality().hash(producers),const DeepCollectionEquality().hash(products),const DeepCollectionEquality().hash(deliveries),const DeepCollectionEquality().hash(itemTypes),const DeepCollectionEquality().hash(notificationOverrides));
+int get hashCode {
+  final _this = this as Organization;
+  return Object.hash(runtimeType,_this.organizationId,_this.name,_this.contactEmail,_this.activeStatus,_this.timezone,_this.defaultLanguage,_this.defaultDeliveryTemplateId,_this.website,_this.createdInstant,_this.lastUpdatedInstant,const DeepCollectionEquality().hash(_this.producers),const DeepCollectionEquality().hash(_this.products),const DeepCollectionEquality().hash(_this.deliveries),const DeepCollectionEquality().hash(_this.itemTypes),const DeepCollectionEquality().hash(_this.notificationOverrides));
+}
 
 @override
 String toString() {
-  return 'Organization(organizationId: $organizationId, name: $name, contactEmail: $contactEmail, activeStatus: $activeStatus, timezone: $timezone, defaultLanguage: $defaultLanguage, defaultDeliveryTemplateId: $defaultDeliveryTemplateId, website: $website, createdInstant: $createdInstant, lastUpdatedInstant: $lastUpdatedInstant, producers: $producers, products: $products, deliveries: $deliveries, itemTypes: $itemTypes, notificationOverrides: $notificationOverrides)';
+  final _this = this as Organization;
+  return 'Organization(organizationId: ${_this.organizationId}, name: ${_this.name}, contactEmail: ${_this.contactEmail}, activeStatus: ${_this.activeStatus}, timezone: ${_this.timezone}, defaultLanguage: ${_this.defaultLanguage}, defaultDeliveryTemplateId: ${_this.defaultDeliveryTemplateId}, website: ${_this.website}, createdInstant: ${_this.createdInstant}, lastUpdatedInstant: ${_this.lastUpdatedInstant}, producers: ${_this.producers}, products: ${_this.products}, deliveries: ${_this.deliveries}, itemTypes: ${_this.itemTypes}, notificationOverrides: ${_this.notificationOverrides})';
 }
 
 
@@ -2381,7 +2422,7 @@ class _$OrganizationCopyWithImpl<$Res>
 /// Create a copy of Organization
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? organizationId = null,Object? name = null,Object? contactEmail = null,Object? activeStatus = null,Object? timezone = freezed,Object? defaultLanguage = freezed,Object? defaultDeliveryTemplateId = freezed,Object? website = freezed,Object? createdInstant = freezed,Object? lastUpdatedInstant = freezed,Object? producers = null,Object? products = null,Object? deliveries = null,Object? itemTypes = null,Object? notificationOverrides = null,}) {
-  return _then(_self.copyWith(
+  return _then(Organization(
 organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,contactEmail: null == contactEmail ? _self.contactEmail : contactEmail // ignore: cast_nullable_to_non_nullable
@@ -2538,7 +2579,7 @@ return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeS
 @JsonSerializable()
 
 class _Organization implements Organization {
-  const _Organization({@JsonKey(name: 'organization_id') required this.organizationId, required this.name, @JsonKey(name: 'contact_email') required this.contactEmail, @JsonKey(name: 'active_status') this.activeStatus = true, this.timezone, @JsonKey(name: 'default_language') this.defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false) this.defaultDeliveryTemplateId, this.website, @JsonKey(name: 'created_instant') this.createdInstant, @JsonKey(name: 'last_updated_instant') this.lastUpdatedInstant, final  List<OrganizationProducer> producers = const [], final  List<OrgProduct> products = const [], final  List<Delivery> deliveries = const [], @JsonKey(name: 'item_types') final  List<ItemType> itemTypes = const <ItemType>[], @JsonKey(name: 'notification_overrides') final  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides = const <NotificationCategory, NotificationCopyOverride>{}}): _producers = producers,_products = products,_deliveries = deliveries,_itemTypes = itemTypes,_notificationOverrides = notificationOverrides;
+  const _Organization({@JsonKey(name: 'organization_id') required this.organizationId, required this.name, @JsonKey(name: 'contact_email') required this.contactEmail, @JsonKey(name: 'active_status') this.activeStatus = true, this.timezone, @JsonKey(name: 'default_language') this.defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false) this.defaultDeliveryTemplateId, this.website, @JsonKey(name: 'created_instant') this.createdInstant, @JsonKey(name: 'last_updated_instant') this.lastUpdatedInstant,  List<OrganizationProducer> producers = const [],  List<OrgProduct> products = const [],  List<Delivery> deliveries = const [], @JsonKey(name: 'item_types')  List<ItemType> itemTypes = const <ItemType>[], @JsonKey(name: 'notification_overrides')  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides = const <NotificationCategory, NotificationCopyOverride>{}}): _producers = producers,_products = products,_deliveries = deliveries,_itemTypes = itemTypes,_notificationOverrides = notificationOverrides;
   factory _Organization.fromJson(Map<String, dynamic> json) => _$OrganizationFromJson(json);
 
 @override@JsonKey(name: 'organization_id') final  String organizationId;
@@ -2549,7 +2590,6 @@ class _Organization implements Organization {
 @override@JsonKey(name: 'default_language') final  String? defaultLanguage;
 @override@JsonKey(name: 'default_delivery_template_id', includeIfNull: false) final  String? defaultDeliveryTemplateId;
 @override final  String? website;
-// ISO-8601 instant strings, e.g. "2026-05-18T22:23:25.095Z".
 @override@JsonKey(name: 'created_instant') final  String? createdInstant;
 @override@JsonKey(name: 'last_updated_instant') final  String? lastUpdatedInstant;
  final  List<OrganizationProducer> _producers;
@@ -2573,11 +2613,7 @@ class _Organization implements Organization {
   return EqualUnmodifiableListView(_deliveries);
 }
 
-// Flat, deduplicated catalog of basket components (with their inline SVG icons) referenced by
-// deliveries' basketDescriptions. Stored once per component (not per delivery) and member-synced.
  final  List<ItemType> _itemTypes;
-// Flat, deduplicated catalog of basket components (with their inline SVG icons) referenced by
-// deliveries' basketDescriptions. Stored once per component (not per delivery) and member-synced.
 @override@JsonKey(name: 'item_types') List<ItemType> get itemTypes {
   if (_itemTypes is EqualUnmodifiableListView) return _itemTypes;
   // ignore: implicit_dynamic_type
@@ -2605,16 +2641,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Organization&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.activeStatus, activeStatus) || other.activeStatus == activeStatus)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.defaultDeliveryTemplateId, defaultDeliveryTemplateId) || other.defaultDeliveryTemplateId == defaultDeliveryTemplateId)&&(identical(other.website, website) || other.website == website)&&(identical(other.createdInstant, createdInstant) || other.createdInstant == createdInstant)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant)&&const DeepCollectionEquality().equals(other._producers, _producers)&&const DeepCollectionEquality().equals(other._products, _products)&&const DeepCollectionEquality().equals(other._deliveries, _deliveries)&&const DeepCollectionEquality().equals(other._itemTypes, _itemTypes)&&const DeepCollectionEquality().equals(other._notificationOverrides, _notificationOverrides));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Organization&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.activeStatus, activeStatus) || other.activeStatus == activeStatus)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.defaultDeliveryTemplateId, defaultDeliveryTemplateId) || other.defaultDeliveryTemplateId == defaultDeliveryTemplateId)&&(identical(other.website, website) || other.website == website)&&(identical(other.createdInstant, createdInstant) || other.createdInstant == createdInstant)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant)&&const DeepCollectionEquality().equals(other.producers, _producers)&&const DeepCollectionEquality().equals(other.products, _products)&&const DeepCollectionEquality().equals(other.deliveries, _deliveries)&&const DeepCollectionEquality().equals(other.itemTypes, _itemTypes)&&const DeepCollectionEquality().equals(other.notificationOverrides, _notificationOverrides));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,organizationId,name,contactEmail,activeStatus,timezone,defaultLanguage,defaultDeliveryTemplateId,website,createdInstant,lastUpdatedInstant,const DeepCollectionEquality().hash(_producers),const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_deliveries),const DeepCollectionEquality().hash(_itemTypes),const DeepCollectionEquality().hash(_notificationOverrides));
+int get hashCode {
+    return Object.hash(runtimeType,organizationId,name,contactEmail,activeStatus,timezone,defaultLanguage,defaultDeliveryTemplateId,website,createdInstant,lastUpdatedInstant,const DeepCollectionEquality().hash(_producers),const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_deliveries),const DeepCollectionEquality().hash(_itemTypes),const DeepCollectionEquality().hash(_notificationOverrides));
+}
 
 @override
 String toString() {
-  return 'Organization(organizationId: $organizationId, name: $name, contactEmail: $contactEmail, activeStatus: $activeStatus, timezone: $timezone, defaultLanguage: $defaultLanguage, defaultDeliveryTemplateId: $defaultDeliveryTemplateId, website: $website, createdInstant: $createdInstant, lastUpdatedInstant: $lastUpdatedInstant, producers: $producers, products: $products, deliveries: $deliveries, itemTypes: $itemTypes, notificationOverrides: $notificationOverrides)';
+    return 'Organization(organizationId: $organizationId, name: $name, contactEmail: $contactEmail, activeStatus: $activeStatus, timezone: $timezone, defaultLanguage: $defaultLanguage, defaultDeliveryTemplateId: $defaultDeliveryTemplateId, website: $website, createdInstant: $createdInstant, lastUpdatedInstant: $lastUpdatedInstant, producers: $producers, products: $products, deliveries: $deliveries, itemTypes: $itemTypes, notificationOverrides: $notificationOverrides)';
 }
 
 

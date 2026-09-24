@@ -5,6 +5,7 @@ package owner
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
+import core.InputRules
 import core.OwnerRoleProvisioningPort
 import core.RoleService
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -177,6 +178,12 @@ class OwnerTypeService(
     ): MutationOutcome {
         // Owner updating their own profile (firstName, lastName, email, phone).
         if (auth.memberId == incoming.ownerId.id) {
+            // Mirrors the owner profile dialog (edit_profile_dialog.dart).
+            (
+                InputRules.requireName("first_name", incoming.firstName)
+                    ?: InputRules.requireName("last_name", incoming.lastName)
+                    ?: InputRules.requireEmail("email", incoming.email)
+            )?.let { return rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, it) }
             val outcome =
                 ownerService.updateProfile(
                     auth.memberId,

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'admin_requests_event.dart';
@@ -9,6 +9,7 @@ part of 'admin_requests_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$AdminRequestsEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AdminRequestsEvent()';
+    return 'AdminRequestsEvent()';
 }
 
 
@@ -128,10 +129,10 @@ return resendRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( OrganizationRequestStatus? statusFilter)?  loadRequested,TResult Function( OrganizationType organizationType)?  organizationTypeFilterChanged,TResult Function( AdminOrganizationRequest request)?  approveRequested,TResult Function( AdminOrganizationRequest request,  String? reviewComment)?  rejectRequested,TResult Function( AdminOrganizationRequest request)?  resendRequested,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( OrganizationRequestStatus? statusFilter,  OrganizationType? organizationTypeFilter)?  loadRequested,TResult Function( OrganizationType organizationType)?  organizationTypeFilterChanged,TResult Function( AdminOrganizationRequest request)?  approveRequested,TResult Function( AdminOrganizationRequest request,  String? reviewComment)?  rejectRequested,TResult Function( AdminOrganizationRequest request)?  resendRequested,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AdminRequestsLoadRequested() when loadRequested != null:
-return loadRequested(_that.statusFilter);case AdminRequestsOrganizationTypeFilterChanged() when organizationTypeFilterChanged != null:
+return loadRequested(_that.statusFilter,_that.organizationTypeFilter);case AdminRequestsOrganizationTypeFilterChanged() when organizationTypeFilterChanged != null:
 return organizationTypeFilterChanged(_that.organizationType);case AdminRequestsApproveRequested() when approveRequested != null:
 return approveRequested(_that.request);case AdminRequestsRejectRequested() when rejectRequested != null:
 return rejectRequested(_that.request,_that.reviewComment);case AdminRequestsResendRequested() when resendRequested != null:
@@ -153,10 +154,10 @@ return resendRequested(_that.request);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( OrganizationRequestStatus? statusFilter)  loadRequested,required TResult Function( OrganizationType organizationType)  organizationTypeFilterChanged,required TResult Function( AdminOrganizationRequest request)  approveRequested,required TResult Function( AdminOrganizationRequest request,  String? reviewComment)  rejectRequested,required TResult Function( AdminOrganizationRequest request)  resendRequested,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( OrganizationRequestStatus? statusFilter,  OrganizationType? organizationTypeFilter)  loadRequested,required TResult Function( OrganizationType organizationType)  organizationTypeFilterChanged,required TResult Function( AdminOrganizationRequest request)  approveRequested,required TResult Function( AdminOrganizationRequest request,  String? reviewComment)  rejectRequested,required TResult Function( AdminOrganizationRequest request)  resendRequested,}) {final _that = this;
 switch (_that) {
 case AdminRequestsLoadRequested():
-return loadRequested(_that.statusFilter);case AdminRequestsOrganizationTypeFilterChanged():
+return loadRequested(_that.statusFilter,_that.organizationTypeFilter);case AdminRequestsOrganizationTypeFilterChanged():
 return organizationTypeFilterChanged(_that.organizationType);case AdminRequestsApproveRequested():
 return approveRequested(_that.request);case AdminRequestsRejectRequested():
 return rejectRequested(_that.request,_that.reviewComment);case AdminRequestsResendRequested():
@@ -174,10 +175,10 @@ return resendRequested(_that.request);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( OrganizationRequestStatus? statusFilter)?  loadRequested,TResult? Function( OrganizationType organizationType)?  organizationTypeFilterChanged,TResult? Function( AdminOrganizationRequest request)?  approveRequested,TResult? Function( AdminOrganizationRequest request,  String? reviewComment)?  rejectRequested,TResult? Function( AdminOrganizationRequest request)?  resendRequested,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( OrganizationRequestStatus? statusFilter,  OrganizationType? organizationTypeFilter)?  loadRequested,TResult? Function( OrganizationType organizationType)?  organizationTypeFilterChanged,TResult? Function( AdminOrganizationRequest request)?  approveRequested,TResult? Function( AdminOrganizationRequest request,  String? reviewComment)?  rejectRequested,TResult? Function( AdminOrganizationRequest request)?  resendRequested,}) {final _that = this;
 switch (_that) {
 case AdminRequestsLoadRequested() when loadRequested != null:
-return loadRequested(_that.statusFilter);case AdminRequestsOrganizationTypeFilterChanged() when organizationTypeFilterChanged != null:
+return loadRequested(_that.statusFilter,_that.organizationTypeFilter);case AdminRequestsOrganizationTypeFilterChanged() when organizationTypeFilterChanged != null:
 return organizationTypeFilterChanged(_that.organizationType);case AdminRequestsApproveRequested() when approveRequested != null:
 return approveRequested(_that.request);case AdminRequestsRejectRequested() when rejectRequested != null:
 return rejectRequested(_that.request,_that.reviewComment);case AdminRequestsResendRequested() when resendRequested != null:
@@ -193,10 +194,12 @@ return resendRequested(_that.request);case _:
 
 
 class AdminRequestsLoadRequested implements AdminRequestsEvent {
-  const AdminRequestsLoadRequested({this.statusFilter});
+  const AdminRequestsLoadRequested({this.statusFilter, this.organizationTypeFilter});
   
 
  final  OrganizationRequestStatus? statusFilter;
+/// Tab to open on the first load (defaults to AMAP).
+ final  OrganizationType? organizationTypeFilter;
 
 /// Create a copy of AdminRequestsEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -208,16 +211,18 @@ $AdminRequestsLoadRequestedCopyWith<AdminRequestsLoadRequested> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsLoadRequested&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsLoadRequested&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter)&&(identical(other.organizationTypeFilter, organizationTypeFilter) || other.organizationTypeFilter == organizationTypeFilter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,statusFilter);
+int get hashCode {
+    return Object.hash(runtimeType,statusFilter,organizationTypeFilter);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.loadRequested(statusFilter: $statusFilter)';
+    return 'AdminRequestsEvent.loadRequested(statusFilter: $statusFilter, organizationTypeFilter: $organizationTypeFilter)';
 }
 
 
@@ -228,7 +233,7 @@ abstract mixin class $AdminRequestsLoadRequestedCopyWith<$Res> implements $Admin
   factory $AdminRequestsLoadRequestedCopyWith(AdminRequestsLoadRequested value, $Res Function(AdminRequestsLoadRequested) _then) = _$AdminRequestsLoadRequestedCopyWithImpl;
 @useResult
 $Res call({
- OrganizationRequestStatus? statusFilter
+ OrganizationRequestStatus? statusFilter, OrganizationType? organizationTypeFilter
 });
 
 
@@ -245,10 +250,11 @@ class _$AdminRequestsLoadRequestedCopyWithImpl<$Res>
 
 /// Create a copy of AdminRequestsEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? statusFilter = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? statusFilter = freezed,Object? organizationTypeFilter = freezed,}) {
   return _then(AdminRequestsLoadRequested(
 statusFilter: freezed == statusFilter ? _self.statusFilter : statusFilter // ignore: cast_nullable_to_non_nullable
-as OrganizationRequestStatus?,
+as OrganizationRequestStatus?,organizationTypeFilter: freezed == organizationTypeFilter ? _self.organizationTypeFilter : organizationTypeFilter // ignore: cast_nullable_to_non_nullable
+as OrganizationType?,
   ));
 }
 
@@ -274,16 +280,18 @@ $AdminRequestsOrganizationTypeFilterChangedCopyWith<AdminRequestsOrganizationTyp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsOrganizationTypeFilterChanged&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsOrganizationTypeFilterChanged&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationType);
+int get hashCode {
+    return Object.hash(runtimeType,organizationType);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.organizationTypeFilterChanged(organizationType: $organizationType)';
+    return 'AdminRequestsEvent.organizationTypeFilterChanged(organizationType: $organizationType)';
 }
 
 
@@ -340,16 +348,18 @@ $AdminRequestsApproveRequestedCopyWith<AdminRequestsApproveRequested> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsApproveRequested&&(identical(other.request, request) || other.request == request));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsApproveRequested&&(identical(other.request, request) || other.request == request));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,request);
+int get hashCode {
+    return Object.hash(runtimeType,request);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.approveRequested(request: $request)';
+    return 'AdminRequestsEvent.approveRequested(request: $request)';
 }
 
 
@@ -416,16 +426,18 @@ $AdminRequestsRejectRequestedCopyWith<AdminRequestsRejectRequested> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsRejectRequested&&(identical(other.request, request) || other.request == request)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsRejectRequested&&(identical(other.request, request) || other.request == request)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,request,reviewComment);
+int get hashCode {
+    return Object.hash(runtimeType,request,reviewComment);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.rejectRequested(request: $request, reviewComment: $reviewComment)';
+    return 'AdminRequestsEvent.rejectRequested(request: $request, reviewComment: $reviewComment)';
 }
 
 
@@ -492,16 +504,18 @@ $AdminRequestsResendRequestedCopyWith<AdminRequestsResendRequested> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsResendRequested&&(identical(other.request, request) || other.request == request));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsResendRequested&&(identical(other.request, request) || other.request == request));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,request);
+int get hashCode {
+    return Object.hash(runtimeType,request);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.resendRequested(request: $request)';
+    return 'AdminRequestsEvent.resendRequested(request: $request)';
 }
 
 

@@ -136,15 +136,6 @@ class OwnerService(
     }
 
     /**
-     * Backward-compat alias for the legacy [suspend] flow. Older callers
-     * referenced [revoke] explicitly; new code should call [suspend].
-     */
-    suspend fun revoke(
-        actorSub: String,
-        ownerId: String,
-    ): OwnerLifecycleOutcome = suspend(actorSub, ownerId)
-
-    /**
      * Updates the profile fields of the OWNER identified by [actorSub].
      * Only firstName, lastName, email and phone are updated; other fields are preserved.
      */

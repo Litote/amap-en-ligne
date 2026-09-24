@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'item_types_state.dart';
@@ -9,6 +9,7 @@ part of 'item_types_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$ItemTypesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ItemTypesState()';
+    return 'ItemTypesState()';
 }
 
 
@@ -203,7 +204,7 @@ class ItemTypesInitial implements ItemTypesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesInitial);
 }
 
 
@@ -212,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ItemTypesState.initial()';
+    return 'ItemTypesState.initial()';
 }
 
 
@@ -240,16 +241,18 @@ $ItemTypesLoadedCopyWith<ItemTypesLoaded> get copyWith => _$ItemTypesLoadedCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesLoaded&&(identical(other.productType, productType) || other.productType == productType));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesLoaded&&(identical(other.productType, productType) || other.productType == productType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productType);
+int get hashCode {
+    return Object.hash(runtimeType,productType);
+}
 
 @override
 String toString() {
-  return 'ItemTypesState.loaded(productType: $productType)';
+    return 'ItemTypesState.loaded(productType: $productType)';
 }
 
 
@@ -315,16 +318,18 @@ $ItemTypesSavingCopyWith<ItemTypesSaving> get copyWith => _$ItemTypesSavingCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesSaving&&(identical(other.productType, productType) || other.productType == productType));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesSaving&&(identical(other.productType, productType) || other.productType == productType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productType);
+int get hashCode {
+    return Object.hash(runtimeType,productType);
+}
 
 @override
 String toString() {
-  return 'ItemTypesState.saving(productType: $productType)';
+    return 'ItemTypesState.saving(productType: $productType)';
 }
 
 
@@ -390,16 +395,18 @@ $ItemTypesSavedCopyWith<ItemTypesSaved> get copyWith => _$ItemTypesSavedCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesSaved&&(identical(other.productType, productType) || other.productType == productType));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesSaved&&(identical(other.productType, productType) || other.productType == productType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productType);
+int get hashCode {
+    return Object.hash(runtimeType,productType);
+}
 
 @override
 String toString() {
-  return 'ItemTypesState.saved(productType: $productType)';
+    return 'ItemTypesState.saved(productType: $productType)';
 }
 
 
@@ -465,16 +472,18 @@ $ItemTypesErrorCopyWith<ItemTypesError> get copyWith => _$ItemTypesErrorCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'ItemTypesState.error(message: $message)';
+    return 'ItemTypesState.error(message: $message)';
 }
 
 

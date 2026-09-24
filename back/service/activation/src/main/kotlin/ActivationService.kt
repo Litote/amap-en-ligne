@@ -4,6 +4,7 @@ package activation
 
 import authentication.Role
 import core.UserProvisioningPort
+import id.Id
 import id.toId
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
@@ -11,6 +12,7 @@ import persistence.changes.Change
 import persistence.changes.ChangeOp
 import persistence.changes.Cursor
 import persistence.changes.MemberPayload
+import persistence.changes.ProducerAccountPayload
 import persistence.changes.ProducerPayload
 import persistence.changes.SyncScope
 import persistence.dao.ActivationTokenDAO
@@ -24,17 +26,14 @@ import persistence.dao.ProducerAccountSyncDAO
 import persistence.dao.ProducerRequestDAO
 import persistence.dao.ProducerSyncDAO
 import persistence.dao.ServerDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.AccountStatus
 import persistence.model.ActivateResponse
 import persistence.model.ActivationKind
-import persistence.model.DeliveryReminders
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
 import persistence.model.MemberInvitation
 import persistence.model.MemberInvitationStatus
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Owner
 import persistence.model.OwnerInvitationStatus
 import persistence.model.Producer
@@ -46,6 +45,7 @@ import persistence.model.UserPreferences
 import persistence.model.UserSettings
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Single(createdAtStart = true)
 class ActivationService(
@@ -62,6 +62,51 @@ class ActivationService(
     private val ownerInvitationDAO: OwnerInvitationSyncDAO,
     private val ownerDAO: OwnerSyncDAO,
 ) {
+    /**
+     * Read-only preview of [token] for the activation screen: which account (email, kind,
+     * organization/producer name) is about to be activated. Returns the same
+     * NotFound/Expired/AlreadyActivated outcomes as [activate], without any side effect.
+     */
+    suspend fun describe(token: String): ActivationOutcome {
+        val activationToken = activationTokenDAO.findByToken(token) ?: return ActivationOutcome.NotFound
+        if (activationToken.expiresAt < Clock.System.now()) return ActivationOutcome.Expired
+        if (activationToken.invalidatedAt != null) return ActivationOutcome.NotFound
+        if (activationToken.activatedAt != null) return ActivationOutcome.AlreadyActivated
+
+        val name: String? =
+            when (activationToken.kind) {
+                ActivationKind.ORGANIZATION_ADMIN -> {
+                    val requestId = activationToken.requestId ?: return ActivationOutcome.NotFound
+                    (organizationRequestDAO.findById(requestId) ?: return ActivationOutcome.NotFound).organizationName
+                }
+
+                ActivationKind.PRODUCER -> {
+                    val requestId = activationToken.producerRequestId ?: return ActivationOutcome.NotFound
+                    (producerRequestDAO.findById(requestId) ?: return ActivationOutcome.NotFound).producerName
+                }
+
+                ActivationKind.OWNER -> {
+                    val invitationId = activationToken.ownerInvitationId ?: return ActivationOutcome.NotFound
+                    val invitation = ownerInvitationDAO.findById(invitationId) ?: return ActivationOutcome.NotFound
+                    if (invitation.status == OwnerInvitationStatus.CANCELLED) return ActivationOutcome.NotFound
+                    if (invitation.status == OwnerInvitationStatus.ACTIVATED) return ActivationOutcome.AlreadyActivated
+                    null
+                }
+
+                ActivationKind.MEMBER -> {
+                    val invitationId = activationToken.memberInvitationId ?: return ActivationOutcome.NotFound
+                    val invitation =
+                        memberInvitationDAO.findById(invitationId.id) ?: return ActivationOutcome.NotFound
+                    if (invitation.status == MemberInvitationStatus.CANCELLED) return ActivationOutcome.NotFound
+                    if (invitation.status == MemberInvitationStatus.ACTIVATED) return ActivationOutcome.AlreadyActivated
+                    (organizationSyncDAO.getById(invitation.organizationId) ?: return ActivationOutcome.NotFound).name
+                }
+            }
+        return ActivationOutcome.Success(
+            ActivateResponse(kind = activationToken.kind, organizationName = name, email = activationToken.adminEmail),
+        )
+    }
+
     suspend fun activate(
         token: String,
         password: String,
@@ -96,17 +141,10 @@ class ActivationService(
                         memberId = sub.toId(),
                         organizationId = organizationId,
                         roles = setOf(Role.ADMIN),
-                        activeStatus = true,
                         firstName = request.adminFirstName,
                         lastName = request.adminLastName,
                         email = activationToken.adminEmail,
                         accountStatus = MemberAccountStatus.ACTIVE,
-                        memberSettings =
-                            MemberSettings(
-                                deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                                accessibilityOptions = AccessibilityOptions(false, false, false),
-                                lastUpdatedInstant = now,
-                            ),
                         memberPreferences =
                             MemberPreferences(
                                 deliveryRemindersEnabled = true,
@@ -187,6 +225,7 @@ class ActivationService(
                             ),
                     )
                 producerSyncDAO.put(producer, listOf(buildProducerChange(producer)))
+                clearProducerPendingActivation(producerAccountId, now)
                 activationTokenDAO.markActivated(token, now)
                 ActivationOutcome.Success(
                     ActivateResponse(
@@ -279,17 +318,10 @@ class ActivationService(
                         memberId = sub.toId(),
                         organizationId = invitation.organizationId,
                         roles = invitation.roles,
-                        activeStatus = true,
                         firstName = invitation.firstName,
                         lastName = invitation.lastName,
                         email = invitation.email,
                         accountStatus = MemberAccountStatus.ACTIVE,
-                        memberSettings =
-                            MemberSettings(
-                                deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                                accessibilityOptions = AccessibilityOptions(false, false, false),
-                                lastUpdatedInstant = now,
-                            ),
                         memberPreferences =
                             MemberPreferences(
                                 deliveryRemindersEnabled = true,
@@ -329,6 +361,36 @@ class ActivationService(
                 )
             }
         }
+    }
+
+    /**
+     * Clears [ProducerAccount.pendingActivation] once the producer owns an auth account, fanning
+     * the update out on `instance-owner` and every linked organization scope so owners/admins
+     * stop showing the producer as "invitation pending" without a full re-sync.
+     */
+    private suspend fun clearProducerPendingActivation(
+        producerAccountId: Id<ProducerAccount>,
+        now: Instant,
+    ) {
+        val producerAccount = producerAccountSyncDAO.findById(producerAccountId) ?: return
+        if (!producerAccount.pendingActivation) return
+        val activated = producerAccount.copy(pendingActivation = false, lastUpdatedInstant = now)
+        val scopeKeys =
+            producerAccount.organizations.map { SyncScope.Organization(it.organizationId.id).key }.distinct() +
+                SyncScope.InstanceOwner.key
+        val changes =
+            scopeKeys.map { scopeKey ->
+                Change(
+                    cursor = Cursor.next(),
+                    entityType = persistence.model.EntityType.ProducerAccount,
+                    entityId = producerAccountId.id,
+                    scopeKey = scopeKey,
+                    op = ChangeOp.UPSERT,
+                    payload = ProducerAccountPayload(activated),
+                    producedAt = System.currentTimeMillis(),
+                )
+            }
+        producerAccountSyncDAO.updatePendingActivation(producerAccountId, false, changes)
     }
 
     private fun buildProducerChange(producer: Producer): Change =

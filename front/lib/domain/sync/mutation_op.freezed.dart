@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'mutation_op.dart';
@@ -9,6 +9,7 @@ part of 'mutation_op.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $UpsertCopyWith<Upsert> get copyWith => _$UpsertCopyWithImpl<Upsert>(this as Ups
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Upsert&&(identical(other.payload, payload) || other.payload == payload));
+  final _this = this as Upsert;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Upsert&&(identical(other.payload, _this.payload) || other.payload == _this.payload));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,payload);
+int get hashCode {
+  final _this = this as Upsert;
+  return Object.hash(runtimeType,_this.payload);
+}
 
 @override
 String toString() {
-  return 'Upsert(payload: $payload)';
+  final _this = this as Upsert;
+  return 'Upsert(payload: ${_this.payload})';
 }
 
 
@@ -63,7 +69,7 @@ class _$UpsertCopyWithImpl<$Res>
 /// Create a copy of Upsert
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? payload = null,}) {
-  return _then(_self.copyWith(
+  return _then(Upsert(
 payload: null == payload ? _self.payload : payload // ignore: cast_nullable_to_non_nullable
 as EntityPayload,
   ));
@@ -221,16 +227,18 @@ _$UpsertCopyWith<_Upsert> get copyWith => __$UpsertCopyWithImpl<_Upsert>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Upsert&&(identical(other.payload, payload) || other.payload == payload));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Upsert&&(identical(other.payload, payload) || other.payload == payload));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,payload);
+int get hashCode {
+    return Object.hash(runtimeType,payload);
+}
 
 @override
 String toString() {
-  return 'Upsert(payload: $payload)';
+    return 'Upsert(payload: $payload)';
 }
 
 
@@ -282,16 +290,21 @@ $DeleteCopyWith<Delete> get copyWith => _$DeleteCopyWithImpl<Delete>(this as Del
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Delete&&(identical(other.entityType, entityType) || other.entityType == entityType)&&(identical(other.entityId, entityId) || other.entityId == entityId));
+  final _this = this as Delete;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Delete&&(identical(other.entityType, _this.entityType) || other.entityType == _this.entityType)&&(identical(other.entityId, _this.entityId) || other.entityId == _this.entityId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,entityType,entityId);
+int get hashCode {
+  final _this = this as Delete;
+  return Object.hash(runtimeType,_this.entityType,_this.entityId);
+}
 
 @override
 String toString() {
-  return 'Delete(entityType: $entityType, entityId: $entityId)';
+  final _this = this as Delete;
+  return 'Delete(entityType: ${_this.entityType}, entityId: ${_this.entityId})';
 }
 
 
@@ -320,7 +333,7 @@ class _$DeleteCopyWithImpl<$Res>
 /// Create a copy of Delete
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? entityType = null,Object? entityId = null,}) {
-  return _then(_self.copyWith(
+  return _then(Delete(
 entityType: null == entityType ? _self.entityType : entityType // ignore: cast_nullable_to_non_nullable
 as EntityType,entityId: null == entityId ? _self.entityId : entityId // ignore: cast_nullable_to_non_nullable
 as String,
@@ -480,16 +493,18 @@ _$DeleteCopyWith<_Delete> get copyWith => __$DeleteCopyWithImpl<_Delete>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Delete&&(identical(other.entityType, entityType) || other.entityType == entityType)&&(identical(other.entityId, entityId) || other.entityId == entityId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Delete&&(identical(other.entityType, entityType) || other.entityType == entityType)&&(identical(other.entityId, entityId) || other.entityId == entityId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,entityType,entityId);
+int get hashCode {
+    return Object.hash(runtimeType,entityType,entityId);
+}
 
 @override
 String toString() {
-  return 'Delete(entityType: $entityType, entityId: $entityId)';
+    return 'Delete(entityType: $entityType, entityId: $entityId)';
 }
 
 

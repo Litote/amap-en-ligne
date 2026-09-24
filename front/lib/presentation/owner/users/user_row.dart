@@ -146,15 +146,19 @@ UserRow userRowFromProducerAccount(ProducerAccount pa) {
     firstName: firstName,
     lastName: lastName,
     email: pa.contactEmail ?? '',
-    displayStatus: pa.activeStatus
-        ? UserDisplayStatus.active
-        : UserDisplayStatus.suspended,
+    displayStatus: _producerDisplayStatus(pa),
     memberships: const [],
     isOwner: false,
     isProducer: true,
     producerAccountId: pa.producerAccountId,
     producerAccountName: pa.name,
   );
+}
+
+UserDisplayStatus _producerDisplayStatus(ProducerAccount pa) {
+  if (!pa.activeStatus) return UserDisplayStatus.suspended;
+  if (pa.pendingActivation) return UserDisplayStatus.pendingInvitation;
+  return UserDisplayStatus.active;
 }
 
 UserRow? userRowFromMembers(
@@ -190,22 +194,12 @@ UserRow? userRowFromMembers(
     firstName: _resolveMemberField(
       members,
       direct: (member) => member.firstName,
-      legacyKey: 'first_name',
     ),
-    lastName: _resolveMemberField(
-      members,
-      direct: (member) => member.lastName,
-      legacyKey: 'last_name',
-    ),
-    email: _resolveMemberField(
-      members,
-      direct: (member) => member.email,
-      legacyKey: 'email',
-    ),
+    lastName: _resolveMemberField(members, direct: (member) => member.lastName),
+    email: _resolveMemberField(members, direct: (member) => member.email),
     phone: _resolveOptionalMemberField(
       members,
       direct: (member) => member.phone,
-      legacyKey: 'phone',
     ),
     registeredAt: null,
     displayStatus: _aggregateMemberStatus(members),
@@ -218,33 +212,15 @@ UserRow? userRowFromMembers(
 String _resolveMemberField(
   List<Member> members, {
   required String? Function(Member member) direct,
-  required String legacyKey,
-}) =>
-    _resolveOptionalMemberField(
-      members,
-      direct: direct,
-      legacyKey: legacyKey,
-    ) ??
-    '';
+}) => _resolveOptionalMemberField(members, direct: direct) ?? '';
 
 String? _resolveOptionalMemberField(
   List<Member> members, {
   required String? Function(Member member) direct,
-  required String legacyKey,
 }) {
   for (final member in members) {
     final value = direct(member)?.trim();
     if (value != null && value.isNotEmpty) return value;
-  }
-  for (final member in members) {
-    final settingsValue = (member.memberSettings?[legacyKey] as String?)
-        ?.trim();
-    if (settingsValue != null && settingsValue.isNotEmpty) return settingsValue;
-    final userSettingsValue = (member.userSettings?[legacyKey] as String?)
-        ?.trim();
-    if (userSettingsValue != null && userSettingsValue.isNotEmpty) {
-      return userSettingsValue;
-    }
   }
   return null;
 }
@@ -260,15 +236,8 @@ UserDisplayStatus _aggregateMemberStatus(List<Member> members) {
   return UserDisplayStatus.active;
 }
 
-UserDisplayStatus _displayStatusFromMember(Member member) {
-  switch (member.accountStatus) {
-    case MemberAccountStatus.suspended:
-      return UserDisplayStatus.suspended;
-    case MemberAccountStatus.active:
-      return UserDisplayStatus.active;
-    case null:
-      return member.activeStatus
-          ? UserDisplayStatus.active
-          : UserDisplayStatus.suspended;
-  }
-}
+UserDisplayStatus _displayStatusFromMember(Member member) =>
+    switch (member.accountStatus) {
+      MemberAccountStatus.suspended => UserDisplayStatus.suspended,
+      MemberAccountStatus.active => UserDisplayStatus.active,
+    };

@@ -13,17 +13,22 @@ import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
+import persistence.changes.Change
+import persistence.changes.ChangeOp
 import persistence.changes.Delete
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
+import persistence.changes.OrganizationPayload
 import persistence.changes.OrganizationRequestPayload
+import persistence.changes.SyncScope
 import persistence.changes.Upsert
 import persistence.dao.ActivationTokenDAO
-import persistence.dao.OrganizationDAO
 import persistence.dao.OrganizationRequestDAO
 import persistence.dao.OrganizationRequestSyncDAO
+import persistence.dao.OrganizationSyncDAO
 import persistence.model.ActivationToken
 import persistence.model.EntityType
+import persistence.model.Organization
 import persistence.model.OrganizationRequest
 import persistence.model.OrganizationRequestStatus
 import persistence.model.OrganizationType
@@ -39,7 +44,7 @@ import kotlin.time.ExperimentalTime
 internal class OrganizationRequestServiceTest {
     private val organizationRequestSyncDAO = mockk<OrganizationRequestSyncDAO>(relaxed = true)
     private val organizationRequestDAO = mockk<OrganizationRequestDAO>(relaxed = true)
-    private val organizationDAO = mockk<OrganizationDAO>(relaxed = true)
+    private val organizationSyncDAO = mockk<OrganizationSyncDAO>(relaxed = true)
     private val activationTokenDAO = mockk<ActivationTokenDAO>(relaxed = true)
     private val activationEmailPort = mockk<ActivationEmailPort>(relaxed = true)
     private val rejectionEmailPort = mockk<RejectionEmailPort>(relaxed = true)
@@ -47,7 +52,7 @@ internal class OrganizationRequestServiceTest {
         OrganizationRequestService(
             organizationRequestSyncDAO,
             organizationRequestDAO,
-            organizationDAO,
+            organizationSyncDAO,
             activationTokenDAO,
             activationEmailPort,
             rejectionEmailPort,
@@ -158,7 +163,14 @@ internal class OrganizationRequestServiceTest {
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
             assertEquals(pending.requestId.id, outcome.serverEntityId)
-            coVerify { organizationDAO.create(any()) }
+            val organizationSlot = slot<Organization>()
+            val changeSlot = slot<Change>()
+            coVerify { organizationSyncDAO.put(capture(organizationSlot), capture(changeSlot)) }
+            assertEquals(SyncScope.InstanceOwner.key, changeSlot.captured.scopeKey)
+            assertEquals(EntityType.Organization, changeSlot.captured.entityType)
+            assertEquals(ChangeOp.UPSERT, changeSlot.captured.op)
+            assertEquals(organizationSlot.captured.organizationId.id, changeSlot.captured.entityId)
+            assertEquals(OrganizationPayload(organizationSlot.captured), changeSlot.captured.payload)
             coVerify { activationTokenDAO.create(any()) }
             coVerify { activationEmailPort.scheduleActivationEmail(any(), any()) }
             val persistedRequestSlot = slot<OrganizationRequest>()
@@ -187,7 +199,7 @@ internal class OrganizationRequestServiceTest {
             assertEquals(pending.requestId.id, outcome.serverEntityId)
             coVerify { rejectionEmailPort.sendRejectionEmail(any(), any()) }
             coVerify { organizationRequestSyncDAO.put(any(), any()) }
-            coVerify(exactly = 0) { organizationDAO.create(any()) }
+            coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
         }
 
     @Test

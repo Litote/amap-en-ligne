@@ -24,14 +24,11 @@ void main() {
     String sub = 'sub-m-1',
     Set<Role> roles = const {Role.volunteer},
     List<MemberContract> contracts = const [],
-    Map<String, dynamic>? memberSettings,
   }) => Member(
     memberId: memberId,
     organizationId: orgId,
     roles: roles,
-    activeStatus: true,
     contracts: contracts,
-    memberSettings: memberSettings,
   );
 
   MemberPreferences buildMemberPreferences({
@@ -156,12 +153,11 @@ void main() {
       },
     );
 
-    test('preserves other fields (roles, contracts, memberSettings)', () async {
+    test('preserves other fields (roles, contracts)', () async {
       final member = buildMember(
         memberId: 'm-2',
         orgId: 'org-1',
         roles: {Role.coordinator},
-        memberSettings: {'key': 'value'},
       );
       await db.upsertMember('org-1', member);
 
@@ -174,7 +170,6 @@ void main() {
 
       final updated = (await db.watchMembers('org-1').first).single;
       expect(updated.roles, {Role.coordinator});
-      expect(updated.memberSettings, {'key': 'value'});
       expect(updated.memberId, 'm-2');
       expect(updated.organizationId, 'org-1');
     });
@@ -244,7 +239,6 @@ void main() {
 
       final members = await db.watchMembers('org-1').first;
       expect(members.single.accountStatus, MemberAccountStatus.suspended);
-      expect(members.single.activeStatus, isFalse);
 
       final pending = await db.readPendingMutations();
       expect(pending, hasLength(1));
@@ -267,7 +261,6 @@ void main() {
     test('flips accountStatus to ACTIVE and enqueues Upsert', () async {
       final seeded = buildMember(memberId: 'm-1').copyWith(
         accountStatus: MemberAccountStatus.suspended,
-        activeStatus: false,
       );
       await db.upsertMember('org-1', seeded);
 
@@ -275,7 +268,6 @@ void main() {
 
       final members = await db.watchMembers('org-1').first;
       expect(members.single.accountStatus, MemberAccountStatus.active);
-      expect(members.single.activeStatus, isTrue);
 
       final pending = await db.readPendingMutations();
       final upsert = pending.single.op as Upsert;

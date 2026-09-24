@@ -8,12 +8,9 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
 import persistence.changes.MutationErrorCode
 import persistence.dao.OwnerSyncDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.AccountStatus
-import persistence.model.DeliveryReminders
 import persistence.model.Member
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Owner
 import persistence.model.Server
 import persistence.model.UserPreferences
@@ -53,18 +50,6 @@ internal class RoleServiceTest {
             memberId = id.toId(),
             organizationId = orgId.toId(),
             roles = roles,
-            activeStatus = true,
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                    accessibilityOptions =
-                        AccessibilityOptions(
-                            highContrast = false,
-                            largeText = false,
-                            screenReader = false,
-                        ),
-                    lastUpdatedInstant = Instant.fromEpochMilliseconds(1_000_000L),
-                ),
             memberPreferences =
                 MemberPreferences(
                     deliveryRemindersEnabled = true,

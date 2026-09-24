@@ -29,7 +29,7 @@ data class EmailContent(
 
 /**
  * Prefixes an AMAP-scoped email subject with the organization name, e.g.
- * `[Ma Super AMAP] Invitation à rejoindre votre AMAP`. A null/blank name leaves
+ * `[Ma Super AMAP] Invitation à rejoindre l'AMAP`. A null/blank name leaves
  * the subject unchanged (used for instance-level emails with no owning AMAP).
  */
 fun amapEmailSubject(
@@ -131,13 +131,13 @@ object EmailTemplates {
         expiresAt: Instant,
         organizationName: String? = null,
     ): EmailContent {
-        val baseSubject = invitation.customEmailSubject?.takeIf { it.isNotBlank() } ?: "Invitation à rejoindre votre AMAP"
+        val baseSubject = invitation.customEmailSubject?.takeIf { it.isNotBlank() } ?: "Invitation à rejoindre l'AMAP"
         val subject = amapEmailSubject(organizationName, baseSubject)
         val intro =
             invitation.customEmailBody?.takeIf { it.isNotBlank() }
                 ?: (
                     "Bonjour ${invitation.firstName} ${invitation.lastName},\n\n" +
-                        "Vous avez été invité(e) à rejoindre votre AMAP sur l'application AmapEnLigne."
+                        "Vous avez été invité(e) à rejoindre ${amapLabel(organizationName)} sur l'application AmapEnLigne."
                 )
         // The activation link footer + signature are always appended so the link is never droppable.
         return EmailContent(
@@ -145,6 +145,9 @@ object EmailTemplates {
             body = intro + "\n\n" + activationFooter(activationUrl, expiresAt) + SIGNATURE,
         )
     }
+
+    private fun amapLabel(organizationName: String?): String =
+        organizationName?.takeIf { it.isNotBlank() }?.let { "l'AMAP « $it »" } ?: "une AMAP"
 
     fun ownerActivation(
         invitation: OwnerInvitation,
@@ -210,6 +213,32 @@ object EmailTemplates {
                 "Bonjour ${request.firstName} ${request.lastName},\n\n" +
                     "Votre demande d'adhésion à l'AMAP n'a pas pu être acceptée.\n" +
                     rejectionReason(request.reviewComment) +
+                    SIGNATURE,
+        )
+
+    /** Acknowledgement sent to the requester right after an organization creation request is submitted. */
+    fun organizationRequestReceived(request: OrganizationRequest): EmailContent =
+        EmailContent(
+            subject = "Votre demande de création d'AMAP a bien été reçue",
+            body =
+                "Bonjour ${request.adminFirstName} ${request.adminLastName},\n\n" +
+                    "Votre demande de création de l'AMAP « ${request.organizationName} » a bien été reçue.\n" +
+                    "Elle va être examinée par notre équipe ; vous recevrez un email avec votre lien " +
+                    "d'activation dès qu'elle sera validée (délai habituel : moins de 3 jours ouvrés).\n\n" +
+                    "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail." +
+                    SIGNATURE,
+        )
+
+    /** Acknowledgement sent to the requester right after a producer account request is submitted. */
+    fun producerRequestReceived(request: ProducerRequest): EmailContent =
+        EmailContent(
+            subject = "Votre demande de compte producteur a bien été reçue",
+            body =
+                "Bonjour ${request.adminFirstName} ${request.adminLastName},\n\n" +
+                    "Votre demande de compte producteur « ${request.producerName} » a bien été reçue.\n" +
+                    "Elle va être examinée par notre équipe ; vous recevrez un email avec votre lien " +
+                    "d'activation dès qu'elle sera validée (délai habituel : moins de 3 jours ouvrés).\n\n" +
+                    "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail." +
                     SIGNATURE,
         )
 

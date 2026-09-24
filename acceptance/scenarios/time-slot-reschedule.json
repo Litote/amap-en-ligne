@@ -1,7 +1,10 @@
 {
   "id": "time-slot-reschedule",
   "title": "A coordinator reschedules a slot with active registrations: registrations are preserved and members are notified",
-  "targets": ["time-slot-flow", "flutter"],
+  "targets": [
+    "time-slot-flow",
+    "flutter"
+  ],
   "given": {
     "backendState": "organization:org-1 with a future PLANNED delivery:delivery-1 containing one OPEN slot:slot-1 with 2 active registrations (member:member-1, member:member-2); member:coordinator-1 authorized on organization:org-1 with role COORDINATOR",
     "appState": "fresh organization cache synchronized from bootstrap"
@@ -42,7 +45,9 @@
                       "contracts": [
                         {
                           "contract_id": "contract-1",
-                          "coordinators": ["coordinator-1"],
+                          "coordinators": [
+                            "coordinator-1"
+                          ],
                           "basket_quantity": 10,
                           "delivery_description": "Weekly basket",
                           "status": "PENDING",

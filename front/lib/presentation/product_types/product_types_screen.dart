@@ -71,7 +71,8 @@ class ProductTypesScreen extends StatelessWidget {
                             ? null
                             : Text(pt.description!),
                         trailing: Text(
-                          '${pt.supportedBasketSizes.length} sizes',
+                          '${pt.supportedBasketSizes.length} taille'
+                          '${pt.supportedBasketSizes.length > 1 ? 's' : ''}',
                         ),
                         onTap: () =>
                             context.push('/product-types/${pt.productTypeId}'),

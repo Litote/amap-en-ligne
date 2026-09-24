@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'member_preferences.dart';
@@ -9,6 +9,7 @@ part of 'member_preferences.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $MemberPreferencesCopyWith<MemberPreferences> get copyWith => _$MemberPreference
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberPreferences&&(identical(other.deliveryRemindersEnabled, deliveryRemindersEnabled) || other.deliveryRemindersEnabled == deliveryRemindersEnabled)&&(identical(other.volunteerAlertsEnabled, volunteerAlertsEnabled) || other.volunteerAlertsEnabled == volunteerAlertsEnabled)&&(identical(other.reminder24hEnabled, reminder24hEnabled) || other.reminder24hEnabled == reminder24hEnabled)&&(identical(other.reminder2hEnabled, reminder2hEnabled) || other.reminder2hEnabled == reminder2hEnabled)&&(identical(other.reminder30minEnabled, reminder30minEnabled) || other.reminder30minEnabled == reminder30minEnabled)&&(identical(other.urgentNeedAlertsEnabled, urgentNeedAlertsEnabled) || other.urgentNeedAlertsEnabled == urgentNeedAlertsEnabled)&&(identical(other.incompleteSlotRemindersEnabled, incompleteSlotRemindersEnabled) || other.incompleteSlotRemindersEnabled == incompleteSlotRemindersEnabled)&&(identical(other.planningChangesAlertsEnabled, planningChangesAlertsEnabled) || other.planningChangesAlertsEnabled == planningChangesAlertsEnabled)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant));
+  final _this = this as MemberPreferences;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberPreferences&&(identical(other.deliveryRemindersEnabled, _this.deliveryRemindersEnabled) || other.deliveryRemindersEnabled == _this.deliveryRemindersEnabled)&&(identical(other.volunteerAlertsEnabled, _this.volunteerAlertsEnabled) || other.volunteerAlertsEnabled == _this.volunteerAlertsEnabled)&&(identical(other.reminder24hEnabled, _this.reminder24hEnabled) || other.reminder24hEnabled == _this.reminder24hEnabled)&&(identical(other.reminder2hEnabled, _this.reminder2hEnabled) || other.reminder2hEnabled == _this.reminder2hEnabled)&&(identical(other.reminder30minEnabled, _this.reminder30minEnabled) || other.reminder30minEnabled == _this.reminder30minEnabled)&&(identical(other.urgentNeedAlertsEnabled, _this.urgentNeedAlertsEnabled) || other.urgentNeedAlertsEnabled == _this.urgentNeedAlertsEnabled)&&(identical(other.incompleteSlotRemindersEnabled, _this.incompleteSlotRemindersEnabled) || other.incompleteSlotRemindersEnabled == _this.incompleteSlotRemindersEnabled)&&(identical(other.planningChangesAlertsEnabled, _this.planningChangesAlertsEnabled) || other.planningChangesAlertsEnabled == _this.planningChangesAlertsEnabled)&&(identical(other.lastUpdatedInstant, _this.lastUpdatedInstant) || other.lastUpdatedInstant == _this.lastUpdatedInstant));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deliveryRemindersEnabled,volunteerAlertsEnabled,reminder24hEnabled,reminder2hEnabled,reminder30minEnabled,urgentNeedAlertsEnabled,incompleteSlotRemindersEnabled,planningChangesAlertsEnabled,lastUpdatedInstant);
+int get hashCode {
+  final _this = this as MemberPreferences;
+  return Object.hash(runtimeType,_this.deliveryRemindersEnabled,_this.volunteerAlertsEnabled,_this.reminder24hEnabled,_this.reminder2hEnabled,_this.reminder30minEnabled,_this.urgentNeedAlertsEnabled,_this.incompleteSlotRemindersEnabled,_this.planningChangesAlertsEnabled,_this.lastUpdatedInstant);
+}
 
 @override
 String toString() {
-  return 'MemberPreferences(deliveryRemindersEnabled: $deliveryRemindersEnabled, volunteerAlertsEnabled: $volunteerAlertsEnabled, reminder24hEnabled: $reminder24hEnabled, reminder2hEnabled: $reminder2hEnabled, reminder30minEnabled: $reminder30minEnabled, urgentNeedAlertsEnabled: $urgentNeedAlertsEnabled, incompleteSlotRemindersEnabled: $incompleteSlotRemindersEnabled, planningChangesAlertsEnabled: $planningChangesAlertsEnabled, lastUpdatedInstant: $lastUpdatedInstant)';
+  final _this = this as MemberPreferences;
+  return 'MemberPreferences(deliveryRemindersEnabled: ${_this.deliveryRemindersEnabled}, volunteerAlertsEnabled: ${_this.volunteerAlertsEnabled}, reminder24hEnabled: ${_this.reminder24hEnabled}, reminder2hEnabled: ${_this.reminder2hEnabled}, reminder30minEnabled: ${_this.reminder30minEnabled}, urgentNeedAlertsEnabled: ${_this.urgentNeedAlertsEnabled}, incompleteSlotRemindersEnabled: ${_this.incompleteSlotRemindersEnabled}, planningChangesAlertsEnabled: ${_this.planningChangesAlertsEnabled}, lastUpdatedInstant: ${_this.lastUpdatedInstant})';
 }
 
 
@@ -66,7 +72,7 @@ class _$MemberPreferencesCopyWithImpl<$Res>
 /// Create a copy of MemberPreferences
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? deliveryRemindersEnabled = null,Object? volunteerAlertsEnabled = null,Object? reminder24hEnabled = null,Object? reminder2hEnabled = null,Object? reminder30minEnabled = null,Object? urgentNeedAlertsEnabled = null,Object? incompleteSlotRemindersEnabled = null,Object? planningChangesAlertsEnabled = null,Object? lastUpdatedInstant = null,}) {
-  return _then(_self.copyWith(
+  return _then(MemberPreferences(
 deliveryRemindersEnabled: null == deliveryRemindersEnabled ? _self.deliveryRemindersEnabled : deliveryRemindersEnabled // ignore: cast_nullable_to_non_nullable
 as bool,volunteerAlertsEnabled: null == volunteerAlertsEnabled ? _self.volunteerAlertsEnabled : volunteerAlertsEnabled // ignore: cast_nullable_to_non_nullable
 as bool,reminder24hEnabled: null == reminder24hEnabled ? _self.reminder24hEnabled : reminder24hEnabled // ignore: cast_nullable_to_non_nullable
@@ -243,16 +249,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberPreferences&&(identical(other.deliveryRemindersEnabled, deliveryRemindersEnabled) || other.deliveryRemindersEnabled == deliveryRemindersEnabled)&&(identical(other.volunteerAlertsEnabled, volunteerAlertsEnabled) || other.volunteerAlertsEnabled == volunteerAlertsEnabled)&&(identical(other.reminder24hEnabled, reminder24hEnabled) || other.reminder24hEnabled == reminder24hEnabled)&&(identical(other.reminder2hEnabled, reminder2hEnabled) || other.reminder2hEnabled == reminder2hEnabled)&&(identical(other.reminder30minEnabled, reminder30minEnabled) || other.reminder30minEnabled == reminder30minEnabled)&&(identical(other.urgentNeedAlertsEnabled, urgentNeedAlertsEnabled) || other.urgentNeedAlertsEnabled == urgentNeedAlertsEnabled)&&(identical(other.incompleteSlotRemindersEnabled, incompleteSlotRemindersEnabled) || other.incompleteSlotRemindersEnabled == incompleteSlotRemindersEnabled)&&(identical(other.planningChangesAlertsEnabled, planningChangesAlertsEnabled) || other.planningChangesAlertsEnabled == planningChangesAlertsEnabled)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberPreferences&&(identical(other.deliveryRemindersEnabled, deliveryRemindersEnabled) || other.deliveryRemindersEnabled == deliveryRemindersEnabled)&&(identical(other.volunteerAlertsEnabled, volunteerAlertsEnabled) || other.volunteerAlertsEnabled == volunteerAlertsEnabled)&&(identical(other.reminder24hEnabled, reminder24hEnabled) || other.reminder24hEnabled == reminder24hEnabled)&&(identical(other.reminder2hEnabled, reminder2hEnabled) || other.reminder2hEnabled == reminder2hEnabled)&&(identical(other.reminder30minEnabled, reminder30minEnabled) || other.reminder30minEnabled == reminder30minEnabled)&&(identical(other.urgentNeedAlertsEnabled, urgentNeedAlertsEnabled) || other.urgentNeedAlertsEnabled == urgentNeedAlertsEnabled)&&(identical(other.incompleteSlotRemindersEnabled, incompleteSlotRemindersEnabled) || other.incompleteSlotRemindersEnabled == incompleteSlotRemindersEnabled)&&(identical(other.planningChangesAlertsEnabled, planningChangesAlertsEnabled) || other.planningChangesAlertsEnabled == planningChangesAlertsEnabled)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deliveryRemindersEnabled,volunteerAlertsEnabled,reminder24hEnabled,reminder2hEnabled,reminder30minEnabled,urgentNeedAlertsEnabled,incompleteSlotRemindersEnabled,planningChangesAlertsEnabled,lastUpdatedInstant);
+int get hashCode {
+    return Object.hash(runtimeType,deliveryRemindersEnabled,volunteerAlertsEnabled,reminder24hEnabled,reminder2hEnabled,reminder30minEnabled,urgentNeedAlertsEnabled,incompleteSlotRemindersEnabled,planningChangesAlertsEnabled,lastUpdatedInstant);
+}
 
 @override
 String toString() {
-  return 'MemberPreferences(deliveryRemindersEnabled: $deliveryRemindersEnabled, volunteerAlertsEnabled: $volunteerAlertsEnabled, reminder24hEnabled: $reminder24hEnabled, reminder2hEnabled: $reminder2hEnabled, reminder30minEnabled: $reminder30minEnabled, urgentNeedAlertsEnabled: $urgentNeedAlertsEnabled, incompleteSlotRemindersEnabled: $incompleteSlotRemindersEnabled, planningChangesAlertsEnabled: $planningChangesAlertsEnabled, lastUpdatedInstant: $lastUpdatedInstant)';
+    return 'MemberPreferences(deliveryRemindersEnabled: $deliveryRemindersEnabled, volunteerAlertsEnabled: $volunteerAlertsEnabled, reminder24hEnabled: $reminder24hEnabled, reminder2hEnabled: $reminder2hEnabled, reminder30minEnabled: $reminder30minEnabled, urgentNeedAlertsEnabled: $urgentNeedAlertsEnabled, incompleteSlotRemindersEnabled: $incompleteSlotRemindersEnabled, planningChangesAlertsEnabled: $planningChangesAlertsEnabled, lastUpdatedInstant: $lastUpdatedInstant)';
 }
 
 

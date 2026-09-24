@@ -141,7 +141,7 @@ Interface réservée aux administrateurs d'instance permettant de consulter les 
 
 | Action | Comportement |
 |--------|-------------|
-| [APPROUVER] | Marque la demande comme approuvée ; retour liste avec bandeau succès |
+| [APPROUVER] | Ouvre une confirmation « Approuver la demande ? » (L'AMAP « {nom} » sera créée et un lien d'activation sera envoyé à {email}. — [Annuler] / [Approuver]) ; après confirmation, marque la demande comme approuvée ; retour liste avec bandeau succès « Demande approuvée : le lien d'activation a été envoyé. » |
 | [REFUSER] | Ouvre le modal de refus |
 | ← Retour | Revient à la liste sans modifier la demande |
 

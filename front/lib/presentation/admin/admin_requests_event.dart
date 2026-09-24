@@ -8,6 +8,9 @@ part 'admin_requests_event.freezed.dart';
 sealed class AdminRequestsEvent with _$AdminRequestsEvent {
   const factory AdminRequestsEvent.loadRequested({
     OrganizationRequestStatus? statusFilter,
+
+    /// Tab to open on the first load (defaults to AMAP).
+    OrganizationType? organizationTypeFilter,
   }) = AdminRequestsLoadRequested;
 
   const factory AdminRequestsEvent.organizationTypeFilterChanged(

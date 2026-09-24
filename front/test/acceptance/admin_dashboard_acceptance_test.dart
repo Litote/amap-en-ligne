@@ -64,25 +64,21 @@ final _seededMembers = [
     memberId: 'member-admin-dev',
     organizationId: _orgId,
     roles: {Role.admin},
-    activeStatus: true,
   ),
   const Member(
     memberId: 'member-coordinator-dev',
     organizationId: _orgId,
     roles: {Role.coordinator},
-    activeStatus: true,
   ),
   const Member(
     memberId: 'member-volunteer-dev',
     organizationId: _orgId,
     roles: {Role.volunteer},
-    activeStatus: true,
   ),
   const Member(
     memberId: 'member-producer-dev',
     organizationId: _orgId,
     roles: {Role.producer},
-    activeStatus: true,
   ),
 ];
 
@@ -155,18 +151,18 @@ void main() {
 
   test('GIVEN admin user with organization_id = amap-dev, '
       'WHEN bootstrap sync runs, '
-      'THEN all seeded members have activeStatus = true '
+      'THEN all seeded members have accountStatus = active '
       '(dashboard should show 4 membres actifs, not 0)', () async {
     await syncRepo.sync(tenantId: _orgId);
 
     final members = await memberRepo.watch(_orgId).first;
 
     expect(
-      members.every((m) => m.activeStatus),
+      members.every((m) => m.accountStatus == MemberAccountStatus.active),
       isTrue,
       reason:
-          'dev-seeded members all have active_status = true; '
-          'dashboard _DashboardStats.from counts via m.activeStatus',
+          'dev-seeded members have no account_status on the wire so they '
+          'default to ACTIVE; dashboard _DashboardStats.from counts via m.accountStatus',
     );
     expect(
       members.length,

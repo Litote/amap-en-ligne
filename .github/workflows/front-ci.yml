@@ -123,13 +123,6 @@ jobs:
         with:
           working-directory: front
 
-      - name: Cache CocoaPods
-        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
-        with:
-          path: front/ios/Pods
-          key: pods-${{ hashFiles('front/ios/Podfile.lock') }}
-          restore-keys: pods-
-
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
 

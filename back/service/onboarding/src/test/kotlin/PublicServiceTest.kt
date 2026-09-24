@@ -25,19 +25,17 @@ import persistence.dao.ProducerAccountSyncDAO
 import persistence.dao.ProducerRequestDAO
 import persistence.dao.ProducerRequestSyncDAO
 import persistence.dao.ServerDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.AccountStatus
 import persistence.model.CreateMemberJoinRequestBody
 import persistence.model.CreateOrganizationRequestBody
 import persistence.model.CreateProducerRequestBody
-import persistence.model.DeliveryReminders
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.NotificationCategory
 import persistence.model.NotificationChannel
 import persistence.model.NotificationType
+import persistence.model.Organization
 import persistence.model.OrganizationRequestStatus
 import persistence.model.OrganizationType
 import persistence.model.Owner
@@ -90,6 +88,30 @@ internal class PublicServiceTest {
             organizationSyncDAO,
         )
 
+    private val activeOrganization =
+        Organization(
+            organizationId = "org-1".toId(),
+            name = "AMAP des Collines",
+            contactEmail = "contact@example.com",
+            activeStatus = true,
+            timezone = TimeZone.of("Europe/Paris"),
+            defaultLanguage = "fr",
+            createdInstant = Instant.fromEpochMilliseconds(0),
+            lastUpdatedInstant = Instant.fromEpochMilliseconds(0),
+        )
+
+    init {
+        coEvery { organizationSyncDAO.getById(any()) } returns activeOrganization
+    }
+
+    private val joinBody =
+        CreateMemberJoinRequestBody(
+            organizationId = "org-1",
+            email = "alice@example.com",
+            firstName = "Alice",
+            lastName = "Martin",
+        )
+
     private val validBody =
         CreateOrganizationRequestBody(
             organizationName = "AMAP des Collines",
@@ -121,6 +143,7 @@ internal class PublicServiceTest {
             coVerify { organizationRequestSyncDAO.put(any(), any()) }
             coVerify(exactly = 0) { organizationRequestDAO.create(any()) }
             coVerify { organizationRequestNotificationEmailPort.notifyOwners(any()) }
+            coVerify { organizationRequestNotificationEmailPort.acknowledgeRequester(any()) }
         }
 
     @Test
@@ -172,6 +195,29 @@ internal class PublicServiceTest {
         }
 
     @Test
+    fun `GIVEN unknown organization WHEN createMemberJoinRequest THEN returns OrganizationNotFound and persists nothing`() =
+        runTest {
+            coEvery { organizationSyncDAO.getById(any()) } returns null
+
+            val outcome = service.createMemberJoinRequest(joinBody)
+
+            assertEquals(CreateMemberJoinOutcome.OrganizationNotFound, outcome)
+            coVerify(exactly = 0) { memberJoinRequestSyncDAO.put(any(), any()) }
+            coVerify(exactly = 0) { memberJoinRequestNotificationEmailPort.notifyAdmins(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN inactive organization WHEN createMemberJoinRequest THEN returns OrganizationNotFound and persists nothing`() =
+        runTest {
+            coEvery { organizationSyncDAO.getById(any()) } returns activeOrganization.copy(activeStatus = false)
+
+            val outcome = service.createMemberJoinRequest(joinBody)
+
+            assertEquals(CreateMemberJoinOutcome.OrganizationNotFound, outcome)
+            coVerify(exactly = 0) { memberJoinRequestSyncDAO.put(any(), any()) }
+        }
+
+    @Test
     fun `GIVEN duplicate member join request email WHEN createMemberJoinRequest THEN returns Conflict and no syncDAO call`() =
         runTest {
             coEvery { memberJoinRequestDAO.existsPendingByEmailAndOrganization(any(), any()) } returns true
@@ -202,6 +248,7 @@ internal class PublicServiceTest {
             coVerify { producerRequestSyncDAO.put(any(), any()) }
             coVerify(exactly = 0) { producerRequestDAO.create(any()) }
             coVerify { producerRequestNotificationEmailPort.notifyOwners(any()) }
+            coVerify { producerRequestNotificationEmailPort.acknowledgeRequester(any()) }
         }
 
     @Test
@@ -456,14 +503,7 @@ internal class PublicServiceTest {
             memberId = sub.toId(),
             organizationId = "org-1".toId(),
             roles = setOf(role),
-            activeStatus = true,
             accountStatus = MemberAccountStatus.ACTIVE,
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                    accessibilityOptions = AccessibilityOptions(highContrast = false, largeText = false, screenReader = false),
-                    lastUpdatedInstant = now,
-                ),
             memberPreferences =
                 MemberPreferences(
                     deliveryRemindersEnabled = true,

@@ -9,6 +9,7 @@ import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/coordinator/attendance/attendance_sheets_bloc.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
@@ -28,6 +29,40 @@ import 'package:printing/printing.dart';
 ///
 /// When a delivery is selected, action buttons for PDF export and email
 /// sending are displayed via a [BottomAppBar].
+/// File name of a delivery's attendance sheet: `emargement-YYYY-MM-DD.pdf`.
+/// The date is unique per organization (the back rejects two deliveries on
+/// the same day) and, unlike the delivery id, meaningful to the user.
+@visibleForTesting
+String attendanceSheetFilename(Delivery delivery) {
+  final date = DateTime.tryParse(delivery.scheduledDate);
+  final day = date == null
+      ? delivery.deliveryId.replaceAll(RegExp(r'[^a-zA-Z0-9\-]'), '_')
+      : DateFormat('yyyy-MM-dd').format(date);
+  return 'emargement-$day.pdf';
+}
+
+/// Header of the volunteer attendance PDF page.
+@visibleForTesting
+String attendanceVolunteerSheetTitle(Delivery delivery) =>
+    'Émargement bénévoles - ${_formatPdfDate(delivery.scheduledDate)}';
+
+/// Header of a basket pick-up PDF page for the basket group [groupLabel].
+@visibleForTesting
+String attendanceBasketSheetTitle(String groupLabel, Delivery delivery) =>
+    _pdfText(
+      'Récupération paniers - $groupLabel - '
+      '${_formatPdfDate(delivery.scheduledDate)}',
+    );
+
+String _formatPdfDate(String isoDate) {
+  final date = DateTime.tryParse(isoDate);
+  return date == null ? isoDate : DateFormat('d MMMM yyyy', 'fr').format(date);
+}
+
+/// The default PDF font (Helvetica, Latin-1) has no em/en dash: the glyph
+/// would silently vanish from the document.
+String _pdfText(String text) => text.replaceAll(RegExp('[—–]'), '-');
+
 class AttendanceSheetsScreen extends StatelessWidget {
   const AttendanceSheetsScreen({super.key, required this.tenantId});
 
@@ -260,10 +295,7 @@ class _AttendanceActionBar extends StatelessWidget {
     doc.addPage(
       pw.MultiPage(
         build: (ctx) => [
-          pw.Header(
-            level: 0,
-            text: 'Émargement bénévoles — ${delivery.scheduledDate}',
-          ),
+          pw.Header(level: 0, text: attendanceVolunteerSheetTitle(delivery)),
           pw.SizedBox(height: 8),
           pw.TableHelper.fromTextArray(
             headers: ['Nom', 'Email', 'Arrivée'],
@@ -294,7 +326,6 @@ class _AttendanceActionBar extends StatelessWidget {
       membersById,
       exchanges,
     );
-    final deliveryDateLabel = _formatDate(delivery.scheduledDate);
 
     for (final group in groups) {
       final rows = group.rows;
@@ -303,8 +334,7 @@ class _AttendanceActionBar extends StatelessWidget {
           build: (ctx) => [
             pw.Header(
               level: 0,
-              text:
-                  'Récupération paniers — ${group.label} — $deliveryDateLabel',
+              text: attendanceBasketSheetTitle(group.label, delivery),
             ),
             pw.SizedBox(height: 8),
             pw.TableHelper.fromTextArray(
@@ -312,7 +342,8 @@ class _AttendanceActionBar extends StatelessWidget {
                 'Membre',
                 'Format panier',
                 'Récupéré par',
-                '☐ Récupéré',
+                // No '☐': missing from the default PDF font.
+                'Récupéré',
               ],
               data: rows
                   .map(
@@ -336,46 +367,21 @@ class _AttendanceActionBar extends StatelessWidget {
       );
     }
 
-    final filename =
-        'emargement-${delivery.deliveryId.replaceAll(RegExp(r'[^a-zA-Z0-9\-]'), '_')}.pdf';
-    await Printing.sharePdf(bytes: await doc.save(), filename: filename);
+    await Printing.sharePdf(
+      bytes: await doc.save(),
+      filename: attendanceSheetFilename(delivery),
+    );
   }
 
   /// Opens a dialog asking for a recipient email, then calls the coordinator
   /// API to send the attendance sheet by email.
   Future<void> _sendEmail(BuildContext context) async {
-    final emailController = TextEditingController();
-    final confirmed = await showDialog<bool>(
+    final email = await showDialog<String>(
       context: context,
       useRootNavigator: true,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Envoyer par email'),
-        content: TextField(
-          controller: emailController,
-          keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(
-            labelText: 'Adresse email destinataire',
-            border: OutlineInputBorder(),
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Annuler'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Envoyer'),
-          ),
-        ],
-      ),
+      builder: (_) => const _RecipientEmailDialog(),
     );
-
-    if (confirmed != true) return;
-
-    final email = emailController.text.trim();
-    if (email.isEmpty) return;
+    if (email == null) return;
 
     // Use the mounted check to avoid using context after async gap.
     if (!context.mounted) return;
@@ -399,15 +405,6 @@ class _AttendanceActionBar extends StatelessWidget {
       return DateFormat("HH'h'mm", 'fr').format(dt);
     } on Object {
       return isoTime;
-    }
-  }
-
-  String _formatDate(String isoDate) {
-    try {
-      final dt = DateTime.parse(isoDate);
-      return DateFormat('d MMMM yyyy', 'fr').format(dt);
-    } on Object {
-      return isoDate;
     }
   }
 
@@ -795,4 +792,56 @@ List<_BasketGroup> _groupByBasketType(
     group.rows.sort((a, b) => a.memberName.compareTo(b.memberName));
   }
   return sorted;
+}
+
+/// Asks for the attendance sheet recipient; pops the trimmed address, or null
+/// when cancelled. The address is validated before closing (the back rejects a
+/// malformed one with `INVALID_PAYLOAD`).
+class _RecipientEmailDialog extends StatefulWidget {
+  const _RecipientEmailDialog();
+
+  @override
+  State<_RecipientEmailDialog> createState() => _RecipientEmailDialogState();
+}
+
+class _RecipientEmailDialogState extends State<_RecipientEmailDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    Navigator.of(context).pop(_controller.text.trim());
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Envoyer par email'),
+    content: Form(
+      key: _formKey,
+      child: TextFormField(
+        controller: _controller,
+        keyboardType: TextInputType.emailAddress,
+        decoration: const InputDecoration(
+          labelText: 'Adresse email destinataire',
+          border: OutlineInputBorder(),
+        ),
+        autofocus: true,
+        validator: requiredEmail,
+        onFieldSubmitted: (_) => _submit(),
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('Annuler'),
+      ),
+      FilledButton(onPressed: _submit, child: const Text('Envoyer')),
+    ],
+  );
 }

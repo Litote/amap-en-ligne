@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'member_join_request.dart';
@@ -9,6 +9,7 @@ part of 'member_join_request.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $MemberJoinRequestCopyWith<MemberJoinRequest> get copyWith => _$MemberJoinReques
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberJoinRequest&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName));
+  final _this = this as MemberJoinRequest;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberJoinRequest&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,organizationId,email,firstName,lastName);
+int get hashCode {
+  final _this = this as MemberJoinRequest;
+  return Object.hash(runtimeType,_this.organizationId,_this.email,_this.firstName,_this.lastName);
+}
 
 @override
 String toString() {
-  return 'MemberJoinRequest(organizationId: $organizationId, email: $email, firstName: $firstName, lastName: $lastName)';
+  final _this = this as MemberJoinRequest;
+  return 'MemberJoinRequest(organizationId: ${_this.organizationId}, email: ${_this.email}, firstName: ${_this.firstName}, lastName: ${_this.lastName})';
 }
 
 
@@ -66,7 +72,7 @@ class _$MemberJoinRequestCopyWithImpl<$Res>
 /// Create a copy of MemberJoinRequest
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? organizationId = null,Object? email = null,Object? firstName = null,Object? lastName = null,}) {
-  return _then(_self.copyWith(
+  return _then(MemberJoinRequest(
 organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
@@ -233,16 +239,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberJoinRequest&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberJoinRequest&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,organizationId,email,firstName,lastName);
+int get hashCode {
+    return Object.hash(runtimeType,organizationId,email,firstName,lastName);
+}
 
 @override
 String toString() {
-  return 'MemberJoinRequest(organizationId: $organizationId, email: $email, firstName: $firstName, lastName: $lastName)';
+    return 'MemberJoinRequest(organizationId: $organizationId, email: $email, firstName: $firstName, lastName: $lastName)';
 }
 
 
@@ -300,16 +308,21 @@ $MemberJoinRequestResponseCopyWith<MemberJoinRequestResponse> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberJoinRequestResponse&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.status, status) || other.status == status));
+  final _this = this as MemberJoinRequestResponse;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberJoinRequestResponse&&(identical(other.requestId, _this.requestId) || other.requestId == _this.requestId)&&(identical(other.status, _this.status) || other.status == _this.status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,status);
+int get hashCode {
+  final _this = this as MemberJoinRequestResponse;
+  return Object.hash(runtimeType,_this.requestId,_this.status);
+}
 
 @override
 String toString() {
-  return 'MemberJoinRequestResponse(requestId: $requestId, status: $status)';
+  final _this = this as MemberJoinRequestResponse;
+  return 'MemberJoinRequestResponse(requestId: ${_this.requestId}, status: ${_this.status})';
 }
 
 
@@ -338,7 +351,7 @@ class _$MemberJoinRequestResponseCopyWithImpl<$Res>
 /// Create a copy of MemberJoinRequestResponse
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? requestId = null,Object? status = null,}) {
-  return _then(_self.copyWith(
+  return _then(MemberJoinRequestResponse(
 requestId: null == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,
@@ -501,16 +514,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberJoinRequestResponse&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.status, status) || other.status == status));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberJoinRequestResponse&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.status, status) || other.status == status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,status);
+int get hashCode {
+    return Object.hash(runtimeType,requestId,status);
+}
 
 @override
 String toString() {
-  return 'MemberJoinRequestResponse(requestId: $requestId, status: $status)';
+    return 'MemberJoinRequestResponse(requestId: $requestId, status: $status)';
 }
 
 

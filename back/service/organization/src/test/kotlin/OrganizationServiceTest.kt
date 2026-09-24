@@ -26,23 +26,23 @@ import persistence.dao.DeliveryTemplateSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationSyncDAO
 import persistence.dao.ProducerAccountSyncDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.ActivityType
+import persistence.model.BasketDeliveryDescription
 import persistence.model.BasketSize
 import persistence.model.Contract
 import persistence.model.Delivery
 import persistence.model.DeliveryContract
 import persistence.model.DeliveryContractStatus
-import persistence.model.DeliveryReminders
+import persistence.model.DeliveryItem
 import persistence.model.DeliveryStatus
 import persistence.model.DeliveryTemplate
 import persistence.model.EarlySlot
 import persistence.model.Member
 import persistence.model.MemberPreferences
 import persistence.model.MemberRegistration
-import persistence.model.MemberSettings
 import persistence.model.MemberSlot
 import persistence.model.NotificationCategory
+import persistence.model.NotificationCopyOverride
 import persistence.model.Organization
 import persistence.model.OrganizationProducer
 import persistence.model.OrganizationProducerStatus
@@ -973,14 +973,7 @@ internal class OrganizationServiceTest {
         Member(
             memberId = memberId.toId(),
             organizationId = organizationId.toId(),
-            activeStatus = true,
             email = "$memberId@example.com",
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                    accessibilityOptions = AccessibilityOptions(highContrast = false, largeText = false, screenReader = false),
-                    lastUpdatedInstant = now,
-                ),
             memberPreferences =
                 MemberPreferences(
                     deliveryRemindersEnabled = true,
@@ -1466,4 +1459,122 @@ internal class OrganizationServiceTest {
             assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
             coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
         }
+
+    @Test
+    fun `GIVEN organization edits breaking the form rules WHEN admin upserts THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val persisted = buildOrganization(deliveries = listOf(buildDelivery(status = DeliveryStatus.PLANNED)))
+            coEvery { organizationSyncDAO.getById(any()) } returns persisted
+            val delivery = persisted.deliveries.single()
+            val invalid =
+                listOf(
+                    persisted.copy(name = " "),
+                    persisted.copy(contactEmail = "contact@nowhere"),
+                    persisted.copy(website = "amap.example.org"),
+                    persisted.copy(defaultLanguage = ""),
+                    persisted.copy(defaultLanguage = "français"),
+                    persisted.copy(deliveries = listOf(delivery.copy(standardEndTime = "18:00"))),
+                    persisted.copy(deliveries = listOf(delivery.copy(standardEndTime = "8pm"))),
+                    persisted.copy(deliveries = listOf(delivery.copy(volunteerArrivalTime = "19:00"))),
+                    persisted.copy(deliveries = listOf(delivery.copy(earlySlot = EarlySlot("18:30", maxVolunteers = 2)))),
+                    persisted.copy(deliveries = listOf(delivery.copy(earlySlot = EarlySlot("17:30", maxVolunteers = 0)))),
+                    persisted.copy(deliveries = listOf(delivery.copy(minVolunteersRequired = 0))),
+                    // Basket composition: a new component needs a name (free entry), both
+                    // name and weight are bounded.
+                    persisted.copy(deliveries = listOf(delivery.withItem(DeliveryItem("free-1".toId(), name = " ")))),
+                    persisted.copy(deliveries = listOf(delivery.withItem(DeliveryItem("free-1".toId(), name = "x".repeat(201))))),
+                    persisted.copy(
+                        deliveries = listOf(delivery.withItem(DeliveryItem("free-1".toId(), name = "Courge", weight = "x".repeat(201)))),
+                    ),
+                    // Custom alert copy is sent verbatim: a {…} placeholder would reach members as is.
+                    persisted.copy(
+                        notificationOverrides =
+                            mapOf(
+                                NotificationCategory.SLOT_CANCELLED to NotificationCopyOverride(body = "Le créneau du {date} est annulé."),
+                            ),
+                    ),
+                    persisted.copy(
+                        notificationOverrides =
+                            mapOf(NotificationCategory.SLOT_CANCELLED to NotificationCopyOverride(title = "Annulation {date}")),
+                    ),
+                )
+
+            invalid.forEach { incoming ->
+                val outcome = service.applyUpsert(adminAuth, buildMutation(incoming), OrganizationPayload(incoming))
+
+                assertEquals(MutationStatus.REJECTED, outcome.status, "expected rejection for $incoming")
+                assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            }
+            coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN a legacy organization with an invalid contact email WHEN an unrelated delivery field changes THEN APPLIED`() =
+        runTest {
+            val persisted =
+                buildOrganization(deliveries = listOf(buildDelivery(status = DeliveryStatus.PLANNED)))
+                    .copy(contactEmail = "legacy-without-at")
+            coEvery { organizationSyncDAO.getById(any()) } returns persisted
+            val incoming =
+                persisted.copy(deliveries = listOf(persisted.deliveries.single().copy(standardEndTime = "20:30")))
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(incoming), OrganizationPayload(incoming))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    @Test
+    fun `GIVEN an account-backed producer enrolled without any product WHEN admin upserts THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val persisted = buildOrganization()
+            coEvery { organizationSyncDAO.getById(any()) } returns persisted
+            coEvery { producerAccountSyncDAO.findById("pa-new".toId()) } returns
+                ProducerAccount(
+                    producerAccountId = "pa-new".toId(),
+                    name = "Ferme",
+                    activeStatus = true,
+                    createdInstant = now,
+                    lastUpdatedInstant = now,
+                    managementMode = ProducerManagementMode.ACCOUNT_BACKED,
+                )
+            val incoming =
+                persisted.copy(
+                    producers =
+                        listOf(
+                            OrganizationProducer(
+                                producerAccountId = "pa-new".toId(),
+                                associationInstant = now,
+                                status = OrganizationProducerStatus.ACTIVE,
+                            ),
+                        ),
+                )
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(incoming), OrganizationPayload(incoming))
+
+            assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN a legacy blank-named component WHEN another component is added THEN APPLIED`() =
+        runTest {
+            val legacy = buildDelivery(status = DeliveryStatus.PLANNED).withItem(DeliveryItem("it-legacy".toId()))
+            val persisted = buildOrganization(deliveries = listOf(legacy))
+            coEvery { organizationSyncDAO.getById(any()) } returns persisted
+            val incoming =
+                persisted.copy(
+                    deliveries = listOf(legacy.withItem(DeliveryItem("free-1".toId(), name = "Courge", weight = "1 pièce"))),
+                )
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(incoming), OrganizationPayload(incoming))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    private fun Delivery.withItem(item: DeliveryItem): Delivery {
+        val description =
+            basketDescriptions.firstOrNull()
+                ?: BasketDeliveryDescription(productTypeId = "pt-1".toId(), basketSizeName = "small")
+        return copy(basketDescriptions = listOf(description.copy(items = description.items + item)))
+    }
 }

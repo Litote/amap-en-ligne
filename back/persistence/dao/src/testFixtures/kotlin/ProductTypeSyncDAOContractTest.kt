@@ -13,6 +13,7 @@ import persistence.changes.ProductTypePayload
 import persistence.changes.SyncScope
 import persistence.model.BasketSize
 import persistence.model.EntityType
+import persistence.model.ItemType
 import persistence.model.ProducerAccount
 import persistence.model.ProductType
 import java.util.UUID
@@ -228,5 +229,77 @@ abstract class ProductTypeSyncDAOContractTest {
 
             assertFalse(changes.any { it.entityId == ptB.productTypeId.id })
             assertTrue(changes.any { it.entityId == ptA.productTypeId.id })
+        }
+
+    @Test
+    fun `GIVEN a product type with a component catalog WHEN put THEN getByProducerAccountId returns the catalog`() =
+        runTest {
+            val producerAccountId = newProducerAccountId()
+            val productType =
+                ProductType(
+                    productTypeId = "pt-items".toId(),
+                    producerAccountId = producerAccountId,
+                    supportedBasketSizes = listOf(BasketSize("small")),
+                    name = "Vegetables",
+                    itemTypes =
+                        listOf(
+                            ItemType(id = "it-carrot".toId(), name = "Carottes", imageSvg = "<svg/>"),
+                            ItemType(id = "it-leek".toId(), name = "Poireaux"),
+                        ),
+                )
+
+            productTypeDao.put(productType, buildUpsertChange(productType))
+
+            assertEquals(listOf(productType), productTypeDao.getByProducerAccountId(producerAccountId))
+        }
+
+    @Test
+    fun `GIVEN fan-out changes WHEN put THEN every change is recorded on its own scope`() =
+        runTest {
+            val producerAccountId = newProducerAccountId()
+            val orgScope = SyncScope.Organization("org-${UUID.randomUUID()}").key
+            val productType =
+                ProductType(
+                    productTypeId = "pt-fan-out".toId(),
+                    producerAccountId = producerAccountId,
+                    supportedBasketSizes = listOf(BasketSize("small")),
+                    name = "Vegetables",
+                )
+            val change = buildUpsertChange(productType)
+
+            productTypeDao.put(productType, change, listOf(change.copy(cursor = Cursor.next(), scopeKey = orgScope)))
+
+            assertTrue(
+                changeDao.since(SyncScope.ProducerAccount(producerAccountId.id).key, null).any {
+                    it.entityId == productType.productTypeId.id
+                },
+            )
+            assertTrue(changeDao.since(orgScope, null).any { it.entityId == productType.productTypeId.id })
+        }
+
+    @Test
+    fun `GIVEN fan-out changes WHEN delete THEN the tombstone is recorded on every scope`() =
+        runTest {
+            val producerAccountId = newProducerAccountId()
+            val orgScope = SyncScope.Organization("org-${UUID.randomUUID()}").key
+            val productType =
+                ProductType(
+                    productTypeId = "pt-fan-out-delete".toId(),
+                    producerAccountId = producerAccountId,
+                    supportedBasketSizes = listOf(BasketSize("small")),
+                    name = "Vegetables",
+                )
+            productTypeDao.put(productType, buildUpsertChange(productType))
+            val tombstone = buildDeleteChange(productType.productTypeId, producerAccountId)
+
+            productTypeDao.delete(
+                productType.productTypeId,
+                producerAccountId,
+                tombstone,
+                listOf(tombstone.copy(cursor = Cursor.next(), scopeKey = orgScope)),
+            )
+
+            assertTrue(productTypeDao.getByProducerAccountId(producerAccountId).isEmpty())
+            assertTrue(changeDao.since(orgScope, null).any { it.op == ChangeOp.DELETE })
         }
 }

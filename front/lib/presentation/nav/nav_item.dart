@@ -6,7 +6,7 @@ enum NavItemKind { action, sectionHeader, separator }
 ///
 /// Three kinds are supported:
 /// - [NavItemKind.action] — a tappable item with a route or [onTap] callback.
-/// - [NavItemKind.sectionHeader] — a non-tappable role section label (e.g. "— Bénévole —").
+/// - [NavItemKind.sectionHeader] — a non-tappable role section label (e.g. "— Amapien —").
 /// - [NavItemKind.separator] — a visual horizontal rule before the common items.
 class NavItem {
   const NavItem({

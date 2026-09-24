@@ -16,6 +16,8 @@
 angus-mail = "2.0.3"
 firebase-admin = "9.4.3"
 asyncant-lambda-runtime = "0.9.7"
+# Keep aligned on the aws-crt version the AWS SDK resolves at runtime.
+aws-crt = "0.42.2"
 aws-dynamodb = "1.6.59-beta"
 aws-sdk-kotlin = "1.6.59"
 coroutines = "1.10.2"
@@ -60,6 +62,8 @@ aws-dynamodb-mapper = { module = "aws.sdk.kotlin:dynamodb-mapper", version.ref =
 aws-cognito = { module = "aws.sdk.kotlin:cognitoidentityprovider", version.ref = "aws-sdk-kotlin" }
 aws-ses = { module = "aws.sdk.kotlin:sesv2", version.ref = "aws-sdk-kotlin" }
 aws-sns = { module = "aws.sdk.kotlin:sns", version.ref = "aws-sdk-kotlin" }
+aws-http = { module = "aws.sdk.kotlin:aws-http", version.ref = "aws-sdk-kotlin" }
+aws-crt = { module = "software.amazon.awssdk.crt:aws-crt", version.ref = "aws-crt" }
 aws-dynamodb-mapper-annotations = { module = "aws.sdk.kotlin:dynamodb-mapper-annotations-jvm", version.ref = "aws-dynamodb" }
 aws-smithy-http-client-engine-crt = { module = "aws.smithy.kotlin:http-client-engine-crt", version.ref = "smithy-kotlin-runtime" }
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

@@ -15,6 +15,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockOrganizationRepository extends Mock
@@ -89,6 +90,7 @@ void main() {
 
   Contract buildContract({
     required String contractId,
+    String name = 'Contrat test',
     String producerAccountId = 'pa-1',
     List<ContractMember> members = const [],
     List<ProductPrice> productPrices = const [
@@ -97,7 +99,7 @@ void main() {
     ContractStatus status = ContractStatus.active,
   }) => Contract(
     contractId: contractId,
-    name: 'Contrat test',
+    name: name,
     organizationId: 'org-1',
     producerAccountId: producerAccountId,
     // Active season: starts before today (2026-06-10) and ends after.
@@ -128,7 +130,8 @@ void main() {
     members: members,
   );
 
-  setUpAll(() {
+  setUpAll(() async {
+    await initializeDateFormatting('fr');
     registerFallbackValue(_FakeContract());
   });
 
@@ -158,6 +161,41 @@ void main() {
     await memberStream.close();
     await contractStream.close();
   });
+
+  testWidgets(
+    'contracts of the same producer are told apart by their contract name',
+    (tester) async {
+      await _pump(
+        tester,
+        organizationRepository: organizationRepository,
+        memberRepository: memberRepository,
+        contractRepository: contractRepository,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+
+      organizationStream.add(buildOrganization());
+      await tester.pump();
+      memberStream.add([buildMember(memberId: 'm-1', firstName: 'Alice')]);
+      await tester.pump();
+      contractStream.add([
+        buildContract(
+          contractId: 'c-spring',
+          name: 'Tomates printemps',
+          producerAccountId: 'p-1',
+        ),
+        buildContract(
+          contractId: 'c-autumn',
+          name: 'Tomates automne',
+          producerAccountId: 'p-1',
+        ),
+      ]);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tomates printemps'), findsOneWidget);
+      expect(find.text('Tomates automne'), findsOneWidget);
+    },
+  );
 
   testWidgets('assigns a contract to a member with subscription', (
     tester,
@@ -371,9 +409,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // The active contract's product is available for assignment.
-      expect(find.text('Tomates'), findsOneWidget);
+      expect(find.textContaining('Tomates'), findsOneWidget);
       // The ended contract's product must not be in the available list.
-      expect(find.text('Oeufs'), findsNothing);
+      expect(find.textContaining('Oeufs'), findsNothing);
     },
   );
 
@@ -413,6 +451,12 @@ void main() {
       expect(find.textContaining('Terminé'), findsOneWidget);
       // The RETIRER button must be present for already-assigned contracts.
       expect(find.widgetWithText(TextButton, 'RETIRER'), findsOneWidget);
+
+      // The removal confirmation shows readable French dates, not ISO ones.
+      await tester.tap(find.widgetWithText(TextButton, 'RETIRER'));
+      await tester.pumpAndSettle();
+      expect(find.text('1 janv. 2025 → 31 déc. 2025'), findsOneWidget);
+      expect(find.textContaining('2025-01-01'), findsNothing);
     },
   );
 

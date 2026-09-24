@@ -544,6 +544,22 @@ personalUpcomingRegistrations(Organization org, String memberId, DateTime now) {
   return result;
 }
 
+/// Activity of the slot [selfMemberId] holds an active (non-cancelled)
+/// registration on for [delivery], or `null` when they hold none.
+ActivityType? selfActivityOn(Delivery delivery, String selfMemberId) {
+  for (final contract in delivery.contracts) {
+    for (final slot in contract.slots) {
+      final registered = slot.registrations.any(
+        (reg) =>
+            reg.memberId == selfMemberId &&
+            reg.status != RegistrationStatus.cancelled,
+      );
+      if (registered) return slot.activityType;
+    }
+  }
+  return null;
+}
+
 /// Other registered members on [delivery], excluding [selfMemberId].
 ///
 /// Returns the first non-cancelled, non-self registration per member (deduped

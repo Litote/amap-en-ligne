@@ -393,7 +393,12 @@ void main() {
                 path: '/v1/public/member-join-requests',
               ),
               statusCode: 409,
-              data: {'field': 'email'},
+              data: {
+                'error': {
+                  'code': 'CONFLICT',
+                  'details': {'field': 'email'},
+                },
+              },
             ),
             type: DioExceptionType.badResponse,
           ),
@@ -427,7 +432,12 @@ void main() {
                 path: '/v1/public/member-join-requests',
               ),
               statusCode: 409,
-              data: {'field': 'other'},
+              data: {
+                'error': {
+                  'code': 'CONFLICT',
+                  'details': {'field': 'other'},
+                },
+              },
             ),
             type: DioExceptionType.badResponse,
           ),
@@ -461,7 +471,12 @@ void main() {
                 path: '/v1/public/member-join-requests',
               ),
               statusCode: 409,
-              data: {'field': 'email_member'},
+              data: {
+                'error': {
+                  'code': 'CONFLICT',
+                  'details': {'field': 'email_member'},
+                },
+              },
             ),
             type: DioExceptionType.badResponse,
           ),
@@ -495,7 +510,12 @@ void main() {
                 path: '/v1/public/member-join-requests',
               ),
               statusCode: 409,
-              data: {'field': 'email_owner'},
+              data: {
+                'error': {
+                  'code': 'CONFLICT',
+                  'details': {'field': 'email_owner'},
+                },
+              },
             ),
             type: DioExceptionType.badResponse,
           ),
@@ -529,7 +549,12 @@ void main() {
                 path: '/v1/public/member-join-requests',
               ),
               statusCode: 409,
-              data: {'field': 'email_producer'},
+              data: {
+                'error': {
+                  'code': 'CONFLICT',
+                  'details': {'field': 'email_producer'},
+                },
+              },
             ),
             type: DioExceptionType.badResponse,
           ),
@@ -567,7 +592,93 @@ void main() {
     });
   });
 
+  group('describeActivation', () {
+    test('returns the account being activated on 200', () async {
+      when(
+        () => dio.get<Map<String, dynamic>>(
+          '/v1/activate',
+          queryParameters: {'token': 'tok'},
+        ),
+      ).thenAnswer(
+        (_) async => Response(
+          requestOptions: RequestOptions(path: '/v1/activate'),
+          statusCode: 200,
+          data: {
+            'kind': 'PRODUCER',
+            'organization_name': 'Ferme',
+            'email': 'p@example.com',
+          },
+        ),
+      );
+
+      final result = await api.describeActivation('tok');
+
+      expect(result.kind, ActivationKind.producer);
+      expect(result.email, 'p@example.com');
+      expect(result.organizationName, 'Ferme');
+    });
+
+    test('throws expired on 410', () async {
+      when(
+        () => dio.get<Map<String, dynamic>>(
+          '/v1/activate',
+          queryParameters: {'token': 'tok'},
+        ),
+      ).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: '/v1/activate'),
+          response: Response(
+            requestOptions: RequestOptions(path: '/v1/activate'),
+            statusCode: 410,
+          ),
+          type: DioExceptionType.badResponse,
+        ),
+      );
+
+      expect(
+        () => api.describeActivation('tok'),
+        throwsA(
+          isA<ActivationException>().having(
+            (e) => e.error,
+            'error',
+            ActivationError.expired,
+          ),
+        ),
+      );
+    });
+  });
+
   group('activate', () {
+    test('throws weakPassword on 400 WEAK_PASSWORD', () async {
+      when(
+        () => dio.post<Map<String, dynamic>>(any(), data: any(named: 'data')),
+      ).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: '/v1/activate'),
+          response: Response(
+            requestOptions: RequestOptions(path: '/v1/activate'),
+            statusCode: 400,
+            data: {
+              'status': 400,
+              'error': {'code': 'WEAK_PASSWORD'},
+            },
+          ),
+          type: DioExceptionType.badResponse,
+        ),
+      );
+
+      expect(
+        () => api.activate(token: 'tok', password: 'weak'),
+        throwsA(
+          isA<ActivationException>().having(
+            (e) => e.error,
+            'error',
+            ActivationError.weakPassword,
+          ),
+        ),
+      );
+    });
+
     test(
       'returns ActivationResult with organizationAdmin kind on 200',
       () async {

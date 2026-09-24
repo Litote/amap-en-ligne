@@ -44,7 +44,7 @@ internal class ProducerAccountSyncPostgresDAO(
                         SELECT pa.producer_account_id, pa.name, pa.contact_email, pa.address,
                                pa.website, pa.active_status, pa.created_instant, pa.last_updated_instant,
                                pa.user_preferences, pa.management_mode, pa.linked_producer_account_id,
-                               pa.linked_producer_account_name
+                               pa.linked_producer_account_name, pa.pending_activation
                         FROM producer_account pa
                         INNER JOIN organization_producer op ON pa.producer_account_id = op.producer_account_id
                         WHERE op.organization_id = ?
@@ -80,8 +80,9 @@ internal class ProducerAccountSyncPostgresDAO(
                     INSERT INTO producer_account (
                         producer_account_id, name, contact_email, address, website,
                         active_status, created_instant, last_updated_instant, user_preferences,
-                        management_mode, linked_producer_account_id, linked_producer_account_name
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?)
+                        management_mode, linked_producer_account_id, linked_producer_account_name,
+                        pending_activation
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?)
                     ON CONFLICT (producer_account_id)
                     DO UPDATE SET
                         name = EXCLUDED.name,
@@ -109,6 +110,7 @@ internal class ProducerAccountSyncPostgresDAO(
                     stmt.setString(10, producerAccount.managementMode.name)
                     stmt.setString(11, producerAccount.linkedProducerAccount?.producerAccountId?.id)
                     stmt.setString(12, producerAccount.linkedProducerAccount?.name)
+                    stmt.setBoolean(13, producerAccount.pendingActivation)
                     stmt.executeUpdate()
                 }
             // Upsert the organization association
@@ -207,7 +209,7 @@ internal class ProducerAccountSyncPostgresDAO(
                         SELECT producer_account_id, name, contact_email, address,
                                website, active_status, created_instant, last_updated_instant,
                                user_preferences, management_mode, linked_producer_account_id,
-                               linked_producer_account_name
+                               linked_producer_account_name, pending_activation
                         FROM producer_account
                         WHERE producer_account_id = ?
                         """.trimIndent(),
@@ -257,6 +259,29 @@ internal class ProducerAccountSyncPostgresDAO(
         }
     }
 
+    override suspend fun updatePendingActivation(
+        producerAccountId: Id<ProducerAccount>,
+        pendingActivation: Boolean,
+        changes: List<Change>,
+    ) {
+        client.dataSource.tx { conn ->
+            conn
+                .prepareStatement(
+                    """
+                    UPDATE producer_account
+                    SET pending_activation = ?, last_updated_instant = ?
+                    WHERE producer_account_id = ?
+                    """.trimIndent(),
+                ).use { stmt ->
+                    stmt.setBoolean(1, pendingActivation)
+                    stmt.setLong(2, System.currentTimeMillis())
+                    stmt.setString(3, producerAccountId.id)
+                    stmt.executeUpdate()
+                }
+            upsertChanges(conn, changes)
+        }
+    }
+
     override suspend fun listAll(): List<ProducerAccount> =
         client.dataSource.query { conn ->
             val producers =
@@ -266,7 +291,7 @@ internal class ProducerAccountSyncPostgresDAO(
                         SELECT producer_account_id, name, contact_email, address,
                                website, active_status, created_instant, last_updated_instant,
                                user_preferences, management_mode, linked_producer_account_id,
-                               linked_producer_account_name
+                               linked_producer_account_name, pending_activation
                         FROM producer_account
                         """.trimIndent(),
                     ).use { stmt ->
@@ -298,7 +323,7 @@ internal class ProducerAccountSyncPostgresDAO(
                     SELECT pa.producer_account_id, pa.name, pa.contact_email, pa.address,
                            pa.website, pa.active_status, pa.created_instant, pa.last_updated_instant,
                            pa.user_preferences, pa.management_mode, pa.linked_producer_account_id,
-                           pa.linked_producer_account_name
+                           pa.linked_producer_account_name, pa.pending_activation
                     FROM producer_account pa
                     WHERE pa.active_status = TRUE
                       AND pa.management_mode = 'ACCOUNT_BACKED'
@@ -346,9 +371,9 @@ internal class ProducerAccountSyncPostgresDAO(
                     """
                     INSERT INTO producer_account(
                         producer_account_id, name, contact_email, active_status, created_instant, last_updated_instant,
-                        management_mode, linked_producer_account_id, linked_producer_account_name
+                        management_mode, linked_producer_account_id, linked_producer_account_name, pending_activation
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """.trimIndent(),
                 ).use { stmt ->
                     stmt.setString(1, producerAccount.producerAccountId.id)
@@ -360,6 +385,7 @@ internal class ProducerAccountSyncPostgresDAO(
                     stmt.setString(7, producerAccount.managementMode.name)
                     stmt.setString(8, producerAccount.linkedProducerAccount?.producerAccountId?.id)
                     stmt.setString(9, producerAccount.linkedProducerAccount?.name)
+                    stmt.setBoolean(10, producerAccount.pendingActivation)
                     stmt.executeUpdate()
                 }
             conn
@@ -377,16 +403,19 @@ internal class ProducerAccountSyncPostgresDAO(
         }
     }
 
-    override suspend fun createStandalone(producerAccount: ProducerAccount) {
+    override suspend fun createStandalone(
+        producerAccount: ProducerAccount,
+        changes: List<Change>,
+    ) {
         client.dataSource.tx { conn ->
             conn
                 .prepareStatement(
                     """
                     INSERT INTO producer_account(
                         producer_account_id, name, contact_email, active_status, created_instant, last_updated_instant,
-                        management_mode, linked_producer_account_id, linked_producer_account_name
+                        management_mode, linked_producer_account_id, linked_producer_account_name, pending_activation
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT (producer_account_id) DO NOTHING
                     """.trimIndent(),
                 ).use { stmt ->
@@ -399,8 +428,10 @@ internal class ProducerAccountSyncPostgresDAO(
                     stmt.setString(7, producerAccount.managementMode.name)
                     stmt.setString(8, producerAccount.linkedProducerAccount?.producerAccountId?.id)
                     stmt.setString(9, producerAccount.linkedProducerAccount?.name)
+                    stmt.setBoolean(10, producerAccount.pendingActivation)
                     stmt.executeUpdate()
                 }
+            upsertChanges(conn, changes)
         }
     }
 
@@ -493,6 +524,7 @@ private fun ResultSet.toProducerAccountBase(): ProducerAccount =
                     name = getString("linked_producer_account_name") ?: "",
                 )
             },
+        pendingActivation = getBoolean("pending_activation"),
     )
 
 private fun ResultSet.toProducerOrganization(): ProducerOrganization =

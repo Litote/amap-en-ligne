@@ -12,13 +12,10 @@ import persistence.changes.Change
 import persistence.changes.ChangeOp
 import persistence.changes.Cursor
 import persistence.changes.SyncScope
-import persistence.model.AccessibilityOptions
 import persistence.model.AccountStatus
-import persistence.model.DeliveryReminders
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Owner
 import persistence.model.UserPreferences
 import persistence.model.UserSettings
@@ -50,18 +47,6 @@ abstract class OwnerSyncDAOContractTest {
         Member(
             memberId = memberId.toId(),
             organizationId = organizationId.toId(),
-            activeStatus = true,
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                    accessibilityOptions =
-                        AccessibilityOptions(
-                            highContrast = false,
-                            largeText = false,
-                            screenReader = false,
-                        ),
-                    lastUpdatedInstant = Instant.fromEpochMilliseconds(1_000_000L),
-                ),
             memberPreferences =
                 MemberPreferences(
                     deliveryRemindersEnabled = true,

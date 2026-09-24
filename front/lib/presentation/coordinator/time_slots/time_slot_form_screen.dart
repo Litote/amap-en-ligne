@@ -18,10 +18,12 @@ import 'package:amap_en_ligne/domain/model/organization_member_view.dart'
     show mainContractIdsOf;
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
+import 'package:amap_en_ligne/domain/validation/delivery_rules.dart';
 import 'package:amap_en_ligne/presentation/common/app_time_picker.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_ended_listener.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
+import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/coordinator/missing_coordinator_listener.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slot_form_basket_composition_block.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slot_form_coordinator_block.dart';
@@ -864,7 +866,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
   ) async {
     if (_saving) return;
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    final validationError = _validateSchedule(org);
+    final validationError = _validateSchedule(org) ?? _validateSlotTimes(org);
     if (validationError != null) {
       ScaffoldMessenger.of(
         context,
@@ -995,6 +997,43 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+
+  /// Validates the slot-time overrides and minimum volunteers against the
+  /// scheduled start time (same rules as the back). Only values that differ
+  /// from the stored delivery are checked, so legacy data stays editable.
+  String? _validateSlotTimes(Organization org) {
+    final time = _scheduledTime;
+    if (time == null) return null;
+    final existing = _isEditing
+        ? org.deliveries
+              .where((d) => d.deliveryId == widget.deliveryId)
+              .firstOrNull
+        : null;
+    T? changed<T>(T? value, T? stored) => value == stored ? null : value;
+    final early = _earlySlotEnabled
+        ? _hmFromTimeOfDay(_earlySlotArrivalTime)
+        : null;
+    final earlyMax = _earlySlotEnabled
+        ? int.tryParse(_earlySlotMaxCtrl.text)
+        : null;
+    return deliverySlotTimesError(
+      startMinutes: time.hour * 60 + time.minute,
+      standardEndTime: changed(
+        _hmFromTimeOfDay(_standardEndTime),
+        existing?.standardEndTime,
+      ),
+      volunteerArrivalTime: changed(
+        _hmFromTimeOfDay(_volunteerArrivalTime),
+        existing?.volunteerArrivalTime,
+      ),
+      earlyArrivalTime: changed(early, existing?.earlySlot?.arrivalTime),
+      earlyMaxVolunteers: changed(earlyMax, existing?.earlySlot?.maxVolunteers),
+      minVolunteers: changed(
+        int.tryParse(_minVolunteersCtrl.text),
+        existing?.minVolunteersRequired,
+      ),
+    );
   }
 
   /// Validates the schedule preconditions; returns an error message or null.
@@ -1162,6 +1201,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
       ),
       child: ConnectedScaffold(
         title: _isEditing ? 'Modifier la livraison' : 'Nouvelle livraison',
+        onBack: () => backToDeliveryList(context),
         body: StreamBuilder<Organization?>(
           stream: context.read<OrganizationRepository>().watch(widget.tenantId),
           builder: (context, orgSnapshot) {

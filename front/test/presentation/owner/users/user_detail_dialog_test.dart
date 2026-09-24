@@ -54,7 +54,7 @@ Member _member({
   String? lastName,
   String? email,
   String? phone,
-  MemberAccountStatus? accountStatus,
+  MemberAccountStatus accountStatus = MemberAccountStatus.active,
 }) => Member(
   memberId: id,
   organizationId: orgId,

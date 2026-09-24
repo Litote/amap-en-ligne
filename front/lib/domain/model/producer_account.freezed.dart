@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'producer_account.dart';
@@ -9,14 +9,14 @@ part of 'producer_account.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$ProducerOrganization {
 
-@JsonKey(name: 'organization_id') String get organizationId;// ISO-8601 instant string, e.g. "2026-05-18T22:23:25.095Z".
-@JsonKey(name: 'association_instant') String get associationInstant; OrganizationProducerStatus get status;
+@JsonKey(name: 'organization_id') String get organizationId;@JsonKey(name: 'association_instant') String get associationInstant; OrganizationProducerStatus get status;
 /// Create a copy of ProducerOrganization
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +29,21 @@ $ProducerOrganizationCopyWith<ProducerOrganization> get copyWith => _$ProducerOr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerOrganization&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.associationInstant, associationInstant) || other.associationInstant == associationInstant)&&(identical(other.status, status) || other.status == status));
+  final _this = this as ProducerOrganization;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerOrganization&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.associationInstant, _this.associationInstant) || other.associationInstant == _this.associationInstant)&&(identical(other.status, _this.status) || other.status == _this.status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,organizationId,associationInstant,status);
+int get hashCode {
+  final _this = this as ProducerOrganization;
+  return Object.hash(runtimeType,_this.organizationId,_this.associationInstant,_this.status);
+}
 
 @override
 String toString() {
-  return 'ProducerOrganization(organizationId: $organizationId, associationInstant: $associationInstant, status: $status)';
+  final _this = this as ProducerOrganization;
+  return 'ProducerOrganization(organizationId: ${_this.organizationId}, associationInstant: ${_this.associationInstant}, status: ${_this.status})';
 }
 
 
@@ -67,7 +72,7 @@ class _$ProducerOrganizationCopyWithImpl<$Res>
 /// Create a copy of ProducerOrganization
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? organizationId = null,Object? associationInstant = null,Object? status = null,}) {
-  return _then(_self.copyWith(
+  return _then(ProducerOrganization(
 organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,associationInstant: null == associationInstant ? _self.associationInstant : associationInstant // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -216,7 +221,6 @@ class _ProducerOrganization implements ProducerOrganization {
   factory _ProducerOrganization.fromJson(Map<String, dynamic> json) => _$ProducerOrganizationFromJson(json);
 
 @override@JsonKey(name: 'organization_id') final  String organizationId;
-// ISO-8601 instant string, e.g. "2026-05-18T22:23:25.095Z".
 @override@JsonKey(name: 'association_instant') final  String associationInstant;
 @override final  OrganizationProducerStatus status;
 
@@ -233,16 +237,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerOrganization&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.associationInstant, associationInstant) || other.associationInstant == associationInstant)&&(identical(other.status, status) || other.status == status));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerOrganization&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.associationInstant, associationInstant) || other.associationInstant == associationInstant)&&(identical(other.status, status) || other.status == status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,organizationId,associationInstant,status);
+int get hashCode {
+    return Object.hash(runtimeType,organizationId,associationInstant,status);
+}
 
 @override
 String toString() {
-  return 'ProducerOrganization(organizationId: $organizationId, associationInstant: $associationInstant, status: $status)';
+    return 'ProducerOrganization(organizationId: $organizationId, associationInstant: $associationInstant, status: $status)';
 }
 
 
@@ -299,16 +305,21 @@ $ProducerProductCopyWith<ProducerProduct> get copyWith => _$ProducerProductCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerProduct&&(identical(other.name, name) || other.name == name)&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&const DeepCollectionEquality().equals(other.supportedBasketSizes, supportedBasketSizes)&&(identical(other.description, description) || other.description == description));
+  final _this = this as ProducerProduct;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerProduct&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.productTypeId, _this.productTypeId) || other.productTypeId == _this.productTypeId)&&const DeepCollectionEquality().equals(other.supportedBasketSizes, _this.supportedBasketSizes)&&(identical(other.description, _this.description) || other.description == _this.description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,productTypeId,const DeepCollectionEquality().hash(supportedBasketSizes),description);
+int get hashCode {
+  final _this = this as ProducerProduct;
+  return Object.hash(runtimeType,_this.name,_this.productTypeId,const DeepCollectionEquality().hash(_this.supportedBasketSizes),_this.description);
+}
 
 @override
 String toString() {
-  return 'ProducerProduct(name: $name, productTypeId: $productTypeId, supportedBasketSizes: $supportedBasketSizes, description: $description)';
+  final _this = this as ProducerProduct;
+  return 'ProducerProduct(name: ${_this.name}, productTypeId: ${_this.productTypeId}, supportedBasketSizes: ${_this.supportedBasketSizes}, description: ${_this.description})';
 }
 
 
@@ -337,7 +348,7 @@ class _$ProducerProductCopyWithImpl<$Res>
 /// Create a copy of ProducerProduct
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? productTypeId = null,Object? supportedBasketSizes = null,Object? description = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(ProducerProduct(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,productTypeId: null == productTypeId ? _self.productTypeId : productTypeId // ignore: cast_nullable_to_non_nullable
 as String,supportedBasketSizes: null == supportedBasketSizes ? _self.supportedBasketSizes : supportedBasketSizes // ignore: cast_nullable_to_non_nullable
@@ -483,7 +494,7 @@ return $default(_that.name,_that.productTypeId,_that.supportedBasketSizes,_that.
 @JsonSerializable()
 
 class _ProducerProduct implements ProducerProduct {
-  const _ProducerProduct({required this.name, @JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'supported_basket_sizes') final  List<BasketSize> supportedBasketSizes = const [], this.description}): _supportedBasketSizes = supportedBasketSizes;
+  const _ProducerProduct({required this.name, @JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'supported_basket_sizes')  List<BasketSize> supportedBasketSizes = const [], this.description}): _supportedBasketSizes = supportedBasketSizes;
   factory _ProducerProduct.fromJson(Map<String, dynamic> json) => _$ProducerProductFromJson(json);
 
 @override final  String name;
@@ -510,16 +521,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerProduct&&(identical(other.name, name) || other.name == name)&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&const DeepCollectionEquality().equals(other._supportedBasketSizes, _supportedBasketSizes)&&(identical(other.description, description) || other.description == description));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerProduct&&(identical(other.name, name) || other.name == name)&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&const DeepCollectionEquality().equals(other.supportedBasketSizes, _supportedBasketSizes)&&(identical(other.description, description) || other.description == description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,productTypeId,const DeepCollectionEquality().hash(_supportedBasketSizes),description);
+int get hashCode {
+    return Object.hash(runtimeType,name,productTypeId,const DeepCollectionEquality().hash(_supportedBasketSizes),description);
+}
 
 @override
 String toString() {
-  return 'ProducerProduct(name: $name, productTypeId: $productTypeId, supportedBasketSizes: $supportedBasketSizes, description: $description)';
+    return 'ProducerProduct(name: $name, productTypeId: $productTypeId, supportedBasketSizes: $supportedBasketSizes, description: $description)';
 }
 
 
@@ -564,9 +577,7 @@ as String?,
 /// @nodoc
 mixin _$ProducerAccount {
 
-@JsonKey(name: 'producer_account_id') String get producerAccountId; String get name;@JsonKey(name: 'contact_email') String? get contactEmail; String? get address; String? get website;@JsonKey(name: 'active_status') bool get activeStatus;// ISO-8601 instant strings (e.g. "2026-05-18T22:23:25.093Z") — matches
-// the back's kotlin.time.Instant default serialization.
-@JsonKey(name: 'created_instant') String? get createdInstant;@JsonKey(name: 'last_updated_instant') String? get lastUpdatedInstant;@JsonKey(name: 'management_mode') ProducerManagementMode get managementMode;@JsonKey(name: 'linked_producer_account') LinkedProducerAccount? get linkedProducerAccount; List<ProducerProduct> get products; List<ProducerOrganization> get organizations;@JsonKey(name: 'user_preferences') UserPreferences? get userPreferences;
+@JsonKey(name: 'producer_account_id') String get producerAccountId; String get name;@JsonKey(name: 'contact_email') String? get contactEmail; String? get address; String? get website;@JsonKey(name: 'active_status') bool get activeStatus;@JsonKey(name: 'created_instant') String? get createdInstant;@JsonKey(name: 'last_updated_instant') String? get lastUpdatedInstant;@JsonKey(name: 'management_mode') ProducerManagementMode get managementMode;@JsonKey(name: 'linked_producer_account') LinkedProducerAccount? get linkedProducerAccount; List<ProducerProduct> get products; List<ProducerOrganization> get organizations;@JsonKey(name: 'user_preferences') UserPreferences? get userPreferences;@JsonKey(name: 'pending_activation', includeIfNull: false) bool get pendingActivation;
 /// Create a copy of ProducerAccount
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -579,16 +590,21 @@ $ProducerAccountCopyWith<ProducerAccount> get copyWith => _$ProducerAccountCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerAccount&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.address, address) || other.address == address)&&(identical(other.website, website) || other.website == website)&&(identical(other.activeStatus, activeStatus) || other.activeStatus == activeStatus)&&(identical(other.createdInstant, createdInstant) || other.createdInstant == createdInstant)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant)&&(identical(other.managementMode, managementMode) || other.managementMode == managementMode)&&(identical(other.linkedProducerAccount, linkedProducerAccount) || other.linkedProducerAccount == linkedProducerAccount)&&const DeepCollectionEquality().equals(other.products, products)&&const DeepCollectionEquality().equals(other.organizations, organizations)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences));
+  final _this = this as ProducerAccount;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerAccount&&(identical(other.producerAccountId, _this.producerAccountId) || other.producerAccountId == _this.producerAccountId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.contactEmail, _this.contactEmail) || other.contactEmail == _this.contactEmail)&&(identical(other.address, _this.address) || other.address == _this.address)&&(identical(other.website, _this.website) || other.website == _this.website)&&(identical(other.activeStatus, _this.activeStatus) || other.activeStatus == _this.activeStatus)&&(identical(other.createdInstant, _this.createdInstant) || other.createdInstant == _this.createdInstant)&&(identical(other.lastUpdatedInstant, _this.lastUpdatedInstant) || other.lastUpdatedInstant == _this.lastUpdatedInstant)&&(identical(other.managementMode, _this.managementMode) || other.managementMode == _this.managementMode)&&(identical(other.linkedProducerAccount, _this.linkedProducerAccount) || other.linkedProducerAccount == _this.linkedProducerAccount)&&const DeepCollectionEquality().equals(other.products, _this.products)&&const DeepCollectionEquality().equals(other.organizations, _this.organizations)&&(identical(other.userPreferences, _this.userPreferences) || other.userPreferences == _this.userPreferences)&&(identical(other.pendingActivation, _this.pendingActivation) || other.pendingActivation == _this.pendingActivation));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,producerAccountId,name,contactEmail,address,website,activeStatus,createdInstant,lastUpdatedInstant,managementMode,linkedProducerAccount,const DeepCollectionEquality().hash(products),const DeepCollectionEquality().hash(organizations),userPreferences);
+int get hashCode {
+  final _this = this as ProducerAccount;
+  return Object.hash(runtimeType,_this.producerAccountId,_this.name,_this.contactEmail,_this.address,_this.website,_this.activeStatus,_this.createdInstant,_this.lastUpdatedInstant,_this.managementMode,_this.linkedProducerAccount,const DeepCollectionEquality().hash(_this.products),const DeepCollectionEquality().hash(_this.organizations),_this.userPreferences,_this.pendingActivation);
+}
 
 @override
 String toString() {
-  return 'ProducerAccount(producerAccountId: $producerAccountId, name: $name, contactEmail: $contactEmail, address: $address, website: $website, activeStatus: $activeStatus, createdInstant: $createdInstant, lastUpdatedInstant: $lastUpdatedInstant, managementMode: $managementMode, linkedProducerAccount: $linkedProducerAccount, products: $products, organizations: $organizations, userPreferences: $userPreferences)';
+  final _this = this as ProducerAccount;
+  return 'ProducerAccount(producerAccountId: ${_this.producerAccountId}, name: ${_this.name}, contactEmail: ${_this.contactEmail}, address: ${_this.address}, website: ${_this.website}, activeStatus: ${_this.activeStatus}, createdInstant: ${_this.createdInstant}, lastUpdatedInstant: ${_this.lastUpdatedInstant}, managementMode: ${_this.managementMode}, linkedProducerAccount: ${_this.linkedProducerAccount}, products: ${_this.products}, organizations: ${_this.organizations}, userPreferences: ${_this.userPreferences}, pendingActivation: ${_this.pendingActivation})';
 }
 
 
@@ -599,7 +615,7 @@ abstract mixin class $ProducerAccountCopyWith<$Res>  {
   factory $ProducerAccountCopyWith(ProducerAccount value, $Res Function(ProducerAccount) _then) = _$ProducerAccountCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'producer_account_id') String producerAccountId, String name,@JsonKey(name: 'contact_email') String? contactEmail, String? address, String? website,@JsonKey(name: 'active_status') bool activeStatus,@JsonKey(name: 'created_instant') String? createdInstant,@JsonKey(name: 'last_updated_instant') String? lastUpdatedInstant,@JsonKey(name: 'management_mode') ProducerManagementMode managementMode,@JsonKey(name: 'linked_producer_account') LinkedProducerAccount? linkedProducerAccount, List<ProducerProduct> products, List<ProducerOrganization> organizations,@JsonKey(name: 'user_preferences') UserPreferences? userPreferences
+@JsonKey(name: 'producer_account_id') String producerAccountId, String name,@JsonKey(name: 'contact_email') String? contactEmail, String? address, String? website,@JsonKey(name: 'active_status') bool activeStatus,@JsonKey(name: 'created_instant') String? createdInstant,@JsonKey(name: 'last_updated_instant') String? lastUpdatedInstant,@JsonKey(name: 'management_mode') ProducerManagementMode managementMode,@JsonKey(name: 'linked_producer_account') LinkedProducerAccount? linkedProducerAccount, List<ProducerProduct> products, List<ProducerOrganization> organizations,@JsonKey(name: 'user_preferences') UserPreferences? userPreferences,@JsonKey(name: 'pending_activation', includeIfNull: false) bool pendingActivation
 });
 
 
@@ -616,8 +632,8 @@ class _$ProducerAccountCopyWithImpl<$Res>
 
 /// Create a copy of ProducerAccount
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? producerAccountId = null,Object? name = null,Object? contactEmail = freezed,Object? address = freezed,Object? website = freezed,Object? activeStatus = null,Object? createdInstant = freezed,Object? lastUpdatedInstant = freezed,Object? managementMode = null,Object? linkedProducerAccount = freezed,Object? products = null,Object? organizations = null,Object? userPreferences = freezed,}) {
-  return _then(_self.copyWith(
+@pragma('vm:prefer-inline') @override $Res call({Object? producerAccountId = null,Object? name = null,Object? contactEmail = freezed,Object? address = freezed,Object? website = freezed,Object? activeStatus = null,Object? createdInstant = freezed,Object? lastUpdatedInstant = freezed,Object? managementMode = null,Object? linkedProducerAccount = freezed,Object? products = null,Object? organizations = null,Object? userPreferences = freezed,Object? pendingActivation = null,}) {
+  return _then(ProducerAccount(
 producerAccountId: null == producerAccountId ? _self.producerAccountId : producerAccountId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,contactEmail: freezed == contactEmail ? _self.contactEmail : contactEmail // ignore: cast_nullable_to_non_nullable
@@ -631,7 +647,8 @@ as ProducerManagementMode,linkedProducerAccount: freezed == linkedProducerAccoun
 as LinkedProducerAccount?,products: null == products ? _self.products : products // ignore: cast_nullable_to_non_nullable
 as List<ProducerProduct>,organizations: null == organizations ? _self.organizations : organizations // ignore: cast_nullable_to_non_nullable
 as List<ProducerOrganization>,userPreferences: freezed == userPreferences ? _self.userPreferences : userPreferences // ignore: cast_nullable_to_non_nullable
-as UserPreferences?,
+as UserPreferences?,pendingActivation: null == pendingActivation ? _self.pendingActivation : pendingActivation // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of ProducerAccount
@@ -740,10 +757,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'producer_account_id')  String producerAccountId,  String name, @JsonKey(name: 'contact_email')  String? contactEmail,  String? address,  String? website, @JsonKey(name: 'active_status')  bool activeStatus, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant, @JsonKey(name: 'management_mode')  ProducerManagementMode managementMode, @JsonKey(name: 'linked_producer_account')  LinkedProducerAccount? linkedProducerAccount,  List<ProducerProduct> products,  List<ProducerOrganization> organizations, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'producer_account_id')  String producerAccountId,  String name, @JsonKey(name: 'contact_email')  String? contactEmail,  String? address,  String? website, @JsonKey(name: 'active_status')  bool activeStatus, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant, @JsonKey(name: 'management_mode')  ProducerManagementMode managementMode, @JsonKey(name: 'linked_producer_account')  LinkedProducerAccount? linkedProducerAccount,  List<ProducerProduct> products,  List<ProducerOrganization> organizations, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences, @JsonKey(name: 'pending_activation', includeIfNull: false)  bool pendingActivation)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProducerAccount() when $default != null:
-return $default(_that.producerAccountId,_that.name,_that.contactEmail,_that.address,_that.website,_that.activeStatus,_that.createdInstant,_that.lastUpdatedInstant,_that.managementMode,_that.linkedProducerAccount,_that.products,_that.organizations,_that.userPreferences);case _:
+return $default(_that.producerAccountId,_that.name,_that.contactEmail,_that.address,_that.website,_that.activeStatus,_that.createdInstant,_that.lastUpdatedInstant,_that.managementMode,_that.linkedProducerAccount,_that.products,_that.organizations,_that.userPreferences,_that.pendingActivation);case _:
   return orElse();
 
 }
@@ -761,10 +778,10 @@ return $default(_that.producerAccountId,_that.name,_that.contactEmail,_that.addr
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'producer_account_id')  String producerAccountId,  String name, @JsonKey(name: 'contact_email')  String? contactEmail,  String? address,  String? website, @JsonKey(name: 'active_status')  bool activeStatus, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant, @JsonKey(name: 'management_mode')  ProducerManagementMode managementMode, @JsonKey(name: 'linked_producer_account')  LinkedProducerAccount? linkedProducerAccount,  List<ProducerProduct> products,  List<ProducerOrganization> organizations, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'producer_account_id')  String producerAccountId,  String name, @JsonKey(name: 'contact_email')  String? contactEmail,  String? address,  String? website, @JsonKey(name: 'active_status')  bool activeStatus, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant, @JsonKey(name: 'management_mode')  ProducerManagementMode managementMode, @JsonKey(name: 'linked_producer_account')  LinkedProducerAccount? linkedProducerAccount,  List<ProducerProduct> products,  List<ProducerOrganization> organizations, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences, @JsonKey(name: 'pending_activation', includeIfNull: false)  bool pendingActivation)  $default,) {final _that = this;
 switch (_that) {
 case _ProducerAccount():
-return $default(_that.producerAccountId,_that.name,_that.contactEmail,_that.address,_that.website,_that.activeStatus,_that.createdInstant,_that.lastUpdatedInstant,_that.managementMode,_that.linkedProducerAccount,_that.products,_that.organizations,_that.userPreferences);case _:
+return $default(_that.producerAccountId,_that.name,_that.contactEmail,_that.address,_that.website,_that.activeStatus,_that.createdInstant,_that.lastUpdatedInstant,_that.managementMode,_that.linkedProducerAccount,_that.products,_that.organizations,_that.userPreferences,_that.pendingActivation);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -781,10 +798,10 @@ return $default(_that.producerAccountId,_that.name,_that.contactEmail,_that.addr
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'producer_account_id')  String producerAccountId,  String name, @JsonKey(name: 'contact_email')  String? contactEmail,  String? address,  String? website, @JsonKey(name: 'active_status')  bool activeStatus, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant, @JsonKey(name: 'management_mode')  ProducerManagementMode managementMode, @JsonKey(name: 'linked_producer_account')  LinkedProducerAccount? linkedProducerAccount,  List<ProducerProduct> products,  List<ProducerOrganization> organizations, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'producer_account_id')  String producerAccountId,  String name, @JsonKey(name: 'contact_email')  String? contactEmail,  String? address,  String? website, @JsonKey(name: 'active_status')  bool activeStatus, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant, @JsonKey(name: 'management_mode')  ProducerManagementMode managementMode, @JsonKey(name: 'linked_producer_account')  LinkedProducerAccount? linkedProducerAccount,  List<ProducerProduct> products,  List<ProducerOrganization> organizations, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences, @JsonKey(name: 'pending_activation', includeIfNull: false)  bool pendingActivation)?  $default,) {final _that = this;
 switch (_that) {
 case _ProducerAccount() when $default != null:
-return $default(_that.producerAccountId,_that.name,_that.contactEmail,_that.address,_that.website,_that.activeStatus,_that.createdInstant,_that.lastUpdatedInstant,_that.managementMode,_that.linkedProducerAccount,_that.products,_that.organizations,_that.userPreferences);case _:
+return $default(_that.producerAccountId,_that.name,_that.contactEmail,_that.address,_that.website,_that.activeStatus,_that.createdInstant,_that.lastUpdatedInstant,_that.managementMode,_that.linkedProducerAccount,_that.products,_that.organizations,_that.userPreferences,_that.pendingActivation);case _:
   return null;
 
 }
@@ -796,7 +813,7 @@ return $default(_that.producerAccountId,_that.name,_that.contactEmail,_that.addr
 @JsonSerializable()
 
 class _ProducerAccount implements ProducerAccount {
-  const _ProducerAccount({@JsonKey(name: 'producer_account_id') required this.producerAccountId, required this.name, @JsonKey(name: 'contact_email') this.contactEmail, this.address, this.website, @JsonKey(name: 'active_status') this.activeStatus = true, @JsonKey(name: 'created_instant') this.createdInstant, @JsonKey(name: 'last_updated_instant') this.lastUpdatedInstant, @JsonKey(name: 'management_mode') this.managementMode = ProducerManagementMode.accountBacked, @JsonKey(name: 'linked_producer_account') this.linkedProducerAccount, final  List<ProducerProduct> products = const [], final  List<ProducerOrganization> organizations = const [], @JsonKey(name: 'user_preferences') this.userPreferences}): _products = products,_organizations = organizations;
+  const _ProducerAccount({@JsonKey(name: 'producer_account_id') required this.producerAccountId, required this.name, @JsonKey(name: 'contact_email') this.contactEmail, this.address, this.website, @JsonKey(name: 'active_status') this.activeStatus = true, @JsonKey(name: 'created_instant') this.createdInstant, @JsonKey(name: 'last_updated_instant') this.lastUpdatedInstant, @JsonKey(name: 'management_mode') this.managementMode = ProducerManagementMode.accountBacked, @JsonKey(name: 'linked_producer_account') this.linkedProducerAccount,  List<ProducerProduct> products = const [],  List<ProducerOrganization> organizations = const [], @JsonKey(name: 'user_preferences') this.userPreferences, @JsonKey(name: 'pending_activation', includeIfNull: false) this.pendingActivation = false}): _products = products,_organizations = organizations;
   factory _ProducerAccount.fromJson(Map<String, dynamic> json) => _$ProducerAccountFromJson(json);
 
 @override@JsonKey(name: 'producer_account_id') final  String producerAccountId;
@@ -805,8 +822,6 @@ class _ProducerAccount implements ProducerAccount {
 @override final  String? address;
 @override final  String? website;
 @override@JsonKey(name: 'active_status') final  bool activeStatus;
-// ISO-8601 instant strings (e.g. "2026-05-18T22:23:25.093Z") — matches
-// the back's kotlin.time.Instant default serialization.
 @override@JsonKey(name: 'created_instant') final  String? createdInstant;
 @override@JsonKey(name: 'last_updated_instant') final  String? lastUpdatedInstant;
 @override@JsonKey(name: 'management_mode') final  ProducerManagementMode managementMode;
@@ -826,6 +841,7 @@ class _ProducerAccount implements ProducerAccount {
 }
 
 @override@JsonKey(name: 'user_preferences') final  UserPreferences? userPreferences;
+@override@JsonKey(name: 'pending_activation', includeIfNull: false) final  bool pendingActivation;
 
 /// Create a copy of ProducerAccount
 /// with the given fields replaced by the non-null parameter values.
@@ -840,16 +856,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerAccount&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.address, address) || other.address == address)&&(identical(other.website, website) || other.website == website)&&(identical(other.activeStatus, activeStatus) || other.activeStatus == activeStatus)&&(identical(other.createdInstant, createdInstant) || other.createdInstant == createdInstant)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant)&&(identical(other.managementMode, managementMode) || other.managementMode == managementMode)&&(identical(other.linkedProducerAccount, linkedProducerAccount) || other.linkedProducerAccount == linkedProducerAccount)&&const DeepCollectionEquality().equals(other._products, _products)&&const DeepCollectionEquality().equals(other._organizations, _organizations)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerAccount&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.address, address) || other.address == address)&&(identical(other.website, website) || other.website == website)&&(identical(other.activeStatus, activeStatus) || other.activeStatus == activeStatus)&&(identical(other.createdInstant, createdInstant) || other.createdInstant == createdInstant)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant)&&(identical(other.managementMode, managementMode) || other.managementMode == managementMode)&&(identical(other.linkedProducerAccount, linkedProducerAccount) || other.linkedProducerAccount == linkedProducerAccount)&&const DeepCollectionEquality().equals(other.products, _products)&&const DeepCollectionEquality().equals(other.organizations, _organizations)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences)&&(identical(other.pendingActivation, pendingActivation) || other.pendingActivation == pendingActivation));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,producerAccountId,name,contactEmail,address,website,activeStatus,createdInstant,lastUpdatedInstant,managementMode,linkedProducerAccount,const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_organizations),userPreferences);
+int get hashCode {
+    return Object.hash(runtimeType,producerAccountId,name,contactEmail,address,website,activeStatus,createdInstant,lastUpdatedInstant,managementMode,linkedProducerAccount,const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_organizations),userPreferences,pendingActivation);
+}
 
 @override
 String toString() {
-  return 'ProducerAccount(producerAccountId: $producerAccountId, name: $name, contactEmail: $contactEmail, address: $address, website: $website, activeStatus: $activeStatus, createdInstant: $createdInstant, lastUpdatedInstant: $lastUpdatedInstant, managementMode: $managementMode, linkedProducerAccount: $linkedProducerAccount, products: $products, organizations: $organizations, userPreferences: $userPreferences)';
+    return 'ProducerAccount(producerAccountId: $producerAccountId, name: $name, contactEmail: $contactEmail, address: $address, website: $website, activeStatus: $activeStatus, createdInstant: $createdInstant, lastUpdatedInstant: $lastUpdatedInstant, managementMode: $managementMode, linkedProducerAccount: $linkedProducerAccount, products: $products, organizations: $organizations, userPreferences: $userPreferences, pendingActivation: $pendingActivation)';
 }
 
 
@@ -860,7 +878,7 @@ abstract mixin class _$ProducerAccountCopyWith<$Res> implements $ProducerAccount
   factory _$ProducerAccountCopyWith(_ProducerAccount value, $Res Function(_ProducerAccount) _then) = __$ProducerAccountCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'producer_account_id') String producerAccountId, String name,@JsonKey(name: 'contact_email') String? contactEmail, String? address, String? website,@JsonKey(name: 'active_status') bool activeStatus,@JsonKey(name: 'created_instant') String? createdInstant,@JsonKey(name: 'last_updated_instant') String? lastUpdatedInstant,@JsonKey(name: 'management_mode') ProducerManagementMode managementMode,@JsonKey(name: 'linked_producer_account') LinkedProducerAccount? linkedProducerAccount, List<ProducerProduct> products, List<ProducerOrganization> organizations,@JsonKey(name: 'user_preferences') UserPreferences? userPreferences
+@JsonKey(name: 'producer_account_id') String producerAccountId, String name,@JsonKey(name: 'contact_email') String? contactEmail, String? address, String? website,@JsonKey(name: 'active_status') bool activeStatus,@JsonKey(name: 'created_instant') String? createdInstant,@JsonKey(name: 'last_updated_instant') String? lastUpdatedInstant,@JsonKey(name: 'management_mode') ProducerManagementMode managementMode,@JsonKey(name: 'linked_producer_account') LinkedProducerAccount? linkedProducerAccount, List<ProducerProduct> products, List<ProducerOrganization> organizations,@JsonKey(name: 'user_preferences') UserPreferences? userPreferences,@JsonKey(name: 'pending_activation', includeIfNull: false) bool pendingActivation
 });
 
 
@@ -877,7 +895,7 @@ class __$ProducerAccountCopyWithImpl<$Res>
 
 /// Create a copy of ProducerAccount
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? producerAccountId = null,Object? name = null,Object? contactEmail = freezed,Object? address = freezed,Object? website = freezed,Object? activeStatus = null,Object? createdInstant = freezed,Object? lastUpdatedInstant = freezed,Object? managementMode = null,Object? linkedProducerAccount = freezed,Object? products = null,Object? organizations = null,Object? userPreferences = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? producerAccountId = null,Object? name = null,Object? contactEmail = freezed,Object? address = freezed,Object? website = freezed,Object? activeStatus = null,Object? createdInstant = freezed,Object? lastUpdatedInstant = freezed,Object? managementMode = null,Object? linkedProducerAccount = freezed,Object? products = null,Object? organizations = null,Object? userPreferences = freezed,Object? pendingActivation = null,}) {
   return _then(_ProducerAccount(
 producerAccountId: null == producerAccountId ? _self.producerAccountId : producerAccountId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -892,7 +910,8 @@ as ProducerManagementMode,linkedProducerAccount: freezed == linkedProducerAccoun
 as LinkedProducerAccount?,products: null == products ? _self._products : products // ignore: cast_nullable_to_non_nullable
 as List<ProducerProduct>,organizations: null == organizations ? _self._organizations : organizations // ignore: cast_nullable_to_non_nullable
 as List<ProducerOrganization>,userPreferences: freezed == userPreferences ? _self.userPreferences : userPreferences // ignore: cast_nullable_to_non_nullable
-as UserPreferences?,
+as UserPreferences?,pendingActivation: null == pendingActivation ? _self.pendingActivation : pendingActivation // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -940,16 +959,21 @@ $LinkedProducerAccountCopyWith<LinkedProducerAccount> get copyWith => _$LinkedPr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkedProducerAccount&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.name, name) || other.name == name));
+  final _this = this as LinkedProducerAccount;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkedProducerAccount&&(identical(other.producerAccountId, _this.producerAccountId) || other.producerAccountId == _this.producerAccountId)&&(identical(other.name, _this.name) || other.name == _this.name));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,producerAccountId,name);
+int get hashCode {
+  final _this = this as LinkedProducerAccount;
+  return Object.hash(runtimeType,_this.producerAccountId,_this.name);
+}
 
 @override
 String toString() {
-  return 'LinkedProducerAccount(producerAccountId: $producerAccountId, name: $name)';
+  final _this = this as LinkedProducerAccount;
+  return 'LinkedProducerAccount(producerAccountId: ${_this.producerAccountId}, name: ${_this.name})';
 }
 
 
@@ -978,7 +1002,7 @@ class _$LinkedProducerAccountCopyWithImpl<$Res>
 /// Create a copy of LinkedProducerAccount
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? producerAccountId = null,Object? name = null,}) {
-  return _then(_self.copyWith(
+  return _then(LinkedProducerAccount(
 producerAccountId: null == producerAccountId ? _self.producerAccountId : producerAccountId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,
@@ -1141,16 +1165,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkedProducerAccount&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.name, name) || other.name == name));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkedProducerAccount&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.name, name) || other.name == name));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,producerAccountId,name);
+int get hashCode {
+    return Object.hash(runtimeType,producerAccountId,name);
+}
 
 @override
 String toString() {
-  return 'LinkedProducerAccount(producerAccountId: $producerAccountId, name: $name)';
+    return 'LinkedProducerAccount(producerAccountId: $producerAccountId, name: $name)';
 }
 
 

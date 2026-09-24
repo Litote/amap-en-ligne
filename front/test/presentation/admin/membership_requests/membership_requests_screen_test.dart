@@ -12,6 +12,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockMemberJoinRequestRepository extends Mock
@@ -43,7 +44,8 @@ void main() {
   late _MockSyncRepository syncRepo;
   late _MockSyncBloc syncBloc;
 
-  setUpAll(() {
+  setUpAll(() async {
+    await initializeDateFormatting('fr');
     registerFallbackValue(_request());
   });
 
@@ -143,14 +145,50 @@ void main() {
     },
   );
 
-  testWidgets('approving a request calls the repository and syncs', (
+  testWidgets(
+    'approving a request asks for confirmation, calls the repository, syncs '
+    'and confirms the outcome',
+    (tester) async {
+      when(
+        () => repo.watch(any()),
+      ).thenAnswer((_) => Stream.value([_request()]));
+      when(() => repo.approve(any())).thenAnswer((_) async => 'op-1');
+      when(
+        () => syncRepo.sync(tenantId: any(named: 'tenantId')),
+      ).thenAnswer((_) async => const SyncOutcome.success());
+
+      await pump(tester);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Alice Martin'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Approuver'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Approuver la demande ?'), findsOneWidget);
+      verifyNever(() => repo.approve(any()));
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('Approuver'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      verify(() => repo.approve(any())).called(1);
+      verify(() => syncRepo.sync(tenantId: 'org-1')).called(1);
+      expect(
+        find.text("Demande approuvée : le lien d'activation a été envoyé."),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('cancelling the approval confirmation does nothing', (
     tester,
   ) async {
     when(() => repo.watch(any())).thenAnswer((_) => Stream.value([_request()]));
-    when(() => repo.approve(any())).thenAnswer((_) async => 'op-1');
-    when(
-      () => syncRepo.sync(tenantId: any(named: 'tenantId')),
-    ).thenAnswer((_) async => const SyncOutcome.success());
 
     await pump(tester);
     await tester.pumpAndSettle();
@@ -159,9 +197,11 @@ void main() {
 
     await tester.tap(find.text('Approuver'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Annuler'));
+    await tester.pumpAndSettle();
 
-    verify(() => repo.approve(any())).called(1);
-    verify(() => syncRepo.sync(tenantId: 'org-1')).called(1);
+    verifyNever(() => repo.approve(any()));
+    expect(find.text('Approuver la demande ?'), findsNothing);
   });
 
   testWidgets('rejecting a request opens a dialog and calls reject', (
@@ -189,5 +229,6 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => repo.reject(any(), reviewComment: 'Hors zone')).called(1);
+    expect(find.text('Demande rejetée.'), findsOneWidget);
   });
 }

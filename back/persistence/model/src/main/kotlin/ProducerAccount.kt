@@ -32,6 +32,11 @@ data class ProducerAccount(
         ),
     @SerialName("management_mode") val managementMode: ProducerManagementMode = ProducerManagementMode.ACCOUNT_BACKED,
     @SerialName("linked_producer_account") val linkedProducerAccount: LinkedProducerAccount? = null,
+    /**
+     * `true` between the OWNER approval of a producer request and the producer's first
+     * activation (no auth account yet). Omitted from the wire when `false`.
+     */
+    @SerialName("pending_activation") val pendingActivation: Boolean = false,
 )
 
 @Serializable

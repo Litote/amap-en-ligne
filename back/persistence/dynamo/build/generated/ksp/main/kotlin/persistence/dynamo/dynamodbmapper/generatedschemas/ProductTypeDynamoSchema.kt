@@ -27,6 +27,7 @@ internal class ProductTypeDynamoBuilder {
     internal var supportedBasketSizes: List<BasketSizeDynamo>? = null
     internal var name: String? = null
     internal var description: String? = null
+    internal var itemTypes: String? = null
 
     internal fun build(): ProductTypeDynamo {
         val pk = requireNotNull(pk) { "Missing value for pk" }
@@ -34,6 +35,7 @@ internal class ProductTypeDynamoBuilder {
         val supportedBasketSizes = requireNotNull(supportedBasketSizes) { "Missing value for supportedBasketSizes" }
         val name = requireNotNull(name) { "Missing value for name" }
         val description = description
+        val itemTypes = itemTypes
 
         return ProductTypeDynamo(
             pk,
@@ -41,6 +43,7 @@ internal class ProductTypeDynamoBuilder {
             supportedBasketSizes,
             name,
             description,
+            itemTypes,
         )
     }
 }
@@ -78,6 +81,12 @@ internal object ProductTypeDynamoConverter : ItemConverter<ProductTypeDynamo> by
             "description",
             ProductTypeDynamo::description,
             ProductTypeDynamoBuilder::description::set,
+            NullableConverter(StringConverter),
+        ),
+        AttributeDescriptor(
+            "item_types",
+            ProductTypeDynamo::itemTypes,
+            ProductTypeDynamoBuilder::itemTypes::set,
             NullableConverter(StringConverter),
         ),
     ),

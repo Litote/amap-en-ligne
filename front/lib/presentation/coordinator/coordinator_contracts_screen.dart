@@ -1,3 +1,4 @@
+import 'package:amap_en_ligne/data/id_generator.dart';
 import 'package:amap_en_ligne/data/repositories/contract_repository.dart';
 import 'package:amap_en_ligne/data/repositories/delivery_template_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
@@ -11,6 +12,8 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/model/weekly_delivery_plan.dart';
+import 'package:amap_en_ligne/domain/validation/contract_rules.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/common/date_picker_field.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_ended_listener.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
@@ -47,6 +50,7 @@ class _CoordinatorContractsScreenState
   final _deliveryCountController = TextEditingController();
   final _memberSearchController = TextEditingController();
   final Map<String, TextEditingController> _priceControllers = {};
+  final _idGenerator = IdGenerator();
 
   String? _selectedContractId;
   String? _selectedProducerAccountId;
@@ -55,6 +59,9 @@ class _CoordinatorContractsScreenState
   Set<String> _selectedMemberIds = <String>{};
   Map<String, Set<String>> _memberSubscriptionKeys = {};
   String? _loadedFormKey;
+  // Once a save failed validation, fields revalidate while typing so a fixed
+  // field loses its error immediately.
+  bool _submitAttempted = false;
   bool _saving = false;
   bool _seasonYearUserEdited = false;
   bool _deliveryCountUserEdited = false;
@@ -366,6 +373,7 @@ class _CoordinatorContractsScreenState
         );
     final form = _ContractEditor(
       formKey: _formKey,
+      autovalidate: _submitAttempted,
       organization: organization,
       members: data.members,
       producerAccounts: data.producerAccounts,
@@ -457,6 +465,7 @@ class _CoordinatorContractsScreenState
         '${organization.organizationId}:${contract?.contractId ?? 'new'}';
     if (_loadedFormKey == key) return;
     _loadedFormKey = key;
+    _submitAttempted = false;
     _selectedProducerAccountId = contract?.producerAccountId;
     // A product is part of the contract iff it has at least one entry in
     // productPrices; a legacy contract without any entry includes every
@@ -501,7 +510,7 @@ class _CoordinatorContractsScreenState
       for (final p in contract.productPrices) {
         final key = '${p.productTypeId}:${p.basketSize?.name ?? ''}';
         _priceControllers[key] = TextEditingController(
-          text: p.price?.toString() ?? '',
+          text: formatPriceForInput(p.price),
         );
       }
     }
@@ -740,7 +749,16 @@ class _CoordinatorContractsScreenState
       showError('Un contrat avec ce nom existe déjà dans cette AMAP.');
       return null;
     }
+    if (!_submitAttempted) setState(() => _submitAttempted = true);
     if (!(_formKey.currentState?.validate() ?? false)) return null;
+    final dateRangeError = contractDateRangeError(
+      _minDateController.text,
+      _maxDateController.text,
+    );
+    if (dateRangeError != null) {
+      showError(dateRangeError);
+      return null;
+    }
     final producerAccountId = _selectedProducerAccountId;
     if (producerAccountId == null || producerAccountId.isEmpty) {
       showError('Veuillez sélectionner un producteur.');
@@ -926,12 +944,11 @@ class _CoordinatorContractsScreenState
       organization,
       deliveryTemplates,
     );
-    var counter = 0;
     final plan = planWeeklyDeliveries(
       contract: saved,
       org: organization,
       template: resolvedTemplate,
-      nextTmpId: () => ++counter,
+      nextTmpId: _idGenerator.next,
     );
     if (plan.totalAffected > 0 && mounted) {
       await _offerWeeklyDeliveries(
@@ -995,12 +1012,11 @@ class _CoordinatorContractsScreenState
         freshContracts,
         savedContract,
       );
-      var counter = 0;
       final freshPlan = planWeeklyDeliveries(
         contract: resolvedContract,
         org: freshOrg,
         template: template,
-        nextTmpId: () => ++counter,
+        nextTmpId: _idGenerator.next,
       );
       if (freshPlan.totalAffected == 0) return;
       await orgRepo.updateDeliveries(
@@ -1042,6 +1058,7 @@ class _CoordinatorContractsScreenState
 class _ContractEditor extends StatelessWidget {
   const _ContractEditor({
     required this.formKey,
+    required this.autovalidate,
     required this.organization,
     required this.members,
     required this.producerAccounts,
@@ -1082,6 +1099,7 @@ class _ContractEditor extends StatelessWidget {
   });
 
   final GlobalKey<FormState> formKey;
+  final bool autovalidate;
   final Organization organization;
   final List<Member> members;
   final List<ProducerAccount> producerAccounts;
@@ -1161,6 +1179,9 @@ class _ContractEditor extends StatelessWidget {
         child: SingleChildScrollView(
           child: Form(
             key: formKey,
+            autovalidateMode: autovalidate
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -1182,14 +1203,14 @@ class _ContractEditor extends StatelessWidget {
     );
   }
 
-  String? _validateName(String? value) =>
-      value == null || value.trim().isEmpty ? 'Nom requis' : null;
+  String? _validateName(String? value) => value == null || value.trim().isEmpty
+      ? 'Nom requis'
+      : requiredName(value);
 
   String? _validateProducer(String? value) =>
       value == null || value.isEmpty ? 'Producteur requis' : null;
 
-  String? _validateSeasonYear(String? value) =>
-      int.tryParse(value?.trim() ?? '') == null ? 'Année invalide' : null;
+  String? _validateSeasonYear(String? value) => seasonYearError(value);
 
   String? _validateDeliveryCount(String? value) {
     final parsed = int.tryParse(value?.trim() ?? '');

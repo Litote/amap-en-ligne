@@ -14,6 +14,9 @@ sealed class AuthEvent with _$AuthEvent {
   const factory AuthEvent.organizationIdChanged(String? organizationId) =
       AuthOrganizationIdChanged;
 
+  const factory AuthEvent.producerAccountIdChanged(String? producerAccountId) =
+      AuthProducerAccountIdChanged;
+
   const factory AuthEvent.memberNameUpdated(
     String? firstName,
     String? lastName,

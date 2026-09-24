@@ -65,7 +65,7 @@ List<NavItem> buildNavItemsForRole(UserRole role, VoidCallback onLogout) =>
     };
 
 String _memberRoleLabel(Role role) => switch (role) {
-  Role.volunteer => '— Bénévole —',
+  Role.volunteer => '— Amapien —',
   Role.coordinator => '— Coordinateur —',
   Role.admin => '— Admin —',
   Role.owner || Role.producer => '',
@@ -211,6 +211,11 @@ const _producerItems = [
 // --- Common items (always shown, every role) ---
 
 List<NavItem> _commonItems(VoidCallback onLogout) => [
+  const NavItem(
+    label: 'Notifications',
+    icon: Icons.notifications_outlined,
+    route: '/notifications',
+  ),
   const NavItem(label: 'Préférences', icon: Icons.tune, route: '/preferences'),
   const NavItem(label: 'Aide', icon: Icons.help_outline, route: '/help'),
   NavItem(label: 'Se déconnecter', icon: Icons.logout, onTap: onLogout),

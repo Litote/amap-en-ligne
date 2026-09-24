@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'producer_requests_state.dart';
@@ -9,6 +9,7 @@ part of 'producer_requests_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$ProducerRequestsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerRequestsState()';
+    return 'ProducerRequestsState()';
 }
 
 
@@ -197,7 +198,7 @@ class ProducerRequestsInitial implements ProducerRequestsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsInitial);
 }
 
 
@@ -206,7 +207,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerRequestsState.initial()';
+    return 'ProducerRequestsState.initial()';
 }
 
 
@@ -229,7 +230,7 @@ class ProducerRequestsLoading implements ProducerRequestsState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsLoading);
 }
 
 
@@ -238,7 +239,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerRequestsState.loading()';
+    return 'ProducerRequestsState.loading()';
 }
 
 
@@ -251,7 +252,7 @@ String toString() {
 
 
 class ProducerRequestsLoaded implements ProducerRequestsState {
-  const ProducerRequestsLoaded({required final  List<AdminProducerRequest> requests, this.statusFilter, this.actionInProgress = false, this.actionError}): _requests = requests;
+  const ProducerRequestsLoaded({required  List<AdminProducerRequest> requests, this.statusFilter, this.actionInProgress = false, this.actionError}): _requests = requests;
   
 
  final  List<AdminProducerRequest> _requests;
@@ -275,16 +276,18 @@ $ProducerRequestsLoadedCopyWith<ProducerRequestsLoaded> get copyWith => _$Produc
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsLoaded&&const DeepCollectionEquality().equals(other._requests, _requests)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsLoaded&&const DeepCollectionEquality().equals(other.requests, _requests)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_requests),statusFilter,actionInProgress,actionError);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_requests),statusFilter,actionInProgress,actionError);
+}
 
 @override
 String toString() {
-  return 'ProducerRequestsState.loaded(requests: $requests, statusFilter: $statusFilter, actionInProgress: $actionInProgress, actionError: $actionError)';
+    return 'ProducerRequestsState.loaded(requests: $requests, statusFilter: $statusFilter, actionInProgress: $actionInProgress, actionError: $actionError)';
 }
 
 
@@ -344,16 +347,18 @@ $ProducerRequestsErrorCopyWith<ProducerRequestsError> get copyWith => _$Producer
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestsError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'ProducerRequestsState.error(message: $message)';
+    return 'ProducerRequestsState.error(message: $message)';
 }
 
 

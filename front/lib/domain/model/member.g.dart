@@ -36,21 +36,21 @@ _Member _$MemberFromJson(Map<String, dynamic> json) => _Member(
           ?.map((e) => $enumDecode(_$RoleEnumMap, e))
           .toSet() ??
       const {Role.volunteer},
-  activeStatus: json['active_status'] as bool? ?? true,
   firstName: json['first_name'] as String?,
   lastName: json['last_name'] as String?,
   email: json['email'] as String?,
   phone: json['phone'] as String?,
-  accountStatus: $enumDecodeNullable(
-    _$MemberAccountStatusEnumMap,
-    json['account_status'],
-  ),
+  accountStatus:
+      $enumDecodeNullable(
+        _$MemberAccountStatusEnumMap,
+        json['account_status'],
+      ) ??
+      MemberAccountStatus.active,
   contracts:
       (json['contracts'] as List<dynamic>?)
           ?.map((e) => MemberContract.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
-  memberSettings: json['member_settings'] as Map<String, dynamic>?,
   memberPreferences: json['member_preferences'] == null
       ? null
       : MemberPreferences.fromJson(
@@ -68,14 +68,12 @@ Map<String, dynamic> _$MemberToJson(_Member instance) => <String, dynamic>{
   'member_id': instance.memberId,
   'organization_id': instance.organizationId,
   'roles': instance.roles.map((e) => _$RoleEnumMap[e]!).toList(),
-  'active_status': instance.activeStatus,
   'first_name': ?instance.firstName,
   'last_name': ?instance.lastName,
   'email': ?instance.email,
   'phone': ?instance.phone,
-  'account_status': ?_$MemberAccountStatusEnumMap[instance.accountStatus],
+  'account_status': _$MemberAccountStatusEnumMap[instance.accountStatus]!,
   'contracts': instance.contracts,
-  'member_settings': ?instance.memberSettings,
   'member_preferences': ?instance.memberPreferences,
   'user_preferences': ?instance.userPreferences,
   'user_settings': ?instance.userSettings,

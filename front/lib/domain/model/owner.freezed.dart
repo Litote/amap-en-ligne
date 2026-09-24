@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'owner.dart';
@@ -9,6 +9,7 @@ part of 'owner.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $OwnerCopyWith<Owner> get copyWith => _$OwnerCopyWithImpl<Owner>(this as Owner, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Owner&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.accountStatus, accountStatus) || other.accountStatus == accountStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences));
+  final _this = this as Owner;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Owner&&(identical(other.ownerId, _this.ownerId) || other.ownerId == _this.ownerId)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.accountStatus, _this.accountStatus) || other.accountStatus == _this.accountStatus)&&(identical(other.registeredAt, _this.registeredAt) || other.registeredAt == _this.registeredAt)&&(identical(other.updatedAt, _this.updatedAt) || other.updatedAt == _this.updatedAt)&&(identical(other.userPreferences, _this.userPreferences) || other.userPreferences == _this.userPreferences));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,ownerId,firstName,lastName,email,phone,accountStatus,registeredAt,updatedAt,userPreferences);
+int get hashCode {
+  final _this = this as Owner;
+  return Object.hash(runtimeType,_this.ownerId,_this.firstName,_this.lastName,_this.email,_this.phone,_this.accountStatus,_this.registeredAt,_this.updatedAt,_this.userPreferences);
+}
 
 @override
 String toString() {
-  return 'Owner(ownerId: $ownerId, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, accountStatus: $accountStatus, registeredAt: $registeredAt, updatedAt: $updatedAt, userPreferences: $userPreferences)';
+  final _this = this as Owner;
+  return 'Owner(ownerId: ${_this.ownerId}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, email: ${_this.email}, phone: ${_this.phone}, accountStatus: ${_this.accountStatus}, registeredAt: ${_this.registeredAt}, updatedAt: ${_this.updatedAt}, userPreferences: ${_this.userPreferences})';
 }
 
 
@@ -66,7 +72,7 @@ class _$OwnerCopyWithImpl<$Res>
 /// Create a copy of Owner
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? ownerId = null,Object? firstName = null,Object? lastName = null,Object? email = null,Object? phone = freezed,Object? accountStatus = null,Object? registeredAt = null,Object? updatedAt = null,Object? userPreferences = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(Owner(
 ownerId: null == ownerId ? _self.ownerId : ownerId // ignore: cast_nullable_to_non_nullable
 as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
@@ -255,16 +261,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Owner&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.accountStatus, accountStatus) || other.accountStatus == accountStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Owner&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.accountStatus, accountStatus) || other.accountStatus == accountStatus)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,ownerId,firstName,lastName,email,phone,accountStatus,registeredAt,updatedAt,userPreferences);
+int get hashCode {
+    return Object.hash(runtimeType,ownerId,firstName,lastName,email,phone,accountStatus,registeredAt,updatedAt,userPreferences);
+}
 
 @override
 String toString() {
-  return 'Owner(ownerId: $ownerId, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, accountStatus: $accountStatus, registeredAt: $registeredAt, updatedAt: $updatedAt, userPreferences: $userPreferences)';
+    return 'Owner(ownerId: $ownerId, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, accountStatus: $accountStatus, registeredAt: $registeredAt, updatedAt: $updatedAt, userPreferences: $userPreferences)';
 }
 
 

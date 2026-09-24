@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'delivery_description_event.dart';
@@ -9,6 +9,7 @@ part of 'delivery_description_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$DeliveryDescriptionEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent()';
+    return 'DeliveryDescriptionEvent()';
 }
 
 
@@ -55,13 +56,14 @@ extension DeliveryDescriptionEventPatterns on DeliveryDescriptionEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DeliveryDescriptionRequested value)?  requested,TResult Function( ItemToggled value)?  itemToggled,TResult Function( WeightChanged value)?  weightChanged,TResult Function( DeliveryDescriptionSaveRequested value)?  saveRequested,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DeliveryDescriptionRequested value)?  requested,TResult Function( ItemToggled value)?  itemToggled,TResult Function( WeightChanged value)?  weightChanged,TResult Function( FreeItemAdded value)?  freeItemAdded,TResult Function( DeliveryDescriptionSaveRequested value)?  saveRequested,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case DeliveryDescriptionRequested() when requested != null:
 return requested(_that);case ItemToggled() when itemToggled != null:
 return itemToggled(_that);case WeightChanged() when weightChanged != null:
-return weightChanged(_that);case DeliveryDescriptionSaveRequested() when saveRequested != null:
+return weightChanged(_that);case FreeItemAdded() when freeItemAdded != null:
+return freeItemAdded(_that);case DeliveryDescriptionSaveRequested() when saveRequested != null:
 return saveRequested(_that);case _:
   return orElse();
 
@@ -80,13 +82,14 @@ return saveRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DeliveryDescriptionRequested value)  requested,required TResult Function( ItemToggled value)  itemToggled,required TResult Function( WeightChanged value)  weightChanged,required TResult Function( DeliveryDescriptionSaveRequested value)  saveRequested,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DeliveryDescriptionRequested value)  requested,required TResult Function( ItemToggled value)  itemToggled,required TResult Function( WeightChanged value)  weightChanged,required TResult Function( FreeItemAdded value)  freeItemAdded,required TResult Function( DeliveryDescriptionSaveRequested value)  saveRequested,}){
 final _that = this;
 switch (_that) {
 case DeliveryDescriptionRequested():
 return requested(_that);case ItemToggled():
 return itemToggled(_that);case WeightChanged():
-return weightChanged(_that);case DeliveryDescriptionSaveRequested():
+return weightChanged(_that);case FreeItemAdded():
+return freeItemAdded(_that);case DeliveryDescriptionSaveRequested():
 return saveRequested(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -101,13 +104,14 @@ return saveRequested(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DeliveryDescriptionRequested value)?  requested,TResult? Function( ItemToggled value)?  itemToggled,TResult? Function( WeightChanged value)?  weightChanged,TResult? Function( DeliveryDescriptionSaveRequested value)?  saveRequested,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DeliveryDescriptionRequested value)?  requested,TResult? Function( ItemToggled value)?  itemToggled,TResult? Function( WeightChanged value)?  weightChanged,TResult? Function( FreeItemAdded value)?  freeItemAdded,TResult? Function( DeliveryDescriptionSaveRequested value)?  saveRequested,}){
 final _that = this;
 switch (_that) {
 case DeliveryDescriptionRequested() when requested != null:
 return requested(_that);case ItemToggled() when itemToggled != null:
 return itemToggled(_that);case WeightChanged() when weightChanged != null:
-return weightChanged(_that);case DeliveryDescriptionSaveRequested() when saveRequested != null:
+return weightChanged(_that);case FreeItemAdded() when freeItemAdded != null:
+return freeItemAdded(_that);case DeliveryDescriptionSaveRequested() when saveRequested != null:
 return saveRequested(_that);case _:
   return null;
 
@@ -125,12 +129,13 @@ return saveRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( Organization org,  String deliveryId)?  requested,TResult Function( String productTypeId,  String basketSizeName,  String itemTypeId)?  itemToggled,TResult Function( String productTypeId,  String basketSizeName,  String itemTypeId,  String? weight)?  weightChanged,TResult Function()?  saveRequested,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( Organization org,  String deliveryId)?  requested,TResult Function( String productTypeId,  String basketSizeName,  String itemTypeId)?  itemToggled,TResult Function( String productTypeId,  String basketSizeName,  String itemTypeId,  String? weight)?  weightChanged,TResult Function( String productTypeId,  String basketSizeName,  String name,  String? weight)?  freeItemAdded,TResult Function()?  saveRequested,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case DeliveryDescriptionRequested() when requested != null:
 return requested(_that.org,_that.deliveryId);case ItemToggled() when itemToggled != null:
 return itemToggled(_that.productTypeId,_that.basketSizeName,_that.itemTypeId);case WeightChanged() when weightChanged != null:
-return weightChanged(_that.productTypeId,_that.basketSizeName,_that.itemTypeId,_that.weight);case DeliveryDescriptionSaveRequested() when saveRequested != null:
+return weightChanged(_that.productTypeId,_that.basketSizeName,_that.itemTypeId,_that.weight);case FreeItemAdded() when freeItemAdded != null:
+return freeItemAdded(_that.productTypeId,_that.basketSizeName,_that.name,_that.weight);case DeliveryDescriptionSaveRequested() when saveRequested != null:
 return saveRequested();case _:
   return orElse();
 
@@ -149,12 +154,13 @@ return saveRequested();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( Organization org,  String deliveryId)  requested,required TResult Function( String productTypeId,  String basketSizeName,  String itemTypeId)  itemToggled,required TResult Function( String productTypeId,  String basketSizeName,  String itemTypeId,  String? weight)  weightChanged,required TResult Function()  saveRequested,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( Organization org,  String deliveryId)  requested,required TResult Function( String productTypeId,  String basketSizeName,  String itemTypeId)  itemToggled,required TResult Function( String productTypeId,  String basketSizeName,  String itemTypeId,  String? weight)  weightChanged,required TResult Function( String productTypeId,  String basketSizeName,  String name,  String? weight)  freeItemAdded,required TResult Function()  saveRequested,}) {final _that = this;
 switch (_that) {
 case DeliveryDescriptionRequested():
 return requested(_that.org,_that.deliveryId);case ItemToggled():
 return itemToggled(_that.productTypeId,_that.basketSizeName,_that.itemTypeId);case WeightChanged():
-return weightChanged(_that.productTypeId,_that.basketSizeName,_that.itemTypeId,_that.weight);case DeliveryDescriptionSaveRequested():
+return weightChanged(_that.productTypeId,_that.basketSizeName,_that.itemTypeId,_that.weight);case FreeItemAdded():
+return freeItemAdded(_that.productTypeId,_that.basketSizeName,_that.name,_that.weight);case DeliveryDescriptionSaveRequested():
 return saveRequested();}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +175,13 @@ return saveRequested();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( Organization org,  String deliveryId)?  requested,TResult? Function( String productTypeId,  String basketSizeName,  String itemTypeId)?  itemToggled,TResult? Function( String productTypeId,  String basketSizeName,  String itemTypeId,  String? weight)?  weightChanged,TResult? Function()?  saveRequested,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( Organization org,  String deliveryId)?  requested,TResult? Function( String productTypeId,  String basketSizeName,  String itemTypeId)?  itemToggled,TResult? Function( String productTypeId,  String basketSizeName,  String itemTypeId,  String? weight)?  weightChanged,TResult? Function( String productTypeId,  String basketSizeName,  String name,  String? weight)?  freeItemAdded,TResult? Function()?  saveRequested,}) {final _that = this;
 switch (_that) {
 case DeliveryDescriptionRequested() when requested != null:
 return requested(_that.org,_that.deliveryId);case ItemToggled() when itemToggled != null:
 return itemToggled(_that.productTypeId,_that.basketSizeName,_that.itemTypeId);case WeightChanged() when weightChanged != null:
-return weightChanged(_that.productTypeId,_that.basketSizeName,_that.itemTypeId,_that.weight);case DeliveryDescriptionSaveRequested() when saveRequested != null:
+return weightChanged(_that.productTypeId,_that.basketSizeName,_that.itemTypeId,_that.weight);case FreeItemAdded() when freeItemAdded != null:
+return freeItemAdded(_that.productTypeId,_that.basketSizeName,_that.name,_that.weight);case DeliveryDescriptionSaveRequested() when saveRequested != null:
 return saveRequested();case _:
   return null;
 
@@ -203,16 +210,18 @@ $DeliveryDescriptionRequestedCopyWith<DeliveryDescriptionRequested> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionRequested&&(identical(other.org, org) || other.org == org)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionRequested&&(identical(other.org, org) || other.org == org)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,org,deliveryId);
+int get hashCode {
+    return Object.hash(runtimeType,org,deliveryId);
+}
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent.requested(org: $org, deliveryId: $deliveryId)';
+    return 'DeliveryDescriptionEvent.requested(org: $org, deliveryId: $deliveryId)';
 }
 
 
@@ -281,16 +290,18 @@ $ItemToggledCopyWith<ItemToggled> get copyWith => _$ItemToggledCopyWithImpl<Item
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemToggled&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemToggled&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSizeName,itemTypeId);
+int get hashCode {
+    return Object.hash(runtimeType,productTypeId,basketSizeName,itemTypeId);
+}
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent.itemToggled(productTypeId: $productTypeId, basketSizeName: $basketSizeName, itemTypeId: $itemTypeId)';
+    return 'DeliveryDescriptionEvent.itemToggled(productTypeId: $productTypeId, basketSizeName: $basketSizeName, itemTypeId: $itemTypeId)';
 }
 
 
@@ -352,16 +363,18 @@ $WeightChangedCopyWith<WeightChanged> get copyWith => _$WeightChangedCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WeightChanged&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId)&&(identical(other.weight, weight) || other.weight == weight));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is WeightChanged&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId)&&(identical(other.weight, weight) || other.weight == weight));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSizeName,itemTypeId,weight);
+int get hashCode {
+    return Object.hash(runtimeType,productTypeId,basketSizeName,itemTypeId,weight);
+}
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent.weightChanged(productTypeId: $productTypeId, basketSizeName: $basketSizeName, itemTypeId: $itemTypeId, weight: $weight)';
+    return 'DeliveryDescriptionEvent.weightChanged(productTypeId: $productTypeId, basketSizeName: $basketSizeName, itemTypeId: $itemTypeId, weight: $weight)';
 }
 
 
@@ -405,6 +418,80 @@ as String?,
 /// @nodoc
 
 
+class FreeItemAdded implements DeliveryDescriptionEvent {
+  const FreeItemAdded({required this.productTypeId, required this.basketSizeName, required this.name, this.weight});
+  
+
+ final  String productTypeId;
+ final  String basketSizeName;
+ final  String name;
+ final  String? weight;
+
+/// Create a copy of DeliveryDescriptionEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FreeItemAddedCopyWith<FreeItemAdded> get copyWith => _$FreeItemAddedCopyWithImpl<FreeItemAdded>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is FreeItemAdded&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&(identical(other.name, name) || other.name == name)&&(identical(other.weight, weight) || other.weight == weight));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,productTypeId,basketSizeName,name,weight);
+}
+
+@override
+String toString() {
+    return 'DeliveryDescriptionEvent.freeItemAdded(productTypeId: $productTypeId, basketSizeName: $basketSizeName, name: $name, weight: $weight)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FreeItemAddedCopyWith<$Res> implements $DeliveryDescriptionEventCopyWith<$Res> {
+  factory $FreeItemAddedCopyWith(FreeItemAdded value, $Res Function(FreeItemAdded) _then) = _$FreeItemAddedCopyWithImpl;
+@useResult
+$Res call({
+ String productTypeId, String basketSizeName, String name, String? weight
+});
+
+
+
+
+}
+/// @nodoc
+class _$FreeItemAddedCopyWithImpl<$Res>
+    implements $FreeItemAddedCopyWith<$Res> {
+  _$FreeItemAddedCopyWithImpl(this._self, this._then);
+
+  final FreeItemAdded _self;
+  final $Res Function(FreeItemAdded) _then;
+
+/// Create a copy of DeliveryDescriptionEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? productTypeId = null,Object? basketSizeName = null,Object? name = null,Object? weight = freezed,}) {
+  return _then(FreeItemAdded(
+productTypeId: null == productTypeId ? _self.productTypeId : productTypeId // ignore: cast_nullable_to_non_nullable
+as String,basketSizeName: null == basketSizeName ? _self.basketSizeName : basketSizeName // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,weight: freezed == weight ? _self.weight : weight // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
 class DeliveryDescriptionSaveRequested implements DeliveryDescriptionEvent {
   const DeliveryDescriptionSaveRequested();
   
@@ -416,7 +503,7 @@ class DeliveryDescriptionSaveRequested implements DeliveryDescriptionEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionSaveRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionSaveRequested);
 }
 
 
@@ -425,7 +512,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent.saveRequested()';
+    return 'DeliveryDescriptionEvent.saveRequested()';
 }
 
 

@@ -10,6 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.path
@@ -21,6 +22,7 @@ import onboarding.PublicService
 import org.koin.core.KoinApplication
 import persistence.dao.MemberSyncDAO
 import persistence.dao.ProducerAccountSyncDAO
+import persistence.dao.ProductTypeSyncDAO
 import properties.Properties
 import sync.DataService
 import sync.ExportService
@@ -45,6 +47,7 @@ fun Application.dataRoutingModule(koin: KoinApplication) {
     val publicService = koin.koin.get<PublicService>()
     val activationService = koin.koin.get<ActivationService>()
     val producerAccountSyncDAO = koin.koin.get<ProducerAccountSyncDAO>()
+    val productTypeSyncDAO = koin.koin.getOrNull<ProductTypeSyncDAO>()
     val memberSyncDAO = koin.koin.get<MemberSyncDAO>()
     val exportService = koin.koin.getOrNull<ExportService>()
     val importService = koin.koin.getOrNull<ImportService>()
@@ -65,6 +68,14 @@ fun Application.dataRoutingModule(koin: KoinApplication) {
     }
 
     install(StatusPages) {
+        // Malformed / undecodable request bodies (thrown by `call.receive`) are client errors.
+        exception<BadRequestException> { call, cause ->
+            logger.debug(cause) { "Bad request: ${cause.message}" }
+            call.respond(
+                HttpStatusCode.BadRequest,
+                httpService.invalidPayloadError(call.request.path(), "malformed request body"),
+            )
+        }
         exception<Throwable> { call, cause ->
             logger.error(cause) { "Technical error: ${cause.message}" }
             call.respond(
@@ -77,7 +88,7 @@ fun Application.dataRoutingModule(koin: KoinApplication) {
     routing {
         discoveryRoute(instanceConfig)
         publicRoute(publicService, httpService)
-        producerAccountSearchRoute(producerAccountSyncDAO, memberSyncDAO, authenticationService, httpService)
+        producerAccountSearchRoute(producerAccountSyncDAO, productTypeSyncDAO, memberSyncDAO, authenticationService, httpService)
         if (exportService != null && importService != null) {
             organizationBackupRoute(exportService, importService, authenticationService, httpService, instanceConfig.name)
         }

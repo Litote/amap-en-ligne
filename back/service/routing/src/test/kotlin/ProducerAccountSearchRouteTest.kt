@@ -32,8 +32,11 @@ import org.koin.dsl.module
 import owner.OwnerInvitationService
 import persistence.dao.MemberSyncDAO
 import persistence.dao.ProducerAccountSyncDAO
+import persistence.dao.ProductTypeSyncDAO
+import persistence.model.BasketSize
 import persistence.model.Organization
 import persistence.model.ProducerManagementMode
+import persistence.model.ProductType
 import properties.Properties
 import sync.DataService
 import kotlin.test.assertEquals
@@ -173,6 +176,64 @@ internal class ProducerAccountSearchRouteTest {
 
                 assertEquals(HttpStatusCode.OK, response.status)
                 assertTrue(response.bodyAsText().contains("pa-1"))
+            }
+        }
+
+    @Test
+    fun `GIVEN an account-backed producer with product types WHEN GET search THEN its products come from its catalog`() =
+        runTest {
+            // Account-backed producers manage ProductTypes, not ProducerAccount.products: without
+            // this the enrollment step lists no product and the producer can never be linked.
+            val producerAccountSyncDAO = mockk<ProducerAccountSyncDAO>()
+            coEvery {
+                producerAccountSyncDAO.search("org-1".toId<Organization>(), "ferme")
+            } returns listOf(buildStubProducerAccount("pa-1"))
+            val productTypeDAO = mockk<ProductTypeSyncDAO>()
+            coEvery { productTypeDAO.getByProducerAccountId("pa-1".toId()) } returns
+                listOf(
+                    ProductType(
+                        productTypeId = "pt-1".toId(),
+                        producerAccountId = "pa-1".toId(),
+                        supportedBasketSizes = listOf(BasketSize("Petit")),
+                        name = "Fromages",
+                    ),
+                )
+
+            val koin =
+                startKoin {
+                    modules(
+                        module {
+                            single<DataService> { mockk(relaxed = true) }
+                            single<AuthenticationService> { adminAuthService }
+                            single { HttpService() }
+                            single { stubInstanceConfig }
+                            single { mockk<PublicService>(relaxed = true) }
+                            single { mockk<AdminService>(relaxed = true) }
+                            single { mockk<MemberInvitationService>(relaxed = true) }
+                            single { mockk<ActivationService>(relaxed = true) }
+                            single { mockk<OwnerInvitationService>(relaxed = true) }
+                            single { mockk<RejectionEmailPort>(relaxed = true) }
+                            single<ProducerAccountSyncDAO> { producerAccountSyncDAO }
+                            single<ProductTypeSyncDAO> { productTypeDAO }
+                            single<MemberSyncDAO> { mockk(relaxed = true) }
+                            single { mockk<owner.OwnerService>(relaxed = true) }
+                            single { mockk<produceraccount.ProducerAccountService>(relaxed = true) }
+                            single<Properties> { Properties.Instance }
+                        },
+                    )
+                }
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val body =
+                    client
+                        .get("/v1/admin/producer-accounts/search?q=ferme") {
+                            header(HttpHeaders.Authorization, "Bearer admin-token")
+                        }.bodyAsText()
+
+                assertTrue(body.contains("\"product_type_id\":\"pt-1\""), body)
+                assertTrue(body.contains("Fromages"), body)
             }
         }
 

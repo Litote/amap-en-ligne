@@ -12,10 +12,14 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
+import persistence.changes.Change
+import persistence.changes.ChangeOp
 import persistence.changes.Delete
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
+import persistence.changes.ProducerAccountPayload
 import persistence.changes.ProducerRequestPayload
+import persistence.changes.SyncScope
 import persistence.changes.Upsert
 import persistence.dao.ActivationTokenDAO
 import persistence.dao.ProducerAccountSyncDAO
@@ -23,6 +27,7 @@ import persistence.dao.ProducerRequestDAO
 import persistence.dao.ProducerRequestSyncDAO
 import persistence.model.ActivationToken
 import persistence.model.EntityType
+import persistence.model.ProducerAccount
 import persistence.model.ProducerRequest
 import persistence.model.ProducerRequestStatus
 import kotlin.test.Test
@@ -117,7 +122,16 @@ internal class ProducerRequestServiceTest {
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
             assertEquals(pending.requestId.id, outcome.serverEntityId)
-            coVerify { producerAccountSyncDAO.createStandalone(any()) }
+            val producerSlot = slot<ProducerAccount>()
+            val changesSlot = slot<List<Change>>()
+            coVerify { producerAccountSyncDAO.createStandalone(capture(producerSlot), capture(changesSlot)) }
+            assertTrue(producerSlot.captured.pendingActivation, "an approved producer is pending activation")
+            val ownerChange = changesSlot.captured.single()
+            assertEquals(SyncScope.InstanceOwner.key, ownerChange.scopeKey)
+            assertEquals(EntityType.ProducerAccount, ownerChange.entityType)
+            assertEquals(ChangeOp.UPSERT, ownerChange.op)
+            assertEquals(producerSlot.captured.producerAccountId.id, ownerChange.entityId)
+            assertEquals(ProducerAccountPayload(producerSlot.captured), ownerChange.payload)
             coVerify { activationTokenDAO.create(any()) }
             coVerify { producerActivationEmailPort.sendProducerActivationEmail(any(), any()) }
             val persistedRequestSlot = slot<ProducerRequest>()
@@ -140,7 +154,7 @@ internal class ProducerRequestServiceTest {
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
             coVerify { producerRequestRejectionEmailPort.sendRejectionEmail(any(), "Insufficient info") }
-            coVerify(exactly = 0) { producerAccountSyncDAO.createStandalone(any()) }
+            coVerify(exactly = 0) { producerAccountSyncDAO.createStandalone(any(), any()) }
         }
 
     @Test

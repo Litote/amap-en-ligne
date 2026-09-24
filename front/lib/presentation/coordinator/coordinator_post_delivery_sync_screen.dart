@@ -1,6 +1,9 @@
 import 'package:amap_en_ligne/data/repositories/attendance_email_request_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/organization_member_view.dart'
+    show deliveryCoordinatorIds;
+import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
@@ -65,6 +68,7 @@ class CoordinatorPostDeliverySyncScreen extends StatelessWidget {
 
         return ConnectedScaffold(
           title: 'Finalisation livraison $dateStr',
+          onBack: () => backToDeliveryList(context),
           body: _PostDeliveryBody(org: org, delivery: delivery),
         );
       },
@@ -105,31 +109,39 @@ typedef PostDeliveryStats = ({
   int collectedBaskets,
 });
 
+/// Every volunteer registration of [delivery] — the delivery's coordinators
+/// are not volunteers (same rule as the tracking screen).
+List<MemberRegistration> _volunteerRegistrations(Delivery delivery) {
+  final coordinatorIds = deliveryCoordinatorIds(delivery);
+  return [
+    for (final contract in delivery.contracts)
+      for (final slot in contract.slots)
+        ...slot.registrations.where(
+          (reg) => !coordinatorIds.contains(reg.memberId),
+        ),
+  ];
+}
+
 PostDeliveryStats postDeliveryStats(Delivery delivery) {
-  var totalRegistrations = 0;
-  var presentCount = 0;
+  final registrations = _volunteerRegistrations(delivery);
   var totalBaskets = 0;
   var collectedBaskets = 0;
-
   for (final contract in delivery.contracts) {
     totalBaskets += contract.basketQuantity;
     if (contract.status == DeliveryContractStatus.distributed) {
       collectedBaskets += contract.basketQuantity;
     }
-    for (final slot in contract.slots) {
-      for (final reg in slot.registrations) {
-        totalRegistrations++;
-        if (reg.status == RegistrationStatus.confirmed ||
-            reg.status == RegistrationStatus.completed) {
-          presentCount++;
-        }
-      }
-    }
   }
 
   return (
-    totalRegistrations: totalRegistrations,
-    presentCount: presentCount,
+    totalRegistrations: registrations.length,
+    presentCount: registrations
+        .where(
+          (reg) =>
+              reg.status == RegistrationStatus.confirmed ||
+              reg.status == RegistrationStatus.completed,
+        )
+        .length,
     totalBaskets: totalBaskets,
     collectedBaskets: collectedBaskets,
   );
@@ -142,12 +154,7 @@ class _VolunteerSyncSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final registrations = <MemberRegistration>[];
-    for (final contract in delivery.contracts) {
-      for (final slot in contract.slots) {
-        registrations.addAll(slot.registrations);
-      }
-    }
+    final registrations = _volunteerRegistrations(delivery);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,23 +362,18 @@ class _CloseActionsSection extends StatefulWidget {
   State<_CloseActionsSection> createState() => _CloseActionsSectionState();
 }
 
-List<List<String>> _volunteerPresenceRows(Delivery delivery) {
-  final rows = <List<String>>[];
-  for (final contract in delivery.contracts) {
-    for (final slot in contract.slots) {
-      for (final reg in slot.registrations) {
-        final presence = switch (reg.status) {
-          RegistrationStatus.confirmed ||
-          RegistrationStatus.completed => 'Présent',
-          RegistrationStatus.cancelled => 'Absent',
-          RegistrationStatus.registered => 'Non confirmé',
-        };
-        rows.add([reg.displayName, presence]);
-      }
-    }
-  }
-  return rows;
-}
+List<List<String>> _volunteerPresenceRows(Delivery delivery) => [
+  for (final reg in _volunteerRegistrations(delivery))
+    [
+      reg.displayName,
+      switch (reg.status) {
+        RegistrationStatus.confirmed ||
+        RegistrationStatus.completed => 'Présent',
+        RegistrationStatus.cancelled => 'Absent',
+        RegistrationStatus.registered => 'Non confirmé',
+      },
+    ],
+];
 
 List<List<String>> _basketRecoveryRows(Delivery delivery) =>
     delivery.contracts.map((contract) {

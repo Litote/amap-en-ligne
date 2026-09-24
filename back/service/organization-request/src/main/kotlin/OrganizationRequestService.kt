@@ -17,12 +17,13 @@ import persistence.changes.Cursor
 import persistence.changes.Delete
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationOutcome
+import persistence.changes.OrganizationPayload
 import persistence.changes.OrganizationRequestPayload
 import persistence.changes.SyncScope
 import persistence.dao.ActivationTokenDAO
-import persistence.dao.OrganizationDAO
 import persistence.dao.OrganizationRequestDAO
 import persistence.dao.OrganizationRequestSyncDAO
+import persistence.dao.OrganizationSyncDAO
 import persistence.model.ActivationToken
 import persistence.model.EntityType
 import persistence.model.Organization
@@ -38,7 +39,7 @@ import kotlin.time.Instant
 class OrganizationRequestService(
     private val organizationRequestSyncDAO: OrganizationRequestSyncDAO,
     private val organizationRequestDAO: OrganizationRequestDAO,
-    private val organizationDAO: OrganizationDAO,
+    private val organizationSyncDAO: OrganizationSyncDAO,
     private val activationTokenDAO: ActivationTokenDAO,
     private val activationEmailPort: ActivationEmailPort,
     private val rejectionEmailPort: RejectionEmailPort,
@@ -89,7 +90,9 @@ class OrganizationRequestService(
                     createdInstant = now,
                     lastUpdatedInstant = now,
                 )
-            organizationDAO.create(organization)
+            // Fan out on `instance-owner` so owners see the new organization on their next
+            // incremental sync (no full bootstrap needed).
+            organizationSyncDAO.put(organization, buildOrganizationChange(organization))
             val activationToken =
                 ActivationToken(
                     token = UUID.randomUUID().toString(),
@@ -161,6 +164,17 @@ class OrganizationRequestService(
         organizationRequestSyncDAO.put(updated, buildChange(updated))
         return applied(mutation, updated.requestId.id)
     }
+
+    private fun buildOrganizationChange(organization: Organization): Change =
+        Change(
+            cursor = Cursor.next(),
+            entityType = EntityType.Organization,
+            entityId = organization.organizationId.id,
+            scopeKey = SyncScope.InstanceOwner.key,
+            op = ChangeOp.UPSERT,
+            payload = OrganizationPayload(organization),
+            producedAt = System.currentTimeMillis(),
+        )
 
     private fun buildChange(request: OrganizationRequest): Change =
         Change(

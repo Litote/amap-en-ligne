@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'sync_state.dart';
@@ -9,6 +9,7 @@ part of 'sync_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$SyncState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'SyncState()';
+    return 'SyncState()';
 }
 
 
@@ -203,7 +204,7 @@ class SyncIdle implements SyncState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncIdle);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncIdle);
 }
 
 
@@ -212,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'SyncState.idle()';
+    return 'SyncState.idle()';
 }
 
 
@@ -235,7 +236,7 @@ class SyncRunning implements SyncState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncRunning);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncRunning);
 }
 
 
@@ -244,7 +245,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'SyncState.syncing()';
+    return 'SyncState.syncing()';
 }
 
 
@@ -257,7 +258,7 @@ String toString() {
 
 
 class SyncSucceeded implements SyncState {
-  const SyncSucceeded({this.hasMore = false, final  List<MutationOutcome> rejectedMutations = const <MutationOutcome>[]}): _rejectedMutations = rejectedMutations;
+  const SyncSucceeded({this.hasMore = false,  List<MutationOutcome> rejectedMutations = const <MutationOutcome>[]}): _rejectedMutations = rejectedMutations;
   
 
 @JsonKey() final  bool hasMore;
@@ -279,16 +280,18 @@ $SyncSucceededCopyWith<SyncSucceeded> get copyWith => _$SyncSucceededCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncSucceeded&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&const DeepCollectionEquality().equals(other._rejectedMutations, _rejectedMutations));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncSucceeded&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&const DeepCollectionEquality().equals(other.rejectedMutations, _rejectedMutations));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,hasMore,const DeepCollectionEquality().hash(_rejectedMutations));
+int get hashCode {
+    return Object.hash(runtimeType,hasMore,const DeepCollectionEquality().hash(_rejectedMutations));
+}
 
 @override
 String toString() {
-  return 'SyncState.success(hasMore: $hasMore, rejectedMutations: $rejectedMutations)';
+    return 'SyncState.success(hasMore: $hasMore, rejectedMutations: $rejectedMutations)';
 }
 
 
@@ -346,16 +349,18 @@ $SyncFailedCopyWith<SyncFailed> get copyWith => _$SyncFailedCopyWithImpl<SyncFai
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncFailed&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncFailed&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'SyncState.failure(message: $message)';
+    return 'SyncState.failure(message: $message)';
 }
 
 
@@ -407,7 +412,7 @@ class SyncOffline implements SyncState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncOffline);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SyncOffline);
 }
 
 
@@ -416,7 +421,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'SyncState.offline()';
+    return 'SyncState.offline()';
 }
 
 

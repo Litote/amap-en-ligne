@@ -1,5 +1,6 @@
 import 'package:amap_en_ligne/domain/auth/auth_error.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
+import 'package:amap_en_ligne/domain/auth/password_policy.dart';
 import 'package:amap_en_ligne/domain/auth/remembered_user_context.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/presentation/auth/forgot_password_bloc.dart';
@@ -294,14 +295,13 @@ class _ConfirmForm extends StatelessWidget {
           textInputAction: TextInputAction.next,
           decoration: const InputDecoration(
             labelText: 'Nouveau mot de passe',
+            helperText: kPasswordPolicyHint,
+            helperMaxLines: 2,
             border: OutlineInputBorder(),
           ),
           validator: (v) {
             if (v == null || v.isEmpty) return 'Le mot de passe est requis.';
-            if (v.length < 6) {
-              return 'Le mot de passe doit contenir au moins 6 caractères.';
-            }
-            return null;
+            return passwordPolicyViolation(v);
           },
           onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
         ),

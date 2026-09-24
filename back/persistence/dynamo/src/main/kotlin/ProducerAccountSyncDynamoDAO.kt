@@ -165,10 +165,23 @@ internal class ProducerAccountSyncDynamoDAO(
         producerAccountId: Id<ProducerAccount>,
         activeStatus: Boolean,
         changes: List<Change>,
+    ) = updateBooleanOnAllRows(producerAccountId, "active_status", activeStatus, changes)
+
+    override suspend fun updatePendingActivation(
+        producerAccountId: Id<ProducerAccount>,
+        pendingActivation: Boolean,
+        changes: List<Change>,
+    ) = updateBooleanOnAllRows(producerAccountId, "pending_activation", pendingActivation, changes)
+
+    private suspend fun updateBooleanOnAllRows(
+        producerAccountId: Id<ProducerAccount>,
+        attributeName: String,
+        value: Boolean,
+        changes: List<Change>,
     ) {
         // Scan to find every pk under which this producer is stored — one row
         // per org link in the denormalised schema. Then transact-write the
-        // status flip on every row + the change tombstones in a single op.
+        // flag flip on every row + the change records in a single op.
         val rows =
             client.client
                 .scan(
@@ -220,10 +233,10 @@ internal class ProducerAccountSyncDynamoDAO(
                                             "sk" to AttributeValue.S(producerAccountId.id),
                                         )
                                     updateExpression =
-                                        "SET active_status = :status, last_updated_instant = :ts"
+                                        "SET $attributeName = :value, last_updated_instant = :ts"
                                     expressionAttributeValues =
                                         mapOf(
-                                            ":status" to AttributeValue.Bool(activeStatus),
+                                            ":value" to AttributeValue.Bool(value),
                                             ":ts" to AttributeValue.N(System.currentTimeMillis().toString()),
                                         )
                                 }
@@ -303,11 +316,35 @@ internal class ProducerAccountSyncDynamoDAO(
         )
     }
 
-    override suspend fun createStandalone(producerAccount: ProducerAccount) {
-        client.client.putItem(
-            PutItemRequest {
-                tableName = client.table
-                item = producerAccount.toStandaloneAttributeValueMap()
+    override suspend fun createStandalone(
+        producerAccount: ProducerAccount,
+        changes: List<Change>,
+    ) {
+        client.client.transactWriteItems(
+            TransactWriteItemsRequest {
+                transactItems =
+                    buildList {
+                        add(
+                            TransactWriteItem {
+                                put =
+                                    Put {
+                                        tableName = client.table
+                                        item = producerAccount.toStandaloneAttributeValueMap()
+                                    }
+                            },
+                        )
+                        changes.forEach { change ->
+                            add(
+                                TransactWriteItem {
+                                    put =
+                                        Put {
+                                            tableName = client.table
+                                            item = change.toAttributeValueMap()
+                                        }
+                                },
+                            )
+                        }
+                    }
             },
         )
     }
@@ -432,6 +469,7 @@ private fun ProducerAccount.toAttributeValueMap(organizationId: Id<Organization>
         put("created_instant", AttributeValue.N(createdInstant.toEpochMilliseconds().toString()))
         put("last_updated_instant", AttributeValue.N(lastUpdatedInstant.toEpochMilliseconds().toString()))
         put("management_mode", AttributeValue.S(managementMode.name))
+        if (pendingActivation) put("pending_activation", AttributeValue.Bool(true))
         linkedProducerAccount?.let {
             put("linked_producer_account_id", AttributeValue.S(it.producerAccountId.id))
             put("linked_producer_account_name", AttributeValue.S(it.name))
@@ -460,6 +498,7 @@ private fun ProducerAccount.toStandaloneAttributeValueMap(): Map<String, Attribu
         put("created_instant", AttributeValue.N(createdInstant.toEpochMilliseconds().toString()))
         put("last_updated_instant", AttributeValue.N(lastUpdatedInstant.toEpochMilliseconds().toString()))
         put("management_mode", AttributeValue.S(managementMode.name))
+        if (pendingActivation) put("pending_activation", AttributeValue.Bool(true))
         linkedProducerAccount?.let {
             put("linked_producer_account_id", AttributeValue.S(it.producerAccountId.id))
             put("linked_producer_account_name", AttributeValue.S(it.name))
@@ -504,6 +543,7 @@ private fun Map<String, AttributeValue>.toProducerAccount(): ProducerAccount =
         managementMode =
             get("management_mode")?.asS()?.let(ProducerManagementMode::valueOf)
                 ?: ProducerManagementMode.ACCOUNT_BACKED,
+        pendingActivation = get("pending_activation")?.asBool() ?: false,
         linkedProducerAccount =
             get("linked_producer_account_id")?.asS()?.toId<ProducerAccount>()?.let { linkedProducerAccountId ->
                 LinkedProducerAccount(

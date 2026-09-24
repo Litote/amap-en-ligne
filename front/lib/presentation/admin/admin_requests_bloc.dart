@@ -30,17 +30,24 @@ class AdminRequestsBloc extends Bloc<AdminRequestsEvent, AdminRequestsState> {
     // Capture the current org-type tab before emitting loading — state will
     // change to AdminRequestsLoading and the value would be lost otherwise.
     final current = state;
-    final orgTypeFilter = current is AdminRequestsLoaded
+    final initialOrgTypeFilter = current is AdminRequestsLoaded
         ? current.organizationTypeFilter
-        : OrganizationType.amap;
+        : event.organizationTypeFilter ?? OrganizationType.amap;
     emit(const AdminRequestsState.loading());
     await emit.forEach<List<AdminOrganizationRequest>>(
       _repo.watch(),
-      onData: (requests) => AdminRequestsState.loaded(
-        requests: requests,
-        statusFilter: event.statusFilter,
-        organizationTypeFilter: orgTypeFilter,
-      ),
+      // Keep the tab the user switched to since the load started: a later
+      // repository emission must not snap it back to the initial tab.
+      onData: (requests) {
+        final latest = state;
+        return AdminRequestsState.loaded(
+          requests: requests,
+          statusFilter: event.statusFilter,
+          organizationTypeFilter: latest is AdminRequestsLoaded
+              ? latest.organizationTypeFilter
+              : initialOrgTypeFilter,
+        );
+      },
       onError: (error, stackTrace) =>
           const AdminRequestsState.error('Unable to load requests.'),
     );

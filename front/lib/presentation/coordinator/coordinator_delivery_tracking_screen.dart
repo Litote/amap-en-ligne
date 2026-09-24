@@ -9,6 +9,7 @@ import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
 import 'package:amap_en_ligne/presentation/common/open_url_stub.dart'
     if (dart.library.js_interop) 'package:amap_en_ligne/presentation/common/open_url_web.dart'
     if (dart.library.io) 'package:amap_en_ligne/presentation/common/open_url_native.dart';
+import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
@@ -132,6 +133,7 @@ class CoordinatorDeliveryTrackingScreen extends StatelessWidget {
 
             return ConnectedScaffold(
               title: _kDeliveryTrackingTitle,
+              onBack: () => backToDeliveryList(context),
               actions: [_statusBadge(delivery.status), const SyncButton()],
               body: BlocListener<SyncBloc, SyncState>(
                 listenWhen: _syncListenWhen,

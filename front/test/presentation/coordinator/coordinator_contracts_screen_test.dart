@@ -564,6 +564,72 @@ void main() {
     verify(() => contractRepository.update(any())).called(1);
   });
 
+  testWidgets('a fixed field loses its error once a save attempt failed', (
+    tester,
+  ) async {
+    when(() => organizationRepository.watch(any())).thenAnswer(
+      (_) => Stream.value(
+        const Organization(
+          organizationId: 'org-1',
+          name: 'AMAP Test',
+          contactEmail: 'contact@amap.fr',
+          producers: [
+            OrganizationProducer(
+              producerAccountId: 'producer-1',
+              associationInstant: '2026-01-01T00:00:00Z',
+              status: OrganizationProducerStatus.active,
+            ),
+          ],
+        ),
+      ),
+    );
+    when(
+      () => memberRepository.watch(any()),
+    ).thenAnswer((_) => Stream.value([]));
+    when(() => contractRepository.watch(any())).thenAnswer(
+      (_) => Stream.value([
+        const Contract(
+          contractId: 'c-existing',
+          name: 'Légumes 2026',
+          organizationId: 'org-1',
+          producerAccountId: 'producer-1',
+          minDeliveryDate: '2026-01-01',
+          maxDeliveryDate: '2026-12-31',
+          deliveryCount: 10,
+          seasonYear: 2026,
+        ),
+      ]),
+    );
+    when(() => producerAccountRepository.watchAll()).thenAnswer(
+      (_) => Stream.value([
+        const ProducerAccount(
+          producerAccountId: 'producer-1',
+          name: 'Ferme Test',
+        ),
+      ]),
+    );
+
+    await tester.pumpWidget(buildScreen());
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('0 amapiens'));
+    await tester.pumpAndSettle();
+
+    final deliveryCount = find.widgetWithText(
+      TextFormField,
+      'Nombre de livraisons *',
+    );
+    await tester.enterText(deliveryCount, '0');
+    await tester.ensureVisible(find.text('ENREGISTRER LE CONTRAT'));
+    await tester.tap(find.text('ENREGISTRER LE CONTRAT'));
+    await tester.pumpAndSettle();
+    expect(find.text('Valeur invalide'), findsOneWidget);
+
+    await tester.enterText(deliveryCount, '10');
+    await tester.pump();
+
+    expect(find.text('Valeur invalide'), findsNothing);
+  });
+
   testWidgets('toggling "Contrat principal" persists isMainContract', (
     tester,
   ) async {
@@ -1246,6 +1312,60 @@ void main() {
             deliveries: any(named: 'deliveries'),
           ),
         );
+      },
+    );
+
+    testWidgets(
+      'GIVEN deliveries generated earlier for another contract WHEN weekly '
+      'deliveries are generated THEN new ids never collide with existing ones',
+      (tester) async {
+        stubForNewContract();
+        // A previous weekly generation (another contract, another weekday)
+        // already produced `tmp_delivery_1`: a per-generation counter would
+        // hand out that id again and duplicate it in Organization.deliveries.
+        when(() => organizationRepository.watch(any())).thenAnswer(
+          (_) => Stream.value(
+            _organizationWithProducts.copyWith(
+              deliveries: const [
+                Delivery(
+                  deliveryId: 'tmp_delivery_1',
+                  organizationId: 'org-1',
+                  scheduledDate: '2000-01-04T18:00:00',
+                  status: DeliveryStatus.planned,
+                  minVolunteersRequired: 1,
+                ),
+              ],
+            ),
+          ),
+        );
+        when(
+          () => organizationRepository.updateDeliveries(
+            currentOrg: any(named: 'currentOrg'),
+            deliveries: any(named: 'deliveries'),
+          ),
+        ).thenAnswer((_) async {});
+
+        await startContractCreation(tester);
+
+        await tester.ensureVisible(find.text('ENREGISTRER LE CONTRAT'));
+        await tester.tap(find.text('ENREGISTRER LE CONTRAT'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.tap(find.text('Créer'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        final captured =
+            verify(
+                  () => organizationRepository.updateDeliveries(
+                    currentOrg: any(named: 'currentOrg'),
+                    deliveries: captureAny(named: 'deliveries'),
+                  ),
+                ).captured.single
+                as List<Delivery>;
+        final ids = captured.map((d) => d.deliveryId).toList();
+        expect(ids.length, greaterThan(1));
+        expect(ids.toSet(), hasLength(ids.length));
       },
     );
 

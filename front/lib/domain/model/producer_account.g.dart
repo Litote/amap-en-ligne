@@ -86,6 +86,7 @@ _ProducerAccount _$ProducerAccountFromJson(Map<String, dynamic> json) =>
           : UserPreferences.fromJson(
               json['user_preferences'] as Map<String, dynamic>,
             ),
+      pendingActivation: json['pending_activation'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ProducerAccountToJson(
@@ -104,6 +105,7 @@ Map<String, dynamic> _$ProducerAccountToJson(
   'products': instance.products,
   'organizations': instance.organizations,
   'user_preferences': ?instance.userPreferences,
+  'pending_activation': instance.pendingActivation,
 };
 
 const _$ProducerManagementModeEnumMap = {

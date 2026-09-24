@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'forgot_password_event.dart';
@@ -9,6 +9,7 @@ part of 'forgot_password_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $ForgotPasswordEventCopyWith<ForgotPasswordEvent> get copyWith => _$ForgotPasswo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordEvent&&(identical(other.email, email) || other.email == email));
+  final _this = this as ForgotPasswordEvent;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordEvent&&(identical(other.email, _this.email) || other.email == _this.email));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,email);
+int get hashCode {
+  final _this = this as ForgotPasswordEvent;
+  return Object.hash(runtimeType,_this.email);
+}
 
 @override
 String toString() {
-  return 'ForgotPasswordEvent(email: $email)';
+  final _this = this as ForgotPasswordEvent;
+  return 'ForgotPasswordEvent(email: ${_this.email})';
 }
 
 
@@ -222,16 +228,18 @@ $ForgotPasswordResetRequestedCopyWith<ForgotPasswordResetRequested> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordResetRequested&&(identical(other.email, email) || other.email == email)&&(identical(other.redirectTo, redirectTo) || other.redirectTo == redirectTo));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordResetRequested&&(identical(other.email, email) || other.email == email)&&(identical(other.redirectTo, redirectTo) || other.redirectTo == redirectTo));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,email,redirectTo);
+int get hashCode {
+    return Object.hash(runtimeType,email,redirectTo);
+}
 
 @override
 String toString() {
-  return 'ForgotPasswordEvent.resetRequested(email: $email, redirectTo: $redirectTo)';
+    return 'ForgotPasswordEvent.resetRequested(email: $email, redirectTo: $redirectTo)';
 }
 
 
@@ -291,16 +299,18 @@ $ForgotPasswordConfirmRequestedCopyWith<ForgotPasswordConfirmRequested> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordConfirmRequested&&(identical(other.email, email) || other.email == email)&&(identical(other.token, token) || other.token == token)&&(identical(other.newPassword, newPassword) || other.newPassword == newPassword));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordConfirmRequested&&(identical(other.email, email) || other.email == email)&&(identical(other.token, token) || other.token == token)&&(identical(other.newPassword, newPassword) || other.newPassword == newPassword));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,email,token,newPassword);
+int get hashCode {
+    return Object.hash(runtimeType,email,token,newPassword);
+}
 
 @override
 String toString() {
-  return 'ForgotPasswordEvent.confirmRequested(email: $email, token: $token, newPassword: $newPassword)';
+    return 'ForgotPasswordEvent.confirmRequested(email: $email, token: $token, newPassword: $newPassword)';
 }
 
 

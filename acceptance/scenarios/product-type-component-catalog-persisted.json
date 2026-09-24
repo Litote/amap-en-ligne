@@ -1,0 +1,82 @@
+{
+  "id": "product-type-component-catalog-persisted",
+  "title": "A product type's basket-component catalog (item_types, inline SVG icons) is persisted and served back by the bootstrap snapshot",
+  "targets": ["server"],
+  "given": {
+    "backendState": "empty",
+    "appState": "fresh"
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": {},
+        "mutations": [
+          {
+            "client_op_id": "op-1",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "ProductType",
+                "productType": {
+                  "product_type_id": "tmp_vegetables",
+                  "producer_account_id": "producerAccountId",
+                  "name": "Vegetables",
+                  "supported_basket_sizes": [
+                    {
+                      "name": "small"
+                    }
+                  ],
+                  "item_types": [
+                    {
+                      "id": "it-carrot",
+                      "name": "Carottes",
+                      "image_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>"
+                    },
+                    {
+                      "id": "it-leek",
+                      "name": "Poireaux"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-1",
+          "status": "APPLIED"
+        }
+      ],
+      "snapshotByEntityType": {
+        "ProductType": {
+          "itemCount": 1,
+          "contains": [
+            {
+              "name": "Vegetables",
+              "item_types": [
+                {
+                  "id": "it-carrot",
+                  "name": "Carottes",
+                  "image_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>"
+                },
+                {
+                  "id": "it-leek",
+                  "name": "Poireaux"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

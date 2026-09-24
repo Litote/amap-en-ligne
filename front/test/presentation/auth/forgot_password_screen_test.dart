@@ -140,7 +140,7 @@ void main() {
     await tester.enterText(find.byKey(const Key('forgot_token')), '123456');
     await tester.enterText(
       find.byKey(const Key('forgot_new_password')),
-      'newpass123',
+      'NewPass12345',
     );
     await tester.enterText(
       find.byKey(const Key('forgot_confirm_password')),
@@ -186,11 +186,11 @@ void main() {
       await tester.enterText(find.byKey(const Key('forgot_token')), '123456');
       await tester.enterText(
         find.byKey(const Key('forgot_new_password')),
-        'newpass123',
+        'NewPass12345',
       );
       await tester.enterText(
         find.byKey(const Key('forgot_confirm_password')),
-        'newpass123',
+        'NewPass12345',
       );
       await tester.tap(find.byKey(const Key('forgot_confirm_submit')));
       await tester.pumpAndSettle();
@@ -199,4 +199,43 @@ void main() {
       expect(find.text('LOGIN PAGE'), findsOneWidget);
     },
   );
+
+  testWidgets('a weak new password is rejected with the policy message', (
+    tester,
+  ) async {
+    when(
+      () => authService.requestPasswordReset(
+        email: any(named: 'email'),
+        redirectTo: any(named: 'redirectTo'),
+      ),
+    ).thenAnswer((_) async {});
+
+    await pump(tester, initialEmail: 'alice@example.com');
+    await tester.tap(find.byKey(const Key('forgot_submit')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('forgot_token')), '123456');
+    await tester.enterText(
+      find.byKey(const Key('forgot_new_password')),
+      'newpassword123',
+    );
+    await tester.enterText(
+      find.byKey(const Key('forgot_confirm_password')),
+      'newpassword123',
+    );
+    await tester.tap(find.byKey(const Key('forgot_confirm_submit')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Le mot de passe doit contenir au moins une majuscule.'),
+      findsOneWidget,
+    );
+    verifyNever(
+      () => authService.confirmPasswordReset(
+        email: any(named: 'email'),
+        token: any(named: 'token'),
+        newPassword: any(named: 'newPassword'),
+      ),
+    );
+  });
 }

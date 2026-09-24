@@ -19,6 +19,11 @@ on:
       - 'convention/**'
       - 'gradle/**'
       - '.github/workflows/ci.yml'
+      # The dev deploys are chained after the tests (jobs `deploy-*` below), so a
+      # push touching only the infra or a deploy workflow must run CI too.
+      - 'infra/**'
+      - '.github/workflows/deploy-lambda.yml'
+      - '.github/workflows/deploy-web.yml'
   pull_request:
     branches: [main]
     paths:
@@ -326,3 +331,70 @@ jobs:
           else
             ./gradlew "${COMMON_ARGS[@]}"
           fi
+
+  # ── Dev deploys — only after the tests pass on a push to main ──────────────
+  # Which deploy a push needs, from the files it changed (same scopes the deploy
+  # workflows used to filter on with `on.push.paths`).
+  changes:
+    name: Detect deploy scope
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      lambda: ${{ steps.diff.outputs.lambda }}
+      web: ${{ steps.diff.outputs.web }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Diff against the previous head
+        id: diff
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # Unknown previous head (new branch, force-push): deploy everything.
+          if [[ "$BEFORE" =~ ^0+$ ]] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            echo "lambda=true" >> "$GITHUB_OUTPUT"
+            echo "web=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed="$(git diff --name-only "$BEFORE" "$GITHUB_SHA")"
+          if grep -qE '^(back/|infra/|\.github/workflows/deploy-lambda\.yml$)' <<<"$changed"; then
+            echo "lambda=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "lambda=false" >> "$GITHUB_OUTPUT"
+          fi
+          if grep -qE '^(front/|\.github/workflows/deploy-web\.yml$)' <<<"$changed"; then
+            echo "web=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "web=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy-lambda:
+    name: Deploy Lambda (dev)
+    needs: [back, front, acceptance, changes]
+    if: needs.changes.outputs.lambda == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: $/.github/workflows/deploy-lambda.yml
+    secrets:
+      GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+      TF_VAR_COGNITO_CLIENT_ID: ${{ secrets.TF_VAR_COGNITO_CLIENT_ID }}
+      TF_VAR_INITIAL_OWNER_EMAIL: ${{ secrets.TF_VAR_INITIAL_OWNER_EMAIL }}
+      TF_VAR_INITIAL_OWNER_TEMP_PASSWORD: ${{ secrets.TF_VAR_INITIAL_OWNER_TEMP_PASSWORD }}
+      TF_VAR_SES_FROM_EMAIL: ${{ secrets.TF_VAR_SES_FROM_EMAIL }}
+
+  deploy-web:
+    name: Deploy Web (dev)
+    needs: [back, front, acceptance, changes]
+    if: needs.changes.outputs.web == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: $/.github/workflows/deploy-web.yml
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}

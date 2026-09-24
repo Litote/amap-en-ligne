@@ -38,8 +38,10 @@ class WeeklyDeliveryPlan {
 /// (format `HH:MM`) sets the time component of new deliveries; otherwise
 /// defaults to 18:00.
 ///
-/// [nextTmpId] is called once per new delivery and must return a unique
-/// integer used to build the `tmp_delivery_<n>` id.
+/// [nextTmpId] is called once per new delivery and must return a suffix
+/// unique across the whole organization (not just this plan — deliveries
+/// generated for other contracts live in the same list) used to build the
+/// `tmp_delivery_<suffix>` id.
 ///
 /// Returns the original [org.deliveries] list when [Contract.minDeliveryDate]
 /// or [Contract.maxDeliveryDate] cannot be parsed.
@@ -47,7 +49,7 @@ WeeklyDeliveryPlan planWeeklyDeliveries({
   required Contract contract,
   required Organization org,
   DeliveryTemplate? template,
-  required int Function() nextTmpId,
+  required String Function() nextTmpId,
 }) {
   final min = DateTime.tryParse(contract.minDeliveryDate);
   final max = DateTime.tryParse(contract.maxDeliveryDate);
@@ -106,7 +108,8 @@ WeeklyDeliveryPlan planWeeklyDeliveries({
       newCount++;
     }
 
-    current = current.add(const Duration(days: 7));
+    // Calendar-day arithmetic: a fixed 7-day Duration drifts across DST.
+    current = DateTime(current.year, current.month, current.day + 7);
   }
 
   // Rebuild the full deliveries list preserving original order, then
@@ -174,12 +177,15 @@ Delivery _buildWeeklyDelivery({
   required List<BasketDeliveryDescription> basketDescriptions,
   required DeliveryTemplate? template,
   required bool isMainContract,
-  required int Function() nextTmpId,
+  required String Function() nextTmpId,
 }) {
   final hour = _resolveStartHour(template);
   final minute = _resolveStartMinute(template);
   final scheduledDate = DateTime(date.year, date.month, date.day, hour, minute);
-  final requiredVolunteers = template?.desiredVolunteerCount ?? 1;
+  // At least one volunteer: the back rejects min_volunteers_required < 1, and
+  // legacy templates may still carry a 0 desired count.
+  final desired = template?.desiredVolunteerCount ?? 1;
+  final requiredVolunteers = desired < 1 ? 1 : desired;
   // Volunteer slots are materialised only on the main contract — secondary
   // contracts (eggs, fruit…) mobilise only the coordinator, no volunteer.
   final link = isMainContract

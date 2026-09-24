@@ -76,32 +76,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "tfstate" {
   }
 }
 
-# ─── DynamoDB table for the lock ─────────────────────────────────────────────
-
-resource "aws_dynamodb_table" "tflock" {
-  name         = "${var.project}-tflock"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-
-  server_side_encryption {
-    enabled = true
-  }
-}
-
 # ─── Outputs ──────────────────────────────────────────────────────────────────
 
 output "state_bucket_name" {
   description = "S3 bucket name for the Terraform state"
   value       = aws_s3_bucket.tfstate.id
-}
-
-output "lock_table_name" {
-  description = "DynamoDB table name for the lock"
-  value       = aws_dynamodb_table.tflock.name
 }
 

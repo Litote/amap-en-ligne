@@ -122,9 +122,10 @@ class CognitoUserPoolGateway implements CognitoSessionGateway {
 /// `token_use` claim is not `"access"`, so we never use the idToken even
 /// though the SDK exposes it.
 ///
-/// `producerId == sub` by invariant — the JWT `sub` is the stable user
-/// identifier. The real `organizationId` for non-producer users is
-/// resolved from the database by `AuthBloc` after bootstrap.
+/// `producerId` holds the JWT `sub` — the stable user identifier. The real
+/// tenant is resolved from the database by `AuthBloc` after bootstrap: the
+/// `organizationId` for AMAP members, the `producerAccountId` (which may
+/// differ from the sub) for producers.
 class CognitoAuthService implements AuthService {
   CognitoAuthService({required this.gateway, required this.storage});
 

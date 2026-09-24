@@ -111,8 +111,11 @@ class PublicApi {
       return MemberJoinRequestResponse.fromJson(body);
     } on DioException catch (e) {
       if (e.response?.statusCode == 409) {
-        final field =
-            (e.response?.data as Map<String, dynamic>?)?['field'] as String?;
+        final details =
+            ((e.response?.data as Map<String, dynamic>?)?['error']
+                    as Map<String, dynamic>?)?['details']
+                as Map<String, dynamic>?;
+        final field = details?['field'] as String?;
         throw MemberJoinConflictException(switch (field) {
           'email' => MemberJoinConflictField.email,
           'email_member' => MemberJoinConflictField.emailMember,
@@ -125,9 +128,26 @@ class PublicApi {
     }
   }
 
+  /// Describes the account an activation [token] is about to activate
+  /// (email, kind, organization / producer name) without activating it.
+  /// Throws [ActivationException] on 404, 409, or 410.
+  Future<ActivationResult> describeActivation(String token) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/v1/activate',
+        queryParameters: {'token': token},
+      );
+      final body = response.data;
+      if (body == null) throw _emptyBodyError;
+      return _parseActivationResult(body);
+    } on DioException catch (e) {
+      throw ActivationException(_activationErrorOf(e));
+    }
+  }
+
   /// Activates an account using the token from the activation email.
   /// Returns the organization name and email on success.
-  /// Throws [ActivationException] on 404, 409, or 410.
+  /// Throws [ActivationException] on 400 (weak password), 404, 409, or 410.
   Future<ActivationResult> activate({
     required String token,
     required String password,
@@ -139,28 +159,43 @@ class PublicApi {
       );
       final body = response.data;
       if (body == null) throw _emptyBodyError;
-      final kindStr = body['kind'] as String?;
-      final kind = switch (kindStr) {
-        'OWNER' => ActivationKind.owner,
-        'PRODUCER' => ActivationKind.producer,
-        _ => ActivationKind.organizationAdmin,
-      };
-      return ActivationResult(
-        kind: kind,
-        email: body['email'] as String,
-        organizationName: body['organization_name'] as String?,
-      );
+      return _parseActivationResult(body);
     } on DioException catch (e) {
-      switch (e.response?.statusCode) {
-        case 404:
-          throw const ActivationException(ActivationError.invalidToken);
-        case 409:
-          throw const ActivationException(ActivationError.alreadyActivated);
-        case 410:
-          throw const ActivationException(ActivationError.expired);
-        default:
-          throw const ActivationException(ActivationError.serverError);
-      }
+      throw ActivationException(_activationErrorOf(e));
+    }
+  }
+
+  static ActivationResult _parseActivationResult(Map<String, dynamic> body) {
+    final kind = switch (body['kind'] as String?) {
+      'OWNER' => ActivationKind.owner,
+      'PRODUCER' => ActivationKind.producer,
+      _ => ActivationKind.organizationAdmin,
+    };
+    return ActivationResult(
+      kind: kind,
+      email: body['email'] as String,
+      organizationName: body['organization_name'] as String?,
+    );
+  }
+
+  static ActivationError _activationErrorOf(DioException e) {
+    final response = e.response;
+    switch (response?.statusCode) {
+      case 400:
+        final data = response?.data;
+        final error = data is Map ? data['error'] : null;
+        final code = error is Map ? error['code'] : null;
+        return code == 'WEAK_PASSWORD'
+            ? ActivationError.weakPassword
+            : ActivationError.serverError;
+      case 404:
+        return ActivationError.invalidToken;
+      case 409:
+        return ActivationError.alreadyActivated;
+      case 410:
+        return ActivationError.expired;
+      default:
+        return ActivationError.serverError;
     }
   }
 
@@ -231,7 +266,15 @@ class ActivationResult {
   final String? organizationName;
 }
 
-enum ActivationError { invalidToken, expired, alreadyActivated, serverError }
+enum ActivationError {
+  invalidToken,
+  expired,
+  alreadyActivated,
+
+  /// The server rejected the password against the instance policy.
+  weakPassword,
+  serverError,
+}
 
 class ActivationException implements Exception {
   const ActivationException(this.error);

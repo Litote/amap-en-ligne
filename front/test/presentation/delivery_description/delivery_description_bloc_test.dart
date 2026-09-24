@@ -30,6 +30,12 @@ const _productType = ProductType(
   ],
 );
 
+const _otherProducerType = ProductType(
+  productTypeId: 'pt-2',
+  producerAccountId: 'pa-2',
+  name: 'Oeufs',
+);
+
 const _delivery = Delivery(
   deliveryId: 'd-1',
   organizationId: 'org-1',
@@ -107,6 +113,68 @@ void main() {
       isA<DeliveryDescriptionLoaded>()
           .having((s) => s.delivery.deliveryId, 'deliveryId', 'd-1')
           .having((s) => s.localDescriptions, 'localDescriptions', isEmpty),
+    ],
+  );
+
+  blocTest<DeliveryDescriptionBloc, DeliveryDescriptionState>(
+    'GIVEN products from several producers WHEN DeliveryDescriptionRequested '
+    'THEN the catalog of every producer is loaded',
+    setUp: () {
+      when(
+        () => productTypeRepo.watch('pa-2'),
+      ).thenAnswer((_) => Stream.value(const [_otherProducerType]));
+    },
+    build: buildBloc,
+    act: (bloc) => bloc.add(
+      DeliveryDescriptionEvent.requested(
+        org: _org.copyWith(
+          products: [
+            ..._org.products,
+            const OrgProduct(
+              name: 'Oeufs',
+              productTypeId: 'pt-2',
+              producerAccountId: 'pa-2',
+            ),
+          ],
+        ),
+        deliveryId: 'd-1',
+      ),
+    ),
+    expect: () => [
+      isA<DeliveryDescriptionLoaded>().having(
+        (s) => s.productTypes.map((pt) => pt.productTypeId).toSet(),
+        'productTypes',
+        {'pt-1', 'pt-2'},
+      ),
+    ],
+  );
+
+  // ---------------------------------------------------------------------------
+  // FreeItemAdded — product without catalog
+  // ---------------------------------------------------------------------------
+
+  blocTest<DeliveryDescriptionBloc, DeliveryDescriptionState>(
+    'GIVEN no catalog WHEN FreeItemAdded THEN a named component is added with '
+    'its weight and a non-temporary local id',
+    build: buildBloc,
+    seed: _loadedState,
+    act: (bloc) => bloc.add(
+      const DeliveryDescriptionEvent.freeItemAdded(
+        productTypeId: 'pt-9',
+        basketSizeName: 'Boîte de 6',
+        name: 'Oeufs extra-frais',
+        weight: '6 pièces',
+      ),
+    ),
+    expect: () => [
+      isA<DeliveryDescriptionLoaded>().having(
+        (s) => s.localDescriptions.single.items.single,
+        'item',
+        isA<DeliveryItem>()
+            .having((i) => i.name, 'name', 'Oeufs extra-frais')
+            .having((i) => i.weight, 'weight', '6 pièces')
+            .having((i) => i.itemTypeId, 'itemTypeId', startsWith('free-')),
+      ),
     ],
   );
 

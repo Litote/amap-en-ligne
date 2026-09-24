@@ -83,7 +83,6 @@ void main() {
     firstName: 'Alice',
     lastName: 'Coordinator',
     email: 'coordinator@example.com',
-    activeStatus: true,
   );
 
   setUp(() {
@@ -198,7 +197,6 @@ void main() {
         roles: {Role.admin},
         firstName: 'Bob',
         lastName: 'Admin',
-        activeStatus: true,
       );
       await db.upsertMember(orgId, admin);
 

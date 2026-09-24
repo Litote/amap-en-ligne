@@ -164,6 +164,8 @@ void main() {
 
       expect(find.textContaining('Présence des bénévoles'), findsOneWidget);
       expect(find.text('Aucun bénévole inscrit.'), findsOneWidget);
+      // Sub-screen of the delivery list: back button instead of the menu.
+      expect(find.byType(BackButton), findsOneWidget);
     });
 
     testWidgets('shows volunteer displayName for registered volunteer', (

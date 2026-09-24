@@ -14,6 +14,7 @@ import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import persistence.changes.ClientMutation
 import persistence.changes.Delete
+import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
 import persistence.changes.OwnerInvitationPayload
 import persistence.changes.Upsert
@@ -145,5 +146,29 @@ internal class OwnerInvitationServiceTest {
             coVerify { ownerInvitationDAO.put(capture(invitationSlot), any()) }
             assertEquals(OwnerInvitationStatus.CANCELLED, invitationSlot.captured.status)
             coVerify { activationTokenDAO.invalidateByOwnerInvitationId(invitation.invitationId, any()) }
+        }
+
+    @Test
+    fun `GIVEN owner invitations breaking the form rules WHEN applyUpsert THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val invalid =
+                listOf(
+                    buildInvitation().copy(firstName = " "),
+                    buildInvitation().copy(lastName = ""),
+                    buildInvitation().copy(email = "alice@example"),
+                )
+
+            invalid.forEach { invitation ->
+                val outcome =
+                    service.applyUpsert(
+                        auth = ownerAuth,
+                        mutation = ClientMutation("op-1", Upsert(OwnerInvitationPayload(invitation))),
+                        payload = OwnerInvitationPayload(invitation),
+                    )
+
+                assertEquals(MutationStatus.REJECTED, outcome.status, "expected rejection for $invitation")
+                assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            }
+            coVerify(exactly = 0) { ownerInvitationDAO.put(any(), any()) }
         }
 }

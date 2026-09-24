@@ -63,6 +63,7 @@ class DynamoClientTest {
         try {
             assertIs<CrtHttpEngine>(dynamoClient.client.config.httpClient)
             assertIs<EnvironmentCredentialsProvider>(dynamoClient.client.config.credentialsProvider)
+            assertEquals(StaleConnectionRetryPolicy, dynamoClient.client.config.retryPolicy)
         } finally {
             dynamoClient.client.close()
         }

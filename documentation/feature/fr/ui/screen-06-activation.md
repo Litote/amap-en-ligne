@@ -36,7 +36,8 @@
 
 - Titre : "Activer votre compte"
 - Sous-titre : "Choisissez un mot de passe pour finaliser la création de votre compte."
-- Champ "Mot de passe *" : minimum 8 caractères, avec icône d'affichage/masquage.
+- Sous le sous-titre, rappel du compte en cours d'activation : "Compte : {email}" et, selon le cas, "AMAP : {nom}" ou "Producteur : {nom}" (chargé via `GET /v1/activate?token=` à l'ouverture ; un lien invalide, expiré ou déjà utilisé affiche directement le message d'erreur correspondant).
+- Champ "Mot de passe *" : au moins 12 caractères, dont une minuscule, une majuscule et un chiffre ; texte d'aide sous le champ : "Au moins 12 caractères, dont une minuscule, une majuscule et un chiffre." ; avec icône d'affichage/masquage.
 - Champ "Confirmer le mot de passe *" : avec icône d'affichage/masquage.
 - Le bouton [ACTIVER MON COMPTE] est désactivé pendant l'envoi.
 - Appelle `POST /v1/activate` (public, non authentifié).
@@ -48,6 +49,7 @@
 | Token invalide | "Ce lien d'activation est invalide." |
 | Token expiré | "Ce lien d'activation a expiré. Contactez l'administrateur." |
 | Compte déjà activé | "Ce compte a déjà été activé. Connectez-vous." |
+| Mot de passe refusé par le serveur | "Ce mot de passe n'est pas accepté. Au moins 12 caractères, dont une minuscule, une majuscule et un chiffre." |
 | Erreur serveur | "Une erreur est survenue. Veuillez réessayer." |
 
 ## Carte de succès

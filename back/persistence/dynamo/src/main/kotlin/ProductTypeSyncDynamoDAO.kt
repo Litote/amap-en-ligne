@@ -10,40 +10,45 @@ import aws.sdk.kotlin.hll.dynamodbmapper.operations.queryPaginated
 import aws.sdk.kotlin.services.dynamodb.model.AttributeValue
 import id.Id
 import id.toId
-import kotlinx.coroutines.flow.toList
+import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.annotation.Single
 import persistence.changes.Change
 import persistence.dao.ProductTypeSyncDAO
 import persistence.model.BasketSize
+import persistence.model.ItemType
 import persistence.model.ProducerAccount
 import persistence.model.ProductType
+import serialization.json
 
 @Single(createdAtStart = true, binds = [ProductTypeSyncDAO::class])
 internal class ProductTypeSyncDynamoDAO(
     val client: DynamoClient,
 ) : ProductTypeSyncDAO {
     override suspend fun getByProducerAccountId(producerAccountId: Id<ProducerAccount>): List<ProductType> =
-        client
-            .productTypeTable
-            .queryPaginated {
-                keyCondition = KeyFilter("PT#${producerAccountId.id}")
-            }.items()
-            .toList()
-            .map { ProductType(it) }
+        buildList {
+            client
+                .productTypeTable
+                .queryPaginated {
+                    keyCondition = KeyFilter("PT#${producerAccountId.id}")
+                }.items()
+                .collect { add(ProductType(it)) }
+        }
 
     override suspend fun put(
         productType: ProductType,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
-        client.transactPutEntityAndChange(ProductTypeDynamo(productType).toAttributeValueMap(), change)
+        client.transactPutEntityAndChange(ProductTypeDynamo(productType).toAttributeValueMap(), change, fanOutChanges)
     }
 
     override suspend fun delete(
         id: Id<ProductType>,
         producerAccountId: Id<ProducerAccount>,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
-        client.transactDeleteEntityAndChange("PT#${producerAccountId.id}", id.id, change)
+        client.transactDeleteEntityAndChange("PT#${producerAccountId.id}", id.id, change, fanOutChanges)
     }
 }
 
@@ -57,6 +62,9 @@ internal data class ProductTypeDynamo(
     val supportedBasketSizes: List<BasketSizeDynamo>,
     val name: String,
     val description: String? = null,
+    // Component catalog, stored as a JSON string (inline SVG markup included).
+    @DynamoDbAttribute("item_types")
+    val itemTypes: String? = null,
 ) {
     constructor(model: ProductType) :
         this(
@@ -65,6 +73,7 @@ internal data class ProductTypeDynamo(
             supportedBasketSizes = model.supportedBasketSizes.map { BasketSizeDynamo(it) },
             name = model.name,
             description = model.description,
+            itemTypes = json.encodeToString(ListSerializer(ItemType.serializer()), model.itemTypes),
         )
 
     fun toAttributeValueMap(): Map<String, AttributeValue> =
@@ -82,6 +91,7 @@ internal data class ProductTypeDynamo(
             )
             put("name", AttributeValue.S(name))
             description?.let { put("description", AttributeValue.S(it)) }
+            itemTypes?.let { put("item_types", AttributeValue.S(it)) }
         }
 }
 
@@ -92,6 +102,7 @@ internal fun ProductType(dynamo: ProductTypeDynamo): ProductType =
         dynamo.supportedBasketSizes.map { BasketSize(it) },
         dynamo.name,
         dynamo.description,
+        dynamo.itemTypes?.let { json.decodeFromString(ListSerializer(ItemType.serializer()), it) } ?: emptyList(),
     )
 
 @DynamoDbItem

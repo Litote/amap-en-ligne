@@ -148,14 +148,16 @@ class _BasketExchangeView extends StatelessWidget {
           offer.offeringMemberId,
           state.membersById,
         );
-        final contractDescription = _resolveContractDescription(offer, org);
+        final offerLabel =
+            '${_resolveDateLabel(offer, org)} • '
+            '${_resolveContractDescription(offer, org)}';
         showDialog<void>(
           context: context,
           barrierDismissible: false,
           builder: (_) => SubmitRequestDialog(
             offer: offer,
             offererDisplayName: offererDisplayName,
-            contractDescription: contractDescription,
+            offerLabel: offerLabel,
             org: org,
             memberId: state.me.memberId,
             allExchanges: state.allExchanges,

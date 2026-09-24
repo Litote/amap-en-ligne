@@ -1,6 +1,7 @@
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:flutter/material.dart';
 
 class ProducerManagementModeBadge extends StatelessWidget {
@@ -105,7 +106,7 @@ class _ManagedProducerProductDialogState
                 if (value == null || value.trim().isEmpty) {
                   return 'Renseignez un nom.';
                 }
-                return null;
+                return requiredName(value);
               },
             ),
             const SizedBox(height: 12),

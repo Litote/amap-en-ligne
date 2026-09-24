@@ -11,6 +11,7 @@ import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
+import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -331,13 +332,10 @@ class _StatsCard extends StatelessWidget {
       seasonContractIds,
     );
 
-    // Rank denominator: only ACTIVE members (ACTIVE account status or legacy
-    // activeStatus=true). Terminated/suspended members are excluded.
-    final activeMembers = allMembers.where((m) {
-      final status = m.accountStatus;
-      if (status != null) return status == MemberAccountStatus.active;
-      return m.activeStatus;
-    });
+    // Rank denominator: only ACTIVE members. Terminated/suspended members are excluded.
+    final activeMembers = allMembers.where(
+      (m) => m.accountStatus == MemberAccountStatus.active,
+    );
     final rankResult = memberRankIn(
       org,
       activeMembers,
@@ -432,6 +430,7 @@ class _UpcomingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final dateLabel = _formatCardDate(delivery.scheduledDate);
     final teammates = teammatesOn(delivery, selfMemberId);
+    final activity = selfActivityOn(delivery, selfMemberId);
 
     // Show up to 4 names; add "… et N autres" suffix when more.
     final String teammateLabel;
@@ -462,7 +461,11 @@ class _UpcomingCard extends StatelessWidget {
               ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
-            const Text('✅ Confirmé - Préparation paniers'),
+            Text(
+              activity == null
+                  ? '✅ Confirmé'
+                  : '✅ Confirmé - ${activityLabel(activity)}',
+            ),
             const SizedBox(height: 4),
             Text('👤 $teammateLabel'),
           ],

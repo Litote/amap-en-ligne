@@ -1,9 +1,11 @@
 import 'package:amap_en_ligne/data/repositories/member_join_request_repository.dart';
 import 'package:amap_en_ligne/data/sync/sync_repository.dart';
 import 'package:amap_en_ligne/domain/model/admin_member_join_request.dart';
+import 'package:amap_en_ligne/presentation/admin/approve_confirmation_dialog.dart';
 import 'package:amap_en_ligne/presentation/admin/membership_requests/membership_requests_bloc.dart';
 import 'package:amap_en_ligne/presentation/admin/membership_requests/membership_requests_event.dart';
 import 'package:amap_en_ligne/presentation/admin/membership_requests/membership_requests_state.dart';
+import 'package:amap_en_ligne/presentation/common/instant_format.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +37,7 @@ class _MembershipRequestsView extends StatefulWidget {
 
 class _MembershipRequestsViewState extends State<_MembershipRequestsView> {
   AdminMemberJoinRequest? _selectedRequest;
+  String? _pendingSuccessMessage;
 
   @override
   Widget build(BuildContext context) => ConnectedScaffold(
@@ -51,7 +54,14 @@ class _MembershipRequestsViewState extends State<_MembershipRequestsView> {
             current.actionError == null;
       },
       listener: (context, state) {
+        final successMessage = _pendingSuccessMessage;
+        _pendingSuccessMessage = null;
         setState(() => _selectedRequest = null);
+        if (successMessage != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(successMessage)));
+        }
       },
       builder: (context, state) => switch (state) {
         MembershipRequestsInitial() || MembershipRequestsLoading() =>
@@ -95,17 +105,23 @@ class _MembershipRequestsViewState extends State<_MembershipRequestsView> {
         actionInProgress: actionInProgress,
         actionError: actionError,
         onBack: () => setState(() => _selectedRequest = null),
-        onApprove: () => context.read<MembershipRequestsBloc>().add(
-          MembershipRequestsEvent.approveRequested(
-            request: updated ?? _selectedRequest!,
-          ),
-        ),
-        onReject: (comment) => context.read<MembershipRequestsBloc>().add(
-          MembershipRequestsEvent.rejectRequested(
-            request: updated ?? _selectedRequest!,
-            reviewComment: comment,
-          ),
-        ),
+        onApprove: () {
+          _pendingSuccessMessage = kApprovalSuccessMessage;
+          context.read<MembershipRequestsBloc>().add(
+            MembershipRequestsEvent.approveRequested(
+              request: updated ?? _selectedRequest!,
+            ),
+          );
+        },
+        onReject: (comment) {
+          _pendingSuccessMessage = kRejectionSuccessMessage;
+          context.read<MembershipRequestsBloc>().add(
+            MembershipRequestsEvent.rejectRequested(
+              request: updated ?? _selectedRequest!,
+              reviewComment: comment,
+            ),
+          );
+        },
       );
     }
 
@@ -279,7 +295,10 @@ class _DetailView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   _InfoRow(label: 'Email', value: request.email),
-                  _InfoRow(label: 'Soumise le', value: request.submittedAt),
+                  _InfoRow(
+                    label: 'Soumise le',
+                    value: formatInstantFr(request.submittedAt),
+                  ),
                   if (request.reviewedAt != null)
                     _InfoRow(label: 'Traitée le', value: request.reviewedAt!),
                   if (request.reviewComment != null)
@@ -307,7 +326,7 @@ class _DetailView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: FilledButton(
-                      onPressed: onApprove,
+                      onPressed: () => _confirmApprove(context),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),
@@ -331,6 +350,15 @@ class _DetailView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmApprove(BuildContext context) async {
+    final confirmed = await confirmApproval(
+      context,
+      message:
+          "Une invitation à rejoindre l'AMAP sera envoyée à ${request.email}.",
+    );
+    if (confirmed) onApprove();
   }
 
   Future<void> _showRejectDialog(BuildContext context) async {

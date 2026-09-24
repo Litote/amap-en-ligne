@@ -1,5 +1,6 @@
 package produceraccount
 
+import core.InputRules
 import id.Id
 import id.generateId
 import id.toId
@@ -91,6 +92,10 @@ class ProducerAccountUpsertNormalizer(
             return rejectUpsert(MutationErrorCode.INVALID_PAYLOAD, "no-account producers cannot declare producer users")
         }
 
+        if (incoming.managementMode == ProducerManagementMode.NO_ACCOUNT) {
+            noAccountFieldError(incoming, existing)?.let { return rejectUpsert(MutationErrorCode.INVALID_PAYLOAD, it) }
+        }
+
         if (incoming.managementMode == ProducerManagementMode.ACCOUNT_BACKED && incoming.linkedProducerAccount != null) {
             return rejectUpsert(
                 MutationErrorCode.INVALID_PAYLOAD,
@@ -117,6 +122,29 @@ class ProducerAccountUpsertNormalizer(
                 linkedProducerAccount = normalizedLinkedProducerAccount,
             ),
         )
+    }
+
+    /**
+     * Mirrors the admin no-account producer forms (`enroll_producer_screen.dart`,
+     * `edit_producer_products_screen.dart`): required name, valid optional contact
+     * email / website, at least one named product. An existing legacy producer that
+     * already had no product stays editable.
+     */
+    private fun noAccountFieldError(
+        incoming: ProducerAccount,
+        existing: ProducerAccount?,
+    ): String? {
+        InputRules.requireName("name", incoming.name)?.let { return it }
+        InputRules.optionalEmail("contact_email", incoming.contactEmail)?.let { return it }
+        InputRules.optionalHttpUrl("website", incoming.website)?.let { return it }
+        val legacyWithoutProducts = existing != null && existing.products.isEmpty()
+        if (incoming.products.isEmpty() && !legacyWithoutProducts) {
+            return "a no-account producer must offer at least one product"
+        }
+        incoming.products.forEach { product ->
+            InputRules.requireName("products.name", product.name)?.let { return it }
+        }
+        return null
     }
 
     /** Mode/identity invariants checked before any normalisation. */

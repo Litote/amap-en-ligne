@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'error_report.dart';
@@ -9,14 +9,14 @@ part of 'error_report.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$ErrorReport {
 
-@JsonKey(name: 'error_report_id') String get errorReportId;@JsonKey(name: 'error_message') String get errorMessage;// ISO-8601 instant string, e.g. "2026-06-09T12:00:00Z".
-@JsonKey(name: 'reported_at') String get reportedAt;
+@JsonKey(name: 'error_report_id') String get errorReportId;@JsonKey(name: 'error_message') String get errorMessage;@JsonKey(name: 'reported_at') String get reportedAt;
 /// Create a copy of ErrorReport
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +29,21 @@ $ErrorReportCopyWith<ErrorReport> get copyWith => _$ErrorReportCopyWithImpl<Erro
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ErrorReport&&(identical(other.errorReportId, errorReportId) || other.errorReportId == errorReportId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.reportedAt, reportedAt) || other.reportedAt == reportedAt));
+  final _this = this as ErrorReport;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ErrorReport&&(identical(other.errorReportId, _this.errorReportId) || other.errorReportId == _this.errorReportId)&&(identical(other.errorMessage, _this.errorMessage) || other.errorMessage == _this.errorMessage)&&(identical(other.reportedAt, _this.reportedAt) || other.reportedAt == _this.reportedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,errorReportId,errorMessage,reportedAt);
+int get hashCode {
+  final _this = this as ErrorReport;
+  return Object.hash(runtimeType,_this.errorReportId,_this.errorMessage,_this.reportedAt);
+}
 
 @override
 String toString() {
-  return 'ErrorReport(errorReportId: $errorReportId, errorMessage: $errorMessage, reportedAt: $reportedAt)';
+  final _this = this as ErrorReport;
+  return 'ErrorReport(errorReportId: ${_this.errorReportId}, errorMessage: ${_this.errorMessage}, reportedAt: ${_this.reportedAt})';
 }
 
 
@@ -67,7 +72,7 @@ class _$ErrorReportCopyWithImpl<$Res>
 /// Create a copy of ErrorReport
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? errorReportId = null,Object? errorMessage = null,Object? reportedAt = null,}) {
-  return _then(_self.copyWith(
+  return _then(ErrorReport(
 errorReportId: null == errorReportId ? _self.errorReportId : errorReportId // ignore: cast_nullable_to_non_nullable
 as String,errorMessage: null == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String,reportedAt: null == reportedAt ? _self.reportedAt : reportedAt // ignore: cast_nullable_to_non_nullable
@@ -217,7 +222,6 @@ class _ErrorReport implements ErrorReport {
 
 @override@JsonKey(name: 'error_report_id') final  String errorReportId;
 @override@JsonKey(name: 'error_message') final  String errorMessage;
-// ISO-8601 instant string, e.g. "2026-06-09T12:00:00Z".
 @override@JsonKey(name: 'reported_at') final  String reportedAt;
 
 /// Create a copy of ErrorReport
@@ -233,16 +237,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ErrorReport&&(identical(other.errorReportId, errorReportId) || other.errorReportId == errorReportId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.reportedAt, reportedAt) || other.reportedAt == reportedAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ErrorReport&&(identical(other.errorReportId, errorReportId) || other.errorReportId == errorReportId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.reportedAt, reportedAt) || other.reportedAt == reportedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,errorReportId,errorMessage,reportedAt);
+int get hashCode {
+    return Object.hash(runtimeType,errorReportId,errorMessage,reportedAt);
+}
 
 @override
 String toString() {
-  return 'ErrorReport(errorReportId: $errorReportId, errorMessage: $errorMessage, reportedAt: $reportedAt)';
+    return 'ErrorReport(errorReportId: $errorReportId, errorMessage: $errorMessage, reportedAt: $reportedAt)';
 }
 
 

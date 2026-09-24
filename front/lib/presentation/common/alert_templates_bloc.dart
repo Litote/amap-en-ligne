@@ -82,6 +82,21 @@ String alertCategoryDefaultBody(
   NotificationCategory.producerRequestSubmitted => '',
 };
 
+/// Custom alert copy is sent verbatim (no variable substitution, see back
+/// `NotificationCopy.resolveCopy`): a `{…}` placeholder would reach members as
+/// is. Mirrors the back rule (`OrganizationValidation`).
+final RegExp kAlertPlaceholderPattern = RegExp(r'\{[^{}]*\}');
+
+/// French error shown when a custom alert contains a `{…}` placeholder.
+const String kAlertPlaceholderMessage =
+    'Les variables entre accolades ({date}…) ne sont pas remplacées dans un '
+    'message personnalisé : écrivez un texte sans elles, ou laissez le champ '
+    'vide pour garder le message par défaut.';
+
+/// Error for a custom alert [text], or `null` when it can be saved.
+String? alertOverrideError(String text) =>
+    kAlertPlaceholderPattern.hasMatch(text) ? kAlertPlaceholderMessage : null;
+
 enum AlertTemplatesSaveStatus { idle, saving, success, failure }
 
 @freezed

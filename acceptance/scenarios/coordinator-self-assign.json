@@ -1,7 +1,10 @@
 {
   "id": "coordinator-self-assign",
   "title": "A coordinator can self-assign on a delivery contract that has no coordinator yet",
-  "targets": ["coordinator-flow", "flutter"],
+  "targets": [
+    "coordinator-flow",
+    "flutter"
+  ],
   "given": {
     "backendState": "organization:org-1 with a future PLANNED delivery:delivery-1 containing one DeliveryContract:contract-1 with an empty coordinators list; member:coordinator-1 authorized on organization:org-1 with role COORDINATOR",
     "appState": "fresh organization cache synchronized from bootstrap"
@@ -42,7 +45,9 @@
                       "contracts": [
                         {
                           "contract_id": "contract-1",
-                          "coordinators": ["coordinator-1"],
+                          "coordinators": [
+                            "coordinator-1"
+                          ],
                           "basket_quantity": 10,
                           "delivery_description": "Weekly basket",
                           "status": "PENDING",

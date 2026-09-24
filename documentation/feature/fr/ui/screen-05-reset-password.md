@@ -43,7 +43,7 @@ Affiché lorsque le fragment URL est absent ou que `type != recovery`.
 ### Contenu et comportement
 
 - Titre : "Choisissez un nouveau mot de passe"
-- Champ "Nouveau mot de passe *" : minimum 8 caractères, avec icône d'affichage/masquage.
+- Champ "Nouveau mot de passe *" : au moins 12 caractères, dont une minuscule, une majuscule et un chiffre (texte d'aide sous le champ), avec icône d'affichage/masquage.
 - Champ "Confirmer le mot de passe *" : avec icône d'affichage/masquage.
 - Le bouton [RÉINITIALISER MON MOT DE PASSE] est désactivé pendant l'envoi.
 - [← Retour] dans l'AppBar ramène à `/login`.

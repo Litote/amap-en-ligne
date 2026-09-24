@@ -30,7 +30,7 @@ void main() {
       );
       final subtitle = _roleSubtitle(state);
       expect(subtitle, contains('Rôles :'));
-      expect(subtitle, contains('BÉNÉVOLE'));
+      expect(subtitle, contains('AMAPIEN'));
       expect(subtitle, contains('COORDINATEUR'));
       expect(subtitle, contains('ADMIN'));
     });
@@ -72,14 +72,14 @@ String _roleSubtitle(AuthViewState authState) {
 }
 
 String _memberRoleLabel(Role role) => switch (role) {
-  Role.volunteer => 'BÉNÉVOLE',
+  Role.volunteer => 'AMAPIEN',
   Role.coordinator => 'COORDINATEUR',
   Role.admin => 'ADMIN',
   Role.owner || Role.producer => '',
 };
 
 String _platformRoleLabel(UserRole role) => switch (role) {
-  UserRole.volunteer => 'Bénévole',
+  UserRole.volunteer => 'Amapien',
   UserRole.coordinator => 'Coordinateur',
   UserRole.memberNoRole => 'Membre',
   UserRole.admin => 'Administrateur',

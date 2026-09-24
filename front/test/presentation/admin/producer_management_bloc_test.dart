@@ -288,6 +288,7 @@ void main() {
         const ProducerManagementState.listLoaded(organization: _baseOrg),
     act: (bloc) =>
         bloc.add(const ProducerManagementEvent.enrollSearchChanged('Jean')),
+    wait: const Duration(milliseconds: 400),
     expect: () => [
       isA<ProducerManagementEnrollStep1>().having(
         (s) => s.searching,
@@ -298,6 +299,30 @@ void main() {
           .having((s) => s.searching, 'searching', false)
           .having((s) => s.searchResults.length, 'results', 1),
     ],
+  );
+
+  blocTest<ProducerManagementBloc, ProducerManagementState>(
+    'enrollSearchChanged debounces fast typing into a single search',
+    setUp: () => when(() => adminApi.searchProducers(any())).thenAnswer(
+      (_) async => [
+        const ProducerAccount(producerAccountId: 'pa-new', name: 'Jean Dupont'),
+      ],
+    ),
+    build: buildBloc,
+    seed: () =>
+        const ProducerManagementState.listLoaded(organization: _baseOrg),
+    act: (bloc) {
+      for (final query in ['J', 'Je', 'Jea', 'Jean']) {
+        bloc.add(ProducerManagementEvent.enrollSearchChanged(query));
+      }
+    },
+    wait: const Duration(milliseconds: 400),
+    verify: (_) {
+      verify(() => adminApi.searchProducers('Jean')).called(1);
+      verifyNever(() => adminApi.searchProducers('J'));
+      verifyNever(() => adminApi.searchProducers('Je'));
+      verifyNever(() => adminApi.searchProducers('Jea'));
+    },
   );
 
   blocTest<ProducerManagementBloc, ProducerManagementState>(

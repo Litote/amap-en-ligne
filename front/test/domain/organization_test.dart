@@ -332,18 +332,6 @@ void main() {
       expect(decoded.deliveryId, 'd-1');
     });
 
-    test('fromJson ignores coordinator_id when present in legacy JSON', () {
-      // Legacy JSON may contain coordinator_id — it must be silently ignored.
-      final delivery = Delivery.fromJson({
-        'delivery_id': 'd-legacy',
-        'organization_id': 'org-1',
-        'scheduled_date': '2025-06-14T18:00:00',
-        'status': 'PLANNED',
-        'min_volunteers_required': 2,
-        'coordinator_id': 'some-member-id',
-      });
-      expect(delivery.deliveryId, 'd-legacy');
-    });
   });
 
   group('OrganizationRequestResponse', () {

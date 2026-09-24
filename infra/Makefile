@@ -124,6 +124,8 @@ dev-web: init
 	$(TF) workspace select -or-create dev
 	cd ../front && flutter build web --wasm $(DART_DEFINES)
 	aws s3 sync ../front/build/web/ s3://$$($(TF) output -raw web_bucket)/ --delete --exclude "cgu.html"
+	aws s3 cp ../front/build/web/index.html s3://$$($(TF) output -raw web_bucket)/index.html \
+	  --cache-control "no-cache" --content-type "text/html"
 	aws cloudfront create-invalidation \
 	  --distribution-id $$($(TF) output -raw cloudfront_distribution_id) \
 	  --paths "/*"
@@ -142,6 +144,8 @@ prod-web: init
 	$(TF) workspace select -or-create prod
 	cd ../front && flutter build web --wasm $(DART_DEFINES)
 	aws s3 sync ../front/build/web/ s3://$$($(TF) output -raw web_bucket)/ --delete --exclude "cgu.html"
+	aws s3 cp ../front/build/web/index.html s3://$$($(TF) output -raw web_bucket)/index.html \
+	  --cache-control "no-cache" --content-type "text/html"
 	aws cloudfront create-invalidation \
 	  --distribution-id $$($(TF) output -raw cloudfront_distribution_id) \
 	  --paths "/*"
@@ -195,7 +199,8 @@ url:
 .PHONY: maintenance-on-dev
 maintenance-on-dev: init
 	$(TF) workspace select -or-create dev
-	aws s3 cp maintenance.html s3://$$($(TF) output -raw web_bucket)/index.html
+	aws s3 cp maintenance.html s3://$$($(TF) output -raw web_bucket)/index.html \
+	  --cache-control "no-cache" --content-type "text/html"
 	aws cloudfront create-invalidation \
 	  --distribution-id $$($(TF) output -raw cloudfront_distribution_id) \
 	  --paths "/*"
@@ -204,7 +209,8 @@ maintenance-on-dev: init
 .PHONY: maintenance-on-prod
 maintenance-on-prod: init
 	$(TF) workspace select -or-create prod
-	aws s3 cp maintenance.html s3://$$($(TF) output -raw web_bucket)/index.html
+	aws s3 cp maintenance.html s3://$$($(TF) output -raw web_bucket)/index.html \
+	  --cache-control "no-cache" --content-type "text/html"
 	aws cloudfront create-invalidation \
 	  --distribution-id $$($(TF) output -raw cloudfront_distribution_id) \
 	  --paths "/*"
@@ -223,7 +229,7 @@ help:
 	@echo "    sync-serializable  Scan @Serializable classes under back/ and merge their Companion/serializer() entries into reachability-metadata.json"
 	@echo ""
 	@echo "  AWS"
-	@echo "    bootstrap          Create state bucket + DynamoDB lock (once only)"
+	@echo "    bootstrap          Create state bucket + deployer IAM (once only)"
 	@echo "    dev                Build + deploy backend (Lambda) + frontend (web) to dev"
 	@echo "    dev-back           Deploy backend (Lambda) to dev only"
 	@echo "    dev-web            Deploy frontend (web) to dev only"

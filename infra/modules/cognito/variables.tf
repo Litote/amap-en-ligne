@@ -41,16 +41,19 @@ variable "api_scopes" {
   ]
 }
 
-variable "access_token_validity_hours" {
-  description = "Access token validity duration (hours)"
+variable "access_token_validity_minutes" {
+  description = <<-EOT
+    Access token validity duration (minutes). Keep it short (<= 15): authorization is
+    JWT-only with no server-side revocation, so a revoked role stays usable until expiry.
+  EOT
   type        = number
-  default     = 1
+  default     = 15
 }
 
-variable "id_token_validity_hours" {
-  description = "ID token validity duration (hours)"
+variable "id_token_validity_minutes" {
+  description = "ID token validity duration (minutes)"
   type        = number
-  default     = 1
+  default     = 15
 }
 
 variable "refresh_token_validity_days" {
@@ -70,6 +73,18 @@ variable "initial_owner_temp_password" {
   type        = string
   default     = ""
   sensitive   = true
+}
+
+variable "ses_source_arn" {
+  description = "ARN of the verified SES identity (address or domain) used to send Cognito emails. Null = Cognito default sender (no-reply@verificationemail.com)."
+  type        = string
+  default     = null
+}
+
+variable "ses_from_email" {
+  description = "FROM address of Cognito emails; must belong to ses_source_arn. Ignored when ses_source_arn is null."
+  type        = string
+  default     = null
 }
 
 variable "tags" {

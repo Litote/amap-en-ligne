@@ -466,4 +466,54 @@ void main() {
     );
     expect(find.text('Créer le producteur'), findsOneWidget);
   });
+
+  testWidgets(
+    'no-account producer form rejects a malformed contact email and website',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 2000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await _pumpProducerRouter(
+        tester,
+        organizationRepository: organizationRepository,
+        producerAccountRepository: producerAccountRepository,
+        adminApi: adminApi,
+      );
+      await tester.tap(find.byKey(const Key('add_producer_button')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const Key('create_no_account_producer_button')),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Nom du producteur *'),
+        'Poulailler',
+      );
+      await tester.enterText(
+        find.byKey(const Key('no_account_contact_email')),
+        'poulailler@nowhere',
+      );
+      await tester.enterText(
+        find.byKey(const Key('no_account_website')),
+        'www.poulailler.example',
+      );
+      await tester.tap(find.text('Ajouter').first);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Nom du produit'),
+        'Oeufs',
+      );
+      await tester.tap(find.text('Enregistrer'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Créer le producteur'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Adresse email invalide.'), findsOneWidget);
+      expect(
+        find.text("L'URL n'est pas valide (ex. https://…)."),
+        findsOneWidget,
+      );
+    },
+  );
 }

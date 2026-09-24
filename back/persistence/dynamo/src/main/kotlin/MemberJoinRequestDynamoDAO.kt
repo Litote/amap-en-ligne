@@ -39,25 +39,12 @@ internal class MemberJoinRequestDynamoDAO(
     override suspend fun existsPendingByEmailAndOrganization(
         email: String,
         organizationId: Id<Organization>,
-    ): Boolean {
-        val response =
-            client.client.query(
-                QueryRequest {
-                    tableName = client.table
-                    keyConditionExpression = KEY_CONDITION_PK
-                    filterExpression = "email = :email AND #s = :status"
-                    expressionAttributeNames = mapOf("#s" to "status")
-                    expressionAttributeValues =
-                        mapOf(
-                            ":pk" to AttributeValue.S(pkForOrg(organizationId)),
-                            ":email" to AttributeValue.S(email),
-                            VALUE_STATUS to AttributeValue.S("PENDING"),
-                        )
-                    limit = 1
-                },
-            )
-        return response.count > 0
-    }
+    ): Boolean =
+        // Emails compare case-insensitively, which a filter expression cannot do,
+        // and a `limit` would be applied before the filter (only the first item of
+        // the org partition would be checked): match on the pending list instead.
+        listByOrganizationAndStatus(organizationId, MemberJoinRequestStatus.PENDING)
+            .any { it.email.equals(email, ignoreCase = true) }
 
     override suspend fun listByOrganization(organizationId: Id<Organization>): List<MemberJoinRequest> {
         val response =

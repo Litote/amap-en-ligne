@@ -10,7 +10,7 @@ import persistence.model.OrganizationRequest
 
 /**
  * Notifies every active instance owner (best-effort) that a new organization
- * creation request was submitted.
+ * creation request was submitted, and acknowledges it to the requester.
  */
 @Single(createdAtStart = true, binds = [OrganizationRequestNotificationEmailPort::class])
 internal class OrganizationRequestNotificationEmailAdapter(
@@ -25,5 +25,10 @@ internal class OrganizationRequestNotificationEmailAdapter(
             .forEach { owner ->
                 gateway.deliver(EmailMessage(to = owner.email, subject = content.subject, body = content.body))
             }
+    }
+
+    override suspend fun acknowledgeRequester(request: OrganizationRequest) {
+        val content = EmailTemplates.organizationRequestReceived(request)
+        gateway.deliver(EmailMessage(to = request.adminEmail, subject = content.subject, body = content.body))
     }
 }

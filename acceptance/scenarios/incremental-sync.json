@@ -12,7 +12,7 @@
       "action": "sync",
       "save": {
         "cursorRefs": {
-          "ProductType": "initialProductTypeCursor"
+          "producer-account:producerAccountId": "initialProductTypeCursor"
         }
       },
       "request": {
@@ -45,7 +45,7 @@
       "action": "sync",
       "request": {
         "cursors": {
-          "ProductType": "$ref:initialProductTypeCursor"
+          "producer-account:producerAccountId": "$ref:initialProductTypeCursor"
         },
         "mutations": [
           {

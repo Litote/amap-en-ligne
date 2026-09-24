@@ -14,6 +14,8 @@ data class APIGatewayV2HTTPEvent(
     val headers: Map<String, String> = emptyMap(),
     val body: String? = null,
     val pathParameters: Map<String, String> = emptyMap(),
+    /** Raw, still percent-encoded query string (payload format 2.0), without the leading `?`. */
+    val rawQueryString: String = "",
     @SerialName("isBase64Encoded")
     val base64Encoded: Boolean = false,
     @Transient

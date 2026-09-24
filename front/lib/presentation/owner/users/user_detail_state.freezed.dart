@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'user_detail_state.dart';
@@ -9,6 +9,7 @@ part of 'user_detail_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$UserDetailState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserDetailState()';
+    return 'UserDetailState()';
 }
 
 
@@ -203,7 +204,7 @@ class UserDetailInitial implements UserDetailState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailInitial);
 }
 
 
@@ -212,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserDetailState.initial()';
+    return 'UserDetailState.initial()';
 }
 
 
@@ -235,7 +236,7 @@ class UserDetailLoading implements UserDetailState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailLoading);
 }
 
 
@@ -244,7 +245,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserDetailState.loading()';
+    return 'UserDetailState.loading()';
 }
 
 
@@ -272,16 +273,18 @@ $UserDetailLoadedCopyWith<UserDetailLoaded> get copyWith => _$UserDetailLoadedCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailLoaded&&(identical(other.userRow, userRow) || other.userRow == userRow));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailLoaded&&(identical(other.userRow, userRow) || other.userRow == userRow));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,userRow);
+int get hashCode {
+    return Object.hash(runtimeType,userRow);
+}
 
 @override
 String toString() {
-  return 'UserDetailState.loaded(userRow: $userRow)';
+    return 'UserDetailState.loaded(userRow: $userRow)';
 }
 
 
@@ -333,7 +336,7 @@ class UserDetailNotFound implements UserDetailState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailNotFound);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailNotFound);
 }
 
 
@@ -342,7 +345,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserDetailState.notFound()';
+    return 'UserDetailState.notFound()';
 }
 
 
@@ -370,16 +373,18 @@ $UserDetailErrorCopyWith<UserDetailError> get copyWith => _$UserDetailErrorCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'UserDetailState.error(message: $message)';
+    return 'UserDetailState.error(message: $message)';
 }
 
 

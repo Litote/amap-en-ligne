@@ -2,12 +2,14 @@ import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/data/repositories/product_type_repository.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_bloc.dart';
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_event.dart';
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_state.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 /// Screen to edit the [BasketDeliveryDescription] list for a given delivery.
 ///
@@ -88,7 +90,10 @@ class _DeliveryDescriptionView extends StatelessWidget {
 
   String _appBarTitle(DeliveryDescriptionState state) {
     if (state is DeliveryDescriptionLoaded) {
-      return 'Description du ${state.delivery.scheduledDate}';
+      final date = DateTime.tryParse(state.delivery.scheduledDate);
+      if (date != null) {
+        return "Composition du ${DateFormat('EEEE d MMMM', 'fr').format(date)}";
+      }
     }
     return 'Description de livraison';
   }
@@ -172,8 +177,10 @@ class _BasketSizeSection extends StatelessWidget {
           TextButton.icon(
             icon: const Icon(Icons.add),
             label: const Text('Ajouter'),
+            // Producer catalog when there is one, otherwise free entry (e.g. a
+            // producer without an account has no component catalog).
             onPressed: availableItemTypes.isEmpty
-                ? null
+                ? () => _showFreeItemForm(context)
                 : () => _showItemPicker(
                     context,
                     selectedItems,
@@ -181,6 +188,23 @@ class _BasketSizeSection extends StatelessWidget {
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _showFreeItemForm(BuildContext context) async {
+    final bloc = context.read<DeliveryDescriptionBloc>();
+    final entry = await showDialog<({String name, String weight})>(
+      context: context,
+      builder: (_) => const _FreeItemDialog(),
+    );
+    if (entry == null) return;
+    bloc.add(
+      DeliveryDescriptionEvent.freeItemAdded(
+        productTypeId: productTypeId,
+        basketSizeName: basketSizeName,
+        name: entry.name,
+        weight: entry.weight,
       ),
     );
   }
@@ -232,6 +256,14 @@ class _SelectedItemTile extends StatelessWidget {
   final String productTypeId;
   final String basketSizeName;
 
+  /// Catalog name, else the item's own name snapshot (free component), else
+  /// its id as a last resort for legacy data.
+  String _itemLabel(ItemType? itemType) {
+    if (itemType != null) return itemType.name;
+    if (deliveryItem.name.isNotEmpty) return deliveryItem.name;
+    return deliveryItem.itemTypeId;
+  }
+
   @override
   Widget build(BuildContext context) {
     final itemType = availableItemTypes
@@ -241,15 +273,17 @@ class _SelectedItemTile extends StatelessWidget {
       children: [
         ItemTypeSvgIcon(svg: itemType?.imageSvg, size: 24),
         const SizedBox(width: 8),
-        Expanded(child: Text(itemType?.name ?? deliveryItem.itemTypeId)),
+        Expanded(child: Text(_itemLabel(itemType))),
         const SizedBox(width: 8),
         SizedBox(
           width: 120,
           child: TextFormField(
             initialValue: deliveryItem.weight,
+            maxLength: kMaxNameLength,
             decoration: const InputDecoration(
               labelText: 'Poids',
               isDense: true,
+              counterText: '',
             ),
             onChanged: (value) => context.read<DeliveryDescriptionBloc>().add(
               DeliveryDescriptionEvent.weightChanged(
@@ -274,4 +308,73 @@ class _SelectedItemTile extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Free entry of a basket component (name + optional weight), for products
+/// whose producer has no component catalog. Rules mirror the back
+/// (`OrganizationValidation.basketItemsError`).
+class _FreeItemDialog extends StatefulWidget {
+  const _FreeItemDialog();
+
+  @override
+  State<_FreeItemDialog> createState() => _FreeItemDialogState();
+}
+
+class _FreeItemDialogState extends State<_FreeItemDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _weightController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _weightController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+    Navigator.of(
+      context,
+    ).pop((name: _nameController.text.trim(), weight: _weightController.text));
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Ajouter un composant'),
+    content: Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextFormField(
+            controller: _nameController,
+            autofocus: true,
+            maxLength: kMaxNameLength,
+            decoration: const InputDecoration(
+              labelText: 'Composant *',
+              hintText: 'Ex. : Courge butternut',
+            ),
+            validator: requiredName,
+          ),
+          TextFormField(
+            controller: _weightController,
+            maxLength: kMaxNameLength,
+            decoration: const InputDecoration(
+              labelText: 'Poids (facultatif)',
+              hintText: 'Ex. : 500 g, 1 pièce',
+            ),
+            onFieldSubmitted: (_) => _submit(),
+          ),
+        ],
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('ANNULER'),
+      ),
+      FilledButton(onPressed: _submit, child: const Text('AJOUTER')),
+    ],
+  );
 }

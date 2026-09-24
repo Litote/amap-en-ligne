@@ -1110,6 +1110,41 @@ void main() {
   // teammatesOn
   // ---------------------------------------------------------------------------
 
+  group('selfActivityOn', () {
+    test('returns the activity of the slot the member is registered on', () {
+      final d = buildDelivery(
+        contracts: [
+          buildContract(
+            slots: [
+              slotWith(
+                registrations: [activeReg('m-2')],
+              ).copyWith(activityType: ActivityType.preparation),
+              slotWith(
+                registrations: [activeReg('self')],
+              ).copyWith(activityType: ActivityType.reception),
+            ],
+          ),
+        ],
+      );
+      expect(selfActivityOn(d, 'self'), ActivityType.reception);
+    });
+
+    test('ignores cancelled registrations', () {
+      final d = buildDelivery(
+        contracts: [
+          buildContract(
+            slots: [
+              slotWith(
+                registrations: [cancelledReg('self')],
+              ).copyWith(activityType: ActivityType.reception),
+            ],
+          ),
+        ],
+      );
+      expect(selfActivityOn(d, 'self'), isNull);
+    });
+  });
+
   group('teammatesOn', () {
     test('returns empty when no other registrations', () {
       final d = buildDelivery(

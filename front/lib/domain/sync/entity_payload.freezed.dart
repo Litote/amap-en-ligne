@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'entity_payload.dart';
@@ -9,6 +9,7 @@ part of 'entity_payload.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $ProductTypePayloadCopyWith<ProductTypePayload> get copyWith => _$ProductTypePay
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductTypePayload&&(identical(other.productType, productType) || other.productType == productType));
+  final _this = this as ProductTypePayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductTypePayload&&(identical(other.productType, _this.productType) || other.productType == _this.productType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productType);
+int get hashCode {
+  final _this = this as ProductTypePayload;
+  return Object.hash(runtimeType,_this.productType);
+}
 
 @override
 String toString() {
-  return 'ProductTypePayload(productType: $productType)';
+  final _this = this as ProductTypePayload;
+  return 'ProductTypePayload(productType: ${_this.productType})';
 }
 
 
@@ -63,7 +69,7 @@ class _$ProductTypePayloadCopyWithImpl<$Res>
 /// Create a copy of ProductTypePayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? productType = null,}) {
-  return _then(_self.copyWith(
+  return _then(ProductTypePayload(
 productType: null == productType ? _self.productType : productType // ignore: cast_nullable_to_non_nullable
 as ProductType,
   ));
@@ -230,16 +236,18 @@ _$ProductTypePayloadCopyWith<_ProductTypePayload> get copyWith => __$ProductType
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductTypePayload&&(identical(other.productType, productType) || other.productType == productType));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductTypePayload&&(identical(other.productType, productType) || other.productType == productType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productType);
+int get hashCode {
+    return Object.hash(runtimeType,productType);
+}
 
 @override
 String toString() {
-  return 'ProductTypePayload(productType: $productType)';
+    return 'ProductTypePayload(productType: $productType)';
 }
 
 
@@ -300,16 +308,21 @@ $OrganizationPayloadCopyWith<OrganizationPayload> get copyWith => _$Organization
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationPayload&&(identical(other.organization, organization) || other.organization == organization));
+  final _this = this as OrganizationPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationPayload&&(identical(other.organization, _this.organization) || other.organization == _this.organization));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organization);
+int get hashCode {
+  final _this = this as OrganizationPayload;
+  return Object.hash(runtimeType,_this.organization);
+}
 
 @override
 String toString() {
-  return 'OrganizationPayload(organization: $organization)';
+  final _this = this as OrganizationPayload;
+  return 'OrganizationPayload(organization: ${_this.organization})';
 }
 
 
@@ -338,7 +351,7 @@ class _$OrganizationPayloadCopyWithImpl<$Res>
 /// Create a copy of OrganizationPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? organization = null,}) {
-  return _then(_self.copyWith(
+  return _then(OrganizationPayload(
 organization: null == organization ? _self.organization : organization // ignore: cast_nullable_to_non_nullable
 as Organization,
   ));
@@ -505,16 +518,18 @@ _$OrganizationPayloadCopyWith<_OrganizationPayload> get copyWith => __$Organizat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrganizationPayload&&(identical(other.organization, organization) || other.organization == organization));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrganizationPayload&&(identical(other.organization, organization) || other.organization == organization));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organization);
+int get hashCode {
+    return Object.hash(runtimeType,organization);
+}
 
 @override
 String toString() {
-  return 'OrganizationPayload(organization: $organization)';
+    return 'OrganizationPayload(organization: $organization)';
 }
 
 
@@ -575,16 +590,21 @@ $ProducerAccountPayloadCopyWith<ProducerAccountPayload> get copyWith => _$Produc
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerAccountPayload&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount));
+  final _this = this as ProducerAccountPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerAccountPayload&&(identical(other.producerAccount, _this.producerAccount) || other.producerAccount == _this.producerAccount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producerAccount);
+int get hashCode {
+  final _this = this as ProducerAccountPayload;
+  return Object.hash(runtimeType,_this.producerAccount);
+}
 
 @override
 String toString() {
-  return 'ProducerAccountPayload(producerAccount: $producerAccount)';
+  final _this = this as ProducerAccountPayload;
+  return 'ProducerAccountPayload(producerAccount: ${_this.producerAccount})';
 }
 
 
@@ -613,7 +633,7 @@ class _$ProducerAccountPayloadCopyWithImpl<$Res>
 /// Create a copy of ProducerAccountPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? producerAccount = null,}) {
-  return _then(_self.copyWith(
+  return _then(ProducerAccountPayload(
 producerAccount: null == producerAccount ? _self.producerAccount : producerAccount // ignore: cast_nullable_to_non_nullable
 as ProducerAccount,
   ));
@@ -780,16 +800,18 @@ _$ProducerAccountPayloadCopyWith<_ProducerAccountPayload> get copyWith => __$Pro
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerAccountPayload&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerAccountPayload&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producerAccount);
+int get hashCode {
+    return Object.hash(runtimeType,producerAccount);
+}
 
 @override
 String toString() {
-  return 'ProducerAccountPayload(producerAccount: $producerAccount)';
+    return 'ProducerAccountPayload(producerAccount: $producerAccount)';
 }
 
 
@@ -850,16 +872,21 @@ $MemberPayloadCopyWith<MemberPayload> get copyWith => _$MemberPayloadCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberPayload&&(identical(other.member, member) || other.member == member));
+  final _this = this as MemberPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberPayload&&(identical(other.member, _this.member) || other.member == _this.member));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,member);
+int get hashCode {
+  final _this = this as MemberPayload;
+  return Object.hash(runtimeType,_this.member);
+}
 
 @override
 String toString() {
-  return 'MemberPayload(member: $member)';
+  final _this = this as MemberPayload;
+  return 'MemberPayload(member: ${_this.member})';
 }
 
 
@@ -888,7 +915,7 @@ class _$MemberPayloadCopyWithImpl<$Res>
 /// Create a copy of MemberPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? member = null,}) {
-  return _then(_self.copyWith(
+  return _then(MemberPayload(
 member: null == member ? _self.member : member // ignore: cast_nullable_to_non_nullable
 as Member,
   ));
@@ -1055,16 +1082,18 @@ _$MemberPayloadCopyWith<_MemberPayload> get copyWith => __$MemberPayloadCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberPayload&&(identical(other.member, member) || other.member == member));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberPayload&&(identical(other.member, member) || other.member == member));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,member);
+int get hashCode {
+    return Object.hash(runtimeType,member);
+}
 
 @override
 String toString() {
-  return 'MemberPayload(member: $member)';
+    return 'MemberPayload(member: $member)';
 }
 
 
@@ -1125,16 +1154,21 @@ $MemberJoinRequestPayloadCopyWith<MemberJoinRequestPayload> get copyWith => _$Me
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberJoinRequestPayload&&(identical(other.memberJoinRequest, memberJoinRequest) || other.memberJoinRequest == memberJoinRequest));
+  final _this = this as MemberJoinRequestPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberJoinRequestPayload&&(identical(other.memberJoinRequest, _this.memberJoinRequest) || other.memberJoinRequest == _this.memberJoinRequest));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,memberJoinRequest);
+int get hashCode {
+  final _this = this as MemberJoinRequestPayload;
+  return Object.hash(runtimeType,_this.memberJoinRequest);
+}
 
 @override
 String toString() {
-  return 'MemberJoinRequestPayload(memberJoinRequest: $memberJoinRequest)';
+  final _this = this as MemberJoinRequestPayload;
+  return 'MemberJoinRequestPayload(memberJoinRequest: ${_this.memberJoinRequest})';
 }
 
 
@@ -1163,7 +1197,7 @@ class _$MemberJoinRequestPayloadCopyWithImpl<$Res>
 /// Create a copy of MemberJoinRequestPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? memberJoinRequest = null,}) {
-  return _then(_self.copyWith(
+  return _then(MemberJoinRequestPayload(
 memberJoinRequest: null == memberJoinRequest ? _self.memberJoinRequest : memberJoinRequest // ignore: cast_nullable_to_non_nullable
 as AdminMemberJoinRequest,
   ));
@@ -1330,16 +1364,18 @@ _$MemberJoinRequestPayloadCopyWith<_MemberJoinRequestPayload> get copyWith => __
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberJoinRequestPayload&&(identical(other.memberJoinRequest, memberJoinRequest) || other.memberJoinRequest == memberJoinRequest));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberJoinRequestPayload&&(identical(other.memberJoinRequest, memberJoinRequest) || other.memberJoinRequest == memberJoinRequest));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,memberJoinRequest);
+int get hashCode {
+    return Object.hash(runtimeType,memberJoinRequest);
+}
 
 @override
 String toString() {
-  return 'MemberJoinRequestPayload(memberJoinRequest: $memberJoinRequest)';
+    return 'MemberJoinRequestPayload(memberJoinRequest: $memberJoinRequest)';
 }
 
 
@@ -1400,16 +1436,21 @@ $ContractPayloadCopyWith<ContractPayload> get copyWith => _$ContractPayloadCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContractPayload&&(identical(other.contract, contract) || other.contract == contract));
+  final _this = this as ContractPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContractPayload&&(identical(other.contract, _this.contract) || other.contract == _this.contract));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,contract);
+int get hashCode {
+  final _this = this as ContractPayload;
+  return Object.hash(runtimeType,_this.contract);
+}
 
 @override
 String toString() {
-  return 'ContractPayload(contract: $contract)';
+  final _this = this as ContractPayload;
+  return 'ContractPayload(contract: ${_this.contract})';
 }
 
 
@@ -1438,7 +1479,7 @@ class _$ContractPayloadCopyWithImpl<$Res>
 /// Create a copy of ContractPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? contract = null,}) {
-  return _then(_self.copyWith(
+  return _then(ContractPayload(
 contract: null == contract ? _self.contract : contract // ignore: cast_nullable_to_non_nullable
 as Contract,
   ));
@@ -1605,16 +1646,18 @@ _$ContractPayloadCopyWith<_ContractPayload> get copyWith => __$ContractPayloadCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContractPayload&&(identical(other.contract, contract) || other.contract == contract));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContractPayload&&(identical(other.contract, contract) || other.contract == contract));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,contract);
+int get hashCode {
+    return Object.hash(runtimeType,contract);
+}
 
 @override
 String toString() {
-  return 'ContractPayload(contract: $contract)';
+    return 'ContractPayload(contract: $contract)';
 }
 
 
@@ -1675,16 +1718,21 @@ $DeliveryTemplatePayloadCopyWith<DeliveryTemplatePayload> get copyWith => _$Deli
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplatePayload&&(identical(other.deliveryTemplate, deliveryTemplate) || other.deliveryTemplate == deliveryTemplate));
+  final _this = this as DeliveryTemplatePayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplatePayload&&(identical(other.deliveryTemplate, _this.deliveryTemplate) || other.deliveryTemplate == _this.deliveryTemplate));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deliveryTemplate);
+int get hashCode {
+  final _this = this as DeliveryTemplatePayload;
+  return Object.hash(runtimeType,_this.deliveryTemplate);
+}
 
 @override
 String toString() {
-  return 'DeliveryTemplatePayload(deliveryTemplate: $deliveryTemplate)';
+  final _this = this as DeliveryTemplatePayload;
+  return 'DeliveryTemplatePayload(deliveryTemplate: ${_this.deliveryTemplate})';
 }
 
 
@@ -1713,7 +1761,7 @@ class _$DeliveryTemplatePayloadCopyWithImpl<$Res>
 /// Create a copy of DeliveryTemplatePayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? deliveryTemplate = null,}) {
-  return _then(_self.copyWith(
+  return _then(DeliveryTemplatePayload(
 deliveryTemplate: null == deliveryTemplate ? _self.deliveryTemplate : deliveryTemplate // ignore: cast_nullable_to_non_nullable
 as DeliveryTemplate,
   ));
@@ -1880,16 +1928,18 @@ _$DeliveryTemplatePayloadCopyWith<_DeliveryTemplatePayload> get copyWith => __$D
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeliveryTemplatePayload&&(identical(other.deliveryTemplate, deliveryTemplate) || other.deliveryTemplate == deliveryTemplate));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeliveryTemplatePayload&&(identical(other.deliveryTemplate, deliveryTemplate) || other.deliveryTemplate == deliveryTemplate));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deliveryTemplate);
+int get hashCode {
+    return Object.hash(runtimeType,deliveryTemplate);
+}
 
 @override
 String toString() {
-  return 'DeliveryTemplatePayload(deliveryTemplate: $deliveryTemplate)';
+    return 'DeliveryTemplatePayload(deliveryTemplate: $deliveryTemplate)';
 }
 
 
@@ -1950,16 +2000,21 @@ $OrganizationRequestPayloadCopyWith<OrganizationRequestPayload> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationRequestPayload&&(identical(other.organizationRequest, organizationRequest) || other.organizationRequest == organizationRequest));
+  final _this = this as OrganizationRequestPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationRequestPayload&&(identical(other.organizationRequest, _this.organizationRequest) || other.organizationRequest == _this.organizationRequest));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationRequest);
+int get hashCode {
+  final _this = this as OrganizationRequestPayload;
+  return Object.hash(runtimeType,_this.organizationRequest);
+}
 
 @override
 String toString() {
-  return 'OrganizationRequestPayload(organizationRequest: $organizationRequest)';
+  final _this = this as OrganizationRequestPayload;
+  return 'OrganizationRequestPayload(organizationRequest: ${_this.organizationRequest})';
 }
 
 
@@ -1988,7 +2043,7 @@ class _$OrganizationRequestPayloadCopyWithImpl<$Res>
 /// Create a copy of OrganizationRequestPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? organizationRequest = null,}) {
-  return _then(_self.copyWith(
+  return _then(OrganizationRequestPayload(
 organizationRequest: null == organizationRequest ? _self.organizationRequest : organizationRequest // ignore: cast_nullable_to_non_nullable
 as AdminOrganizationRequest,
   ));
@@ -2155,16 +2210,18 @@ _$OrganizationRequestPayloadCopyWith<_OrganizationRequestPayload> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrganizationRequestPayload&&(identical(other.organizationRequest, organizationRequest) || other.organizationRequest == organizationRequest));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrganizationRequestPayload&&(identical(other.organizationRequest, organizationRequest) || other.organizationRequest == organizationRequest));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationRequest);
+int get hashCode {
+    return Object.hash(runtimeType,organizationRequest);
+}
 
 @override
 String toString() {
-  return 'OrganizationRequestPayload(organizationRequest: $organizationRequest)';
+    return 'OrganizationRequestPayload(organizationRequest: $organizationRequest)';
 }
 
 
@@ -2225,16 +2282,21 @@ $ProducerRequestPayloadCopyWith<ProducerRequestPayload> get copyWith => _$Produc
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestPayload&&(identical(other.producerRequest, producerRequest) || other.producerRequest == producerRequest));
+  final _this = this as ProducerRequestPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerRequestPayload&&(identical(other.producerRequest, _this.producerRequest) || other.producerRequest == _this.producerRequest));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producerRequest);
+int get hashCode {
+  final _this = this as ProducerRequestPayload;
+  return Object.hash(runtimeType,_this.producerRequest);
+}
 
 @override
 String toString() {
-  return 'ProducerRequestPayload(producerRequest: $producerRequest)';
+  final _this = this as ProducerRequestPayload;
+  return 'ProducerRequestPayload(producerRequest: ${_this.producerRequest})';
 }
 
 
@@ -2263,7 +2325,7 @@ class _$ProducerRequestPayloadCopyWithImpl<$Res>
 /// Create a copy of ProducerRequestPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? producerRequest = null,}) {
-  return _then(_self.copyWith(
+  return _then(ProducerRequestPayload(
 producerRequest: null == producerRequest ? _self.producerRequest : producerRequest // ignore: cast_nullable_to_non_nullable
 as AdminProducerRequest,
   ));
@@ -2430,16 +2492,18 @@ _$ProducerRequestPayloadCopyWith<_ProducerRequestPayload> get copyWith => __$Pro
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerRequestPayload&&(identical(other.producerRequest, producerRequest) || other.producerRequest == producerRequest));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerRequestPayload&&(identical(other.producerRequest, producerRequest) || other.producerRequest == producerRequest));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producerRequest);
+int get hashCode {
+    return Object.hash(runtimeType,producerRequest);
+}
 
 @override
 String toString() {
-  return 'ProducerRequestPayload(producerRequest: $producerRequest)';
+    return 'ProducerRequestPayload(producerRequest: $producerRequest)';
 }
 
 
@@ -2500,16 +2564,21 @@ $OwnerPayloadCopyWith<OwnerPayload> get copyWith => _$OwnerPayloadCopyWithImpl<O
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerPayload&&(identical(other.owner, owner) || other.owner == owner));
+  final _this = this as OwnerPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerPayload&&(identical(other.owner, _this.owner) || other.owner == _this.owner));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,owner);
+int get hashCode {
+  final _this = this as OwnerPayload;
+  return Object.hash(runtimeType,_this.owner);
+}
 
 @override
 String toString() {
-  return 'OwnerPayload(owner: $owner)';
+  final _this = this as OwnerPayload;
+  return 'OwnerPayload(owner: ${_this.owner})';
 }
 
 
@@ -2538,7 +2607,7 @@ class _$OwnerPayloadCopyWithImpl<$Res>
 /// Create a copy of OwnerPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? owner = null,}) {
-  return _then(_self.copyWith(
+  return _then(OwnerPayload(
 owner: null == owner ? _self.owner : owner // ignore: cast_nullable_to_non_nullable
 as Owner,
   ));
@@ -2705,16 +2774,18 @@ _$OwnerPayloadCopyWith<_OwnerPayload> get copyWith => __$OwnerPayloadCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerPayload&&(identical(other.owner, owner) || other.owner == owner));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerPayload&&(identical(other.owner, owner) || other.owner == owner));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,owner);
+int get hashCode {
+    return Object.hash(runtimeType,owner);
+}
 
 @override
 String toString() {
-  return 'OwnerPayload(owner: $owner)';
+    return 'OwnerPayload(owner: $owner)';
 }
 
 
@@ -2775,16 +2846,21 @@ $MemberInvitationPayloadCopyWith<MemberInvitationPayload> get copyWith => _$Memb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberInvitationPayload&&(identical(other.memberInvitation, memberInvitation) || other.memberInvitation == memberInvitation));
+  final _this = this as MemberInvitationPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberInvitationPayload&&(identical(other.memberInvitation, _this.memberInvitation) || other.memberInvitation == _this.memberInvitation));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,memberInvitation);
+int get hashCode {
+  final _this = this as MemberInvitationPayload;
+  return Object.hash(runtimeType,_this.memberInvitation);
+}
 
 @override
 String toString() {
-  return 'MemberInvitationPayload(memberInvitation: $memberInvitation)';
+  final _this = this as MemberInvitationPayload;
+  return 'MemberInvitationPayload(memberInvitation: ${_this.memberInvitation})';
 }
 
 
@@ -2813,7 +2889,7 @@ class _$MemberInvitationPayloadCopyWithImpl<$Res>
 /// Create a copy of MemberInvitationPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? memberInvitation = null,}) {
-  return _then(_self.copyWith(
+  return _then(MemberInvitationPayload(
 memberInvitation: null == memberInvitation ? _self.memberInvitation : memberInvitation // ignore: cast_nullable_to_non_nullable
 as MemberInvitation,
   ));
@@ -2980,16 +3056,18 @@ _$MemberInvitationPayloadCopyWith<_MemberInvitationPayload> get copyWith => __$M
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberInvitationPayload&&(identical(other.memberInvitation, memberInvitation) || other.memberInvitation == memberInvitation));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberInvitationPayload&&(identical(other.memberInvitation, memberInvitation) || other.memberInvitation == memberInvitation));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,memberInvitation);
+int get hashCode {
+    return Object.hash(runtimeType,memberInvitation);
+}
 
 @override
 String toString() {
-  return 'MemberInvitationPayload(memberInvitation: $memberInvitation)';
+    return 'MemberInvitationPayload(memberInvitation: $memberInvitation)';
 }
 
 
@@ -3050,16 +3128,21 @@ $OwnerInvitationPayloadCopyWith<OwnerInvitationPayload> get copyWith => _$OwnerI
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerInvitationPayload&&(identical(other.ownerInvitation, ownerInvitation) || other.ownerInvitation == ownerInvitation));
+  final _this = this as OwnerInvitationPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerInvitationPayload&&(identical(other.ownerInvitation, _this.ownerInvitation) || other.ownerInvitation == _this.ownerInvitation));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,ownerInvitation);
+int get hashCode {
+  final _this = this as OwnerInvitationPayload;
+  return Object.hash(runtimeType,_this.ownerInvitation);
+}
 
 @override
 String toString() {
-  return 'OwnerInvitationPayload(ownerInvitation: $ownerInvitation)';
+  final _this = this as OwnerInvitationPayload;
+  return 'OwnerInvitationPayload(ownerInvitation: ${_this.ownerInvitation})';
 }
 
 
@@ -3088,7 +3171,7 @@ class _$OwnerInvitationPayloadCopyWithImpl<$Res>
 /// Create a copy of OwnerInvitationPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? ownerInvitation = null,}) {
-  return _then(_self.copyWith(
+  return _then(OwnerInvitationPayload(
 ownerInvitation: null == ownerInvitation ? _self.ownerInvitation : ownerInvitation // ignore: cast_nullable_to_non_nullable
 as OwnerInvitation,
   ));
@@ -3255,16 +3338,18 @@ _$OwnerInvitationPayloadCopyWith<_OwnerInvitationPayload> get copyWith => __$Own
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerInvitationPayload&&(identical(other.ownerInvitation, ownerInvitation) || other.ownerInvitation == ownerInvitation));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerInvitationPayload&&(identical(other.ownerInvitation, ownerInvitation) || other.ownerInvitation == ownerInvitation));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,ownerInvitation);
+int get hashCode {
+    return Object.hash(runtimeType,ownerInvitation);
+}
 
 @override
 String toString() {
-  return 'OwnerInvitationPayload(ownerInvitation: $ownerInvitation)';
+    return 'OwnerInvitationPayload(ownerInvitation: $ownerInvitation)';
 }
 
 
@@ -3325,16 +3410,21 @@ $BasketExchangePayloadCopyWith<BasketExchangePayload> get copyWith => _$BasketEx
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangePayload&&(identical(other.basketExchange, basketExchange) || other.basketExchange == basketExchange));
+  final _this = this as BasketExchangePayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangePayload&&(identical(other.basketExchange, _this.basketExchange) || other.basketExchange == _this.basketExchange));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,basketExchange);
+int get hashCode {
+  final _this = this as BasketExchangePayload;
+  return Object.hash(runtimeType,_this.basketExchange);
+}
 
 @override
 String toString() {
-  return 'BasketExchangePayload(basketExchange: $basketExchange)';
+  final _this = this as BasketExchangePayload;
+  return 'BasketExchangePayload(basketExchange: ${_this.basketExchange})';
 }
 
 
@@ -3363,7 +3453,7 @@ class _$BasketExchangePayloadCopyWithImpl<$Res>
 /// Create a copy of BasketExchangePayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? basketExchange = null,}) {
-  return _then(_self.copyWith(
+  return _then(BasketExchangePayload(
 basketExchange: null == basketExchange ? _self.basketExchange : basketExchange // ignore: cast_nullable_to_non_nullable
 as BasketExchange,
   ));
@@ -3530,16 +3620,18 @@ _$BasketExchangePayloadCopyWith<_BasketExchangePayload> get copyWith => __$Baske
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketExchangePayload&&(identical(other.basketExchange, basketExchange) || other.basketExchange == basketExchange));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketExchangePayload&&(identical(other.basketExchange, basketExchange) || other.basketExchange == basketExchange));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,basketExchange);
+int get hashCode {
+    return Object.hash(runtimeType,basketExchange);
+}
 
 @override
 String toString() {
-  return 'BasketExchangePayload(basketExchange: $basketExchange)';
+    return 'BasketExchangePayload(basketExchange: $basketExchange)';
 }
 
 
@@ -3600,16 +3692,21 @@ $NotificationPayloadCopyWith<NotificationPayload> get copyWith => _$Notification
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationPayload&&(identical(other.notification, notification) || other.notification == notification));
+  final _this = this as NotificationPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationPayload&&(identical(other.notification, _this.notification) || other.notification == _this.notification));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,notification);
+int get hashCode {
+  final _this = this as NotificationPayload;
+  return Object.hash(runtimeType,_this.notification);
+}
 
 @override
 String toString() {
-  return 'NotificationPayload(notification: $notification)';
+  final _this = this as NotificationPayload;
+  return 'NotificationPayload(notification: ${_this.notification})';
 }
 
 
@@ -3638,7 +3735,7 @@ class _$NotificationPayloadCopyWithImpl<$Res>
 /// Create a copy of NotificationPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? notification = null,}) {
-  return _then(_self.copyWith(
+  return _then(NotificationPayload(
 notification: null == notification ? _self.notification : notification // ignore: cast_nullable_to_non_nullable
 as AppNotification,
   ));
@@ -3805,16 +3902,18 @@ _$NotificationPayloadCopyWith<_NotificationPayload> get copyWith => __$Notificat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationPayload&&(identical(other.notification, notification) || other.notification == notification));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationPayload&&(identical(other.notification, notification) || other.notification == notification));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,notification);
+int get hashCode {
+    return Object.hash(runtimeType,notification);
+}
 
 @override
 String toString() {
-  return 'NotificationPayload(notification: $notification)';
+    return 'NotificationPayload(notification: $notification)';
 }
 
 
@@ -3875,16 +3974,21 @@ $DeviceTokenPayloadCopyWith<DeviceTokenPayload> get copyWith => _$DeviceTokenPay
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceTokenPayload&&(identical(other.deviceToken, deviceToken) || other.deviceToken == deviceToken));
+  final _this = this as DeviceTokenPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceTokenPayload&&(identical(other.deviceToken, _this.deviceToken) || other.deviceToken == _this.deviceToken));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deviceToken);
+int get hashCode {
+  final _this = this as DeviceTokenPayload;
+  return Object.hash(runtimeType,_this.deviceToken);
+}
 
 @override
 String toString() {
-  return 'DeviceTokenPayload(deviceToken: $deviceToken)';
+  final _this = this as DeviceTokenPayload;
+  return 'DeviceTokenPayload(deviceToken: ${_this.deviceToken})';
 }
 
 
@@ -3913,7 +4017,7 @@ class _$DeviceTokenPayloadCopyWithImpl<$Res>
 /// Create a copy of DeviceTokenPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? deviceToken = null,}) {
-  return _then(_self.copyWith(
+  return _then(DeviceTokenPayload(
 deviceToken: null == deviceToken ? _self.deviceToken : deviceToken // ignore: cast_nullable_to_non_nullable
 as DeviceToken,
   ));
@@ -4080,16 +4184,18 @@ _$DeviceTokenPayloadCopyWith<_DeviceTokenPayload> get copyWith => __$DeviceToken
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeviceTokenPayload&&(identical(other.deviceToken, deviceToken) || other.deviceToken == deviceToken));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeviceTokenPayload&&(identical(other.deviceToken, deviceToken) || other.deviceToken == deviceToken));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deviceToken);
+int get hashCode {
+    return Object.hash(runtimeType,deviceToken);
+}
 
 @override
 String toString() {
-  return 'DeviceTokenPayload(deviceToken: $deviceToken)';
+    return 'DeviceTokenPayload(deviceToken: $deviceToken)';
 }
 
 
@@ -4150,16 +4256,21 @@ $AttendanceEmailRequestPayloadCopyWith<AttendanceEmailRequestPayload> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceEmailRequestPayload&&(identical(other.attendanceEmailRequest, attendanceEmailRequest) || other.attendanceEmailRequest == attendanceEmailRequest));
+  final _this = this as AttendanceEmailRequestPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttendanceEmailRequestPayload&&(identical(other.attendanceEmailRequest, _this.attendanceEmailRequest) || other.attendanceEmailRequest == _this.attendanceEmailRequest));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,attendanceEmailRequest);
+int get hashCode {
+  final _this = this as AttendanceEmailRequestPayload;
+  return Object.hash(runtimeType,_this.attendanceEmailRequest);
+}
 
 @override
 String toString() {
-  return 'AttendanceEmailRequestPayload(attendanceEmailRequest: $attendanceEmailRequest)';
+  final _this = this as AttendanceEmailRequestPayload;
+  return 'AttendanceEmailRequestPayload(attendanceEmailRequest: ${_this.attendanceEmailRequest})';
 }
 
 
@@ -4188,7 +4299,7 @@ class _$AttendanceEmailRequestPayloadCopyWithImpl<$Res>
 /// Create a copy of AttendanceEmailRequestPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? attendanceEmailRequest = null,}) {
-  return _then(_self.copyWith(
+  return _then(AttendanceEmailRequestPayload(
 attendanceEmailRequest: null == attendanceEmailRequest ? _self.attendanceEmailRequest : attendanceEmailRequest // ignore: cast_nullable_to_non_nullable
 as AttendanceEmailRequest,
   ));
@@ -4355,16 +4466,18 @@ _$AttendanceEmailRequestPayloadCopyWith<_AttendanceEmailRequestPayload> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AttendanceEmailRequestPayload&&(identical(other.attendanceEmailRequest, attendanceEmailRequest) || other.attendanceEmailRequest == attendanceEmailRequest));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AttendanceEmailRequestPayload&&(identical(other.attendanceEmailRequest, attendanceEmailRequest) || other.attendanceEmailRequest == attendanceEmailRequest));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,attendanceEmailRequest);
+int get hashCode {
+    return Object.hash(runtimeType,attendanceEmailRequest);
+}
 
 @override
 String toString() {
-  return 'AttendanceEmailRequestPayload(attendanceEmailRequest: $attendanceEmailRequest)';
+    return 'AttendanceEmailRequestPayload(attendanceEmailRequest: $attendanceEmailRequest)';
 }
 
 
@@ -4425,16 +4538,21 @@ $ErrorReportPayloadCopyWith<ErrorReportPayload> get copyWith => _$ErrorReportPay
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ErrorReportPayload&&(identical(other.errorReport, errorReport) || other.errorReport == errorReport));
+  final _this = this as ErrorReportPayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ErrorReportPayload&&(identical(other.errorReport, _this.errorReport) || other.errorReport == _this.errorReport));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,errorReport);
+int get hashCode {
+  final _this = this as ErrorReportPayload;
+  return Object.hash(runtimeType,_this.errorReport);
+}
 
 @override
 String toString() {
-  return 'ErrorReportPayload(errorReport: $errorReport)';
+  final _this = this as ErrorReportPayload;
+  return 'ErrorReportPayload(errorReport: ${_this.errorReport})';
 }
 
 
@@ -4463,7 +4581,7 @@ class _$ErrorReportPayloadCopyWithImpl<$Res>
 /// Create a copy of ErrorReportPayload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? errorReport = null,}) {
-  return _then(_self.copyWith(
+  return _then(ErrorReportPayload(
 errorReport: null == errorReport ? _self.errorReport : errorReport // ignore: cast_nullable_to_non_nullable
 as ErrorReport,
   ));
@@ -4630,16 +4748,18 @@ _$ErrorReportPayloadCopyWith<_ErrorReportPayload> get copyWith => __$ErrorReport
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ErrorReportPayload&&(identical(other.errorReport, errorReport) || other.errorReport == errorReport));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ErrorReportPayload&&(identical(other.errorReport, errorReport) || other.errorReport == errorReport));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,errorReport);
+int get hashCode {
+    return Object.hash(runtimeType,errorReport);
+}
 
 @override
 String toString() {
-  return 'ErrorReportPayload(errorReport: $errorReport)';
+    return 'ErrorReportPayload(errorReport: $errorReport)';
 }
 
 

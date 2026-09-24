@@ -1,5 +1,6 @@
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Multi-select chip group for choosing coordinator(s) from a list of members.
@@ -34,7 +35,12 @@ class CoordinatorSelectorState extends State<CoordinatorSelector> {
   @override
   void didUpdateWidget(CoordinatorSelector oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialCoordinatorIds != widget.initialCoordinatorIds) {
+    // Compare by content: the parent rebuilds a fresh Set on every setState,
+    // and an identity check would wipe the user's selection each time.
+    if (!setEquals(
+      oldWidget.initialCoordinatorIds,
+      widget.initialCoordinatorIds,
+    )) {
       _selectedIds = {...widget.initialCoordinatorIds};
     }
   }

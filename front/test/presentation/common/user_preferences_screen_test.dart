@@ -1132,6 +1132,10 @@ void main() {
   group('Alert templates card', () {
     late _MockAlertTemplatesBloc alertBloc;
 
+    setUpAll(
+      () => registerFallbackValue(const AlertTemplatesEvent.saved({})),
+    );
+
     setUp(() {
       alertBloc = _MockAlertTemplatesBloc();
       whenListen(
@@ -1190,40 +1194,53 @@ void main() {
     );
 
     testWidgets(
-      '"Repartir du défaut" prefills the title and body fields with the defaults',
+      '"Repartir de l\'alerte par défaut" clears the fields so the default '
+      'message (with its real dates and names) is sent again',
       (tester) async {
         await pumpWithAlertCard(tester);
 
-        // Field starts empty (no override on the organization).
-        final titleField = tester.widget<TextField>(
-          find.byKey(const Key('alert_title_slotCancelled')),
+        await tester.enterText(
+          find.byKey(const Key('alert_body_slotCancelled')),
+          'Mon texte',
         );
-        expect(titleField.controller!.text, isEmpty);
-
         final resetButton = find.byKey(const Key('alert_reset_slotCancelled'));
         await tester.ensureVisible(resetButton);
         await tester.pump();
         await tester.tap(resetButton);
         await tester.pump();
 
-        expect(
-          tester
-              .widget<TextField>(
-                find.byKey(const Key('alert_title_slotCancelled')),
-              )
-              .controller!
-              .text,
-          'Créneau annulé',
+        for (final key in [
+          'alert_title_slotCancelled',
+          'alert_body_slotCancelled',
+        ]) {
+          expect(
+            tester.widget<TextField>(find.byKey(Key(key))).controller!.text,
+            isEmpty,
+          );
+        }
+      },
+    );
+
+    testWidgets(
+      'a custom message with a {…} placeholder is flagged and not saved — '
+      'overrides are sent verbatim, placeholders would reach members as is',
+      (tester) async {
+        await pumpWithAlertCard(tester);
+
+        await tester.enterText(
+          find.byKey(const Key('alert_body_slotCancelled')),
+          'Le créneau du {date} est annulé.',
         );
-        expect(
-          tester
-              .widget<TextField>(
-                find.byKey(const Key('alert_body_slotCancelled')),
-              )
-              .controller!
-              .text,
-          'Le créneau du {date} a été annulé.',
-        );
+        await tester.pump();
+        expect(find.text(kAlertPlaceholderMessage), findsOneWidget);
+
+        final save = find.byKey(const Key('save_alert_templates_button'));
+        await tester.ensureVisible(save);
+        await tester.pump();
+        await tester.tap(save);
+        await tester.pump();
+
+        verifyNever(() => alertBloc.add(any()));
       },
     );
   });

@@ -23,13 +23,10 @@ import persistence.changes.Upsert
 import persistence.dao.AccountDeletionLogDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OwnerSyncDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.AccountStatus
-import persistence.model.DeliveryReminders
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Owner
 import persistence.model.Server
 import persistence.model.UserPreferences
@@ -109,18 +106,6 @@ internal class OwnerTypeServiceTest {
             memberId = id.toId(),
             organizationId = orgId.toId(),
             roles = roles,
-            activeStatus = true,
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                    accessibilityOptions =
-                        AccessibilityOptions(
-                            highContrast = false,
-                            largeText = false,
-                            screenReader = false,
-                        ),
-                    lastUpdatedInstant = Instant.fromEpochMilliseconds(1_000_000L),
-                ),
             memberPreferences =
                 MemberPreferences(
                     deliveryRemindersEnabled = true,
@@ -431,5 +416,35 @@ internal class OwnerTypeServiceTest {
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
             coVerify(exactly = 1) { ownerDAO.delete("owner-1".toId(), any()) }
+        }
+
+    @Test
+    fun `GIVEN OWNER self profile edits breaking the form rules WHEN applyUpsert THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val selfOwnerAuth =
+                AuthenticatedInfo(
+                    memberId = "owner-1",
+                    firstName = "Alice",
+                    lastName = "Owner",
+                    email = "owner-1@example.com",
+                    roles = listOf(Role.OWNER),
+                )
+            val existingOwner = buildOwner(ownerId = "owner-1")
+            coEvery { ownerDAO.findById("owner-1".toId()) } returns existingOwner
+            coEvery { ownerDAO.findBySub("owner-1") } returns existingOwner
+            val invalid =
+                listOf(
+                    existingOwner.copy(firstName = " "),
+                    existingOwner.copy(lastName = ""),
+                    existingOwner.copy(email = "no-at-sign"),
+                )
+
+            invalid.forEach { incoming ->
+                val outcome = service.applyUpsert(selfOwnerAuth, buildUpsertMutation(incoming), OwnerPayload(incoming))
+
+                assertEquals(MutationStatus.REJECTED, outcome.status, "expected rejection for $incoming")
+                assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            }
+            coVerify(exactly = 0) { ownerDAO.put(any(), any()) }
         }
 }

@@ -4,6 +4,7 @@ import authentication.AuthenticatedInfo
 import authentication.Role
 import contract.ContractService
 import core.AuthorizedScopeResolver
+import core.EntityTypeService
 import deliverytemplate.DeliveryTemplateService
 import email.ActivationEmailPort
 import email.ProducerActivationEmailPort
@@ -34,6 +35,7 @@ import persistence.changes.Change
 import persistence.changes.ChangeOp
 import persistence.changes.ClientMutation
 import persistence.changes.ContractPayload
+import persistence.changes.Delete
 import persistence.changes.DeliveryTemplatePayload
 import persistence.changes.IncrementalScopeResult
 import persistence.changes.MemberPayload
@@ -52,7 +54,6 @@ import persistence.dao.ContractSyncDAO
 import persistence.dao.DeliveryTemplateSyncDAO
 import persistence.dao.ErrorReportSyncDAO
 import persistence.dao.MemberSyncDAO
-import persistence.dao.OrganizationDAO
 import persistence.dao.OrganizationRequestDAO
 import persistence.dao.OrganizationRequestSyncDAO
 import persistence.dao.OrganizationSyncDAO
@@ -63,7 +64,6 @@ import persistence.dao.ProducerRequestDAO
 import persistence.dao.ProducerRequestSyncDAO
 import persistence.dao.ProducerSyncDAO
 import persistence.dao.ProductTypeSyncDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.AppliedClientOp
 import persistence.model.BasketExchange
 import persistence.model.BasketExchangeStatus
@@ -72,13 +72,11 @@ import persistence.model.Contract
 import persistence.model.Delivery
 import persistence.model.DeliveryContract
 import persistence.model.DeliveryContractStatus
-import persistence.model.DeliveryReminders
 import persistence.model.DeliveryStatus
 import persistence.model.DeliveryTemplate
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Organization
 import persistence.model.OrganizationProducer
 import persistence.model.OrganizationProducerStatus
@@ -87,6 +85,7 @@ import persistence.model.ProducerAccount
 import persistence.model.ProducerManagementMode
 import persistence.model.ProducerOrganization
 import persistence.model.ProducerPreferences
+import persistence.model.ProducerProduct
 import persistence.model.ProducerRole
 import persistence.model.ProducerStatus
 import persistence.model.ProductType
@@ -243,7 +242,8 @@ internal class DataServiceTest {
                 DataService(
                     services =
                         listOf(
-                            ProductTypeService(productTypeDAO),
+                            ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                            NoProducerAccounts,
                             NotificationService(
                                 notificationSyncDAO = mockk(relaxed = true),
                                 authorizedScopeResolver = testScopeResolver(),
@@ -290,7 +290,8 @@ internal class DataServiceTest {
                 DataService(
                     services =
                         listOf(
-                            ProductTypeService(productTypeDAO),
+                            ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                            NoProducerAccounts,
                             NotificationService(
                                 notificationSyncDAO = mockk(relaxed = true),
                                 authorizedScopeResolver = testScopeResolver(),
@@ -332,7 +333,8 @@ internal class DataServiceTest {
                 DataService(
                     services =
                         listOf(
-                            ProductTypeService(productTypeDAO),
+                            ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                            NoProducerAccounts,
                             NotificationService(
                                 notificationSyncDAO = mockk(relaxed = true),
                                 authorizedScopeResolver = testScopeResolver(),
@@ -420,7 +422,8 @@ internal class DataServiceTest {
                 DataService(
                     services =
                         listOf(
-                            ProductTypeService(productTypeDAO),
+                            ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                            NoProducerAccounts,
                             NotificationService(
                                 notificationSyncDAO = mockk(relaxed = true),
                                 authorizedScopeResolver = testScopeResolver(),
@@ -457,7 +460,8 @@ internal class DataServiceTest {
         DataService(
             services =
                 listOf(
-                    ProductTypeService(productTypeDAO),
+                    ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                    NoProducerAccounts,
                     NotificationService(
                         notificationSyncDAO = mockk(relaxed = true),
                         authorizedScopeResolver = testScopeResolver(),
@@ -533,6 +537,7 @@ internal class DataServiceTest {
                     createdInstant = now,
                     lastUpdatedInstant = now,
                     managementMode = ProducerManagementMode.NO_ACCOUNT,
+                    products = listOf(ProducerProduct("Oeufs", "pt-1".toId(), emptyList())),
                     organizations = emptyList(),
                     userPreferences =
                         UserPreferences(
@@ -729,13 +734,6 @@ internal class DataServiceTest {
                 Member(
                     memberId = "member-1".toId(),
                     organizationId = "org-1".toId(),
-                    activeStatus = true,
-                    memberSettings =
-                        MemberSettings(
-                            deliveryReminders = DeliveryReminders(1, "08:00"),
-                            accessibilityOptions = AccessibilityOptions(false, false, false),
-                            lastUpdatedInstant = Instant.fromEpochMilliseconds(1),
-                        ),
                     memberPreferences = MemberPreferences(true, true, Instant.fromEpochMilliseconds(1)),
                     userPreferences = UserPreferences(true, false, Instant.fromEpochMilliseconds(1)),
                     userSettings =
@@ -758,7 +756,7 @@ internal class DataServiceTest {
                                         coEvery { listAll() } returns emptyList()
                                     },
                                 organizationRequestDAO = mockk<OrganizationRequestDAO>(relaxed = true),
-                                organizationDAO = mockk<OrganizationDAO>(relaxed = true),
+                                organizationSyncDAO = mockk<OrganizationSyncDAO>(relaxed = true),
                                 activationTokenDAO = mockk<ActivationTokenDAO>(relaxed = true),
                                 activationEmailPort = mockk<ActivationEmailPort>(relaxed = true),
                                 rejectionEmailPort = mockk<RejectionEmailPort>(relaxed = true),
@@ -903,6 +901,7 @@ internal class DataServiceTest {
                     createdInstant = now,
                     lastUpdatedInstant = now,
                     managementMode = ProducerManagementMode.NO_ACCOUNT,
+                    products = listOf(ProducerProduct("Oeufs", "pt-1".toId(), emptyList())),
                     organizations =
                         listOf(
                             ProducerOrganization(
@@ -1052,6 +1051,7 @@ internal class DataServiceTest {
                     name = "Morning Template",
                     standardStartTime = "08:00",
                     standardEndTime = "12:00",
+                    desiredVolunteerCount = 1,
                 )
             val organization =
                 Organization(
@@ -1167,6 +1167,7 @@ internal class DataServiceTest {
                     createdInstant = now,
                     lastUpdatedInstant = now,
                     managementMode = ProducerManagementMode.NO_ACCOUNT,
+                    products = listOf(ProducerProduct("Oeufs", "pt-1".toId(), emptyList())),
                     organizations = emptyList(),
                     userPreferences =
                         UserPreferences(
@@ -1786,6 +1787,7 @@ internal class DataServiceTest {
                     name = "Template",
                     standardStartTime = "18:00",
                     standardEndTime = "20:00",
+                    desiredVolunteerCount = 1,
                 )
 
             val response =
@@ -1804,4 +1806,21 @@ internal class DataServiceTest {
             assertEquals(MutationStatus.REJECTED, outcome.status)
             coVerify(exactly = 0) { deliveryTemplateSyncDAO.put(any(), any()) }
         }
+}
+
+/** The producer scope now also carries the producer's own account: nothing to sync in these tests. */
+private object NoProducerAccounts : EntityTypeService<ProducerAccountPayload>(EntityType.ProducerAccount) {
+    override suspend fun applyUpsert(
+        auth: AuthenticatedInfo,
+        mutation: ClientMutation,
+        payload: ProducerAccountPayload,
+    ): MutationOutcome = error("unused")
+
+    override suspend fun applyDelete(
+        auth: AuthenticatedInfo,
+        mutation: ClientMutation,
+        op: Delete,
+    ): MutationOutcome = error("unused")
+
+    override suspend fun snapshot(auth: AuthenticatedInfo): List<ProducerAccountPayload> = emptyList()
 }

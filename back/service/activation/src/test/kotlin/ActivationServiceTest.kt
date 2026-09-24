@@ -9,8 +9,12 @@ import id.toId
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
+import persistence.changes.Change
+import persistence.changes.ProducerAccountPayload
+import persistence.changes.SyncScope
 import persistence.dao.ActivationTokenDAO
 import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberSyncDAO
@@ -27,16 +31,19 @@ import persistence.model.MemberAccountStatus
 import persistence.model.MemberInvitation
 import persistence.model.MemberInvitationStatus
 import persistence.model.Organization
+import persistence.model.OrganizationProducerStatus
 import persistence.model.OrganizationRequest
 import persistence.model.OrganizationRequestStatus
 import persistence.model.OrganizationType
 import persistence.model.OwnerInvitation
 import persistence.model.OwnerInvitationStatus
 import persistence.model.ProducerAccount
+import persistence.model.ProducerOrganization
 import persistence.model.ProducerRequest
 import persistence.model.ProducerRequestStatus
 import persistence.model.Server
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
@@ -292,6 +299,81 @@ internal class ActivationServiceTest {
                 )
             }
             coVerify { activationTokenDAO.markActivated(token.token, any()) }
+        }
+
+    @Test
+    fun `GIVEN valid PRODUCER token WHEN describe THEN returns account info without side effects`() =
+        runTest {
+            val token = buildProducerToken()
+            val request = buildProducerRequest(token.producerRequestId!!)
+            coEvery { activationTokenDAO.findByToken(token.token) } returns token
+            coEvery { producerRequestDAO.findById(token.producerRequestId!!) } returns request
+
+            val result = service.describe(token.token)
+
+            val success = assertIs<ActivationOutcome.Success>(result)
+            assertEquals(ActivationKind.PRODUCER, success.response.kind)
+            assertEquals(token.adminEmail, success.response.email)
+            assertEquals(request.producerName, success.response.organizationName)
+            coVerify(exactly = 0) { userProvisioningPort.createProducerUser(any(), any(), any(), any()) }
+            coVerify(exactly = 0) { activationTokenDAO.markActivated(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN expired or activated token WHEN describe THEN mirrors activate outcomes`() =
+        runTest {
+            val expired = buildProducerToken(expired = true)
+            val activated = buildProducerToken(activated = true)
+            coEvery { activationTokenDAO.findByToken(expired.token) } returns expired
+            coEvery { activationTokenDAO.findByToken(activated.token) } returns activated
+            coEvery { activationTokenDAO.findByToken("unknown") } returns null
+
+            assertIs<ActivationOutcome.Expired>(service.describe(expired.token))
+            assertIs<ActivationOutcome.AlreadyActivated>(service.describe(activated.token))
+            assertIs<ActivationOutcome.NotFound>(service.describe("unknown"))
+        }
+
+    @Test
+    fun `GIVEN producer pending activation WHEN activate THEN pending flag is cleared with an instance-owner change`() =
+        runTest {
+            val token = buildProducerToken()
+            val request = buildProducerRequest(token.producerRequestId!!)
+            val producerAccount =
+                ProducerAccount(
+                    producerAccountId = token.producerAccountId!!,
+                    name = request.producerName,
+                    contactEmail = token.adminEmail,
+                    activeStatus = true,
+                    createdInstant = Clock.System.now(),
+                    lastUpdatedInstant = Clock.System.now(),
+                    organizations =
+                        listOf(
+                            ProducerOrganization(
+                                organizationId = "org-1".toId(),
+                                associationInstant = Clock.System.now(),
+                                status = OrganizationProducerStatus.ACTIVE,
+                            ),
+                        ),
+                    pendingActivation = true,
+                )
+            coEvery { activationTokenDAO.findByToken(token.token) } returns token
+            coEvery { producerRequestDAO.findById(token.producerRequestId!!) } returns request
+            coEvery { producerAccountSyncDAO.findById(token.producerAccountId!!) } returns producerAccount
+            coEvery { serverDAO.list() } returns listOf(Server("server-1".toId(), "Test", "https://example.com"))
+
+            val result = service.activate(token.token, "password456")
+
+            assertIs<ActivationOutcome.Success>(result)
+            val changesSlot = slot<List<Change>>()
+            coVerify {
+                producerAccountSyncDAO.updatePendingActivation(token.producerAccountId!!, false, capture(changesSlot))
+            }
+            val scopes = changesSlot.captured.map { it.scopeKey }.toSet()
+            assertEquals(setOf(SyncScope.InstanceOwner.key, SyncScope.Organization("org-1").key), scopes)
+            changesSlot.captured.forEach { change ->
+                val payload = change.payload as ProducerAccountPayload
+                assertEquals(false, payload.producerAccount.pendingActivation)
+            }
         }
 
     @Test

@@ -46,7 +46,7 @@ const _kMemberId = 'member-1';
 
 Member _buildMember({
   String memberId = _kMemberId,
-  MemberAccountStatus? accountStatus = MemberAccountStatus.active,
+  MemberAccountStatus accountStatus = MemberAccountStatus.active,
 }) => Member(
   memberId: memberId,
   organizationId: 'org-1',

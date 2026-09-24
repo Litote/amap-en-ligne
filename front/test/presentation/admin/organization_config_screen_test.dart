@@ -266,5 +266,61 @@ void main() {
         expect(find.text("L'email de contact est requis"), findsOneWidget);
       },
     );
+
+    testWidgets(
+      'the timezone is picked from a list (never free text: an unknown zone '
+      'makes the whole sync request undecodable server-side)',
+      (tester) async {
+        when(() => repo.watch(_tenantId)).thenAnswer((_) => Stream.value(_org));
+
+        await _pump(tester, repo: repo);
+
+        expect(
+          find.byWidgetPredicate(
+            (w) =>
+                w is DropdownButtonFormField<String> &&
+                w.key == const Key('org_config_timezone'),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Europe/Paris'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'the default language is required and must be a two-letter code',
+      (tester) async {
+        when(() => repo.watch(_tenantId)).thenAnswer((_) => Stream.value(_org));
+
+        await _pump(tester, repo: repo);
+        final saveButton = find.byKey(const Key('org_config_save_button'));
+
+        for (final invalid in ['   ', 'français']) {
+          await tester.enterText(
+            find.byKey(const Key('org_config_language')),
+            invalid,
+          );
+          await _ensureVisible(tester, saveButton);
+          await tester.tap(saveButton);
+          await tester.pump();
+
+          expect(
+            find.text('Code de langue à deux lettres attendu (ex. fr).'),
+            findsOneWidget,
+            reason: invalid,
+          );
+        }
+        verifyNever(
+          () => repo.updateIdentity(
+            currentOrg: any(named: 'currentOrg'),
+            name: any(named: 'name'),
+            contactEmail: any(named: 'contactEmail'),
+            timezone: any(named: 'timezone'),
+            defaultLanguage: any(named: 'defaultLanguage'),
+            website: any(named: 'website'),
+          ),
+        );
+      },
+    );
   });
 }

@@ -3,6 +3,7 @@ package deliverytemplate
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
+import id.generateId
 import id.toId
 import org.koin.core.annotation.Single
 import persistence.changes.Change
@@ -35,11 +36,30 @@ class DeliveryTemplateService(
         if (payload.deliveryTemplate.organizationId.id != organizationId) {
             return rejected(mutation, MutationErrorCode.FORBIDDEN, "organization_id mismatch")
         }
-        deliveryTemplateSyncDAO.put(
-            payload.deliveryTemplate,
-            buildUpsertChange(organizationId, payload.deliveryTemplate),
-        )
-        return applied(mutation, payload.deliveryTemplate.deliveryTemplateId.id)
+        payload.deliveryTemplate.validationError()?.let {
+            return rejected(mutation, MutationErrorCode.INVALID_PAYLOAD, it)
+        }
+        val template = withRealId(organizationId, payload.deliveryTemplate)
+        deliveryTemplateSyncDAO.put(template, buildUpsertChange(organizationId, template))
+        return applied(mutation, template.deliveryTemplateId.id)
+    }
+
+    /**
+     * Allocates a real id for a `tmp_*` creation. A template already stored under a
+     * `tmp_*` id (created before ids were allocated server-side) keeps it, so editing
+     * it does not duplicate it.
+     */
+    private suspend fun withRealId(
+        organizationId: String,
+        template: DeliveryTemplate,
+    ): DeliveryTemplate {
+        val id = template.deliveryTemplateId
+        if (!id.id.startsWith(ClientMutation.TMP_ID_PREFIX)) return template
+        val alreadyStored =
+            deliveryTemplateSyncDAO
+                .getByOrganizationId(organizationId.toId())
+                .any { it.deliveryTemplateId == id }
+        return if (alreadyStored) template else template.copy(deliveryTemplateId = generateId())
     }
 
     override suspend fun applyDelete(

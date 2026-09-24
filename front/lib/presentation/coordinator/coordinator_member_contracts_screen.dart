@@ -421,12 +421,13 @@ class _CoordinatorMemberContractsScreenState
           children: [
             Text('Retirer ce contrat de ${memberDisplayName(member)} ?'),
             const SizedBox(height: 8),
-            Text(
-              contractProductLabel(contract, organization),
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
+            Text(contract.name, style: Theme.of(context).textTheme.titleSmall),
+            Text(contractProductLabel(contract, organization)),
             const SizedBox(height: 4),
-            Text('${contract.minDeliveryDate} → ${contract.maxDeliveryDate}'),
+            Text(
+              '${formatContractDate(contract.minDeliveryDate)} → '
+              '${formatContractDate(contract.maxDeliveryDate)}',
+            ),
           ],
         ),
         actions: [
@@ -728,50 +729,54 @@ class _MemberContractDetail extends StatelessWidget {
             !isContractEffectivelyEnded(c),
       ),
     );
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ..._buildHeader(context),
-            const SizedBox(height: 16),
-            Text(
-              'Contrats attribués',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            if (assignedContracts.isEmpty)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 16),
-                child: Text('Aucun contrat attribué pour le moment.'),
-              )
-            else
-              ...assignedContracts.map(
-                (c) => _buildAssignedContractCard(context, c),
-              ),
-            const SizedBox(height: 8),
-            Text(
-              'Contrats disponibles à l\'affectation',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            ..._buildAvailableSection(context, availableContracts),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton(
-                onPressed: saving || selectedContractIds.isEmpty
-                    ? null
-                    : onAssignSelection,
-                child: Text(
-                  saving ? 'Enregistrement...' : 'AFFECTER LA SÉLECTION',
-                ),
-              ),
-            ),
-          ],
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ..._buildHeader(context),
+        const SizedBox(height: 16),
+        Text(
+          'Contrats attribués',
+          style: Theme.of(context).textTheme.titleSmall,
         ),
-      ),
+        const SizedBox(height: 8),
+        if (assignedContracts.isEmpty)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: Text('Aucun contrat attribué pour le moment.'),
+          )
+        else
+          ...assignedContracts.map(
+            (c) => _buildAssignedContractCard(context, c),
+          ),
+        const SizedBox(height: 8),
+        Text(
+          'Contrats disponibles à l\'affectation',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        const SizedBox(height: 8),
+        ..._buildAvailableSection(context, availableContracts),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton(
+            onPressed: saving || selectedContractIds.isEmpty
+                ? null
+                : onAssignSelection,
+            child: Text(saving ? 'Enregistrement...' : 'AFFECTER LA SÉLECTION'),
+          ),
+        ),
+      ],
+    );
+    // In the desktop side panel (bounded height) the whole detail scrolls — the
+    // assigned-contract cards alone can exceed the viewport. On mobile the
+    // page itself is already scrollable.
+    return Card(
+      child: shrinkWrap
+          ? Padding(padding: const EdgeInsets.all(16), child: content)
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: content,
+            ),
     );
   }
 
@@ -816,8 +821,9 @@ class _MemberContractDetail extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              title: Text(contractProductLabel(contract, organization)),
+              title: Text(contract.name),
               subtitle: Text(
+                '${contractProductLabel(contract, organization)} • '
                 '${contractStatusLabel(contractStatusView(contract))} • ${contract.seasonYear}',
               ),
               trailing: Row(
@@ -917,14 +923,16 @@ class _MemberContractDetail extends StatelessWidget {
         ),
       ];
     }
-    final listView = ListView.builder(
-      shrinkWrap: shrinkWrap,
-      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : null,
-      itemCount: availableContracts.length,
-      itemBuilder: (context, index) =>
-          _buildAvailableContractTile(context, availableContracts[index]),
-    );
-    return [if (shrinkWrap) listView else Expanded(child: listView)];
+    // Always shrink-wrapped: the enclosing detail scrolls as a whole.
+    return [
+      ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: availableContracts.length,
+        itemBuilder: (context, index) =>
+            _buildAvailableContractTile(context, availableContracts[index]),
+      ),
+    ];
   }
 
   Widget _buildAvailableContractTile(BuildContext context, Contract contract) {
@@ -946,8 +954,10 @@ class _MemberContractDetail extends StatelessWidget {
                   contract.contractId,
                   selected: value ?? false,
                 ),
-          title: Text(contractProductLabel(contract, organization)),
-          subtitle: Text('${contract.seasonYear}'),
+          title: Text(contract.name),
+          subtitle: Text(
+            '${contractProductLabel(contract, organization)} • ${contract.seasonYear}',
+          ),
         ),
         if (selected && options.isNotEmpty)
           Padding(

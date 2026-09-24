@@ -28,6 +28,10 @@ internal fun Route.publicRoute(
     }
     post("/v1/organization-requests") {
         val body = call.receive<CreateOrganizationRequestBody>()
+        body.validationError()?.let { reason ->
+            call.respond(HttpStatusCode.BadRequest, httpService.invalidPayloadError(call.request.path(), reason))
+            return@post
+        }
         when (val outcome = publicService.createOrganizationRequest(body)) {
             is CreateOrganizationOutcome.Success -> {
                 call.respond(HttpStatusCode.Created, outcome.result)
@@ -43,6 +47,10 @@ internal fun Route.publicRoute(
     }
     post("/v1/producer-requests") {
         val body = call.receive<CreateProducerRequestBody>()
+        body.validationError()?.let { reason ->
+            call.respond(HttpStatusCode.BadRequest, httpService.invalidPayloadError(call.request.path(), reason))
+            return@post
+        }
         when (val outcome = publicService.createProducerRequest(body)) {
             is CreateProducerOutcome.Success -> {
                 call.respond(HttpStatusCode.Created, outcome.result)
@@ -58,6 +66,10 @@ internal fun Route.publicRoute(
     }
     post("/v1/public/member-join-requests") {
         val body = call.receive<CreateMemberJoinRequestBody>()
+        body.validationError()?.let { reason ->
+            call.respond(HttpStatusCode.BadRequest, httpService.invalidPayloadError(call.request.path(), reason))
+            return@post
+        }
         when (val outcome = publicService.createMemberJoinRequest(body)) {
             is CreateMemberJoinOutcome.Success -> {
                 call.respond(HttpStatusCode.Created, outcome.result)
@@ -67,6 +79,13 @@ internal fun Route.publicRoute(
                 call.respond(
                     HttpStatusCode.Conflict,
                     httpService.conflictError(call.request.path(), outcome.field),
+                )
+            }
+
+            CreateMemberJoinOutcome.OrganizationNotFound -> {
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    httpService.notFoundError(call.request.path()),
                 )
             }
         }

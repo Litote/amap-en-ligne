@@ -265,5 +265,76 @@ void main() {
         await exchangeController.close();
       },
     );
+
+    testWidgets(
+      'the request dialog recaps the date of the offered basket, not only '
+      'the contract',
+      (tester) async {
+        const offeredDelivery = Delivery(
+          deliveryId: 'd-15',
+          organizationId: 'org-1',
+          scheduledDate: '2026-10-15T18:00:00',
+          status: DeliveryStatus.planned,
+          minVolunteersRequired: 1,
+          contracts: [
+            DeliveryContract(
+              contractId: 'c-1',
+              basketQuantity: 2,
+              deliveryDescription: 'Oeufs automne',
+              status: DeliveryContractStatus.pending,
+            ),
+          ],
+        );
+        const org = Organization(
+          organizationId: 'org-1',
+          name: 'Test AMAP',
+          contactEmail: 'contact@test.com',
+          deliveries: [offeredDelivery],
+        );
+        const me = Member(
+          memberId: 'sub-001',
+          organizationId: 'org-1',
+          firstName: 'Bob',
+        );
+        const offer = BasketExchange(
+          basketExchangeId: 'bx-1',
+          organizationId: 'org-1',
+          deliveryId: 'd-15',
+          contractId: 'c-1',
+          offeringMemberId: 'm-other',
+          status: BasketExchangeStatus.open,
+          createdAt: '2026-09-27T12:00:00Z',
+        );
+        when(() => orgRepo.watch(any())).thenAnswer((_) => Stream.value(org));
+        when(
+          () => memberRepo.watchMyMember(any()),
+        ).thenAnswer((_) => Stream.value(me));
+        when(
+          () => exchangeRepo.watch(any()),
+        ).thenAnswer((_) => Stream.value(const [offer]));
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          exchangeRepo: exchangeRepo,
+          contractRepo: contractRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('DEMANDER ÉCHANGE'));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.descendant(
+            of: find.byType(Dialog),
+            matching: find.text('📅 Jeudi 15 oct. • Oeufs automne'),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
   });
 }

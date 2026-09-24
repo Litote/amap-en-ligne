@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'notification.dart';
@@ -9,6 +9,7 @@ part of 'notification.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $AppNotificationCopyWith<AppNotification> get copyWith => _$AppNotificationCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppNotification&&(identical(other.notificationId, notificationId) || other.notificationId == notificationId)&&(identical(other.recipientScope, recipientScope) || other.recipientScope == recipientScope)&&(identical(other.type, type) || other.type == type)&&(identical(other.category, category) || other.category == category)&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.relatedEntityId, relatedEntityId) || other.relatedEntityId == relatedEntityId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.readAt, readAt) || other.readAt == readAt));
+  final _this = this as AppNotification;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppNotification&&(identical(other.notificationId, _this.notificationId) || other.notificationId == _this.notificationId)&&(identical(other.recipientScope, _this.recipientScope) || other.recipientScope == _this.recipientScope)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.body, _this.body) || other.body == _this.body)&&(identical(other.deepLink, _this.deepLink) || other.deepLink == _this.deepLink)&&(identical(other.relatedEntityId, _this.relatedEntityId) || other.relatedEntityId == _this.relatedEntityId)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.readAt, _this.readAt) || other.readAt == _this.readAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,notificationId,recipientScope,type,category,title,body,deepLink,relatedEntityId,createdAt,readAt);
+int get hashCode {
+  final _this = this as AppNotification;
+  return Object.hash(runtimeType,_this.notificationId,_this.recipientScope,_this.type,_this.category,_this.title,_this.body,_this.deepLink,_this.relatedEntityId,_this.createdAt,_this.readAt);
+}
 
 @override
 String toString() {
-  return 'AppNotification(notificationId: $notificationId, recipientScope: $recipientScope, type: $type, category: $category, title: $title, body: $body, deepLink: $deepLink, relatedEntityId: $relatedEntityId, createdAt: $createdAt, readAt: $readAt)';
+  final _this = this as AppNotification;
+  return 'AppNotification(notificationId: ${_this.notificationId}, recipientScope: ${_this.recipientScope}, type: ${_this.type}, category: ${_this.category}, title: ${_this.title}, body: ${_this.body}, deepLink: ${_this.deepLink}, relatedEntityId: ${_this.relatedEntityId}, createdAt: ${_this.createdAt}, readAt: ${_this.readAt})';
 }
 
 
@@ -66,7 +72,7 @@ class _$AppNotificationCopyWithImpl<$Res>
 /// Create a copy of AppNotification
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? notificationId = null,Object? recipientScope = null,Object? type = null,Object? category = null,Object? title = null,Object? body = null,Object? deepLink = freezed,Object? relatedEntityId = freezed,Object? createdAt = null,Object? readAt = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(AppNotification(
 notificationId: null == notificationId ? _self.notificationId : notificationId // ignore: cast_nullable_to_non_nullable
 as String,recipientScope: null == recipientScope ? _self.recipientScope : recipientScope // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -245,16 +251,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppNotification&&(identical(other.notificationId, notificationId) || other.notificationId == notificationId)&&(identical(other.recipientScope, recipientScope) || other.recipientScope == recipientScope)&&(identical(other.type, type) || other.type == type)&&(identical(other.category, category) || other.category == category)&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.relatedEntityId, relatedEntityId) || other.relatedEntityId == relatedEntityId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.readAt, readAt) || other.readAt == readAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppNotification&&(identical(other.notificationId, notificationId) || other.notificationId == notificationId)&&(identical(other.recipientScope, recipientScope) || other.recipientScope == recipientScope)&&(identical(other.type, type) || other.type == type)&&(identical(other.category, category) || other.category == category)&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.relatedEntityId, relatedEntityId) || other.relatedEntityId == relatedEntityId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.readAt, readAt) || other.readAt == readAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,notificationId,recipientScope,type,category,title,body,deepLink,relatedEntityId,createdAt,readAt);
+int get hashCode {
+    return Object.hash(runtimeType,notificationId,recipientScope,type,category,title,body,deepLink,relatedEntityId,createdAt,readAt);
+}
 
 @override
 String toString() {
-  return 'AppNotification(notificationId: $notificationId, recipientScope: $recipientScope, type: $type, category: $category, title: $title, body: $body, deepLink: $deepLink, relatedEntityId: $relatedEntityId, createdAt: $createdAt, readAt: $readAt)';
+    return 'AppNotification(notificationId: $notificationId, recipientScope: $recipientScope, type: $type, category: $category, title: $title, body: $body, deepLink: $deepLink, relatedEntityId: $relatedEntityId, createdAt: $createdAt, readAt: $readAt)';
 }
 
 

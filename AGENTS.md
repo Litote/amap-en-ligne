@@ -22,8 +22,10 @@
 
 | Category                   | Required Actions                                                                                          |
 |----------------------------|-----------------------------------------------------------------------------------------------------------|
+| **Dependency proposal**    | When adding or exposing a library (e.g. declaring a transitive runtime-only artifact for compilation) is the cleanest solution, **stop and ask the user explicitly** — name the library, the exact version (aligned on the existing catalog), and why — instead of silently working around the missing dependency with a hack. Implement it only after approval. |
 | **Testing**                | When you try to fix a bug, start by adding the test and THEN fix the bug. Add tests for all logic changes |
 | **E2E testing**            | When adding a user-facing feature that involves auth, sync, or a cross-component flow: add a cross-component E2E test. Kotlin side in `acceptance/e2e/src/test/kotlin/e2e/` (extends `E2eTestSupport`), Flutter side in `front/test/acceptance/cross_component/` (tagged `cross-component`). Use the `acceptance-tests` skill for guidance. |
+| **Validation on both sides** | Every business/input rule enforced by a front form (required field, format, length, range, cross-field ordering such as start < end, uniqueness…) MUST also be enforced by the back (route or `EntityTypeService`, rejecting with `400 INVALID_PAYLOAD` / `MutationErrorCode.INVALID_PAYLOAD`), and every back rule a user can hit MUST be checked by the front before submitting (with a French message). The front check is UX; the back check is the source of truth — never rely on one side only. When adding or changing a rule, add a test on **both** sides. |
 | **Imports**                | Use single imports only                                                                                   |
 | **Language**               | Write all code, comments, and documentation in English                                                    |
 | **Visibility**             | Prefer private by default — use `_prefix` convention in Dart                                              |

@@ -1,12 +1,31 @@
 name: Deploy — Lambda (AWS)
 
+# The automatic dev deploy is NOT triggered by `push` here: `ci.yml` calls this
+# workflow (`workflow_call`) on a push to main only once the back, front and
+# acceptance test jobs have passed. `pull_request` still builds the native image
+# and runs `terraform plan` (no deploy); `workflow_dispatch` is the manual deploy.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'back/**'
-      - 'infra/**'
-      - '.github/workflows/deploy-lambda.yml'
+  workflow_call:
+    inputs:
+      target:
+        description: 'Deployment target'
+        type: string
+        default: dev
+    # Declared optional: environment secrets (production / prod) are resolved by
+    # the jobs' `environment:` and take precedence over what the caller passes.
+    secrets:
+      GRADLE_ENCRYPTION_KEY:
+        required: false
+      AWS_ROLE_ARN:
+        required: false
+      TF_VAR_COGNITO_CLIENT_ID:
+        required: false
+      TF_VAR_INITIAL_OWNER_EMAIL:
+        required: false
+      TF_VAR_INITIAL_OWNER_TEMP_PASSWORD:
+        required: false
+      TF_VAR_SES_FROM_EMAIL:
+        required: false
   pull_request:
     branches: [main]
     paths:
@@ -122,6 +141,7 @@ jobs:
           TF_VAR_initial_owner_email: ${{ secrets.TF_VAR_INITIAL_OWNER_EMAIL }}
           TF_VAR_initial_owner_temp_password: ${{ secrets.TF_VAR_INITIAL_OWNER_TEMP_PASSWORD }}
           TF_VAR_ses_from_email: ${{ secrets.TF_VAR_SES_FROM_EMAIL }}
+          TF_VAR_ses_create_identity: ${{ vars.SES_CREATE_IDENTITY || 'true' }}
 
   # ── Terraform apply ───────────────────────────────────────────────────────
   # Push to main → dev. Manual dispatch → the chosen target (dev or prod).
@@ -178,6 +198,7 @@ jobs:
           TF_VAR_initial_owner_email: ${{ secrets.TF_VAR_INITIAL_OWNER_EMAIL }}
           TF_VAR_initial_owner_temp_password: ${{ secrets.TF_VAR_INITIAL_OWNER_TEMP_PASSWORD }}
           TF_VAR_ses_from_email: ${{ secrets.TF_VAR_SES_FROM_EMAIL }}
+          TF_VAR_ses_create_identity: ${{ vars.SES_CREATE_IDENTITY || 'true' }}
 
   # ── Lambda function code deploy ───────────────────────────────────────────
   deploy-function:

@@ -21,8 +21,7 @@ enum MemberContractStatus {
 
 /// Lifecycle status of an AMAP member — mirrors back's `MemberAccountStatus`.
 ///
-/// Nullable on legacy rows created before the PII migration; UIs should fall
-/// back to [Member.activeStatus] when [Member.accountStatus] is null.
+/// Defaults to [active] when absent from the wire.
 ///
 /// Note: `PENDING_INVITATION` and `EXPIRED_INVITATION` have been removed from
 /// the wire. Those states now live on `MemberInvitation.status`, not on
@@ -52,14 +51,14 @@ abstract class Member with _$Member {
     @JsonKey(name: 'member_id') required String memberId,
     @JsonKey(name: 'organization_id') required String organizationId,
     @Default({Role.volunteer}) Set<Role> roles,
-    @JsonKey(name: 'active_status') @Default(true) bool activeStatus,
     @JsonKey(name: 'first_name') String? firstName,
     @JsonKey(name: 'last_name') String? lastName,
     String? email,
     String? phone,
-    @JsonKey(name: 'account_status') MemberAccountStatus? accountStatus,
+    @JsonKey(name: 'account_status')
+    @Default(MemberAccountStatus.active)
+    MemberAccountStatus accountStatus,
     @Default([]) List<MemberContract> contracts,
-    @JsonKey(name: 'member_settings') Map<String, dynamic>? memberSettings,
     @JsonKey(name: 'member_preferences') MemberPreferences? memberPreferences,
     @JsonKey(name: 'user_preferences') UserPreferences? userPreferences,
     @JsonKey(name: 'user_settings') Map<String, dynamic>? userSettings,

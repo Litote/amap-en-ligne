@@ -84,6 +84,28 @@ void main() {
   });
 
   group('create mode', () {
+    testWidgets(
+      'the required error disappears as soon as the name is typed after a '
+      'failed submit',
+      (tester) async {
+        await tester.pumpWidget(
+          _buildScreen(repo: repo, syncBloc: syncBloc, productTypeId: null),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.widgetWithText(FilledButton, 'Enregistrer'));
+        await tester.pumpAndSettle();
+        expect(find.text('Ce champ est requis.'), findsOneWidget);
+
+        await tester.enterText(
+          find.widgetWithText(TextFormField, 'Nom *'),
+          'Légumes',
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Ce champ est requis.'), findsNothing);
+      },
+    );
+
     testWidgets('delete button is not shown', (tester) async {
       await tester.pumpWidget(
         _buildScreen(repo: repo, syncBloc: syncBloc, productTypeId: null),
@@ -92,6 +114,46 @@ void main() {
 
       expect(find.byKey(const Key('product_type_delete')), findsNothing);
     });
+  });
+
+  group('save keeps the component catalog', () {
+    testWidgets(
+      'saving the form after the catalog was edited elsewhere does not wipe '
+      'the components (the latest cached product type is updated)',
+      (tester) async {
+        registerFallbackValue(_existingProductType);
+        when(() => repo.update(any())).thenAnswer((_) async {});
+        await tester.pumpWidget(
+          _buildScreen(
+            repo: repo,
+            syncBloc: syncBloc,
+            productTypeId: _productTypeId,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Meanwhile a component was added from the catalog screen.
+        when(() => repo.watch(_tenantId)).thenAnswer(
+          (_) => Stream.value([
+            _existingProductType.copyWith(
+              itemTypes: const [ItemType(id: 'it-1', name: 'Comté')],
+            ),
+          ]),
+        );
+        await tester.enterText(
+          find.widgetWithText(TextFormField, 'Nom *'),
+          'Fromages',
+        );
+        await tester.tap(find.widgetWithText(FilledButton, 'Enregistrer'));
+        await tester.pumpAndSettle();
+
+        final saved =
+            verify(() => repo.update(captureAny())).captured.single
+                as ProductType;
+        expect(saved.name, 'Fromages');
+        expect(saved.itemTypes.map((it) => it.name), ['Comté']);
+      },
+    );
   });
 
   group('edit mode', () {

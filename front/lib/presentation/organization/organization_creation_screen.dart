@@ -1,5 +1,6 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
 import 'package:amap_en_ligne/domain/model/organization_creation_request.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/common/terms_checkbox_tile.dart';
 import 'package:amap_en_ligne/presentation/organization/organization_creation_bloc.dart';
 import 'package:amap_en_ligne/presentation/organization/organization_creation_event.dart';
@@ -330,13 +331,13 @@ class _FormViewState extends State<_FormView> {
 
   static String? _requireNonEmpty(String? v) {
     if (v == null || v.trim().isEmpty) return 'Requis.';
-    return null;
+    return requiredName(v);
   }
 
   static String? _validateEmail(String? v) {
     final val = v?.trim() ?? '';
     if (val.isEmpty) return 'L\'email est requis.';
-    if (!val.contains('@') || !val.contains('.')) {
+    if (!isValidEmail(val)) {
       return 'Saisissez un email valide.';
     }
     return null;

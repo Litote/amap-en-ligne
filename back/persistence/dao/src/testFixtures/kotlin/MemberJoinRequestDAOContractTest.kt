@@ -67,6 +67,30 @@ abstract class MemberJoinRequestDAOContractTest {
         }
 
     @Test
+    fun `GIVEN a pending request WHEN existsPendingByEmailAndOrganization with a different email case THEN returns true`() =
+        runTest {
+            val orgId = "org-${UUID.randomUUID()}"
+            val email = "${UUID.randomUUID()}@example.com"
+            dao.create(buildRequest(orgId = orgId, email = email))
+
+            assertTrue(dao.existsPendingByEmailAndOrganization(email.uppercase(), orgId.toId()))
+        }
+
+    @Test
+    fun `GIVEN a pending request among other requests of the org WHEN existsPendingByEmailAndOrganization THEN returns true`() =
+        runTest {
+            val orgId = "org-${UUID.randomUUID()}"
+            val email = "${UUID.randomUUID()}@example.com"
+            // Other requests share the org partition: the lookup must not stop
+            // at the first item it reads.
+            repeat(10) { dao.create(buildRequest(orgId = orgId)) }
+            dao.create(buildRequest(orgId = orgId, email = email))
+            repeat(10) { dao.create(buildRequest(orgId = orgId)) }
+
+            assertTrue(dao.existsPendingByEmailAndOrganization(email, orgId.toId()))
+        }
+
+    @Test
     fun `GIVEN no request WHEN existsPendingByEmailAndOrganization THEN returns false`() =
         runTest {
             assertFalse(dao.existsPendingByEmailAndOrganization("nobody@example.com", "org-unknown".toId()))

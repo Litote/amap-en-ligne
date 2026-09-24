@@ -65,12 +65,23 @@ class $ProductTypesTable extends ProductTypes
         $ProductTypesTable.$convertersupportedBasketSizes,
       );
   @override
+  late final GeneratedColumnWithTypeConverter<List<ItemType>, String>
+  itemTypes = GeneratedColumn<String>(
+    'item_types',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  ).withConverter<List<ItemType>>($ProductTypesTable.$converteritemTypes);
+  @override
   List<GeneratedColumn> get $columns => [
     producerAccountId,
     productTypeId,
     name,
     description,
     supportedBasketSizes,
+    itemTypes,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -155,6 +166,12 @@ class $ProductTypesTable extends ProductTypes
               data['${effectivePrefix}supported_basket_sizes'],
             )!,
           ),
+      itemTypes: $ProductTypesTable.$converteritemTypes.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}item_types'],
+        )!,
+      ),
     );
   }
 
@@ -165,6 +182,8 @@ class $ProductTypesTable extends ProductTypes
 
   static TypeConverter<List<BasketSize>, String>
   $convertersupportedBasketSizes = const _BasketSizesConverter();
+  static TypeConverter<List<ItemType>, String> $converteritemTypes =
+      const _ItemTypesConverter();
 }
 
 class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
@@ -173,12 +192,16 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
   final String name;
   final String? description;
   final List<BasketSize> supportedBasketSizes;
+
+  /// Component catalog (`ItemType`s, inline SVG included), JSON-encoded.
+  final List<ItemType> itemTypes;
   const ProductTypeRow({
     required this.producerAccountId,
     required this.productTypeId,
     required this.name,
     this.description,
     required this.supportedBasketSizes,
+    required this.itemTypes,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -196,6 +219,11 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
         ),
       );
     }
+    {
+      map['item_types'] = Variable<String>(
+        $ProductTypesTable.$converteritemTypes.toSql(itemTypes),
+      );
+    }
     return map;
   }
 
@@ -208,6 +236,7 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
           ? const Value.absent()
           : Value(description),
       supportedBasketSizes: Value(supportedBasketSizes),
+      itemTypes: Value(itemTypes),
     );
   }
 
@@ -224,6 +253,7 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
       supportedBasketSizes: serializer.fromJson<List<BasketSize>>(
         json['supportedBasketSizes'],
       ),
+      itemTypes: serializer.fromJson<List<ItemType>>(json['itemTypes']),
     );
   }
   @override
@@ -237,6 +267,7 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
       'supportedBasketSizes': serializer.toJson<List<BasketSize>>(
         supportedBasketSizes,
       ),
+      'itemTypes': serializer.toJson<List<ItemType>>(itemTypes),
     };
   }
 
@@ -246,12 +277,14 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
     String? name,
     Value<String?> description = const Value.absent(),
     List<BasketSize>? supportedBasketSizes,
+    List<ItemType>? itemTypes,
   }) => ProductTypeRow(
     producerAccountId: producerAccountId ?? this.producerAccountId,
     productTypeId: productTypeId ?? this.productTypeId,
     name: name ?? this.name,
     description: description.present ? description.value : this.description,
     supportedBasketSizes: supportedBasketSizes ?? this.supportedBasketSizes,
+    itemTypes: itemTypes ?? this.itemTypes,
   );
   ProductTypeRow copyWithCompanion(ProductTypesCompanion data) {
     return ProductTypeRow(
@@ -268,6 +301,7 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
       supportedBasketSizes: data.supportedBasketSizes.present
           ? data.supportedBasketSizes.value
           : this.supportedBasketSizes,
+      itemTypes: data.itemTypes.present ? data.itemTypes.value : this.itemTypes,
     );
   }
 
@@ -278,7 +312,8 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
           ..write('productTypeId: $productTypeId, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
-          ..write('supportedBasketSizes: $supportedBasketSizes')
+          ..write('supportedBasketSizes: $supportedBasketSizes, ')
+          ..write('itemTypes: $itemTypes')
           ..write(')'))
         .toString();
   }
@@ -290,6 +325,7 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
     name,
     description,
     supportedBasketSizes,
+    itemTypes,
   );
   @override
   bool operator ==(Object other) =>
@@ -299,7 +335,8 @@ class ProductTypeRow extends DataClass implements Insertable<ProductTypeRow> {
           other.productTypeId == this.productTypeId &&
           other.name == this.name &&
           other.description == this.description &&
-          other.supportedBasketSizes == this.supportedBasketSizes);
+          other.supportedBasketSizes == this.supportedBasketSizes &&
+          other.itemTypes == this.itemTypes);
 }
 
 class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
@@ -308,6 +345,7 @@ class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
   final Value<String> name;
   final Value<String?> description;
   final Value<List<BasketSize>> supportedBasketSizes;
+  final Value<List<ItemType>> itemTypes;
   final Value<int> rowid;
   const ProductTypesCompanion({
     this.producerAccountId = const Value.absent(),
@@ -315,6 +353,7 @@ class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.supportedBasketSizes = const Value.absent(),
+    this.itemTypes = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProductTypesCompanion.insert({
@@ -323,6 +362,7 @@ class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
     required String name,
     this.description = const Value.absent(),
     required List<BasketSize> supportedBasketSizes,
+    this.itemTypes = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : producerAccountId = Value(producerAccountId),
        productTypeId = Value(productTypeId),
@@ -334,6 +374,7 @@ class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
     Expression<String>? name,
     Expression<String>? description,
     Expression<String>? supportedBasketSizes,
+    Expression<String>? itemTypes,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -343,6 +384,7 @@ class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
       if (description != null) 'description': description,
       if (supportedBasketSizes != null)
         'supported_basket_sizes': supportedBasketSizes,
+      if (itemTypes != null) 'item_types': itemTypes,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -353,6 +395,7 @@ class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
     Value<String>? name,
     Value<String?>? description,
     Value<List<BasketSize>>? supportedBasketSizes,
+    Value<List<ItemType>>? itemTypes,
     Value<int>? rowid,
   }) {
     return ProductTypesCompanion(
@@ -361,6 +404,7 @@ class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
       name: name ?? this.name,
       description: description ?? this.description,
       supportedBasketSizes: supportedBasketSizes ?? this.supportedBasketSizes,
+      itemTypes: itemTypes ?? this.itemTypes,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -387,6 +431,11 @@ class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
         ),
       );
     }
+    if (itemTypes.present) {
+      map['item_types'] = Variable<String>(
+        $ProductTypesTable.$converteritemTypes.toSql(itemTypes.value),
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -401,6 +450,7 @@ class ProductTypesCompanion extends UpdateCompanion<ProductTypeRow> {
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('supportedBasketSizes: $supportedBasketSizes, ')
+          ..write('itemTypes: $itemTypes, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -650,9 +700,9 @@ class $PendingMutationsTable extends PendingMutations
   late final GeneratedColumn<String> scopeKey = GeneratedColumn<String>(
     'scope_key',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _payloadJsonMeta = const VerificationMeta(
     'payloadJson',
@@ -711,6 +761,8 @@ class $PendingMutationsTable extends PendingMutations
         _scopeKeyMeta,
         scopeKey.isAcceptableOrUnknown(data['scope_key']!, _scopeKeyMeta),
       );
+    } else if (isInserting) {
+      context.missing(_scopeKeyMeta);
     }
     if (data.containsKey('payload_json')) {
       context.handle(
@@ -747,7 +799,7 @@ class $PendingMutationsTable extends PendingMutations
       scopeKey: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}scope_key'],
-      ),
+      )!,
       payloadJson: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}payload_json'],
@@ -767,12 +819,12 @@ class $PendingMutationsTable extends PendingMutations
 
 class PendingMutation extends DataClass implements Insertable<PendingMutation> {
   final String clientOpId;
-  final String? scopeKey;
+  final String scopeKey;
   final String payloadJson;
   final int createdAt;
   const PendingMutation({
     required this.clientOpId,
-    this.scopeKey,
+    required this.scopeKey,
     required this.payloadJson,
     required this.createdAt,
   });
@@ -780,9 +832,7 @@ class PendingMutation extends DataClass implements Insertable<PendingMutation> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['client_op_id'] = Variable<String>(clientOpId);
-    if (!nullToAbsent || scopeKey != null) {
-      map['scope_key'] = Variable<String>(scopeKey);
-    }
+    map['scope_key'] = Variable<String>(scopeKey);
     map['payload_json'] = Variable<String>(payloadJson);
     map['created_at'] = Variable<int>(createdAt);
     return map;
@@ -791,9 +841,7 @@ class PendingMutation extends DataClass implements Insertable<PendingMutation> {
   PendingMutationsCompanion toCompanion(bool nullToAbsent) {
     return PendingMutationsCompanion(
       clientOpId: Value(clientOpId),
-      scopeKey: scopeKey == null && nullToAbsent
-          ? const Value.absent()
-          : Value(scopeKey),
+      scopeKey: Value(scopeKey),
       payloadJson: Value(payloadJson),
       createdAt: Value(createdAt),
     );
@@ -806,7 +854,7 @@ class PendingMutation extends DataClass implements Insertable<PendingMutation> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PendingMutation(
       clientOpId: serializer.fromJson<String>(json['clientOpId']),
-      scopeKey: serializer.fromJson<String?>(json['scopeKey']),
+      scopeKey: serializer.fromJson<String>(json['scopeKey']),
       payloadJson: serializer.fromJson<String>(json['payloadJson']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
     );
@@ -816,7 +864,7 @@ class PendingMutation extends DataClass implements Insertable<PendingMutation> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'clientOpId': serializer.toJson<String>(clientOpId),
-      'scopeKey': serializer.toJson<String?>(scopeKey),
+      'scopeKey': serializer.toJson<String>(scopeKey),
       'payloadJson': serializer.toJson<String>(payloadJson),
       'createdAt': serializer.toJson<int>(createdAt),
     };
@@ -824,12 +872,12 @@ class PendingMutation extends DataClass implements Insertable<PendingMutation> {
 
   PendingMutation copyWith({
     String? clientOpId,
-    Value<String?> scopeKey = const Value.absent(),
+    String? scopeKey,
     String? payloadJson,
     int? createdAt,
   }) => PendingMutation(
     clientOpId: clientOpId ?? this.clientOpId,
-    scopeKey: scopeKey.present ? scopeKey.value : this.scopeKey,
+    scopeKey: scopeKey ?? this.scopeKey,
     payloadJson: payloadJson ?? this.payloadJson,
     createdAt: createdAt ?? this.createdAt,
   );
@@ -871,7 +919,7 @@ class PendingMutation extends DataClass implements Insertable<PendingMutation> {
 
 class PendingMutationsCompanion extends UpdateCompanion<PendingMutation> {
   final Value<String> clientOpId;
-  final Value<String?> scopeKey;
+  final Value<String> scopeKey;
   final Value<String> payloadJson;
   final Value<int> createdAt;
   final Value<int> rowid;
@@ -884,11 +932,12 @@ class PendingMutationsCompanion extends UpdateCompanion<PendingMutation> {
   });
   PendingMutationsCompanion.insert({
     required String clientOpId,
-    this.scopeKey = const Value.absent(),
+    required String scopeKey,
     required String payloadJson,
     required int createdAt,
     this.rowid = const Value.absent(),
   }) : clientOpId = Value(clientOpId),
+       scopeKey = Value(scopeKey),
        payloadJson = Value(payloadJson),
        createdAt = Value(createdAt);
   static Insertable<PendingMutation> custom({
@@ -909,7 +958,7 @@ class PendingMutationsCompanion extends UpdateCompanion<PendingMutation> {
 
   PendingMutationsCompanion copyWith({
     Value<String>? clientOpId,
-    Value<String?>? scopeKey,
+    Value<String>? scopeKey,
     Value<String>? payloadJson,
     Value<int>? createdAt,
     Value<int>? rowid,
@@ -6188,6 +6237,7 @@ typedef $$ProductTypesTableCreateCompanionBuilder =
       required String name,
       Value<String?> description,
       required List<BasketSize> supportedBasketSizes,
+      Value<List<ItemType>> itemTypes,
       Value<int> rowid,
     });
 typedef $$ProductTypesTableUpdateCompanionBuilder =
@@ -6197,6 +6247,7 @@ typedef $$ProductTypesTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> description,
       Value<List<BasketSize>> supportedBasketSizes,
+      Value<List<ItemType>> itemTypes,
       Value<int> rowid,
     });
 
@@ -6234,6 +6285,12 @@ class $$ProductTypesTableFilterComposer
     column: $table.supportedBasketSizes,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
+
+  ColumnWithTypeConverterFilters<List<ItemType>, List<ItemType>, String>
+  get itemTypes => $composableBuilder(
+    column: $table.itemTypes,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
 }
 
 class $$ProductTypesTableOrderingComposer
@@ -6267,6 +6324,11 @@ class $$ProductTypesTableOrderingComposer
 
   ColumnOrderings<String> get supportedBasketSizes => $composableBuilder(
     column: $table.supportedBasketSizes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get itemTypes => $composableBuilder(
+    column: $table.itemTypes,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -6303,6 +6365,9 @@ class $$ProductTypesTableAnnotationComposer
     column: $table.supportedBasketSizes,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<List<ItemType>, String> get itemTypes =>
+      $composableBuilder(column: $table.itemTypes, builder: (column) => column);
 }
 
 class $$ProductTypesTableTableManager
@@ -6342,6 +6407,7 @@ class $$ProductTypesTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<List<BasketSize>> supportedBasketSizes =
                     const Value.absent(),
+                Value<List<ItemType>> itemTypes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductTypesCompanion(
                 producerAccountId: producerAccountId,
@@ -6349,6 +6415,7 @@ class $$ProductTypesTableTableManager
                 name: name,
                 description: description,
                 supportedBasketSizes: supportedBasketSizes,
+                itemTypes: itemTypes,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -6358,6 +6425,7 @@ class $$ProductTypesTableTableManager
                 required String name,
                 Value<String?> description = const Value.absent(),
                 required List<BasketSize> supportedBasketSizes,
+                Value<List<ItemType>> itemTypes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductTypesCompanion.insert(
                 producerAccountId: producerAccountId,
@@ -6365,10 +6433,20 @@ class $$ProductTypesTableTableManager
                 name: name,
                 description: description,
                 supportedBasketSizes: supportedBasketSizes,
+                itemTypes: itemTypes,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$ProductTypesTable, ProductTypeRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ProductTypesTable,
+                    ProductTypeRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -6511,7 +6589,16 @@ class $$SyncCursorsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$SyncCursorsTable, SyncCursor>(table),
+                  BaseReferences<_$AppDatabase, $SyncCursorsTable, SyncCursor>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -6538,7 +6625,7 @@ typedef $$SyncCursorsTableProcessedTableManager =
 typedef $$PendingMutationsTableCreateCompanionBuilder =
     PendingMutationsCompanion Function({
       required String clientOpId,
-      Value<String?> scopeKey,
+      required String scopeKey,
       required String payloadJson,
       required int createdAt,
       Value<int> rowid,
@@ -6546,7 +6633,7 @@ typedef $$PendingMutationsTableCreateCompanionBuilder =
 typedef $$PendingMutationsTableUpdateCompanionBuilder =
     PendingMutationsCompanion Function({
       Value<String> clientOpId,
-      Value<String?> scopeKey,
+      Value<String> scopeKey,
       Value<String> payloadJson,
       Value<int> createdAt,
       Value<int> rowid,
@@ -6676,7 +6763,7 @@ class $$PendingMutationsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> clientOpId = const Value.absent(),
-                Value<String?> scopeKey = const Value.absent(),
+                Value<String> scopeKey = const Value.absent(),
                 Value<String> payloadJson = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -6690,7 +6777,7 @@ class $$PendingMutationsTableTableManager
           createCompanionCallback:
               ({
                 required String clientOpId,
-                Value<String?> scopeKey = const Value.absent(),
+                required String scopeKey,
                 required String payloadJson,
                 required int createdAt,
                 Value<int> rowid = const Value.absent(),
@@ -6702,7 +6789,16 @@ class $$PendingMutationsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$PendingMutationsTable, PendingMutation>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $PendingMutationsTable,
+                    PendingMutation
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -6847,7 +6943,16 @@ class $$OrganizationsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$OrganizationsTable, OrganizationRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $OrganizationsTable,
+                    OrganizationRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -7019,7 +7124,18 @@ class $$ProducerAccountsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$ProducerAccountsTable, ProducerAccountRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ProducerAccountsTable,
+                    ProducerAccountRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -7184,7 +7300,16 @@ class $$MembersTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$MembersTable, MemberRow>(table),
+                  BaseReferences<_$AppDatabase, $MembersTable, MemberRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -7356,7 +7481,18 @@ class $$MemberInvitationsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$MemberInvitationsTable, MemberInvitationRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $MemberInvitationsTable,
+                    MemberInvitationRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -7533,7 +7669,18 @@ class $$MemberJoinRequestsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$MemberJoinRequestsTable, MemberJoinRequestRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $MemberJoinRequestsTable,
+                    MemberJoinRequestRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -7703,7 +7850,16 @@ class $$ContractsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$ContractsTable, ContractRow>(table),
+                  BaseReferences<_$AppDatabase, $ContractsTable, ContractRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -7878,7 +8034,18 @@ class $$DeliveryTemplatesTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$DeliveryTemplatesTable, DeliveryTemplateRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $DeliveryTemplatesTable,
+                    DeliveryTemplateRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -8037,7 +8204,19 @@ class $$OrganizationRequestsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<
+                    $OrganizationRequestsTable,
+                    OrganizationRequestRow
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $OrganizationRequestsTable,
+                    OrganizationRequestRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -8190,7 +8369,18 @@ class $$ProducerRequestsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$ProducerRequestsTable, ProducerRequestRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ProducerRequestsTable,
+                    ProducerRequestRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -8473,7 +8663,16 @@ class $$OwnersTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$OwnersTable, OwnerRow>(table),
+                  BaseReferences<_$AppDatabase, $OwnersTable, OwnerRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -8621,7 +8820,18 @@ class $$OwnerInvitationsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$OwnerInvitationsTable, OwnerInvitationRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $OwnerInvitationsTable,
+                    OwnerInvitationRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -8959,7 +9169,16 @@ class $$BasketExchangesTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$BasketExchangesTable, BasketExchangeRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $BasketExchangesTable,
+                    BasketExchangeRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -9125,7 +9344,16 @@ class $$NotificationsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$NotificationsTable, NotificationRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $NotificationsTable,
+                    NotificationRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -9291,7 +9519,16 @@ class $$DeviceTokensTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$DeviceTokensTable, DeviceTokenRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $DeviceTokensTable,
+                    DeviceTokenRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -9535,7 +9772,19 @@ class $$AttendanceEmailRequestsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<
+                    $AttendanceEmailRequestsTable,
+                    AttendanceEmailRequestRow
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $AttendanceEmailRequestsTable,
+                    AttendanceEmailRequestRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -9707,7 +9956,16 @@ class $$ErrorReportsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$ErrorReportsTable, ErrorReportRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ErrorReportsTable,
+                    ErrorReportRow
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),

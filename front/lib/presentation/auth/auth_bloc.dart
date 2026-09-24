@@ -38,6 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthViewState> {
     on<AuthStarted>(_onStarted);
     on<AuthSessionChanged>(_onSessionChanged);
     on<AuthOrganizationIdChanged>(_onOrganizationIdChanged);
+    on<AuthProducerAccountIdChanged>(_onProducerAccountIdChanged);
     on<AuthMemberNameUpdated>(_onMemberNameUpdated);
     on<AuthMemberRolesUpdated>(_onMemberRolesUpdated);
     on<AuthLoginSubmitted>(_onLoginSubmitted);
@@ -59,6 +60,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthViewState> {
   late final StreamSubscription<AuthState> _subscription;
   StreamSubscription<String?>? _orgIdSub;
   StreamSubscription<Object?>? _memberSub;
+
+  /// Owners and producers have no `Member` row: their display name comes from
+  /// the `Owner` / `ProducerAccount` cache instead.
+  StreamSubscription<Object?>? _identitySub;
+  StreamSubscription<String?>? _producerAccountIdSub;
+  String? _producerSub;
   bool _logoutRequested = false;
 
   Future<void> _onStarted(
@@ -87,17 +94,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthViewState> {
     _orgIdSub = null;
     unawaited(_memberSub?.cancel());
     _memberSub = null;
+    unawaited(_identitySub?.cancel());
+    _identitySub = null;
+    unawaited(_producerAccountIdSub?.cancel());
+    _producerAccountIdSub = null;
+    _producerSub = null;
 
     switch (session) {
       case Authenticated(:final producerId, :final roles):
         _logoutRequested = false;
         final role = roles.resolveRole();
+        // A token refresh keeps the resolved tenant; another user must not
+        // inherit it (it would become their tenant until re-resolved).
+        final sameUser = state.producerId == producerId;
 
         emit(
           state.copyWith(
             submitting: false,
             logoutRequested: false,
             producerId: producerId,
+            organizationId: sameUser ? state.organizationId : null,
+            producerAccountId: sameUser ? state.producerAccountId : null,
             isAdmin: roles.any((r) => r == 'ADMIN' || r == 'OWNER'),
             role: role,
             memberRoles: roles.resolveMemberRoles(),
@@ -108,46 +125,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthViewState> {
           ),
         );
 
-        // Watch the authenticated user's member data to populate display name and roles.
-        _memberSub = _memberRepository
-            .watchMyMember(producerId)
-            .listen(
-              (member) {
-                if (member != null) {
-                  add(
-                    AuthEvent.memberNameUpdated(
-                      member.firstName,
-                      member.lastName,
-                    ),
-                  );
-                  // Also update roles from the local member data when they change,
-                  // so the menu reflects role changes immediately after a sync
-                  // (without waiting for a JWT refresh, which may not happen).
-                  add(AuthEvent.memberRolesUpdated(member.roles));
-                }
-              },
-              onError: (Object _, StackTrace _) {
-                // Ignore errors from the member stream
-              },
-            );
-
-        if (role != UserRole.producer) {
-          // Subscribe to organization ID changes and emit whenever it changes.
-          // Use `await emit.forEach` to properly handle the stream and avoid
-          // emitting after the event handler completes.
-          _orgIdSub = _db
-              .watchEffectiveOrganizationId(producerId)
-              .listen(
-                (orgId) {
-                  // Emit organization ID updates as internal events to avoid
-                  // emitting after event handler completes.
-                  add(AuthEvent.organizationIdChanged(orgId));
-                },
-                onError: (Object _, StackTrace _) {
-                  // Ignore errors from the organization stream
-                },
-              );
-        }
+        _watchIdentity(producerId, role);
       case Unauthenticated():
         final manualLogout = _logoutRequested;
         final sessionExpired = state.producerId != null && !manualLogout;
@@ -155,6 +133,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthViewState> {
         emit(
           state.copyWith(
             producerId: null,
+            organizationId: null,
+            producerAccountId: null,
             firstName: null,
             lastName: null,
             isAdmin: false,
@@ -168,11 +148,93 @@ class AuthBloc extends Bloc<AuthEvent, AuthViewState> {
     }
   }
 
+  /// Subscribes to the local identity data (member, owner/producer name and
+  /// effective organization) of the authenticated user.
+  void _watchIdentity(String producerId, UserRole role) {
+    // Watch the authenticated user's member data to populate display name and roles.
+    _memberSub = _memberRepository
+        .watchMyMember(producerId)
+        .listen(
+          (member) {
+            if (member != null) {
+              add(
+                AuthEvent.memberNameUpdated(member.firstName, member.lastName),
+              );
+              // Also update roles from the local member data when they change,
+              // so the menu reflects role changes immediately after a sync
+              // (without waiting for a JWT refresh, which may not happen).
+              add(AuthEvent.memberRolesUpdated(member.roles));
+            }
+          },
+          onError: (Object _, StackTrace _) {
+            // Ignore errors from the member stream
+          },
+        );
+
+    _identitySub = switch (role) {
+      UserRole.owner => _db.watchOwnerById(producerId).listen((owner) {
+        if (owner != null) {
+          add(AuthEvent.memberNameUpdated(owner.firstName, owner.lastName));
+        }
+      }, onError: (Object _, StackTrace _) {}),
+      // The producer's display name is watched in
+      // [_onProducerAccountIdChanged], once its account id is resolved.
+      UserRole.producer => null,
+      _ => null,
+    };
+
+    if (role == UserRole.producer) {
+      // The producer's tenant is its account id, resolved from the synced
+      // `producer-account:{id}` scope — it may differ from the auth `sub`
+      // (account created by an approved producer request).
+      _producerSub = producerId;
+      _producerAccountIdSub = _db.watchEffectiveProducerAccountId().listen(
+        (accountId) => add(AuthEvent.producerAccountIdChanged(accountId)),
+        onError: (Object _, StackTrace _) {},
+      );
+    }
+
+    if (role != UserRole.producer) {
+      // Subscribe to organization ID changes and emit whenever it changes.
+      // Use `await emit.forEach` to properly handle the stream and avoid
+      // emitting after the event handler completes.
+      _orgIdSub = _db
+          .watchEffectiveOrganizationId(producerId)
+          .listen(
+            (orgId) {
+              // Emit organization ID updates as internal events to avoid
+              // emitting after event handler completes.
+              add(AuthEvent.organizationIdChanged(orgId));
+            },
+            onError: (Object _, StackTrace _) {
+              // Ignore errors from the organization stream
+            },
+          );
+    }
+  }
+
   void _onOrganizationIdChanged(
     AuthOrganizationIdChanged event,
     Emitter<AuthViewState> emit,
   ) {
     emit(state.copyWith(organizationId: event.organizationId));
+  }
+
+  void _onProducerAccountIdChanged(
+    AuthProducerAccountIdChanged event,
+    Emitter<AuthViewState> emit,
+  ) {
+    emit(state.copyWith(producerAccountId: event.producerAccountId));
+    // Show the producer account's name in the menu; falls back to the sub
+    // before the first sync.
+    unawaited(_identitySub?.cancel());
+    _identitySub = _db
+        .watchProducerAccountById(event.producerAccountId ?? _producerSub ?? '')
+        .listen((producerAccount) {
+          if (producerAccount != null) {
+            add(AuthEvent.memberNameUpdated(producerAccount.name, null));
+          }
+        }, onError: (Object _, StackTrace _) {});
   }
 
   void _onMemberNameUpdated(
@@ -234,6 +296,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthViewState> {
     await _subscription.cancel();
     await _orgIdSub?.cancel();
     await _memberSub?.cancel();
+    await _identitySub?.cancel();
+    await _producerAccountIdSub?.cancel();
     return super.close();
   }
 }

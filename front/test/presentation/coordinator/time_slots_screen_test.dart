@@ -101,6 +101,7 @@ void main() {
 
   setUpAll(() async {
     await initializeDateFormatting('fr');
+    registerFallbackValue(buildOrg());
   });
 
   setUp(() {
@@ -285,5 +286,125 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('track:d-9'), findsOneWidget);
+  });
+  group('swipe to delete', () {
+    Future<void> swipeDelivery(WidgetTester tester) async {
+      await tester.drag(find.byType(Dismissible), const Offset(-600, 0));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('asks for confirmation and keeps the delivery on cancel', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        repo: repo,
+        contractRepo: contractRepo,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+      orgStream.add(
+        buildOrg(
+          deliveries: [
+            buildDelivery(deliveryId: 'd-9', scheduledDate: tomorrowIso()),
+          ],
+        ),
+      );
+      await tester.pump();
+
+      await swipeDelivery(tester);
+
+      expect(find.text('Supprimer la livraison ?'), findsOneWidget);
+      await tester.tap(find.text('ANNULER'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('MODIFIER'), findsOneWidget);
+      verifyNever(
+        () => repo.deleteDelivery(
+          currentOrg: any(named: 'currentOrg'),
+          deliveryId: any(named: 'deliveryId'),
+        ),
+      );
+    });
+
+    testWidgets('deletes the delivery once confirmed', (tester) async {
+      when(
+        () => repo.deleteDelivery(
+          currentOrg: any(named: 'currentOrg'),
+          deliveryId: any(named: 'deliveryId'),
+        ),
+      ).thenAnswer((_) async {});
+      await _pump(
+        tester,
+        repo: repo,
+        contractRepo: contractRepo,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+      orgStream.add(
+        buildOrg(
+          deliveries: [
+            buildDelivery(deliveryId: 'd-9', scheduledDate: tomorrowIso()),
+          ],
+        ),
+      );
+      await tester.pump();
+
+      await swipeDelivery(tester);
+      await tester.tap(find.text('SUPPRIMER'));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => repo.deleteDelivery(
+          currentOrg: any(named: 'currentOrg'),
+          deliveryId: 'd-9',
+        ),
+      ).called(1);
+    });
+
+    testWidgets('warns about the volunteers who will lose their slot', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        repo: repo,
+        contractRepo: contractRepo,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+      orgStream.add(
+        buildOrg(
+          deliveries: [
+            buildDelivery(
+              deliveryId: 'd-9',
+              scheduledDate: tomorrowIso(),
+              contracts: [
+                buildContract(
+                  slots: [
+                    buildSlot(
+                      registrations: [
+                        buildRegistration(memberId: 'm-2'),
+                        buildRegistration(
+                          memberId: 'm-3',
+                          status: RegistrationStatus.cancelled,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+
+      await swipeDelivery(tester);
+
+      expect(
+        find.textContaining('1 bénévole inscrit perdra son inscription'),
+        findsOneWidget,
+      );
+    });
   });
 }

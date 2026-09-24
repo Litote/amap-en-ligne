@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'delivery_template_bloc.dart';
@@ -9,6 +9,7 @@ part of 'delivery_template_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$DeliveryTemplateEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryTemplateEvent()';
+    return 'DeliveryTemplateEvent()';
 }
 
 
@@ -197,7 +198,7 @@ class _LoadTemplates implements DeliveryTemplateEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadTemplates);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadTemplates);
 }
 
 
@@ -206,7 +207,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryTemplateEvent.loadTemplates()';
+    return 'DeliveryTemplateEvent.loadTemplates()';
 }
 
 
@@ -234,16 +235,18 @@ _$CreateTemplateCopyWith<_CreateTemplate> get copyWith => __$CreateTemplateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateTemplate&&(identical(other.template, template) || other.template == template));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateTemplate&&(identical(other.template, template) || other.template == template));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,template);
+int get hashCode {
+    return Object.hash(runtimeType,template);
+}
 
 @override
 String toString() {
-  return 'DeliveryTemplateEvent.createTemplate(template: $template)';
+    return 'DeliveryTemplateEvent.createTemplate(template: $template)';
 }
 
 
@@ -309,16 +312,18 @@ _$UpdateTemplateCopyWith<_UpdateTemplate> get copyWith => __$UpdateTemplateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateTemplate&&(identical(other.template, template) || other.template == template));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateTemplate&&(identical(other.template, template) || other.template == template));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,template);
+int get hashCode {
+    return Object.hash(runtimeType,template);
+}
 
 @override
 String toString() {
-  return 'DeliveryTemplateEvent.updateTemplate(template: $template)';
+    return 'DeliveryTemplateEvent.updateTemplate(template: $template)';
 }
 
 
@@ -385,16 +390,18 @@ _$DeleteTemplateCopyWith<_DeleteTemplate> get copyWith => __$DeleteTemplateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeleteTemplate&&(identical(other.templateId, templateId) || other.templateId == templateId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeleteTemplate&&(identical(other.templateId, templateId) || other.templateId == templateId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,templateId,organizationId);
+int get hashCode {
+    return Object.hash(runtimeType,templateId,organizationId);
+}
 
 @override
 String toString() {
-  return 'DeliveryTemplateEvent.deleteTemplate(templateId: $templateId, organizationId: $organizationId)';
+    return 'DeliveryTemplateEvent.deleteTemplate(templateId: $templateId, organizationId: $organizationId)';
 }
 
 
@@ -442,7 +449,7 @@ mixin _$DeliveryTemplateState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateState);
 }
 
 
@@ -451,7 +458,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryTemplateState()';
+    return 'DeliveryTemplateState()';
 }
 
 
@@ -619,7 +626,7 @@ class DeliveryTemplateInitial implements DeliveryTemplateState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateInitial);
 }
 
 
@@ -628,7 +635,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryTemplateState.initial()';
+    return 'DeliveryTemplateState.initial()';
 }
 
 
@@ -651,7 +658,7 @@ class DeliveryTemplateLoading implements DeliveryTemplateState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateLoading);
 }
 
 
@@ -660,7 +667,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryTemplateState.loading()';
+    return 'DeliveryTemplateState.loading()';
 }
 
 
@@ -673,7 +680,7 @@ String toString() {
 
 
 class DeliveryTemplateLoaded implements DeliveryTemplateState {
-  const DeliveryTemplateLoaded(final  List<DeliveryTemplate> templates): _templates = templates;
+  const DeliveryTemplateLoaded( List<DeliveryTemplate> templates): _templates = templates;
   
 
  final  List<DeliveryTemplate> _templates;
@@ -694,16 +701,18 @@ $DeliveryTemplateLoadedCopyWith<DeliveryTemplateLoaded> get copyWith => _$Delive
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateLoaded&&const DeepCollectionEquality().equals(other._templates, _templates));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateLoaded&&const DeepCollectionEquality().equals(other.templates, _templates));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_templates));
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_templates));
+}
 
 @override
 String toString() {
-  return 'DeliveryTemplateState.loaded(templates: $templates)';
+    return 'DeliveryTemplateState.loaded(templates: $templates)';
 }
 
 
@@ -760,16 +769,18 @@ $DeliveryTemplateErrorCopyWith<DeliveryTemplateError> get copyWith => _$Delivery
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryTemplateError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'DeliveryTemplateState.error(message: $message)';
+    return 'DeliveryTemplateState.error(message: $message)';
 }
 
 

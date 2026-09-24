@@ -15,6 +15,7 @@ import 'package:amap_en_ligne/domain/model/notification.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_creation_request.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
+import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/model/user_preferences.dart';
 import 'package:amap_en_ligne/domain/sync/change.dart';
@@ -291,7 +292,7 @@ void main() {
           'member_id': 'm-1',
           'organization_id': 'org-1',
           'roles': ['COORDINATOR', 'ADMIN'],
-          'active_status': true,
+          'account_status': 'ACTIVE',
           'contracts': <Map<String, Object?>>[],
         },
       };
@@ -310,7 +311,7 @@ void main() {
           'member_id': 'm-2',
           'organization_id': 'org-1',
           'roles': ['VOLUNTEER'],
-          'active_status': true,
+          'account_status': 'ACTIVE',
           'contracts': <Map<String, Object?>>[],
         },
       };
@@ -322,6 +323,10 @@ void main() {
       final wire = wireOf(payload);
       final inner = wire['member'] as Map<String, dynamic>;
       expect(inner.containsKey('sub'), isFalse);
+      // active_status is removed from wire.
+      expect(inner.containsKey('active_status'), isFalse);
+      // account_status is always present (non-nullable, default ACTIVE).
+      expect(inner['account_status'], 'ACTIVE');
     });
 
     test('Member discriminator round-trip with PII + accountStatus ACTIVE', () {
@@ -331,7 +336,6 @@ void main() {
           'member_id': 'm-pii',
           'organization_id': 'org-1',
           'roles': ['VOLUNTEER'],
-          'active_status': true,
           'first_name': 'Alice',
           'last_name': 'Martin',
           'email': 'alice@example.org',
@@ -360,7 +364,6 @@ void main() {
             'member_id': 'm-suspended',
             'organization_id': 'org-1',
             'roles': ['VOLUNTEER'],
-            'active_status': false,
             'first_name': 'Bob',
             'last_name': 'Dupont',
             'email': 'bob@example.org',
@@ -399,15 +402,15 @@ void main() {
     });
 
     test(
-      'Member discriminator round-trip with all PII fields null (legacy)',
+      'Member with no PII and omitted account_status defaults to ACTIVE',
       () {
+        // Back omits account_status when the value is the default (ACTIVE).
         const json = {
           'type': 'Member',
           'member': {
-            'member_id': 'm-legacy',
+            'member_id': 'm-minimal',
             'organization_id': 'org-1',
             'roles': ['VOLUNTEER'],
-            'active_status': true,
             'contracts': <Map<String, Object?>>[],
           },
         };
@@ -417,15 +420,19 @@ void main() {
         expect(member.lastName, isNull);
         expect(member.email, isNull);
         expect(member.phone, isNull);
-        expect(member.accountStatus, isNull);
-        // All new fields must be absent from the wire when null
+        // Omitted account_status defaults to ACTIVE.
+        expect(member.accountStatus, MemberAccountStatus.active);
+        // Null PII fields must be absent from the wire output
         // (include_if_null: false matches back's explicitNulls = false).
         final inner = wireOf(payload)['member'] as Map<String, dynamic>;
         expect(inner.containsKey('first_name'), isFalse);
         expect(inner.containsKey('last_name'), isFalse);
         expect(inner.containsKey('email'), isFalse);
         expect(inner.containsKey('phone'), isFalse);
-        expect(inner.containsKey('account_status'), isFalse);
+        // active_status must be absent from the wire (field removed).
+        expect(inner.containsKey('active_status'), isFalse);
+        // account_status is always present (non-nullable with ACTIVE default).
+        expect(inner['account_status'], 'ACTIVE');
       },
     );
 
@@ -1197,6 +1204,24 @@ void main() {
     });
   });
 
+  group('ProducerAccount pending_activation', () {
+    test('decodes pending_activation and defaults it to false', () {
+      final pending = ProducerAccount.fromJson({
+        'producer_account_id': 'pa-1',
+        'name': 'Ferme',
+        'pending_activation': true,
+      });
+      final activated = ProducerAccount.fromJson({
+        'producer_account_id': 'pa-2',
+        'name': 'Ferme 2',
+      });
+
+      expect(pending.pendingActivation, isTrue);
+      expect(activated.pendingActivation, isFalse);
+      expect(pending.toJson()['pending_activation'], isTrue);
+    });
+  });
+
   group('Change / ChangeOp', () {
     test('UPSERT with payload', () {
       const json = {
@@ -1601,7 +1626,7 @@ void main() {
             'member_id': 'm-pref',
             'organization_id': 'org-1',
             'roles': ['VOLUNTEER'],
-            'active_status': true,
+            'account_status': 'ACTIVE',
             'contracts': <Map<String, Object?>>[],
             'member_preferences': {
               'delivery_reminders_enabled': true,
@@ -1637,7 +1662,7 @@ void main() {
             'member_id': 'm-no-pref',
             'organization_id': 'org-1',
             'roles': ['VOLUNTEER'],
-            'active_status': true,
+            'account_status': 'ACTIVE',
             'contracts': <Map<String, Object?>>[],
           },
         };
@@ -1682,7 +1707,7 @@ void main() {
             'member_id': 'm-uprefs',
             'organization_id': 'org-1',
             'roles': ['VOLUNTEER'],
-            'active_status': true,
+            'account_status': 'ACTIVE',
             'contracts': <Map<String, Object?>>[],
             'user_preferences': {
               'email_notifications_enabled': true,
@@ -1712,7 +1737,7 @@ void main() {
             'member_id': 'm-no-uprefs',
             'organization_id': 'org-1',
             'roles': ['VOLUNTEER'],
-            'active_status': true,
+            'account_status': 'ACTIVE',
             'contracts': <Map<String, Object?>>[],
           },
         };

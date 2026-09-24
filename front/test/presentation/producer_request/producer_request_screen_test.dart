@@ -109,4 +109,23 @@ void main() {
       isEmpty,
     );
   });
+
+  testWidgets('submit stays disabled until the terms are accepted', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _pump(tester, api);
+
+    FilledButton submit() => tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'ENVOYER LA DEMANDE'),
+    );
+    expect(submit().onPressed, isNull);
+
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+
+    expect(submit().onPressed, isNotNull);
+  });
 }

@@ -407,6 +407,35 @@ internal class ModelSerializationTest {
     }
 
     @Test
+    fun `GIVEN ProducerAccount pending activation WHEN serialized THEN pending_activation is on the wire and round-trips`() {
+        val producerAccount =
+            ProducerAccount(
+                producerAccountId = "pa-1".toId(),
+                name = "Ferme",
+                activeStatus = true,
+                createdInstant = Instant.fromEpochMilliseconds(1_000_000L),
+                lastUpdatedInstant = Instant.fromEpochMilliseconds(2_000_000L),
+                pendingActivation = true,
+            )
+
+        val encoded = json.encodeToString(ProducerAccount.serializer(), producerAccount)
+
+        assertTrue(encoded.contains("\"pending_activation\":true"))
+        assertEquals(producerAccount, json.decodeFromString(ProducerAccount.serializer(), encoded))
+    }
+
+    @Test
+    fun `GIVEN ProducerAccount JSON without pending_activation WHEN deserialized THEN it is not pending`() {
+        val jsonStr =
+            """{"producer_account_id":"pa-1","name":"Ferme","active_status":true,""" +
+                """"created_instant":"2026-01-01T00:00:00Z","last_updated_instant":"2026-01-01T00:00:00Z"}"""
+
+        val producerAccount = json.decodeFromString(ProducerAccount.serializer(), jsonStr)
+
+        assertEquals(false, producerAccount.pendingActivation)
+    }
+
+    @Test
     fun `GIVEN Contract with shared baskets WHEN serialized and deserialized THEN round-trips and keys are snake_case`() {
         val contract =
             Contract(
