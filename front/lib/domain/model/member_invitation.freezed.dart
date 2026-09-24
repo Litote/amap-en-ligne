@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'member_invitation.dart';
@@ -9,6 +9,7 @@ part of 'member_invitation.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $MemberInvitationCopyWith<MemberInvitation> get copyWith => _$MemberInvitationCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberInvitation&&(identical(other.invitationId, invitationId) || other.invitationId == invitationId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&const DeepCollectionEquality().equals(other.roles, roles)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt)&&(identical(other.activatedAt, activatedAt) || other.activatedAt == activatedAt)&&(identical(other.customEmailSubject, customEmailSubject) || other.customEmailSubject == customEmailSubject)&&(identical(other.customEmailBody, customEmailBody) || other.customEmailBody == customEmailBody));
+  final _this = this as MemberInvitation;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberInvitation&&(identical(other.invitationId, _this.invitationId) || other.invitationId == _this.invitationId)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&const DeepCollectionEquality().equals(other.roles, _this.roles)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt)&&(identical(other.resendRequestedAt, _this.resendRequestedAt) || other.resendRequestedAt == _this.resendRequestedAt)&&(identical(other.activatedAt, _this.activatedAt) || other.activatedAt == _this.activatedAt)&&(identical(other.customEmailSubject, _this.customEmailSubject) || other.customEmailSubject == _this.customEmailSubject)&&(identical(other.customEmailBody, _this.customEmailBody) || other.customEmailBody == _this.customEmailBody));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,invitationId,organizationId,email,firstName,lastName,const DeepCollectionEquality().hash(roles),status,createdAt,expiresAt,resendRequestedAt,activatedAt,customEmailSubject,customEmailBody);
+int get hashCode {
+  final _this = this as MemberInvitation;
+  return Object.hash(runtimeType,_this.invitationId,_this.organizationId,_this.email,_this.firstName,_this.lastName,const DeepCollectionEquality().hash(_this.roles),_this.status,_this.createdAt,_this.expiresAt,_this.resendRequestedAt,_this.activatedAt,_this.customEmailSubject,_this.customEmailBody);
+}
 
 @override
 String toString() {
-  return 'MemberInvitation(invitationId: $invitationId, organizationId: $organizationId, email: $email, firstName: $firstName, lastName: $lastName, roles: $roles, status: $status, createdAt: $createdAt, expiresAt: $expiresAt, resendRequestedAt: $resendRequestedAt, activatedAt: $activatedAt, customEmailSubject: $customEmailSubject, customEmailBody: $customEmailBody)';
+  final _this = this as MemberInvitation;
+  return 'MemberInvitation(invitationId: ${_this.invitationId}, organizationId: ${_this.organizationId}, email: ${_this.email}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, roles: ${_this.roles}, status: ${_this.status}, createdAt: ${_this.createdAt}, expiresAt: ${_this.expiresAt}, resendRequestedAt: ${_this.resendRequestedAt}, activatedAt: ${_this.activatedAt}, customEmailSubject: ${_this.customEmailSubject}, customEmailBody: ${_this.customEmailBody})';
 }
 
 
@@ -66,7 +72,7 @@ class _$MemberInvitationCopyWithImpl<$Res>
 /// Create a copy of MemberInvitation
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? invitationId = null,Object? organizationId = null,Object? email = null,Object? firstName = null,Object? lastName = null,Object? roles = null,Object? status = null,Object? createdAt = null,Object? expiresAt = null,Object? resendRequestedAt = freezed,Object? activatedAt = freezed,Object? customEmailSubject = freezed,Object? customEmailBody = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(MemberInvitation(
 invitationId: null == invitationId ? _self.invitationId : invitationId // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -221,7 +227,7 @@ return $default(_that.invitationId,_that.organizationId,_that.email,_that.firstN
 @JsonSerializable()
 
 class _MemberInvitation implements MemberInvitation {
-  const _MemberInvitation({@JsonKey(name: 'invitation_id') required this.invitationId, @JsonKey(name: 'organization_id') required this.organizationId, required this.email, @JsonKey(name: 'first_name') required this.firstName, @JsonKey(name: 'last_name') required this.lastName, required final  Set<Role> roles, required this.status, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'expires_at') required this.expiresAt, @JsonKey(name: 'resend_requested_at') this.resendRequestedAt, @JsonKey(name: 'activated_at') this.activatedAt, @JsonKey(name: 'custom_email_subject') this.customEmailSubject, @JsonKey(name: 'custom_email_body') this.customEmailBody}): _roles = roles;
+  const _MemberInvitation({@JsonKey(name: 'invitation_id') required this.invitationId, @JsonKey(name: 'organization_id') required this.organizationId, required this.email, @JsonKey(name: 'first_name') required this.firstName, @JsonKey(name: 'last_name') required this.lastName, required  Set<Role> roles, required this.status, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'expires_at') required this.expiresAt, @JsonKey(name: 'resend_requested_at') this.resendRequestedAt, @JsonKey(name: 'activated_at') this.activatedAt, @JsonKey(name: 'custom_email_subject') this.customEmailSubject, @JsonKey(name: 'custom_email_body') this.customEmailBody}): _roles = roles;
   factory _MemberInvitation.fromJson(Map<String, dynamic> json) => _$MemberInvitationFromJson(json);
 
 @override@JsonKey(name: 'invitation_id') final  String invitationId;
@@ -257,16 +263,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberInvitation&&(identical(other.invitationId, invitationId) || other.invitationId == invitationId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&const DeepCollectionEquality().equals(other._roles, _roles)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt)&&(identical(other.activatedAt, activatedAt) || other.activatedAt == activatedAt)&&(identical(other.customEmailSubject, customEmailSubject) || other.customEmailSubject == customEmailSubject)&&(identical(other.customEmailBody, customEmailBody) || other.customEmailBody == customEmailBody));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberInvitation&&(identical(other.invitationId, invitationId) || other.invitationId == invitationId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&const DeepCollectionEquality().equals(other.roles, _roles)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt)&&(identical(other.activatedAt, activatedAt) || other.activatedAt == activatedAt)&&(identical(other.customEmailSubject, customEmailSubject) || other.customEmailSubject == customEmailSubject)&&(identical(other.customEmailBody, customEmailBody) || other.customEmailBody == customEmailBody));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,invitationId,organizationId,email,firstName,lastName,const DeepCollectionEquality().hash(_roles),status,createdAt,expiresAt,resendRequestedAt,activatedAt,customEmailSubject,customEmailBody);
+int get hashCode {
+    return Object.hash(runtimeType,invitationId,organizationId,email,firstName,lastName,const DeepCollectionEquality().hash(_roles),status,createdAt,expiresAt,resendRequestedAt,activatedAt,customEmailSubject,customEmailBody);
+}
 
 @override
 String toString() {
-  return 'MemberInvitation(invitationId: $invitationId, organizationId: $organizationId, email: $email, firstName: $firstName, lastName: $lastName, roles: $roles, status: $status, createdAt: $createdAt, expiresAt: $expiresAt, resendRequestedAt: $resendRequestedAt, activatedAt: $activatedAt, customEmailSubject: $customEmailSubject, customEmailBody: $customEmailBody)';
+    return 'MemberInvitation(invitationId: $invitationId, organizationId: $organizationId, email: $email, firstName: $firstName, lastName: $lastName, roles: $roles, status: $status, createdAt: $createdAt, expiresAt: $expiresAt, resendRequestedAt: $resendRequestedAt, activatedAt: $activatedAt, customEmailSubject: $customEmailSubject, customEmailBody: $customEmailBody)';
 }
 
 

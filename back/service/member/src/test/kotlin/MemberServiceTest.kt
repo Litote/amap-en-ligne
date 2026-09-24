@@ -28,17 +28,14 @@ import persistence.dao.ContractSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationSyncDAO
 import persistence.dao.OwnerSyncDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.Contract
 import persistence.model.ContractStatus
-import persistence.model.DeliveryReminders
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
 import persistence.model.MemberContract
 import persistence.model.MemberContractStatus
 import persistence.model.MemberPreferences
-import persistence.model.MemberSettings
 import persistence.model.Server
 import persistence.model.UserPreferences
 import persistence.model.UserSettings
@@ -112,18 +109,6 @@ internal class MemberServiceTest {
             memberId = id.toId(),
             organizationId = orgId.toId(),
             roles = roles,
-            activeStatus = true,
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                    accessibilityOptions =
-                        AccessibilityOptions(
-                            highContrast = false,
-                            largeText = false,
-                            screenReader = false,
-                        ),
-                    lastUpdatedInstant = Instant.fromEpochMilliseconds(1_000_000L),
-                ),
             memberPreferences =
                 MemberPreferences(
                     deliveryRemindersEnabled = true,
@@ -279,7 +264,7 @@ internal class MemberServiceTest {
             val service = buildService(memberSyncDAO)
             // nonAdminAuth.memberId = "caller-2"; use same id as the member so it is a self-edit
             val existing = buildMember(id = "caller-2", roles = setOf(Role.VOLUNTEER))
-            val updated = existing.copy(activeStatus = false)
+            val updated = existing.copy(accountStatus = MemberAccountStatus.SUSPENDED)
             coEvery { memberSyncDAO.getByOrganizationId(any()) } returns listOf(existing)
             coEvery { memberSyncDAO.put(any(), any()) } returns Unit
 
@@ -357,12 +342,12 @@ internal class MemberServiceTest {
             val updated = existing.copy(accountStatus = MemberAccountStatus.SUSPENDED)
             coEvery { memberSyncDAO.getByOrganizationId(any()) } returns listOf(existing)
             coEvery { memberSyncDAO.getMembersBySub("sub-target") } returns listOf(existing)
-            coEvery { memberSyncDAO.setActiveStatusBySub(any(), any(), any()) } returns Unit
+            coEvery { memberSyncDAO.setAccountStatusBySub(any(), any(), any()) } returns Unit
 
             val outcome = service.applyUpsert(ownerAuth, buildMutation(updated), MemberPayload(updated))
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
-            coVerify(exactly = 1) { memberSyncDAO.setActiveStatusBySub("sub-target", false, any()) }
+            coVerify(exactly = 1) { memberSyncDAO.setAccountStatusBySub("sub-target", MemberAccountStatus.SUSPENDED, any()) }
             coVerify(exactly = 1) { userProvisioningPort.banUser("sub-target") }
             coVerify(exactly = 1) { accountLifecycleEmailPort.notifyAccountSuspended(any()) }
             coVerify(exactly = 0) { memberSyncDAO.put(any(), any()) }
@@ -375,16 +360,16 @@ internal class MemberServiceTest {
             val service = buildService(memberSyncDAO)
             val existing =
                 buildMember(id = "sub-target")
-                    .copy(activeStatus = false, accountStatus = MemberAccountStatus.SUSPENDED)
+                    .copy(accountStatus = MemberAccountStatus.SUSPENDED)
             val updated = existing.copy(accountStatus = MemberAccountStatus.ACTIVE)
             coEvery { memberSyncDAO.getByOrganizationId(any()) } returns listOf(existing)
             coEvery { memberSyncDAO.getMembersBySub("sub-target") } returns listOf(existing)
-            coEvery { memberSyncDAO.setActiveStatusBySub(any(), any(), any()) } returns Unit
+            coEvery { memberSyncDAO.setAccountStatusBySub(any(), any(), any()) } returns Unit
 
             val outcome = service.applyUpsert(ownerAuth, buildMutation(updated), MemberPayload(updated))
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
-            coVerify(exactly = 1) { memberSyncDAO.setActiveStatusBySub("sub-target", true, any()) }
+            coVerify(exactly = 1) { memberSyncDAO.setAccountStatusBySub("sub-target", MemberAccountStatus.ACTIVE, any()) }
             coVerify(exactly = 1) { userProvisioningPort.unbanUser("sub-target") }
             coVerify(exactly = 1) { accountLifecycleEmailPort.notifyAccountReactivated(any()) }
             coVerify(exactly = 0) { memberSyncDAO.put(any(), any()) }
@@ -437,7 +422,7 @@ internal class MemberServiceTest {
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
             coVerify(exactly = 0) { memberSyncDAO.getMembersBySub(any()) }
-            coVerify(exactly = 0) { memberSyncDAO.setActiveStatusBySub(any(), any(), any()) }
+            coVerify(exactly = 0) { memberSyncDAO.setAccountStatusBySub(any(), any(), any()) }
             coVerify(exactly = 1) { memberSyncDAO.put(any(), any()) }
         }
 

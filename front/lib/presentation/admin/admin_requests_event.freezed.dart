@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'admin_requests_event.dart';
@@ -9,6 +9,7 @@ part of 'admin_requests_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$AdminRequestsEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AdminRequestsEvent()';
+    return 'AdminRequestsEvent()';
 }
 
 
@@ -208,16 +209,18 @@ $AdminRequestsLoadRequestedCopyWith<AdminRequestsLoadRequested> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsLoadRequested&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsLoadRequested&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,statusFilter);
+int get hashCode {
+    return Object.hash(runtimeType,statusFilter);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.loadRequested(statusFilter: $statusFilter)';
+    return 'AdminRequestsEvent.loadRequested(statusFilter: $statusFilter)';
 }
 
 
@@ -274,16 +277,18 @@ $AdminRequestsOrganizationTypeFilterChangedCopyWith<AdminRequestsOrganizationTyp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsOrganizationTypeFilterChanged&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsOrganizationTypeFilterChanged&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationType);
+int get hashCode {
+    return Object.hash(runtimeType,organizationType);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.organizationTypeFilterChanged(organizationType: $organizationType)';
+    return 'AdminRequestsEvent.organizationTypeFilterChanged(organizationType: $organizationType)';
 }
 
 
@@ -340,16 +345,18 @@ $AdminRequestsApproveRequestedCopyWith<AdminRequestsApproveRequested> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsApproveRequested&&(identical(other.request, request) || other.request == request));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsApproveRequested&&(identical(other.request, request) || other.request == request));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,request);
+int get hashCode {
+    return Object.hash(runtimeType,request);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.approveRequested(request: $request)';
+    return 'AdminRequestsEvent.approveRequested(request: $request)';
 }
 
 
@@ -416,16 +423,18 @@ $AdminRequestsRejectRequestedCopyWith<AdminRequestsRejectRequested> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsRejectRequested&&(identical(other.request, request) || other.request == request)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsRejectRequested&&(identical(other.request, request) || other.request == request)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,request,reviewComment);
+int get hashCode {
+    return Object.hash(runtimeType,request,reviewComment);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.rejectRequested(request: $request, reviewComment: $reviewComment)';
+    return 'AdminRequestsEvent.rejectRequested(request: $request, reviewComment: $reviewComment)';
 }
 
 
@@ -492,16 +501,18 @@ $AdminRequestsResendRequestedCopyWith<AdminRequestsResendRequested> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsResendRequested&&(identical(other.request, request) || other.request == request));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminRequestsResendRequested&&(identical(other.request, request) || other.request == request));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,request);
+int get hashCode {
+    return Object.hash(runtimeType,request);
+}
 
 @override
 String toString() {
-  return 'AdminRequestsEvent.resendRequested(request: $request)';
+    return 'AdminRequestsEvent.resendRequested(request: $request)';
 }
 
 

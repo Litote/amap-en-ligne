@@ -31,12 +31,12 @@ _MockSyncBloc _makeSyncBloc() {
 Member _member({
   String id = 'm-1',
   Set<Role> roles = const {Role.volunteer},
-  bool active = true,
+  MemberAccountStatus accountStatus = MemberAccountStatus.active,
 }) => Member(
   memberId: id,
   organizationId: 'org-1',
   roles: roles,
-  activeStatus: active,
+  accountStatus: accountStatus,
 );
 
 OrganizationProducer _producer({
@@ -135,7 +135,11 @@ void main() {
           _member(id: 'm-1', roles: {Role.volunteer}),
           _member(id: 'm-2', roles: {Role.coordinator}),
           _member(id: 'm-3', roles: {Role.coordinator, Role.volunteer}),
-          _member(id: 'm-4', roles: {Role.volunteer}, active: false),
+          _member(
+            id: 'm-4',
+            roles: {Role.volunteer},
+            accountStatus: MemberAccountStatus.suspended,
+          ),
         ]),
       );
       when(() => orgRepo.watch('org-1')).thenAnswer(

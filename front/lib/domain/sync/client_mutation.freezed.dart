@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'client_mutation.dart';
@@ -9,6 +9,7 @@ part of 'client_mutation.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $ClientMutationCopyWith<ClientMutation> get copyWith => _$ClientMutationCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ClientMutation&&(identical(other.clientOpId, clientOpId) || other.clientOpId == clientOpId)&&(identical(other.op, op) || other.op == op));
+  final _this = this as ClientMutation;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ClientMutation&&(identical(other.clientOpId, _this.clientOpId) || other.clientOpId == _this.clientOpId)&&(identical(other.op, _this.op) || other.op == _this.op));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,clientOpId,op);
+int get hashCode {
+  final _this = this as ClientMutation;
+  return Object.hash(runtimeType,_this.clientOpId,_this.op);
+}
 
 @override
 String toString() {
-  return 'ClientMutation(clientOpId: $clientOpId, op: $op)';
+  final _this = this as ClientMutation;
+  return 'ClientMutation(clientOpId: ${_this.clientOpId}, op: ${_this.op})';
 }
 
 
@@ -66,7 +72,7 @@ class _$ClientMutationCopyWithImpl<$Res>
 /// Create a copy of ClientMutation
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? clientOpId = null,Object? op = null,}) {
-  return _then(_self.copyWith(
+  return _then(ClientMutation(
 clientOpId: null == clientOpId ? _self.clientOpId : clientOpId // ignore: cast_nullable_to_non_nullable
 as String,op: null == op ? _self.op : op // ignore: cast_nullable_to_non_nullable
 as MutationOp,
@@ -229,16 +235,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ClientMutation&&(identical(other.clientOpId, clientOpId) || other.clientOpId == clientOpId)&&(identical(other.op, op) || other.op == op));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ClientMutation&&(identical(other.clientOpId, clientOpId) || other.clientOpId == clientOpId)&&(identical(other.op, op) || other.op == op));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,clientOpId,op);
+int get hashCode {
+    return Object.hash(runtimeType,clientOpId,op);
+}
 
 @override
 String toString() {
-  return 'ClientMutation(clientOpId: $clientOpId, op: $op)';
+    return 'ClientMutation(clientOpId: $clientOpId, op: $op)';
 }
 
 

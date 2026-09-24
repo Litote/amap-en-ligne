@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'user_detail_event.dart';
@@ -9,6 +9,7 @@ part of 'user_detail_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$UserDetailEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserDetailEvent()';
+    return 'UserDetailEvent()';
 }
 
 
@@ -190,16 +191,18 @@ $UserDetailLoadRequestedCopyWith<UserDetailLoadRequested> get copyWith => _$User
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailLoadRequested&&(identical(other.userId, userId) || other.userId == userId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailLoadRequested&&(identical(other.userId, userId) || other.userId == userId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,userId);
+int get hashCode {
+    return Object.hash(runtimeType,userId);
+}
 
 @override
 String toString() {
-  return 'UserDetailEvent.loaded(userId: $userId)';
+    return 'UserDetailEvent.loaded(userId: $userId)';
 }
 
 
@@ -241,7 +244,7 @@ as String,
 
 
 class UserDetailMembershipRolesChanged implements UserDetailEvent {
-  const UserDetailMembershipRolesChanged({required this.memberId, required this.organizationId, required final  Set<Role> newRoles}): _newRoles = newRoles;
+  const UserDetailMembershipRolesChanged({required this.memberId, required this.organizationId, required  Set<Role> newRoles}): _newRoles = newRoles;
   
 
  final  String memberId;
@@ -264,16 +267,18 @@ $UserDetailMembershipRolesChangedCopyWith<UserDetailMembershipRolesChanged> get 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailMembershipRolesChanged&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&const DeepCollectionEquality().equals(other._newRoles, _newRoles));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserDetailMembershipRolesChanged&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&const DeepCollectionEquality().equals(other.newRoles, _newRoles));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,memberId,organizationId,const DeepCollectionEquality().hash(_newRoles));
+int get hashCode {
+    return Object.hash(runtimeType,memberId,organizationId,const DeepCollectionEquality().hash(_newRoles));
+}
 
 @override
 String toString() {
-  return 'UserDetailEvent.membershipRolesChanged(memberId: $memberId, organizationId: $organizationId, newRoles: $newRoles)';
+    return 'UserDetailEvent.membershipRolesChanged(memberId: $memberId, organizationId: $organizationId, newRoles: $newRoles)';
 }
 
 

@@ -11,7 +11,7 @@
       "actor": "client",
       "action": "sync",
       "request": {
-        "cursors": { "Member": "c1" },
+        "cursors": { "instance-owner": "c1" },
         "mutations": [
           {
             "client_op_id": "op-1",
@@ -23,7 +23,6 @@
                   "member_id": "m-1",
                   "organization_id": "org-1",
                   "roles": ["COORDINATOR"],
-                  "active_status": true,
                   "contracts": []
                 }
               }

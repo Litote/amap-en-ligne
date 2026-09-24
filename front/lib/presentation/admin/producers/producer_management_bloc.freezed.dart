@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'producer_management_bloc.dart';
@@ -9,6 +9,7 @@ part of 'producer_management_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$ProducerManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerManagementEvent()';
+    return 'ProducerManagementEvent()';
 }
 
 
@@ -245,7 +246,7 @@ class _LoadRequested implements ProducerManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadRequested);
 }
 
 
@@ -254,7 +255,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.loadRequested()';
+    return 'ProducerManagementEvent.loadRequested()';
 }
 
 
@@ -282,16 +283,18 @@ _$StatusFilterChangedCopyWith<_StatusFilterChanged> get copyWith => __$StatusFil
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StatusFilterChanged&&(identical(other.status, status) || other.status == status));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _StatusFilterChanged&&(identical(other.status, status) || other.status == status));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status);
+int get hashCode {
+    return Object.hash(runtimeType,status);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.statusFilterChanged(status: $status)';
+    return 'ProducerManagementEvent.statusFilterChanged(status: $status)';
 }
 
 
@@ -348,16 +351,18 @@ _$DetailRequestedCopyWith<_DetailRequested> get copyWith => __$DetailRequestedCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetailRequested&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetailRequested&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producerAccountId);
+int get hashCode {
+    return Object.hash(runtimeType,producerAccountId);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.detailRequested(producerAccountId: $producerAccountId)';
+    return 'ProducerManagementEvent.detailRequested(producerAccountId: $producerAccountId)';
 }
 
 
@@ -409,7 +414,7 @@ class _BackToListRequested implements ProducerManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BackToListRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BackToListRequested);
 }
 
 
@@ -418,7 +423,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.backToListRequested()';
+    return 'ProducerManagementEvent.backToListRequested()';
 }
 
 
@@ -447,16 +452,18 @@ _$UpdateStatusRequestedCopyWith<_UpdateStatusRequested> get copyWith => __$Updat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateStatusRequested&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.newStatus, newStatus) || other.newStatus == newStatus));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateStatusRequested&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.newStatus, newStatus) || other.newStatus == newStatus));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producerAccountId,newStatus);
+int get hashCode {
+    return Object.hash(runtimeType,producerAccountId,newStatus);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.updateStatusRequested(producerAccountId: $producerAccountId, newStatus: $newStatus)';
+    return 'ProducerManagementEvent.updateStatusRequested(producerAccountId: $producerAccountId, newStatus: $newStatus)';
 }
 
 
@@ -514,16 +521,18 @@ _$EnrollSearchChangedCopyWith<_EnrollSearchChanged> get copyWith => __$EnrollSea
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollSearchChanged&&(identical(other.query, query) || other.query == query));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollSearchChanged&&(identical(other.query, query) || other.query == query));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,query);
+int get hashCode {
+    return Object.hash(runtimeType,query);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.enrollSearchChanged(query: $query)';
+    return 'ProducerManagementEvent.enrollSearchChanged(query: $query)';
 }
 
 
@@ -580,16 +589,18 @@ _$EnrollProducerSelectedCopyWith<_EnrollProducerSelected> get copyWith => __$Enr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollProducerSelected&&(identical(other.producer, producer) || other.producer == producer));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollProducerSelected&&(identical(other.producer, producer) || other.producer == producer));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producer);
+int get hashCode {
+    return Object.hash(runtimeType,producer);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.enrollProducerSelected(producer: $producer)';
+    return 'ProducerManagementEvent.enrollProducerSelected(producer: $producer)';
 }
 
 
@@ -650,7 +661,7 @@ class _EnrollNoAccountStarted implements ProducerManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollNoAccountStarted);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollNoAccountStarted);
 }
 
 
@@ -659,7 +670,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.enrollNoAccountStarted()';
+    return 'ProducerManagementEvent.enrollNoAccountStarted()';
 }
 
 
@@ -672,7 +683,7 @@ String toString() {
 
 
 class _EnrollConfirmed implements ProducerManagementEvent {
-  const _EnrollConfirmed(final  List<OrgProduct> products): _products = products;
+  const _EnrollConfirmed( List<OrgProduct> products): _products = products;
   
 
  final  List<OrgProduct> _products;
@@ -693,16 +704,18 @@ _$EnrollConfirmedCopyWith<_EnrollConfirmed> get copyWith => __$EnrollConfirmedCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollConfirmed&&const DeepCollectionEquality().equals(other._products, _products));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollConfirmed&&const DeepCollectionEquality().equals(other.products, _products));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_products));
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_products));
+}
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.enrollConfirmed(products: $products)';
+    return 'ProducerManagementEvent.enrollConfirmed(products: $products)';
 }
 
 
@@ -744,7 +757,7 @@ as List<OrgProduct>,
 
 
 class _EnrollNoAccountConfirmed implements ProducerManagementEvent {
-  const _EnrollNoAccountConfirmed({required this.name, this.contactEmail, this.address, this.website, required final  List<ProducerProduct> products}): _products = products;
+  const _EnrollNoAccountConfirmed({required this.name, this.contactEmail, this.address, this.website, required  List<ProducerProduct> products}): _products = products;
   
 
  final  String name;
@@ -769,16 +782,18 @@ _$EnrollNoAccountConfirmedCopyWith<_EnrollNoAccountConfirmed> get copyWith => __
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollNoAccountConfirmed&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.address, address) || other.address == address)&&(identical(other.website, website) || other.website == website)&&const DeepCollectionEquality().equals(other._products, _products));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EnrollNoAccountConfirmed&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.address, address) || other.address == address)&&(identical(other.website, website) || other.website == website)&&const DeepCollectionEquality().equals(other.products, _products));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,contactEmail,address,website,const DeepCollectionEquality().hash(_products));
+int get hashCode {
+    return Object.hash(runtimeType,name,contactEmail,address,website,const DeepCollectionEquality().hash(_products));
+}
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.enrollNoAccountConfirmed(name: $name, contactEmail: $contactEmail, address: $address, website: $website, products: $products)';
+    return 'ProducerManagementEvent.enrollNoAccountConfirmed(name: $name, contactEmail: $contactEmail, address: $address, website: $website, products: $products)';
 }
 
 
@@ -824,7 +839,7 @@ as List<ProducerProduct>,
 
 
 class _UpdateProductsRequested implements ProducerManagementEvent {
-  const _UpdateProductsRequested({required this.producerAccount, required final  List<OrgProduct> products}): _products = products;
+  const _UpdateProductsRequested({required this.producerAccount, required  List<OrgProduct> products}): _products = products;
   
 
  final  ProducerAccount producerAccount;
@@ -846,16 +861,18 @@ _$UpdateProductsRequestedCopyWith<_UpdateProductsRequested> get copyWith => __$U
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProductsRequested&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount)&&const DeepCollectionEquality().equals(other._products, _products));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProductsRequested&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount)&&const DeepCollectionEquality().equals(other.products, _products));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producerAccount,const DeepCollectionEquality().hash(_products));
+int get hashCode {
+    return Object.hash(runtimeType,producerAccount,const DeepCollectionEquality().hash(_products));
+}
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.updateProductsRequested(producerAccount: $producerAccount, products: $products)';
+    return 'ProducerManagementEvent.updateProductsRequested(producerAccount: $producerAccount, products: $products)';
 }
 
 
@@ -907,7 +924,7 @@ $ProducerAccountCopyWith<$Res> get producerAccount {
 
 
 class _UpdateNoAccountProductsRequested implements ProducerManagementEvent {
-  const _UpdateNoAccountProductsRequested({required this.producerAccount, required final  List<ProducerProduct> products}): _products = products;
+  const _UpdateNoAccountProductsRequested({required this.producerAccount, required  List<ProducerProduct> products}): _products = products;
   
 
  final  ProducerAccount producerAccount;
@@ -929,16 +946,18 @@ _$UpdateNoAccountProductsRequestedCopyWith<_UpdateNoAccountProductsRequested> ge
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateNoAccountProductsRequested&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount)&&const DeepCollectionEquality().equals(other._products, _products));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateNoAccountProductsRequested&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount)&&const DeepCollectionEquality().equals(other.products, _products));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producerAccount,const DeepCollectionEquality().hash(_products));
+int get hashCode {
+    return Object.hash(runtimeType,producerAccount,const DeepCollectionEquality().hash(_products));
+}
 
 @override
 String toString() {
-  return 'ProducerManagementEvent.updateNoAccountProductsRequested(producerAccount: $producerAccount, products: $products)';
+    return 'ProducerManagementEvent.updateNoAccountProductsRequested(producerAccount: $producerAccount, products: $products)';
 }
 
 
@@ -995,7 +1014,7 @@ mixin _$ProducerManagementState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementState);
 }
 
 
@@ -1004,7 +1023,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerManagementState()';
+    return 'ProducerManagementState()';
 }
 
 
@@ -1196,7 +1215,7 @@ class ProducerManagementInitial implements ProducerManagementState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementInitial);
 }
 
 
@@ -1205,7 +1224,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerManagementState.initial()';
+    return 'ProducerManagementState.initial()';
 }
 
 
@@ -1228,7 +1247,7 @@ class ProducerManagementLoading implements ProducerManagementState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementLoading);
 }
 
 
@@ -1237,7 +1256,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ProducerManagementState.loading()';
+    return 'ProducerManagementState.loading()';
 }
 
 
@@ -1268,16 +1287,18 @@ $ProducerManagementListLoadedCopyWith<ProducerManagementListLoaded> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementListLoaded&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementListLoaded&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organization,statusFilter,actionInProgress,actionError);
+int get hashCode {
+    return Object.hash(runtimeType,organization,statusFilter,actionInProgress,actionError);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementState.listLoaded(organization: $organization, statusFilter: $statusFilter, actionInProgress: $actionInProgress, actionError: $actionError)';
+    return 'ProducerManagementState.listLoaded(organization: $organization, statusFilter: $statusFilter, actionInProgress: $actionInProgress, actionError: $actionError)';
 }
 
 
@@ -1349,16 +1370,18 @@ $ProducerManagementDetailLoadedCopyWith<ProducerManagementDetailLoaded> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementDetailLoaded&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementDetailLoaded&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organization,producerAccountId,actionInProgress,actionError);
+int get hashCode {
+    return Object.hash(runtimeType,organization,producerAccountId,actionInProgress,actionError);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementState.detailLoaded(organization: $organization, producerAccountId: $producerAccountId, actionInProgress: $actionInProgress, actionError: $actionError)';
+    return 'ProducerManagementState.detailLoaded(organization: $organization, producerAccountId: $producerAccountId, actionInProgress: $actionInProgress, actionError: $actionError)';
 }
 
 
@@ -1412,7 +1435,7 @@ $OrganizationCopyWith<$Res> get organization {
 
 
 class ProducerManagementEnrollStep1 implements ProducerManagementState {
-  const ProducerManagementEnrollStep1({required this.organization, this.searchQuery = '', final  List<ProducerAccount> searchResults = const [], this.searching = false}): _searchResults = searchResults;
+  const ProducerManagementEnrollStep1({required this.organization, this.searchQuery = '',  List<ProducerAccount> searchResults = const [], this.searching = false}): _searchResults = searchResults;
   
 
  final  Organization organization;
@@ -1436,16 +1459,18 @@ $ProducerManagementEnrollStep1CopyWith<ProducerManagementEnrollStep1> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementEnrollStep1&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&const DeepCollectionEquality().equals(other._searchResults, _searchResults)&&(identical(other.searching, searching) || other.searching == searching));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementEnrollStep1&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&const DeepCollectionEquality().equals(other.searchResults, _searchResults)&&(identical(other.searching, searching) || other.searching == searching));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organization,searchQuery,const DeepCollectionEquality().hash(_searchResults),searching);
+int get hashCode {
+    return Object.hash(runtimeType,organization,searchQuery,const DeepCollectionEquality().hash(_searchResults),searching);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementState.enrollStep1(organization: $organization, searchQuery: $searchQuery, searchResults: $searchResults, searching: $searching)';
+    return 'ProducerManagementState.enrollStep1(organization: $organization, searchQuery: $searchQuery, searchResults: $searchResults, searching: $searching)';
 }
 
 
@@ -1517,16 +1542,18 @@ $ProducerManagementEnrollStep2CopyWith<ProducerManagementEnrollStep2> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementEnrollStep2&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.selectedProducer, selectedProducer) || other.selectedProducer == selectedProducer)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementEnrollStep2&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.selectedProducer, selectedProducer) || other.selectedProducer == selectedProducer)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organization,selectedProducer,actionInProgress,actionError);
+int get hashCode {
+    return Object.hash(runtimeType,organization,selectedProducer,actionInProgress,actionError);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementState.enrollStep2(organization: $organization, selectedProducer: $selectedProducer, actionInProgress: $actionInProgress, actionError: $actionError)';
+    return 'ProducerManagementState.enrollStep2(organization: $organization, selectedProducer: $selectedProducer, actionInProgress: $actionInProgress, actionError: $actionError)';
 }
 
 
@@ -1606,16 +1633,18 @@ $ProducerManagementEnrollNoAccountStep2CopyWith<ProducerManagementEnrollNoAccoun
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementEnrollNoAccountStep2&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementEnrollNoAccountStep2&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.actionInProgress, actionInProgress) || other.actionInProgress == actionInProgress)&&(identical(other.actionError, actionError) || other.actionError == actionError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organization,actionInProgress,actionError);
+int get hashCode {
+    return Object.hash(runtimeType,organization,actionInProgress,actionError);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementState.enrollNoAccountStep2(organization: $organization, actionInProgress: $actionInProgress, actionError: $actionError)';
+    return 'ProducerManagementState.enrollNoAccountStep2(organization: $organization, actionInProgress: $actionInProgress, actionError: $actionError)';
 }
 
 
@@ -1683,16 +1712,18 @@ $ProducerManagementErrorCopyWith<ProducerManagementError> get copyWith => _$Prod
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerManagementError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'ProducerManagementState.error(message: $message)';
+    return 'ProducerManagementState.error(message: $message)';
 }
 
 

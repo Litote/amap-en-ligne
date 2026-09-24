@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'admin_producer_request.dart';
@@ -9,6 +9,7 @@ part of 'admin_producer_request.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $AdminProducerRequestCopyWith<AdminProducerRequest> get copyWith => _$AdminProdu
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminProducerRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.producerName, producerName) || other.producerName == producerName)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt));
+  final _this = this as AdminProducerRequest;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminProducerRequest&&(identical(other.requestId, _this.requestId) || other.requestId == _this.requestId)&&(identical(other.producerName, _this.producerName) || other.producerName == _this.producerName)&&(identical(other.adminFirstName, _this.adminFirstName) || other.adminFirstName == _this.adminFirstName)&&(identical(other.adminLastName, _this.adminLastName) || other.adminLastName == _this.adminLastName)&&(identical(other.adminEmail, _this.adminEmail) || other.adminEmail == _this.adminEmail)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.submittedAt, _this.submittedAt) || other.submittedAt == _this.submittedAt)&&(identical(other.reviewedAt, _this.reviewedAt) || other.reviewedAt == _this.reviewedAt)&&(identical(other.reviewComment, _this.reviewComment) || other.reviewComment == _this.reviewComment)&&(identical(other.submitterComment, _this.submitterComment) || other.submitterComment == _this.submitterComment)&&(identical(other.resendRequestedAt, _this.resendRequestedAt) || other.resendRequestedAt == _this.resendRequestedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,producerName,adminFirstName,adminLastName,adminEmail,status,submittedAt,reviewedAt,reviewComment,submitterComment,resendRequestedAt);
+int get hashCode {
+  final _this = this as AdminProducerRequest;
+  return Object.hash(runtimeType,_this.requestId,_this.producerName,_this.adminFirstName,_this.adminLastName,_this.adminEmail,_this.status,_this.submittedAt,_this.reviewedAt,_this.reviewComment,_this.submitterComment,_this.resendRequestedAt);
+}
 
 @override
 String toString() {
-  return 'AdminProducerRequest(requestId: $requestId, producerName: $producerName, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, status: $status, submittedAt: $submittedAt, reviewedAt: $reviewedAt, reviewComment: $reviewComment, submitterComment: $submitterComment, resendRequestedAt: $resendRequestedAt)';
+  final _this = this as AdminProducerRequest;
+  return 'AdminProducerRequest(requestId: ${_this.requestId}, producerName: ${_this.producerName}, adminFirstName: ${_this.adminFirstName}, adminLastName: ${_this.adminLastName}, adminEmail: ${_this.adminEmail}, status: ${_this.status}, submittedAt: ${_this.submittedAt}, reviewedAt: ${_this.reviewedAt}, reviewComment: ${_this.reviewComment}, submitterComment: ${_this.submitterComment}, resendRequestedAt: ${_this.resendRequestedAt})';
 }
 
 
@@ -66,7 +72,7 @@ class _$AdminProducerRequestCopyWithImpl<$Res>
 /// Create a copy of AdminProducerRequest
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? requestId = null,Object? producerName = null,Object? adminFirstName = null,Object? adminLastName = null,Object? adminEmail = null,Object? status = null,Object? submittedAt = null,Object? reviewedAt = freezed,Object? reviewComment = freezed,Object? submitterComment = freezed,Object? resendRequestedAt = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(AdminProducerRequest(
 requestId: null == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String,producerName: null == producerName ? _self.producerName : producerName // ignore: cast_nullable_to_non_nullable
 as String,adminFirstName: null == adminFirstName ? _self.adminFirstName : adminFirstName // ignore: cast_nullable_to_non_nullable
@@ -247,16 +253,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdminProducerRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.producerName, producerName) || other.producerName == producerName)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdminProducerRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.producerName, producerName) || other.producerName == producerName)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,producerName,adminFirstName,adminLastName,adminEmail,status,submittedAt,reviewedAt,reviewComment,submitterComment,resendRequestedAt);
+int get hashCode {
+    return Object.hash(runtimeType,requestId,producerName,adminFirstName,adminLastName,adminEmail,status,submittedAt,reviewedAt,reviewComment,submitterComment,resendRequestedAt);
+}
 
 @override
 String toString() {
-  return 'AdminProducerRequest(requestId: $requestId, producerName: $producerName, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, status: $status, submittedAt: $submittedAt, reviewedAt: $reviewedAt, reviewComment: $reviewComment, submitterComment: $submitterComment, resendRequestedAt: $resendRequestedAt)';
+    return 'AdminProducerRequest(requestId: $requestId, producerName: $producerName, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, status: $status, submittedAt: $submittedAt, reviewedAt: $reviewedAt, reviewComment: $reviewComment, submitterComment: $submitterComment, resendRequestedAt: $resendRequestedAt)';
 }
 
 

@@ -14,7 +14,6 @@ import persistence.model.MemberAccountStatus
 import persistence.model.MemberContract
 import persistence.model.MemberPreferences
 import persistence.model.MemberRegistration
-import persistence.model.MemberSettings
 import persistence.model.Organization
 import persistence.model.UserPreferences
 import persistence.model.UserSettings
@@ -31,10 +30,10 @@ internal class MemberSyncPostgresDAO(
             conn
                 .prepareStatement(
                     """
-                    SELECT member_id, organization_id, roles, active_status,
+                    SELECT member_id, organization_id, roles,
                            first_name, last_name, email, phone, account_status,
                            contracts, registrations,
-                           member_settings, member_preferences, user_preferences, user_settings
+                           member_preferences, user_preferences, user_settings
                     FROM member
                     WHERE organization_id = ?
                     """.trimIndent(),
@@ -55,10 +54,10 @@ internal class MemberSyncPostgresDAO(
             conn
                 .prepareStatement(
                     """
-                    SELECT member_id, organization_id, roles, active_status,
+                    SELECT member_id, organization_id, roles,
                            first_name, last_name, email, phone, account_status,
                            contracts, registrations,
-                           member_settings, member_preferences, user_preferences, user_settings
+                           member_preferences, user_preferences, user_settings
                     FROM member
                     """.trimIndent(),
                 ).use { stmt ->
@@ -90,10 +89,10 @@ internal class MemberSyncPostgresDAO(
             conn
                 .prepareStatement(
                     """
-                    SELECT member_id, organization_id, roles, active_status,
+                    SELECT member_id, organization_id, roles,
                            first_name, last_name, email, phone, account_status,
                            contracts, registrations,
-                           member_settings, member_preferences, user_preferences, user_settings
+                           member_preferences, user_preferences, user_settings
                     FROM member
                     WHERE member_id = ?
                     """.trimIndent(),
@@ -118,16 +117,15 @@ internal class MemberSyncPostgresDAO(
                 .prepareStatement(
                     """
                     INSERT INTO member (
-                        member_id, organization_id, roles, active_status,
+                        member_id, organization_id, roles,
                         first_name, last_name, email, phone, account_status,
                         contracts, registrations,
-                        member_settings, member_preferences, user_preferences, user_settings
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb)
+                        member_preferences, user_preferences, user_settings
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb)
                     ON CONFLICT (member_id)
                     DO UPDATE SET
                         organization_id = EXCLUDED.organization_id,
                         roles = EXCLUDED.roles,
-                        active_status = EXCLUDED.active_status,
                         first_name = EXCLUDED.first_name,
                         last_name = EXCLUDED.last_name,
                         email = EXCLUDED.email,
@@ -135,7 +133,6 @@ internal class MemberSyncPostgresDAO(
                         account_status = EXCLUDED.account_status,
                         contracts = EXCLUDED.contracts,
                         registrations = EXCLUDED.registrations,
-                        member_settings = EXCLUDED.member_settings,
                         member_preferences = EXCLUDED.member_preferences,
                         user_preferences = EXCLUDED.user_preferences,
                         user_settings = EXCLUDED.user_settings
@@ -147,33 +144,31 @@ internal class MemberSyncPostgresDAO(
                         3,
                         conn.createArrayOf("text", member.roles.map { it.name }.toTypedArray<String>()),
                     )
-                    stmt.setBoolean(4, member.activeStatus)
-                    stmt.setString(5, member.firstName)
-                    stmt.setString(6, member.lastName)
-                    stmt.setString(7, member.email)
-                    stmt.setString(8, member.phone)
-                    stmt.setString(9, member.accountStatus?.name)
+                    stmt.setString(4, member.firstName)
+                    stmt.setString(5, member.lastName)
+                    stmt.setString(6, member.email)
+                    stmt.setString(7, member.phone)
+                    stmt.setString(8, member.accountStatus.name)
                     stmt.setString(
-                        10,
+                        9,
                         json.encodeToString(ListSerializer(MemberContract.serializer()), member.contracts),
                     )
                     stmt.setString(
-                        11,
+                        10,
                         json.encodeToString(
                             ListSerializer(MemberRegistration.serializer()),
                             member.registrations,
                         ),
                     )
-                    stmt.setString(12, json.encodeToString(MemberSettings.serializer(), member.memberSettings))
                     stmt.setString(
-                        13,
+                        11,
                         json.encodeToString(MemberPreferences.serializer(), member.memberPreferences),
                     )
                     stmt.setString(
-                        14,
+                        12,
                         json.encodeToString(UserPreferences.serializer(), member.userPreferences),
                     )
-                    stmt.setString(15, json.encodeToString(UserSettings.serializer(), member.userSettings))
+                    stmt.setString(13, json.encodeToString(UserSettings.serializer(), member.userSettings))
                     stmt.executeUpdate()
                 }
             upsertChanges(conn, changes)
@@ -198,20 +193,19 @@ internal class MemberSyncPostgresDAO(
         }
     }
 
-    override suspend fun setActiveStatusBySub(
+    override suspend fun setAccountStatusBySub(
         sub: String,
-        activeStatus: Boolean,
+        accountStatus: MemberAccountStatus,
         changes: List<Change>,
     ) {
         // Since memberId == sub by convention, we use member_id for the WHERE clause.
         client.dataSource.tx { conn ->
             conn
                 .prepareStatement(
-                    "UPDATE member SET active_status = ?, account_status = ? WHERE member_id = ?",
+                    "UPDATE member SET account_status = ? WHERE member_id = ?",
                 ).use { stmt ->
-                    stmt.setBoolean(1, activeStatus)
-                    stmt.setString(2, if (activeStatus) MemberAccountStatus.ACTIVE.name else MemberAccountStatus.SUSPENDED.name)
-                    stmt.setString(3, sub)
+                    stmt.setString(1, accountStatus.name)
+                    stmt.setString(2, sub)
                     stmt.executeUpdate()
                 }
             upsertChanges(conn, changes)
@@ -228,8 +222,7 @@ internal class MemberSyncPostgresDAO(
                 .prepareStatement(
                     """
                     UPDATE member
-                    SET active_status = FALSE,
-                        first_name = NULL,
+                    SET first_name = NULL,
                         last_name = NULL,
                         email = NULL,
                         phone = NULL,
@@ -255,15 +248,14 @@ private fun ResultSet.toMember(): Member =
                 .filterIsInstance<String>()
                 .mapNotNull { Role.fromString(it) }
                 .toSet(),
-        activeStatus = getBoolean("active_status"),
         firstName = getString("first_name"),
         lastName = getString("last_name"),
         email = getString("email"),
         phone = getString("phone"),
         accountStatus =
             getString("account_status")?.let { value ->
-                runCatching { MemberAccountStatus.valueOf(value) }.getOrNull()
-            },
+                MemberAccountStatus.valueOf(value)
+            } ?: MemberAccountStatus.ACTIVE,
         contracts =
             json.decodeFromString(
                 ListSerializer(MemberContract.serializer()),
@@ -273,11 +265,6 @@ private fun ResultSet.toMember(): Member =
             json.decodeFromString(
                 ListSerializer(MemberRegistration.serializer()),
                 getString("registrations") ?: "[]",
-            ),
-        memberSettings =
-            json.decodeFromString(
-                MemberSettings.serializer(),
-                getString("member_settings"),
             ),
         memberPreferences =
             json.decodeFromString(

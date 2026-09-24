@@ -1,7 +1,10 @@
 {
   "id": "volunteer-register-early-slot-delivery-override",
   "title": "A volunteer can register on an EARLY slot of a template-less delivery whose own early_slot override sets the capacity",
-  "targets": ["volunteer-flow", "flutter"],
+  "targets": [
+    "volunteer-flow",
+    "flutter"
+  ],
   "given": {
     "backendState": "organization:org-1 with a future CONFIRMED delivery:delivery-1 with no template but a delivery-level early_slot override (max_volunteers 2) containing an EARLY slot with capacity 2 and no registrations; member:volunteer-1 authorized on organization:org-1 with role VOLUNTEER",
     "appState": "fresh organization cache synchronized from bootstrap"
@@ -47,7 +50,9 @@
                       "contracts": [
                         {
                           "contract_id": "contract-1",
-                          "coordinators": ["coordinator-1"],
+                          "coordinators": [
+                            "coordinator-1"
+                          ],
                           "basket_quantity": 10,
                           "delivery_description": "Weekly basket",
                           "status": "PENDING",

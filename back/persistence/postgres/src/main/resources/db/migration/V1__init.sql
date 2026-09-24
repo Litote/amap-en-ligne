@@ -204,11 +204,9 @@ CREATE TABLE public.error_report (
 CREATE TABLE public.member (
     member_id text NOT NULL,
     organization_id text NOT NULL,
-    active_status boolean DEFAULT true NOT NULL,
     contracts jsonb DEFAULT '[]'::jsonb NOT NULL,
     notifications jsonb DEFAULT '[]'::jsonb NOT NULL,
     registrations jsonb DEFAULT '[]'::jsonb NOT NULL,
-    member_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     member_preferences jsonb DEFAULT '{}'::jsonb NOT NULL,
     user_preferences jsonb DEFAULT '{}'::jsonb NOT NULL,
     user_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -219,7 +217,7 @@ CREATE TABLE public.member (
     last_name text,
     email text,
     phone text,
-    account_status text
+    account_status text DEFAULT 'ACTIVE'::text NOT NULL
 );
 
 

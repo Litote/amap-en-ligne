@@ -19,12 +19,10 @@ const _cognitoPreset = CognitoServerConfig(
   region: 'eu-west-1',
 );
 
-const _presets = [_gotruePreset, _cognitoPreset];
-
 Future<ServerConfigStorage> _newStorage() async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
-  return ServerConfigStorage(prefs: prefs, presets: _presets);
+  return ServerConfigStorage(prefs: prefs);
 }
 
 void main() {
@@ -40,30 +38,6 @@ void main() {
     expect(restored, isA<CognitoServerConfig>());
     expect(restored?.toJson(), _cognitoPreset.toJson());
   });
-
-  test(
-    'read falls back to the legacy preset id when no serialized config exists',
-    () async {
-      SharedPreferences.setMockInitialValues({
-        'server.selected.id.v1': 'preset-a',
-      });
-      final prefs = await SharedPreferences.getInstance();
-      final storage = ServerConfigStorage(prefs: prefs, presets: _presets);
-      expect(storage.read()?.toJson(), _gotruePreset.toJson());
-    },
-  );
-
-  test(
-    'read returns null when persisted legacy id is no longer in the preset list',
-    () async {
-      SharedPreferences.setMockInitialValues({
-        'server.selected.id.v1': 'removed-preset',
-      });
-      final prefs = await SharedPreferences.getInstance();
-      final storage = ServerConfigStorage(prefs: prefs, presets: _presets);
-      expect(storage.read(), isNull);
-    },
-  );
 
   test('clear removes the persisted selection', () async {
     final storage = await _newStorage();
