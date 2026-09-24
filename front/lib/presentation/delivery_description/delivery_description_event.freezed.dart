@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'delivery_description_event.dart';
@@ -9,6 +9,7 @@ part of 'delivery_description_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$DeliveryDescriptionEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent()';
+    return 'DeliveryDescriptionEvent()';
 }
 
 
@@ -203,16 +204,18 @@ $DeliveryDescriptionRequestedCopyWith<DeliveryDescriptionRequested> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionRequested&&(identical(other.org, org) || other.org == org)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionRequested&&(identical(other.org, org) || other.org == org)&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,org,deliveryId);
+int get hashCode {
+    return Object.hash(runtimeType,org,deliveryId);
+}
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent.requested(org: $org, deliveryId: $deliveryId)';
+    return 'DeliveryDescriptionEvent.requested(org: $org, deliveryId: $deliveryId)';
 }
 
 
@@ -281,16 +284,18 @@ $ItemToggledCopyWith<ItemToggled> get copyWith => _$ItemToggledCopyWithImpl<Item
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemToggled&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemToggled&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSizeName,itemTypeId);
+int get hashCode {
+    return Object.hash(runtimeType,productTypeId,basketSizeName,itemTypeId);
+}
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent.itemToggled(productTypeId: $productTypeId, basketSizeName: $basketSizeName, itemTypeId: $itemTypeId)';
+    return 'DeliveryDescriptionEvent.itemToggled(productTypeId: $productTypeId, basketSizeName: $basketSizeName, itemTypeId: $itemTypeId)';
 }
 
 
@@ -352,16 +357,18 @@ $WeightChangedCopyWith<WeightChanged> get copyWith => _$WeightChangedCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WeightChanged&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId)&&(identical(other.weight, weight) || other.weight == weight));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is WeightChanged&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId)&&(identical(other.weight, weight) || other.weight == weight));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,basketSizeName,itemTypeId,weight);
+int get hashCode {
+    return Object.hash(runtimeType,productTypeId,basketSizeName,itemTypeId,weight);
+}
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent.weightChanged(productTypeId: $productTypeId, basketSizeName: $basketSizeName, itemTypeId: $itemTypeId, weight: $weight)';
+    return 'DeliveryDescriptionEvent.weightChanged(productTypeId: $productTypeId, basketSizeName: $basketSizeName, itemTypeId: $itemTypeId, weight: $weight)';
 }
 
 
@@ -416,7 +423,7 @@ class DeliveryDescriptionSaveRequested implements DeliveryDescriptionEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionSaveRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeliveryDescriptionSaveRequested);
 }
 
 
@@ -425,7 +432,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DeliveryDescriptionEvent.saveRequested()';
+    return 'DeliveryDescriptionEvent.saveRequested()';
 }
 
 

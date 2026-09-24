@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'admin_member_join_request.dart';
@@ -9,6 +9,7 @@ part of 'admin_member_join_request.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $AdminMemberJoinRequestCopyWith<AdminMemberJoinRequest> get copyWith => _$AdminM
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminMemberJoinRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment));
+  final _this = this as AdminMemberJoinRequest;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminMemberJoinRequest&&(identical(other.requestId, _this.requestId) || other.requestId == _this.requestId)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.submittedAt, _this.submittedAt) || other.submittedAt == _this.submittedAt)&&(identical(other.reviewedAt, _this.reviewedAt) || other.reviewedAt == _this.reviewedAt)&&(identical(other.reviewComment, _this.reviewComment) || other.reviewComment == _this.reviewComment));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,organizationId,email,firstName,lastName,status,submittedAt,reviewedAt,reviewComment);
+int get hashCode {
+  final _this = this as AdminMemberJoinRequest;
+  return Object.hash(runtimeType,_this.requestId,_this.organizationId,_this.email,_this.firstName,_this.lastName,_this.status,_this.submittedAt,_this.reviewedAt,_this.reviewComment);
+}
 
 @override
 String toString() {
-  return 'AdminMemberJoinRequest(requestId: $requestId, organizationId: $organizationId, email: $email, firstName: $firstName, lastName: $lastName, status: $status, submittedAt: $submittedAt, reviewedAt: $reviewedAt, reviewComment: $reviewComment)';
+  final _this = this as AdminMemberJoinRequest;
+  return 'AdminMemberJoinRequest(requestId: ${_this.requestId}, organizationId: ${_this.organizationId}, email: ${_this.email}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, status: ${_this.status}, submittedAt: ${_this.submittedAt}, reviewedAt: ${_this.reviewedAt}, reviewComment: ${_this.reviewComment})';
 }
 
 
@@ -66,7 +72,7 @@ class _$AdminMemberJoinRequestCopyWithImpl<$Res>
 /// Create a copy of AdminMemberJoinRequest
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? requestId = null,Object? organizationId = null,Object? email = null,Object? firstName = null,Object? lastName = null,Object? status = null,Object? submittedAt = null,Object? reviewedAt = freezed,Object? reviewComment = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(AdminMemberJoinRequest(
 requestId: null == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -243,16 +249,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdminMemberJoinRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdminMemberJoinRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,organizationId,email,firstName,lastName,status,submittedAt,reviewedAt,reviewComment);
+int get hashCode {
+    return Object.hash(runtimeType,requestId,organizationId,email,firstName,lastName,status,submittedAt,reviewedAt,reviewComment);
+}
 
 @override
 String toString() {
-  return 'AdminMemberJoinRequest(requestId: $requestId, organizationId: $organizationId, email: $email, firstName: $firstName, lastName: $lastName, status: $status, submittedAt: $submittedAt, reviewedAt: $reviewedAt, reviewComment: $reviewComment)';
+    return 'AdminMemberJoinRequest(requestId: $requestId, organizationId: $organizationId, email: $email, firstName: $firstName, lastName: $lastName, status: $status, submittedAt: $submittedAt, reviewedAt: $reviewedAt, reviewComment: $reviewComment)';
 }
 
 

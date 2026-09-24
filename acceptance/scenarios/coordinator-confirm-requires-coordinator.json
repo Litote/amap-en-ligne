@@ -1,7 +1,10 @@
 {
   "id": "coordinator-confirm-requires-coordinator",
   "title": "Confirming a delivery whose contract has no coordinator is rejected with MISSING_COORDINATOR",
-  "targets": ["coordinator-flow", "flutter"],
+  "targets": [
+    "coordinator-flow",
+    "flutter"
+  ],
   "given": {
     "backendState": "organization:org-1 with a future PLANNED delivery:delivery-1 containing one DeliveryContract:contract-1 with an empty coordinators list; member:admin-1 authorized on organization:org-1 with role ADMIN",
     "appState": "fresh organization cache synchronized from bootstrap"

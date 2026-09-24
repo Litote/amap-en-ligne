@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'organization_creation_state.dart';
@@ -9,6 +9,7 @@ part of 'organization_creation_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$OrganizationCreationState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationState);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'OrganizationCreationState()';
+    return 'OrganizationCreationState()';
 }
 
 
@@ -197,7 +198,7 @@ class OrganizationCreationInitial implements OrganizationCreationState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationInitial);
 }
 
 
@@ -206,7 +207,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'OrganizationCreationState.initial()';
+    return 'OrganizationCreationState.initial()';
 }
 
 
@@ -229,7 +230,7 @@ class OrganizationCreationSubmitting implements OrganizationCreationState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationSubmitting);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationSubmitting);
 }
 
 
@@ -238,7 +239,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'OrganizationCreationState.submitting()';
+    return 'OrganizationCreationState.submitting()';
 }
 
 
@@ -266,16 +267,18 @@ $OrganizationCreationSuccessCopyWith<OrganizationCreationSuccess> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationSuccess&&(identical(other.response, response) || other.response == response));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationSuccess&&(identical(other.response, response) || other.response == response));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,response);
+int get hashCode {
+    return Object.hash(runtimeType,response);
+}
 
 @override
 String toString() {
-  return 'OrganizationCreationState.success(response: $response)';
+    return 'OrganizationCreationState.success(response: $response)';
 }
 
 
@@ -342,16 +345,18 @@ $OrganizationCreationErrorCopyWith<OrganizationCreationError> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationError&&(identical(other.message, message) || other.message == message)&&(identical(other.conflictField, conflictField) || other.conflictField == conflictField));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrganizationCreationError&&(identical(other.message, message) || other.message == message)&&(identical(other.conflictField, conflictField) || other.conflictField == conflictField));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,conflictField);
+int get hashCode {
+    return Object.hash(runtimeType,message,conflictField);
+}
 
 @override
 String toString() {
-  return 'OrganizationCreationState.error(message: $message, conflictField: $conflictField)';
+    return 'OrganizationCreationState.error(message: $message, conflictField: $conflictField)';
 }
 
 

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'user_management_bloc.dart';
@@ -9,6 +9,7 @@ part of 'user_management_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$UserManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementEvent()';
+    return 'UserManagementEvent()';
 }
 
 
@@ -293,7 +294,7 @@ class _LoadRequested implements UserManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadRequested);
 }
 
 
@@ -302,7 +303,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementEvent.loadRequested()';
+    return 'UserManagementEvent.loadRequested()';
 }
 
 
@@ -330,16 +331,18 @@ _$SearchChangedCopyWith<_SearchChanged> get copyWith => __$SearchChangedCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchChanged&&(identical(other.query, query) || other.query == query));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchChanged&&(identical(other.query, query) || other.query == query));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,query);
+int get hashCode {
+    return Object.hash(runtimeType,query);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.searchChanged(query: $query)';
+    return 'UserManagementEvent.searchChanged(query: $query)';
 }
 
 
@@ -396,16 +399,18 @@ _$RoleFilterChangedCopyWith<_RoleFilterChanged> get copyWith => __$RoleFilterCha
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RoleFilterChanged&&(identical(other.role, role) || other.role == role));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RoleFilterChanged&&(identical(other.role, role) || other.role == role));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,role);
+int get hashCode {
+    return Object.hash(runtimeType,role);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.roleFilterChanged(role: $role)';
+    return 'UserManagementEvent.roleFilterChanged(role: $role)';
 }
 
 
@@ -462,16 +467,18 @@ _$InvitationStatusFilterChangedCopyWith<_InvitationStatusFilterChanged> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InvitationStatusFilterChanged&&(identical(other.filter, filter) || other.filter == filter));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _InvitationStatusFilterChanged&&(identical(other.filter, filter) || other.filter == filter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,filter);
+int get hashCode {
+    return Object.hash(runtimeType,filter);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.invitationStatusFilterChanged(filter: $filter)';
+    return 'UserManagementEvent.invitationStatusFilterChanged(filter: $filter)';
 }
 
 
@@ -528,16 +535,18 @@ _$UserStatusFilterChangedCopyWith<_UserStatusFilterChanged> get copyWith => __$U
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserStatusFilterChanged&&(identical(other.filter, filter) || other.filter == filter));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserStatusFilterChanged&&(identical(other.filter, filter) || other.filter == filter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,filter);
+int get hashCode {
+    return Object.hash(runtimeType,filter);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.userStatusFilterChanged(filter: $filter)';
+    return 'UserManagementEvent.userStatusFilterChanged(filter: $filter)';
 }
 
 
@@ -594,16 +603,18 @@ _$EditRolesRequestedCopyWith<_EditRolesRequested> get copyWith => __$EditRolesRe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditRolesRequested&&(identical(other.member, member) || other.member == member));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditRolesRequested&&(identical(other.member, member) || other.member == member));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,member);
+int get hashCode {
+    return Object.hash(runtimeType,member);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.editRolesRequested(member: $member)';
+    return 'UserManagementEvent.editRolesRequested(member: $member)';
 }
 
 
@@ -670,16 +681,18 @@ _$RoleToggledCopyWith<_RoleToggled> get copyWith => __$RoleToggledCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RoleToggled&&(identical(other.role, role) || other.role == role)&&(identical(other.isChecked, isChecked) || other.isChecked == isChecked));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RoleToggled&&(identical(other.role, role) || other.role == role)&&(identical(other.isChecked, isChecked) || other.isChecked == isChecked));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,role,isChecked);
+int get hashCode {
+    return Object.hash(runtimeType,role,isChecked);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.roleToggled(role: $role, isChecked: $isChecked)';
+    return 'UserManagementEvent.roleToggled(role: $role, isChecked: $isChecked)';
 }
 
 
@@ -732,7 +745,7 @@ class _SaveRolesRequested implements UserManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SaveRolesRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SaveRolesRequested);
 }
 
 
@@ -741,7 +754,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementEvent.saveRolesRequested()';
+    return 'UserManagementEvent.saveRolesRequested()';
 }
 
 
@@ -764,7 +777,7 @@ class _EditCancelled implements UserManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditCancelled);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditCancelled);
 }
 
 
@@ -773,7 +786,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementEvent.editCancelled()';
+    return 'UserManagementEvent.editCancelled()';
 }
 
 
@@ -796,7 +809,7 @@ class _ShowInviteForm implements UserManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ShowInviteForm);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ShowInviteForm);
 }
 
 
@@ -805,7 +818,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementEvent.showInviteForm()';
+    return 'UserManagementEvent.showInviteForm()';
 }
 
 
@@ -833,16 +846,18 @@ _$InviteFirstNameChangedCopyWith<_InviteFirstNameChanged> get copyWith => __$Inv
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteFirstNameChanged&&(identical(other.value, value) || other.value == value));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteFirstNameChanged&&(identical(other.value, value) || other.value == value));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,value);
+int get hashCode {
+    return Object.hash(runtimeType,value);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.inviteFirstNameChanged(value: $value)';
+    return 'UserManagementEvent.inviteFirstNameChanged(value: $value)';
 }
 
 
@@ -899,16 +914,18 @@ _$InviteLastNameChangedCopyWith<_InviteLastNameChanged> get copyWith => __$Invit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLastNameChanged&&(identical(other.value, value) || other.value == value));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLastNameChanged&&(identical(other.value, value) || other.value == value));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,value);
+int get hashCode {
+    return Object.hash(runtimeType,value);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.inviteLastNameChanged(value: $value)';
+    return 'UserManagementEvent.inviteLastNameChanged(value: $value)';
 }
 
 
@@ -965,16 +982,18 @@ _$InviteEmailChangedCopyWith<_InviteEmailChanged> get copyWith => __$InviteEmail
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteEmailChanged&&(identical(other.value, value) || other.value == value));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteEmailChanged&&(identical(other.value, value) || other.value == value));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,value);
+int get hashCode {
+    return Object.hash(runtimeType,value);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.inviteEmailChanged(value: $value)';
+    return 'UserManagementEvent.inviteEmailChanged(value: $value)';
 }
 
 
@@ -1032,16 +1051,18 @@ _$InviteRoleToggledCopyWith<_InviteRoleToggled> get copyWith => __$InviteRoleTog
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteRoleToggled&&(identical(other.role, role) || other.role == role)&&(identical(other.isChecked, isChecked) || other.isChecked == isChecked));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteRoleToggled&&(identical(other.role, role) || other.role == role)&&(identical(other.isChecked, isChecked) || other.isChecked == isChecked));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,role,isChecked);
+int get hashCode {
+    return Object.hash(runtimeType,role,isChecked);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.inviteRoleToggled(role: $role, isChecked: $isChecked)';
+    return 'UserManagementEvent.inviteRoleToggled(role: $role, isChecked: $isChecked)';
 }
 
 
@@ -1099,16 +1120,18 @@ _$ResendInvitationRequestedCopyWith<_ResendInvitationRequested> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResendInvitationRequested&&(identical(other.invitation, invitation) || other.invitation == invitation));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResendInvitationRequested&&(identical(other.invitation, invitation) || other.invitation == invitation));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,invitation);
+int get hashCode {
+    return Object.hash(runtimeType,invitation);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.resendInvitationRequested(invitation: $invitation)';
+    return 'UserManagementEvent.resendInvitationRequested(invitation: $invitation)';
 }
 
 
@@ -1174,16 +1197,18 @@ _$DeleteInvitationRequestedCopyWith<_DeleteInvitationRequested> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeleteInvitationRequested&&(identical(other.invitation, invitation) || other.invitation == invitation));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeleteInvitationRequested&&(identical(other.invitation, invitation) || other.invitation == invitation));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,invitation);
+int get hashCode {
+    return Object.hash(runtimeType,invitation);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.deleteInvitationRequested(invitation: $invitation)';
+    return 'UserManagementEvent.deleteInvitationRequested(invitation: $invitation)';
 }
 
 
@@ -1250,16 +1275,18 @@ _$ResendAllPendingRequestedCopyWith<_ResendAllPendingRequested> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResendAllPendingRequested&&(identical(other.customEmailSubject, customEmailSubject) || other.customEmailSubject == customEmailSubject)&&(identical(other.customEmailBody, customEmailBody) || other.customEmailBody == customEmailBody));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResendAllPendingRequested&&(identical(other.customEmailSubject, customEmailSubject) || other.customEmailSubject == customEmailSubject)&&(identical(other.customEmailBody, customEmailBody) || other.customEmailBody == customEmailBody));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,customEmailSubject,customEmailBody);
+int get hashCode {
+    return Object.hash(runtimeType,customEmailSubject,customEmailBody);
+}
 
 @override
 String toString() {
-  return 'UserManagementEvent.resendAllPendingRequested(customEmailSubject: $customEmailSubject, customEmailBody: $customEmailBody)';
+    return 'UserManagementEvent.resendAllPendingRequested(customEmailSubject: $customEmailSubject, customEmailBody: $customEmailBody)';
 }
 
 
@@ -1312,7 +1339,7 @@ class _SubmitInvitation implements UserManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmitInvitation);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmitInvitation);
 }
 
 
@@ -1321,7 +1348,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementEvent.submitInvitation()';
+    return 'UserManagementEvent.submitInvitation()';
 }
 
 
@@ -1344,7 +1371,7 @@ class _DismissInviteForm implements UserManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DismissInviteForm);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DismissInviteForm);
 }
 
 
@@ -1353,7 +1380,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementEvent.dismissInviteForm()';
+    return 'UserManagementEvent.dismissInviteForm()';
 }
 
 
@@ -1376,7 +1403,7 @@ class _FeedbackDismissed implements UserManagementEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedbackDismissed);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedbackDismissed);
 }
 
 
@@ -1385,7 +1412,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementEvent.feedbackDismissed()';
+    return 'UserManagementEvent.feedbackDismissed()';
 }
 
 
@@ -1403,7 +1430,7 @@ mixin _$UserManagementState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementState);
 }
 
 
@@ -1412,7 +1439,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementState()';
+    return 'UserManagementState()';
 }
 
 
@@ -1580,7 +1607,7 @@ class UserManagementInitial implements UserManagementState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementInitial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementInitial);
 }
 
 
@@ -1589,7 +1616,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementState.initial()';
+    return 'UserManagementState.initial()';
 }
 
 
@@ -1612,7 +1639,7 @@ class UserManagementLoading implements UserManagementState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementLoading);
 }
 
 
@@ -1621,7 +1648,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserManagementState.loading()';
+    return 'UserManagementState.loading()';
 }
 
 
@@ -1634,7 +1661,7 @@ String toString() {
 
 
 class UserManagementLoaded implements UserManagementState {
-  const UserManagementLoaded({required final  List<Member> members, final  List<MemberInvitation> memberInvitations = const <MemberInvitation>[], this.searchQuery = '', this.roleFilter, this.invitationStatusFilter = InvitationStatusFilter.active, this.userStatusFilter = UserStatusFilter.active, this.editingMember, final  Set<Role> pendingRoles = const <Role>{}, this.saving = false, this.showingInviteForm = false, this.inviteFirstName = '', this.inviteLastName = '', this.inviteEmail = '', final  Set<Role> inviteRoles = const <Role>{}, this.inviting = false, final  Set<String> resendingInvitationIds = const <String>{}, final  Set<String> deletingInvitationIds = const <String>{}, this.resendingAllPending = false, this.inviteError, this.inviteSuccess = false, this.feedbackMessage, this.feedbackIsError = false}): _members = members,_memberInvitations = memberInvitations,_pendingRoles = pendingRoles,_inviteRoles = inviteRoles,_resendingInvitationIds = resendingInvitationIds,_deletingInvitationIds = deletingInvitationIds;
+  const UserManagementLoaded({required  List<Member> members,  List<MemberInvitation> memberInvitations = const <MemberInvitation>[], this.searchQuery = '', this.roleFilter, this.invitationStatusFilter = InvitationStatusFilter.active, this.userStatusFilter = UserStatusFilter.active, this.editingMember,  Set<Role> pendingRoles = const <Role>{}, this.saving = false, this.showingInviteForm = false, this.inviteFirstName = '', this.inviteLastName = '', this.inviteEmail = '',  Set<Role> inviteRoles = const <Role>{}, this.inviting = false,  Set<String> resendingInvitationIds = const <String>{},  Set<String> deletingInvitationIds = const <String>{}, this.resendingAllPending = false, this.inviteError, this.inviteSuccess = false, this.feedbackMessage, this.feedbackIsError = false}): _members = members,_memberInvitations = memberInvitations,_pendingRoles = pendingRoles,_inviteRoles = inviteRoles,_resendingInvitationIds = resendingInvitationIds,_deletingInvitationIds = deletingInvitationIds;
   
 
  final  List<Member> _members;
@@ -1706,16 +1733,18 @@ $UserManagementLoadedCopyWith<UserManagementLoaded> get copyWith => _$UserManage
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementLoaded&&const DeepCollectionEquality().equals(other._members, _members)&&const DeepCollectionEquality().equals(other._memberInvitations, _memberInvitations)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.roleFilter, roleFilter) || other.roleFilter == roleFilter)&&(identical(other.invitationStatusFilter, invitationStatusFilter) || other.invitationStatusFilter == invitationStatusFilter)&&(identical(other.userStatusFilter, userStatusFilter) || other.userStatusFilter == userStatusFilter)&&(identical(other.editingMember, editingMember) || other.editingMember == editingMember)&&const DeepCollectionEquality().equals(other._pendingRoles, _pendingRoles)&&(identical(other.saving, saving) || other.saving == saving)&&(identical(other.showingInviteForm, showingInviteForm) || other.showingInviteForm == showingInviteForm)&&(identical(other.inviteFirstName, inviteFirstName) || other.inviteFirstName == inviteFirstName)&&(identical(other.inviteLastName, inviteLastName) || other.inviteLastName == inviteLastName)&&(identical(other.inviteEmail, inviteEmail) || other.inviteEmail == inviteEmail)&&const DeepCollectionEquality().equals(other._inviteRoles, _inviteRoles)&&(identical(other.inviting, inviting) || other.inviting == inviting)&&const DeepCollectionEquality().equals(other._resendingInvitationIds, _resendingInvitationIds)&&const DeepCollectionEquality().equals(other._deletingInvitationIds, _deletingInvitationIds)&&(identical(other.resendingAllPending, resendingAllPending) || other.resendingAllPending == resendingAllPending)&&(identical(other.inviteError, inviteError) || other.inviteError == inviteError)&&(identical(other.inviteSuccess, inviteSuccess) || other.inviteSuccess == inviteSuccess)&&(identical(other.feedbackMessage, feedbackMessage) || other.feedbackMessage == feedbackMessage)&&(identical(other.feedbackIsError, feedbackIsError) || other.feedbackIsError == feedbackIsError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementLoaded&&const DeepCollectionEquality().equals(other.members, _members)&&const DeepCollectionEquality().equals(other.memberInvitations, _memberInvitations)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.roleFilter, roleFilter) || other.roleFilter == roleFilter)&&(identical(other.invitationStatusFilter, invitationStatusFilter) || other.invitationStatusFilter == invitationStatusFilter)&&(identical(other.userStatusFilter, userStatusFilter) || other.userStatusFilter == userStatusFilter)&&(identical(other.editingMember, editingMember) || other.editingMember == editingMember)&&const DeepCollectionEquality().equals(other.pendingRoles, _pendingRoles)&&(identical(other.saving, saving) || other.saving == saving)&&(identical(other.showingInviteForm, showingInviteForm) || other.showingInviteForm == showingInviteForm)&&(identical(other.inviteFirstName, inviteFirstName) || other.inviteFirstName == inviteFirstName)&&(identical(other.inviteLastName, inviteLastName) || other.inviteLastName == inviteLastName)&&(identical(other.inviteEmail, inviteEmail) || other.inviteEmail == inviteEmail)&&const DeepCollectionEquality().equals(other.inviteRoles, _inviteRoles)&&(identical(other.inviting, inviting) || other.inviting == inviting)&&const DeepCollectionEquality().equals(other.resendingInvitationIds, _resendingInvitationIds)&&const DeepCollectionEquality().equals(other.deletingInvitationIds, _deletingInvitationIds)&&(identical(other.resendingAllPending, resendingAllPending) || other.resendingAllPending == resendingAllPending)&&(identical(other.inviteError, inviteError) || other.inviteError == inviteError)&&(identical(other.inviteSuccess, inviteSuccess) || other.inviteSuccess == inviteSuccess)&&(identical(other.feedbackMessage, feedbackMessage) || other.feedbackMessage == feedbackMessage)&&(identical(other.feedbackIsError, feedbackIsError) || other.feedbackIsError == feedbackIsError));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,const DeepCollectionEquality().hash(_members),const DeepCollectionEquality().hash(_memberInvitations),searchQuery,roleFilter,invitationStatusFilter,userStatusFilter,editingMember,const DeepCollectionEquality().hash(_pendingRoles),saving,showingInviteForm,inviteFirstName,inviteLastName,inviteEmail,const DeepCollectionEquality().hash(_inviteRoles),inviting,const DeepCollectionEquality().hash(_resendingInvitationIds),const DeepCollectionEquality().hash(_deletingInvitationIds),resendingAllPending,inviteError,inviteSuccess,feedbackMessage,feedbackIsError]);
+int get hashCode {
+    return Object.hashAll([runtimeType,const DeepCollectionEquality().hash(_members),const DeepCollectionEquality().hash(_memberInvitations),searchQuery,roleFilter,invitationStatusFilter,userStatusFilter,editingMember,const DeepCollectionEquality().hash(_pendingRoles),saving,showingInviteForm,inviteFirstName,inviteLastName,inviteEmail,const DeepCollectionEquality().hash(_inviteRoles),inviting,const DeepCollectionEquality().hash(_resendingInvitationIds),const DeepCollectionEquality().hash(_deletingInvitationIds),resendingAllPending,inviteError,inviteSuccess,feedbackMessage,feedbackIsError]);
+}
 
 @override
 String toString() {
-  return 'UserManagementState.loaded(members: $members, memberInvitations: $memberInvitations, searchQuery: $searchQuery, roleFilter: $roleFilter, invitationStatusFilter: $invitationStatusFilter, userStatusFilter: $userStatusFilter, editingMember: $editingMember, pendingRoles: $pendingRoles, saving: $saving, showingInviteForm: $showingInviteForm, inviteFirstName: $inviteFirstName, inviteLastName: $inviteLastName, inviteEmail: $inviteEmail, inviteRoles: $inviteRoles, inviting: $inviting, resendingInvitationIds: $resendingInvitationIds, deletingInvitationIds: $deletingInvitationIds, resendingAllPending: $resendingAllPending, inviteError: $inviteError, inviteSuccess: $inviteSuccess, feedbackMessage: $feedbackMessage, feedbackIsError: $feedbackIsError)';
+    return 'UserManagementState.loaded(members: $members, memberInvitations: $memberInvitations, searchQuery: $searchQuery, roleFilter: $roleFilter, invitationStatusFilter: $invitationStatusFilter, userStatusFilter: $userStatusFilter, editingMember: $editingMember, pendingRoles: $pendingRoles, saving: $saving, showingInviteForm: $showingInviteForm, inviteFirstName: $inviteFirstName, inviteLastName: $inviteLastName, inviteEmail: $inviteEmail, inviteRoles: $inviteRoles, inviting: $inviting, resendingInvitationIds: $resendingInvitationIds, deletingInvitationIds: $deletingInvitationIds, resendingAllPending: $resendingAllPending, inviteError: $inviteError, inviteSuccess: $inviteSuccess, feedbackMessage: $feedbackMessage, feedbackIsError: $feedbackIsError)';
 }
 
 
@@ -1805,16 +1834,18 @@ $UserManagementErrorCopyWith<UserManagementError> get copyWith => _$UserManageme
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementError&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementError&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'UserManagementState.error(message: $message)';
+    return 'UserManagementState.error(message: $message)';
 }
 
 

@@ -2,6 +2,8 @@ package provisioning.cognito
 
 import authentication.Role
 import aws.sdk.kotlin.services.cognitoidentityprovider.CognitoIdentityProviderClient
+import aws.sdk.kotlin.services.cognitoidentityprovider.model.AdminAddUserToGroupRequest
+import aws.sdk.kotlin.services.cognitoidentityprovider.model.AdminAddUserToGroupResponse
 import aws.sdk.kotlin.services.cognitoidentityprovider.model.AdminCreateUserResponse
 import aws.sdk.kotlin.services.cognitoidentityprovider.model.AdminGetUserResponse
 import aws.sdk.kotlin.services.cognitoidentityprovider.model.AdminListGroupsForUserResponse
@@ -15,6 +17,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import properties.Properties
 import kotlin.test.Test
@@ -117,6 +120,18 @@ internal class CognitoUserProvisioningAdapterTest {
             val sub = adapter.createOwnerUser("owner@b.com", "pw", "Jane", "Doe")
 
             assertEquals("sub-owner", sub)
+        }
+
+    @Test
+    fun `GIVEN names WHEN createOwnerUser THEN adds the user to the OWNER group`() =
+        runTest {
+            coEvery { client.adminCreateUser(any()) } returns createResponseWithSub("sub-owner")
+            val request = slot<AdminAddUserToGroupRequest>()
+            coEvery { client.adminAddUserToGroup(capture(request)) } returns AdminAddUserToGroupResponse {}
+
+            adapter.createOwnerUser("owner@b.com", "pw", "Jane", "Doe")
+
+            assertEquals(Role.OWNER.name, request.captured.groupName)
         }
 
     @Test

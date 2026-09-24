@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'basket_exchange_event.dart';
@@ -9,6 +9,7 @@ part of 'basket_exchange_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$BasketExchangeEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeEvent()';
+    return 'BasketExchangeEvent()';
 }
 
 
@@ -235,7 +236,7 @@ return refreshRequested();case _:
 
 
 class BasketExchangeLoadedFromStreams implements BasketExchangeEvent {
-  const BasketExchangeLoadedFromStreams({required this.org, required this.me, required final  List<BasketExchange> exchanges}): _exchanges = exchanges;
+  const BasketExchangeLoadedFromStreams({required this.org, required this.me, required  List<BasketExchange> exchanges}): _exchanges = exchanges;
   
 
  final  Organization org;
@@ -258,16 +259,18 @@ $BasketExchangeLoadedFromStreamsCopyWith<BasketExchangeLoadedFromStreams> get co
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeLoadedFromStreams&&(identical(other.org, org) || other.org == org)&&(identical(other.me, me) || other.me == me)&&const DeepCollectionEquality().equals(other._exchanges, _exchanges));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeLoadedFromStreams&&(identical(other.org, org) || other.org == org)&&(identical(other.me, me) || other.me == me)&&const DeepCollectionEquality().equals(other.exchanges, _exchanges));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,org,me,const DeepCollectionEquality().hash(_exchanges));
+int get hashCode {
+    return Object.hash(runtimeType,org,me,const DeepCollectionEquality().hash(_exchanges));
+}
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.loadedFromStreams(org: $org, me: $me, exchanges: $exchanges)';
+    return 'BasketExchangeEvent.loadedFromStreams(org: $org, me: $me, exchanges: $exchanges)';
 }
 
 
@@ -342,7 +345,7 @@ class BasketExchangeProposeRequested implements BasketExchangeEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeProposeRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeProposeRequested);
 }
 
 
@@ -351,7 +354,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.proposeRequested()';
+    return 'BasketExchangeEvent.proposeRequested()';
 }
 
 
@@ -381,16 +384,18 @@ $BasketExchangeProposeSubmittedCopyWith<BasketExchangeProposeSubmitted> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeProposeSubmitted&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.motive, motive) || other.motive == motive));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeProposeSubmitted&&(identical(other.deliveryId, deliveryId) || other.deliveryId == deliveryId)&&(identical(other.contractId, contractId) || other.contractId == contractId)&&(identical(other.motive, motive) || other.motive == motive));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deliveryId,contractId,motive);
+int get hashCode {
+    return Object.hash(runtimeType,deliveryId,contractId,motive);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.proposeSubmitted(deliveryId: $deliveryId, contractId: $contractId, motive: $motive)';
+    return 'BasketExchangeEvent.proposeSubmitted(deliveryId: $deliveryId, contractId: $contractId, motive: $motive)';
 }
 
 
@@ -444,7 +449,7 @@ class BasketExchangeProposeCancelled implements BasketExchangeEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeProposeCancelled);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeProposeCancelled);
 }
 
 
@@ -453,7 +458,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.proposeCancelled()';
+    return 'BasketExchangeEvent.proposeCancelled()';
 }
 
 
@@ -481,16 +486,18 @@ $BasketExchangeRequestRequestedCopyWith<BasketExchangeRequestRequested> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestRequested&&(identical(other.offer, offer) || other.offer == offer));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestRequested&&(identical(other.offer, offer) || other.offer == offer));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,offer);
+int get hashCode {
+    return Object.hash(runtimeType,offer);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.requestRequested(offer: $offer)';
+    return 'BasketExchangeEvent.requestRequested(offer: $offer)';
 }
 
 
@@ -558,16 +565,18 @@ $BasketExchangeRequestSubmittedCopyWith<BasketExchangeRequestSubmitted> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestSubmitted&&(identical(other.offer, offer) || other.offer == offer)&&(identical(other.proposedDeliveryId, proposedDeliveryId) || other.proposedDeliveryId == proposedDeliveryId)&&(identical(other.proposedContractId, proposedContractId) || other.proposedContractId == proposedContractId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestSubmitted&&(identical(other.offer, offer) || other.offer == offer)&&(identical(other.proposedDeliveryId, proposedDeliveryId) || other.proposedDeliveryId == proposedDeliveryId)&&(identical(other.proposedContractId, proposedContractId) || other.proposedContractId == proposedContractId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,offer,proposedDeliveryId,proposedContractId);
+int get hashCode {
+    return Object.hash(runtimeType,offer,proposedDeliveryId,proposedContractId);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.requestSubmitted(offer: $offer, proposedDeliveryId: $proposedDeliveryId, proposedContractId: $proposedContractId)';
+    return 'BasketExchangeEvent.requestSubmitted(offer: $offer, proposedDeliveryId: $proposedDeliveryId, proposedContractId: $proposedContractId)';
 }
 
 
@@ -636,16 +645,18 @@ $BasketExchangeRequestWithdrawnCopyWith<BasketExchangeRequestWithdrawn> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestWithdrawn&&(identical(other.offer, offer) || other.offer == offer)&&(identical(other.requestId, requestId) || other.requestId == requestId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestWithdrawn&&(identical(other.offer, offer) || other.offer == offer)&&(identical(other.requestId, requestId) || other.requestId == requestId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,offer,requestId);
+int get hashCode {
+    return Object.hash(runtimeType,offer,requestId);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.requestWithdrawn(offer: $offer, requestId: $requestId)';
+    return 'BasketExchangeEvent.requestWithdrawn(offer: $offer, requestId: $requestId)';
 }
 
 
@@ -713,16 +724,18 @@ $BasketExchangeRequestAcceptedCopyWith<BasketExchangeRequestAccepted> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestAccepted&&(identical(other.offer, offer) || other.offer == offer)&&(identical(other.requestId, requestId) || other.requestId == requestId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestAccepted&&(identical(other.offer, offer) || other.offer == offer)&&(identical(other.requestId, requestId) || other.requestId == requestId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,offer,requestId);
+int get hashCode {
+    return Object.hash(runtimeType,offer,requestId);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.requestAccepted(offer: $offer, requestId: $requestId)';
+    return 'BasketExchangeEvent.requestAccepted(offer: $offer, requestId: $requestId)';
 }
 
 
@@ -790,16 +803,18 @@ $BasketExchangeRequestRefusedCopyWith<BasketExchangeRequestRefused> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestRefused&&(identical(other.offer, offer) || other.offer == offer)&&(identical(other.requestId, requestId) || other.requestId == requestId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRequestRefused&&(identical(other.offer, offer) || other.offer == offer)&&(identical(other.requestId, requestId) || other.requestId == requestId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,offer,requestId);
+int get hashCode {
+    return Object.hash(runtimeType,offer,requestId);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.requestRefused(offer: $offer, requestId: $requestId)';
+    return 'BasketExchangeEvent.requestRefused(offer: $offer, requestId: $requestId)';
 }
 
 
@@ -866,16 +881,18 @@ $BasketExchangeOfferCancelledCopyWith<BasketExchangeOfferCancelled> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeOfferCancelled&&(identical(other.offer, offer) || other.offer == offer));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeOfferCancelled&&(identical(other.offer, offer) || other.offer == offer));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,offer);
+int get hashCode {
+    return Object.hash(runtimeType,offer);
+}
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.offerCancelled(offer: $offer)';
+    return 'BasketExchangeEvent.offerCancelled(offer: $offer)';
 }
 
 
@@ -936,7 +953,7 @@ class BasketExchangeDialogDismissed implements BasketExchangeEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeDialogDismissed);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeDialogDismissed);
 }
 
 
@@ -945,7 +962,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.dialogDismissed()';
+    return 'BasketExchangeEvent.dialogDismissed()';
 }
 
 
@@ -968,7 +985,7 @@ class BasketExchangeRefreshRequested implements BasketExchangeEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRefreshRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketExchangeRefreshRequested);
 }
 
 
@@ -977,7 +994,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'BasketExchangeEvent.refreshRequested()';
+    return 'BasketExchangeEvent.refreshRequested()';
 }
 
 

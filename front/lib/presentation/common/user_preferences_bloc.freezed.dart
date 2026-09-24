@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'user_preferences_bloc.dart';
@@ -9,6 +9,7 @@ part of 'user_preferences_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$UserPreferencesEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserPreferencesEvent()';
+    return 'UserPreferencesEvent()';
 }
 
 
@@ -226,16 +227,18 @@ _$UserPreferencesLoadedCopyWith<_UserPreferencesLoaded> get copyWith => __$UserP
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesLoaded&&(identical(other.member, member) || other.member == member));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesLoaded&&(identical(other.member, member) || other.member == member));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,member);
+int get hashCode {
+    return Object.hash(runtimeType,member);
+}
 
 @override
 String toString() {
-  return 'UserPreferencesEvent.loaded(member: $member)';
+    return 'UserPreferencesEvent.loaded(member: $member)';
 }
 
 
@@ -304,16 +307,18 @@ _$UserPreferencesOwnerLoadedCopyWith<_UserPreferencesOwnerLoaded> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesOwnerLoaded&&(identical(other.owner, owner) || other.owner == owner));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesOwnerLoaded&&(identical(other.owner, owner) || other.owner == owner));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,owner);
+int get hashCode {
+    return Object.hash(runtimeType,owner);
+}
 
 @override
 String toString() {
-  return 'UserPreferencesEvent.ownerLoaded(owner: $owner)';
+    return 'UserPreferencesEvent.ownerLoaded(owner: $owner)';
 }
 
 
@@ -382,16 +387,18 @@ _$UserPreferencesProducerLoadedCopyWith<_UserPreferencesProducerLoaded> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesProducerLoaded&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesProducerLoaded&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,producerAccount);
+int get hashCode {
+    return Object.hash(runtimeType,producerAccount);
+}
 
 @override
 String toString() {
-  return 'UserPreferencesEvent.producerLoaded(producerAccount: $producerAccount)';
+    return 'UserPreferencesEvent.producerLoaded(producerAccount: $producerAccount)';
 }
 
 
@@ -461,16 +468,18 @@ _$UserPreferencesReminderToggledCopyWith<_UserPreferencesReminderToggled> get co
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesReminderToggled&&(identical(other.field, field) || other.field == field)&&(identical(other.value, value) || other.value == value));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesReminderToggled&&(identical(other.field, field) || other.field == field)&&(identical(other.value, value) || other.value == value));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,field,value);
+int get hashCode {
+    return Object.hash(runtimeType,field,value);
+}
 
 @override
 String toString() {
-  return 'UserPreferencesEvent.reminderToggled(field: $field, value: $value)';
+    return 'UserPreferencesEvent.reminderToggled(field: $field, value: $value)';
 }
 
 
@@ -529,16 +538,18 @@ _$UserPreferencesAlertToggledCopyWith<_UserPreferencesAlertToggled> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesAlertToggled&&(identical(other.field, field) || other.field == field)&&(identical(other.value, value) || other.value == value));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesAlertToggled&&(identical(other.field, field) || other.field == field)&&(identical(other.value, value) || other.value == value));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,field,value);
+int get hashCode {
+    return Object.hash(runtimeType,field,value);
+}
 
 @override
 String toString() {
-  return 'UserPreferencesEvent.alertToggled(field: $field, value: $value)';
+    return 'UserPreferencesEvent.alertToggled(field: $field, value: $value)';
 }
 
 
@@ -597,16 +608,18 @@ _$UserPreferencesChannelToggledCopyWith<_UserPreferencesChannelToggled> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesChannelToggled&&(identical(other.field, field) || other.field == field)&&(identical(other.value, value) || other.value == value));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesChannelToggled&&(identical(other.field, field) || other.field == field)&&(identical(other.value, value) || other.value == value));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,field,value);
+int get hashCode {
+    return Object.hash(runtimeType,field,value);
+}
 
 @override
 String toString() {
-  return 'UserPreferencesEvent.channelToggled(field: $field, value: $value)';
+    return 'UserPreferencesEvent.channelToggled(field: $field, value: $value)';
 }
 
 
@@ -659,7 +672,7 @@ class _UserPreferencesSaved implements UserPreferencesEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesSaved);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesSaved);
 }
 
 
@@ -668,7 +681,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserPreferencesEvent.saved()';
+    return 'UserPreferencesEvent.saved()';
 }
 
 
@@ -703,16 +716,18 @@ _$UserPreferencesProfileSavedCopyWith<_UserPreferencesProfileSaved> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesProfileSaved&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.producerName, producerName) || other.producerName == producerName)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.address, address) || other.address == address)&&(identical(other.website, website) || other.website == website));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesProfileSaved&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.producerName, producerName) || other.producerName == producerName)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.address, address) || other.address == address)&&(identical(other.website, website) || other.website == website));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,firstName,lastName,email,phone,producerName,contactEmail,address,website);
+int get hashCode {
+    return Object.hash(runtimeType,firstName,lastName,email,phone,producerName,contactEmail,address,website);
+}
 
 @override
 String toString() {
-  return 'UserPreferencesEvent.profileSaved(firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, producerName: $producerName, contactEmail: $contactEmail, address: $address, website: $website)';
+    return 'UserPreferencesEvent.profileSaved(firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, producerName: $producerName, contactEmail: $contactEmail, address: $address, website: $website)';
 }
 
 
@@ -766,7 +781,7 @@ mixin _$UserPreferencesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesState);
 }
 
 
@@ -775,7 +790,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserPreferencesState()';
+    return 'UserPreferencesState()';
 }
 
 
@@ -937,7 +952,7 @@ class UserPreferencesLoading implements UserPreferencesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesLoading);
 }
 
 
@@ -946,7 +961,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserPreferencesState.loading()';
+    return 'UserPreferencesState.loading()';
 }
 
 
@@ -969,7 +984,7 @@ class UserPreferencesMissing implements UserPreferencesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesMissing);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesMissing);
 }
 
 
@@ -978,7 +993,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserPreferencesState.missing()';
+    return 'UserPreferencesState.missing()';
 }
 
 
@@ -1015,16 +1030,18 @@ $UserPreferencesReadyCopyWith<UserPreferencesReady> get copyWith => _$UserPrefer
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesReady&&(identical(other.member, member) || other.member == member)&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount)&&(identical(other.memberPreferences, memberPreferences) || other.memberPreferences == memberPreferences)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences)&&(identical(other.dirty, dirty) || other.dirty == dirty)&&(identical(other.saveStatus, saveStatus) || other.saveStatus == saveStatus)&&(identical(other.saveErrorMessage, saveErrorMessage) || other.saveErrorMessage == saveErrorMessage)&&(identical(other.profileSaveStatus, profileSaveStatus) || other.profileSaveStatus == profileSaveStatus)&&(identical(other.profileSaveErrorMessage, profileSaveErrorMessage) || other.profileSaveErrorMessage == profileSaveErrorMessage));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferencesReady&&(identical(other.member, member) || other.member == member)&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.producerAccount, producerAccount) || other.producerAccount == producerAccount)&&(identical(other.memberPreferences, memberPreferences) || other.memberPreferences == memberPreferences)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences)&&(identical(other.dirty, dirty) || other.dirty == dirty)&&(identical(other.saveStatus, saveStatus) || other.saveStatus == saveStatus)&&(identical(other.saveErrorMessage, saveErrorMessage) || other.saveErrorMessage == saveErrorMessage)&&(identical(other.profileSaveStatus, profileSaveStatus) || other.profileSaveStatus == profileSaveStatus)&&(identical(other.profileSaveErrorMessage, profileSaveErrorMessage) || other.profileSaveErrorMessage == profileSaveErrorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,member,owner,producerAccount,memberPreferences,userPreferences,dirty,saveStatus,saveErrorMessage,profileSaveStatus,profileSaveErrorMessage);
+int get hashCode {
+    return Object.hash(runtimeType,member,owner,producerAccount,memberPreferences,userPreferences,dirty,saveStatus,saveErrorMessage,profileSaveStatus,profileSaveErrorMessage);
+}
 
 @override
 String toString() {
-  return 'UserPreferencesState.ready(member: $member, owner: $owner, producerAccount: $producerAccount, memberPreferences: $memberPreferences, userPreferences: $userPreferences, dirty: $dirty, saveStatus: $saveStatus, saveErrorMessage: $saveErrorMessage, profileSaveStatus: $profileSaveStatus, profileSaveErrorMessage: $profileSaveErrorMessage)';
+    return 'UserPreferencesState.ready(member: $member, owner: $owner, producerAccount: $producerAccount, memberPreferences: $memberPreferences, userPreferences: $userPreferences, dirty: $dirty, saveStatus: $saveStatus, saveErrorMessage: $saveErrorMessage, profileSaveStatus: $profileSaveStatus, profileSaveErrorMessage: $profileSaveErrorMessage)';
 }
 
 

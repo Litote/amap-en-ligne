@@ -130,11 +130,11 @@ internal class CognitoUserProvisioningAdapter(
                 AdminAddUserToGroupRequest {
                     this.userPoolId = this@CognitoUserProvisioningAdapter.userPoolId
                     username = email
-                    groupName = "owners"
+                    groupName = Role.OWNER.name
                 },
             )
         }.onFailure { e ->
-            logger.warn { "Could not add owner user $email to 'owners' group — group may not exist: ${e.message}" }
+            logger.warn { "Could not add owner user $email to '${Role.OWNER.name}' group — group may not exist: ${e.message}" }
         }
         logger.info { "Owner user created in Cognito for $email" }
         return sub

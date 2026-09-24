@@ -23,6 +23,8 @@ module "cognito" {
   logout_urls                 = local.logout_urls
   initial_owner_email         = var.initial_owner_email
   initial_owner_temp_password = var.initial_owner_temp_password
+  ses_source_arn              = module.ses.identity_arn
+  ses_from_email              = var.ses_from_email
   tags                        = local.tags
 }
 
@@ -71,8 +73,9 @@ module "lambda" {
 module "ses" {
   source = "./modules/ses"
 
-  from_email = var.ses_from_email
-  tags       = local.tags
+  from_email      = var.ses_from_email
+  create_identity = var.ses_create_identity
+  tags            = local.tags
 }
 
 module "email_lambda" {

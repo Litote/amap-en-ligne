@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'organization_config_bloc.dart';
@@ -9,6 +9,7 @@ part of 'organization_config_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$OrgConfigEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'OrgConfigEvent()';
+    return 'OrgConfigEvent()';
 }
 
 
@@ -190,16 +191,18 @@ _$OrgConfigLoadedCopyWith<_OrgConfigLoaded> get copyWith => __$OrgConfigLoadedCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrgConfigLoaded&&(identical(other.organization, organization) || other.organization == organization));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrgConfigLoaded&&(identical(other.organization, organization) || other.organization == organization));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organization);
+int get hashCode {
+    return Object.hash(runtimeType,organization);
+}
 
 @override
 String toString() {
-  return 'OrgConfigEvent.loaded(organization: $organization)';
+    return 'OrgConfigEvent.loaded(organization: $organization)';
 }
 
 
@@ -272,16 +275,18 @@ _$OrgConfigSavedCopyWith<_OrgConfigSaved> get copyWith => __$OrgConfigSavedCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrgConfigSaved&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.website, website) || other.website == website));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrgConfigSaved&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.website, website) || other.website == website));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,contactEmail,timezone,defaultLanguage,website);
+int get hashCode {
+    return Object.hash(runtimeType,name,contactEmail,timezone,defaultLanguage,website);
+}
 
 @override
 String toString() {
-  return 'OrgConfigEvent.saved(name: $name, contactEmail: $contactEmail, timezone: $timezone, defaultLanguage: $defaultLanguage, website: $website)';
+    return 'OrgConfigEvent.saved(name: $name, contactEmail: $contactEmail, timezone: $timezone, defaultLanguage: $defaultLanguage, website: $website)';
 }
 
 
@@ -332,7 +337,7 @@ mixin _$OrgConfigState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigState);
 }
 
 
@@ -341,7 +346,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'OrgConfigState()';
+    return 'OrgConfigState()';
 }
 
 
@@ -503,7 +508,7 @@ class OrgConfigLoading implements OrgConfigState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigLoading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigLoading);
 }
 
 
@@ -512,7 +517,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'OrgConfigState.loading()';
+    return 'OrgConfigState.loading()';
 }
 
 
@@ -535,7 +540,7 @@ class OrgConfigMissing implements OrgConfigState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigMissing);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigMissing);
 }
 
 
@@ -544,7 +549,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'OrgConfigState.missing()';
+    return 'OrgConfigState.missing()';
 }
 
 
@@ -574,16 +579,18 @@ $OrgConfigReadyCopyWith<OrgConfigReady> get copyWith => _$OrgConfigReadyCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigReady&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.saveStatus, saveStatus) || other.saveStatus == saveStatus)&&(identical(other.saveErrorMessage, saveErrorMessage) || other.saveErrorMessage == saveErrorMessage));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgConfigReady&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.saveStatus, saveStatus) || other.saveStatus == saveStatus)&&(identical(other.saveErrorMessage, saveErrorMessage) || other.saveErrorMessage == saveErrorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organization,saveStatus,saveErrorMessage);
+int get hashCode {
+    return Object.hash(runtimeType,organization,saveStatus,saveErrorMessage);
+}
 
 @override
 String toString() {
-  return 'OrgConfigState.ready(organization: $organization, saveStatus: $saveStatus, saveErrorMessage: $saveErrorMessage)';
+    return 'OrgConfigState.ready(organization: $organization, saveStatus: $saveStatus, saveErrorMessage: $saveErrorMessage)';
 }
 
 

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'admin_organization_request.dart';
@@ -9,6 +9,7 @@ part of 'admin_organization_request.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $AdminOrganizationRequestCopyWith<AdminOrganizationRequest> get copyWith => _$Ad
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminOrganizationRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.organizationName, organizationName) || other.organizationName == organizationName)&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt));
+  final _this = this as AdminOrganizationRequest;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminOrganizationRequest&&(identical(other.requestId, _this.requestId) || other.requestId == _this.requestId)&&(identical(other.organizationName, _this.organizationName) || other.organizationName == _this.organizationName)&&(identical(other.organizationType, _this.organizationType) || other.organizationType == _this.organizationType)&&(identical(other.timezone, _this.timezone) || other.timezone == _this.timezone)&&(identical(other.defaultLanguage, _this.defaultLanguage) || other.defaultLanguage == _this.defaultLanguage)&&(identical(other.adminFirstName, _this.adminFirstName) || other.adminFirstName == _this.adminFirstName)&&(identical(other.adminLastName, _this.adminLastName) || other.adminLastName == _this.adminLastName)&&(identical(other.adminEmail, _this.adminEmail) || other.adminEmail == _this.adminEmail)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.submittedAt, _this.submittedAt) || other.submittedAt == _this.submittedAt)&&(identical(other.reviewedAt, _this.reviewedAt) || other.reviewedAt == _this.reviewedAt)&&(identical(other.reviewComment, _this.reviewComment) || other.reviewComment == _this.reviewComment)&&(identical(other.submitterComment, _this.submitterComment) || other.submitterComment == _this.submitterComment)&&(identical(other.resendRequestedAt, _this.resendRequestedAt) || other.resendRequestedAt == _this.resendRequestedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,organizationName,organizationType,timezone,defaultLanguage,adminFirstName,adminLastName,adminEmail,status,submittedAt,reviewedAt,reviewComment,submitterComment,resendRequestedAt);
+int get hashCode {
+  final _this = this as AdminOrganizationRequest;
+  return Object.hash(runtimeType,_this.requestId,_this.organizationName,_this.organizationType,_this.timezone,_this.defaultLanguage,_this.adminFirstName,_this.adminLastName,_this.adminEmail,_this.status,_this.submittedAt,_this.reviewedAt,_this.reviewComment,_this.submitterComment,_this.resendRequestedAt);
+}
 
 @override
 String toString() {
-  return 'AdminOrganizationRequest(requestId: $requestId, organizationName: $organizationName, organizationType: $organizationType, timezone: $timezone, defaultLanguage: $defaultLanguage, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, status: $status, submittedAt: $submittedAt, reviewedAt: $reviewedAt, reviewComment: $reviewComment, submitterComment: $submitterComment, resendRequestedAt: $resendRequestedAt)';
+  final _this = this as AdminOrganizationRequest;
+  return 'AdminOrganizationRequest(requestId: ${_this.requestId}, organizationName: ${_this.organizationName}, organizationType: ${_this.organizationType}, timezone: ${_this.timezone}, defaultLanguage: ${_this.defaultLanguage}, adminFirstName: ${_this.adminFirstName}, adminLastName: ${_this.adminLastName}, adminEmail: ${_this.adminEmail}, status: ${_this.status}, submittedAt: ${_this.submittedAt}, reviewedAt: ${_this.reviewedAt}, reviewComment: ${_this.reviewComment}, submitterComment: ${_this.submitterComment}, resendRequestedAt: ${_this.resendRequestedAt})';
 }
 
 
@@ -66,7 +72,7 @@ class _$AdminOrganizationRequestCopyWithImpl<$Res>
 /// Create a copy of AdminOrganizationRequest
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? requestId = null,Object? organizationName = null,Object? organizationType = null,Object? timezone = null,Object? defaultLanguage = null,Object? adminFirstName = null,Object? adminLastName = null,Object? adminEmail = null,Object? status = null,Object? submittedAt = null,Object? reviewedAt = freezed,Object? reviewComment = freezed,Object? submitterComment = freezed,Object? resendRequestedAt = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(AdminOrganizationRequest(
 requestId: null == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String,organizationName: null == organizationName ? _self.organizationName : organizationName // ignore: cast_nullable_to_non_nullable
 as String,organizationType: null == organizationType ? _self.organizationType : organizationType // ignore: cast_nullable_to_non_nullable
@@ -253,16 +259,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdminOrganizationRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.organizationName, organizationName) || other.organizationName == organizationName)&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdminOrganizationRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.organizationName, organizationName) || other.organizationName == organizationName)&&(identical(other.organizationType, organizationType) || other.organizationType == organizationType)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.adminFirstName, adminFirstName) || other.adminFirstName == adminFirstName)&&(identical(other.adminLastName, adminLastName) || other.adminLastName == adminLastName)&&(identical(other.adminEmail, adminEmail) || other.adminEmail == adminEmail)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.submitterComment, submitterComment) || other.submitterComment == submitterComment)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,requestId,organizationName,organizationType,timezone,defaultLanguage,adminFirstName,adminLastName,adminEmail,status,submittedAt,reviewedAt,reviewComment,submitterComment,resendRequestedAt);
+int get hashCode {
+    return Object.hash(runtimeType,requestId,organizationName,organizationType,timezone,defaultLanguage,adminFirstName,adminLastName,adminEmail,status,submittedAt,reviewedAt,reviewComment,submitterComment,resendRequestedAt);
+}
 
 @override
 String toString() {
-  return 'AdminOrganizationRequest(requestId: $requestId, organizationName: $organizationName, organizationType: $organizationType, timezone: $timezone, defaultLanguage: $defaultLanguage, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, status: $status, submittedAt: $submittedAt, reviewedAt: $reviewedAt, reviewComment: $reviewComment, submitterComment: $submitterComment, resendRequestedAt: $resendRequestedAt)';
+    return 'AdminOrganizationRequest(requestId: $requestId, organizationName: $organizationName, organizationType: $organizationType, timezone: $timezone, defaultLanguage: $defaultLanguage, adminFirstName: $adminFirstName, adminLastName: $adminLastName, adminEmail: $adminEmail, status: $status, submittedAt: $submittedAt, reviewedAt: $reviewedAt, reviewComment: $reviewComment, submitterComment: $submitterComment, resendRequestedAt: $resendRequestedAt)';
 }
 
 

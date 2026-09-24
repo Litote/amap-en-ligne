@@ -79,7 +79,6 @@ void main() {
           memberId: 'user-123',
           organizationId: 'org-1',
           roles: {Role.admin},
-          activeStatus: true,
         );
         await db.upsertMember('org-1', member);
       },
@@ -130,7 +129,6 @@ void main() {
           memberId: 'user-123',
           organizationId: 'org-1',
           roles: {Role.admin},
-          activeStatus: true,
         );
         await db.upsertMember('org-1', member);
       },

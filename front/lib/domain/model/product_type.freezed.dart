@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'product_type.dart';
@@ -9,6 +9,7 @@ part of 'product_type.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $ProductTypeCopyWith<ProductType> get copyWith => _$ProductTypeCopyWithImpl<Prod
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductType&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&const DeepCollectionEquality().equals(other.supportedBasketSizes, supportedBasketSizes)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.itemTypes, itemTypes));
+  final _this = this as ProductType;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductType&&(identical(other.productTypeId, _this.productTypeId) || other.productTypeId == _this.productTypeId)&&(identical(other.producerAccountId, _this.producerAccountId) || other.producerAccountId == _this.producerAccountId)&&const DeepCollectionEquality().equals(other.supportedBasketSizes, _this.supportedBasketSizes)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.description, _this.description) || other.description == _this.description)&&const DeepCollectionEquality().equals(other.itemTypes, _this.itemTypes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,producerAccountId,const DeepCollectionEquality().hash(supportedBasketSizes),name,description,const DeepCollectionEquality().hash(itemTypes));
+int get hashCode {
+  final _this = this as ProductType;
+  return Object.hash(runtimeType,_this.productTypeId,_this.producerAccountId,const DeepCollectionEquality().hash(_this.supportedBasketSizes),_this.name,_this.description,const DeepCollectionEquality().hash(_this.itemTypes));
+}
 
 @override
 String toString() {
-  return 'ProductType(productTypeId: $productTypeId, producerAccountId: $producerAccountId, supportedBasketSizes: $supportedBasketSizes, name: $name, description: $description, itemTypes: $itemTypes)';
+  final _this = this as ProductType;
+  return 'ProductType(productTypeId: ${_this.productTypeId}, producerAccountId: ${_this.producerAccountId}, supportedBasketSizes: ${_this.supportedBasketSizes}, name: ${_this.name}, description: ${_this.description}, itemTypes: ${_this.itemTypes})';
 }
 
 
@@ -66,7 +72,7 @@ class _$ProductTypeCopyWithImpl<$Res>
 /// Create a copy of ProductType
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? productTypeId = null,Object? producerAccountId = null,Object? supportedBasketSizes = null,Object? name = null,Object? description = freezed,Object? itemTypes = null,}) {
-  return _then(_self.copyWith(
+  return _then(ProductType(
 productTypeId: null == productTypeId ? _self.productTypeId : productTypeId // ignore: cast_nullable_to_non_nullable
 as String,producerAccountId: null == producerAccountId ? _self.producerAccountId : producerAccountId // ignore: cast_nullable_to_non_nullable
 as String,supportedBasketSizes: null == supportedBasketSizes ? _self.supportedBasketSizes : supportedBasketSizes // ignore: cast_nullable_to_non_nullable
@@ -214,7 +220,7 @@ return $default(_that.productTypeId,_that.producerAccountId,_that.supportedBaske
 @JsonSerializable()
 
 class _ProductType implements ProductType {
-  const _ProductType({@JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'producer_account_id') required this.producerAccountId, @JsonKey(name: 'supported_basket_sizes') final  List<BasketSize> supportedBasketSizes = const <BasketSize>[], required this.name, this.description, @JsonKey(name: 'item_types') final  List<ItemType> itemTypes = const <ItemType>[]}): _supportedBasketSizes = supportedBasketSizes,_itemTypes = itemTypes;
+  const _ProductType({@JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'producer_account_id') required this.producerAccountId, @JsonKey(name: 'supported_basket_sizes')  List<BasketSize> supportedBasketSizes = const <BasketSize>[], required this.name, this.description, @JsonKey(name: 'item_types')  List<ItemType> itemTypes = const <ItemType>[]}): _supportedBasketSizes = supportedBasketSizes,_itemTypes = itemTypes;
   factory _ProductType.fromJson(Map<String, dynamic> json) => _$ProductTypeFromJson(json);
 
 @override@JsonKey(name: 'product_type_id') final  String productTypeId;
@@ -249,16 +255,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductType&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&const DeepCollectionEquality().equals(other._supportedBasketSizes, _supportedBasketSizes)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._itemTypes, _itemTypes));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductType&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.producerAccountId, producerAccountId) || other.producerAccountId == producerAccountId)&&const DeepCollectionEquality().equals(other.supportedBasketSizes, _supportedBasketSizes)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.itemTypes, _itemTypes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productTypeId,producerAccountId,const DeepCollectionEquality().hash(_supportedBasketSizes),name,description,const DeepCollectionEquality().hash(_itemTypes));
+int get hashCode {
+    return Object.hash(runtimeType,productTypeId,producerAccountId,const DeepCollectionEquality().hash(_supportedBasketSizes),name,description,const DeepCollectionEquality().hash(_itemTypes));
+}
 
 @override
 String toString() {
-  return 'ProductType(productTypeId: $productTypeId, producerAccountId: $producerAccountId, supportedBasketSizes: $supportedBasketSizes, name: $name, description: $description, itemTypes: $itemTypes)';
+    return 'ProductType(productTypeId: $productTypeId, producerAccountId: $producerAccountId, supportedBasketSizes: $supportedBasketSizes, name: $name, description: $description, itemTypes: $itemTypes)';
 }
 
 
@@ -305,8 +313,7 @@ as List<ItemType>,
 /// @nodoc
 mixin _$ItemType {
 
- String get id; String get name;// Inline SVG markup of the component icon (SVG only); null when unset.
-@JsonKey(name: 'image_svg') String? get imageSvg;
+ String get id; String get name;@JsonKey(name: 'image_svg') String? get imageSvg;
 /// Create a copy of ItemType
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -319,16 +326,21 @@ $ItemTypeCopyWith<ItemType> get copyWith => _$ItemTypeCopyWithImpl<ItemType>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemType&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.imageSvg, imageSvg) || other.imageSvg == imageSvg));
+  final _this = this as ItemType;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemType&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.imageSvg, _this.imageSvg) || other.imageSvg == _this.imageSvg));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,imageSvg);
+int get hashCode {
+  final _this = this as ItemType;
+  return Object.hash(runtimeType,_this.id,_this.name,_this.imageSvg);
+}
 
 @override
 String toString() {
-  return 'ItemType(id: $id, name: $name, imageSvg: $imageSvg)';
+  final _this = this as ItemType;
+  return 'ItemType(id: ${_this.id}, name: ${_this.name}, imageSvg: ${_this.imageSvg})';
 }
 
 
@@ -357,7 +369,7 @@ class _$ItemTypeCopyWithImpl<$Res>
 /// Create a copy of ItemType
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? imageSvg = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(ItemType(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,imageSvg: freezed == imageSvg ? _self.imageSvg : imageSvg // ignore: cast_nullable_to_non_nullable
@@ -507,7 +519,6 @@ class _ItemType implements ItemType {
 
 @override final  String id;
 @override final  String name;
-// Inline SVG markup of the component icon (SVG only); null when unset.
 @override@JsonKey(name: 'image_svg') final  String? imageSvg;
 
 /// Create a copy of ItemType
@@ -523,16 +534,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ItemType&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.imageSvg, imageSvg) || other.imageSvg == imageSvg));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ItemType&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.imageSvg, imageSvg) || other.imageSvg == imageSvg));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,imageSvg);
+int get hashCode {
+    return Object.hash(runtimeType,id,name,imageSvg);
+}
 
 @override
 String toString() {
-  return 'ItemType(id: $id, name: $name, imageSvg: $imageSvg)';
+    return 'ItemType(id: $id, name: $name, imageSvg: $imageSvg)';
 }
 
 
@@ -589,16 +602,21 @@ $BasketSizeCopyWith<BasketSize> get copyWith => _$BasketSizeCopyWithImpl<BasketS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketSize&&(identical(other.name, name) || other.name == name));
+  final _this = this as BasketSize;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketSize&&(identical(other.name, _this.name) || other.name == _this.name));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name);
+int get hashCode {
+  final _this = this as BasketSize;
+  return Object.hash(runtimeType,_this.name);
+}
 
 @override
 String toString() {
-  return 'BasketSize(name: $name)';
+  final _this = this as BasketSize;
+  return 'BasketSize(name: ${_this.name})';
 }
 
 
@@ -627,7 +645,7 @@ class _$BasketSizeCopyWithImpl<$Res>
 /// Create a copy of BasketSize
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = null,}) {
-  return _then(_self.copyWith(
+  return _then(BasketSize(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -788,16 +806,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketSize&&(identical(other.name, name) || other.name == name));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketSize&&(identical(other.name, name) || other.name == name));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name);
+int get hashCode {
+    return Object.hash(runtimeType,name);
+}
 
 @override
 String toString() {
-  return 'BasketSize(name: $name)';
+    return 'BasketSize(name: $name)';
 }
 
 

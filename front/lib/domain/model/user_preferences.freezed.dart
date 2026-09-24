@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'user_preferences.dart';
@@ -9,6 +9,7 @@ part of 'user_preferences.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $UserPreferencesCopyWith<UserPreferences> get copyWith => _$UserPreferencesCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferences&&(identical(other.emailNotificationsEnabled, emailNotificationsEnabled) || other.emailNotificationsEnabled == emailNotificationsEnabled)&&(identical(other.pushNotificationsEnabled, pushNotificationsEnabled) || other.pushNotificationsEnabled == pushNotificationsEnabled)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant));
+  final _this = this as UserPreferences;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserPreferences&&(identical(other.emailNotificationsEnabled, _this.emailNotificationsEnabled) || other.emailNotificationsEnabled == _this.emailNotificationsEnabled)&&(identical(other.pushNotificationsEnabled, _this.pushNotificationsEnabled) || other.pushNotificationsEnabled == _this.pushNotificationsEnabled)&&(identical(other.lastUpdatedInstant, _this.lastUpdatedInstant) || other.lastUpdatedInstant == _this.lastUpdatedInstant));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,emailNotificationsEnabled,pushNotificationsEnabled,lastUpdatedInstant);
+int get hashCode {
+  final _this = this as UserPreferences;
+  return Object.hash(runtimeType,_this.emailNotificationsEnabled,_this.pushNotificationsEnabled,_this.lastUpdatedInstant);
+}
 
 @override
 String toString() {
-  return 'UserPreferences(emailNotificationsEnabled: $emailNotificationsEnabled, pushNotificationsEnabled: $pushNotificationsEnabled, lastUpdatedInstant: $lastUpdatedInstant)';
+  final _this = this as UserPreferences;
+  return 'UserPreferences(emailNotificationsEnabled: ${_this.emailNotificationsEnabled}, pushNotificationsEnabled: ${_this.pushNotificationsEnabled}, lastUpdatedInstant: ${_this.lastUpdatedInstant})';
 }
 
 
@@ -66,7 +72,7 @@ class _$UserPreferencesCopyWithImpl<$Res>
 /// Create a copy of UserPreferences
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? emailNotificationsEnabled = null,Object? pushNotificationsEnabled = null,Object? lastUpdatedInstant = null,}) {
-  return _then(_self.copyWith(
+  return _then(UserPreferences(
 emailNotificationsEnabled: null == emailNotificationsEnabled ? _self.emailNotificationsEnabled : emailNotificationsEnabled // ignore: cast_nullable_to_non_nullable
 as bool,pushNotificationsEnabled: null == pushNotificationsEnabled ? _self.pushNotificationsEnabled : pushNotificationsEnabled // ignore: cast_nullable_to_non_nullable
 as bool,lastUpdatedInstant: null == lastUpdatedInstant ? _self.lastUpdatedInstant : lastUpdatedInstant // ignore: cast_nullable_to_non_nullable
@@ -231,16 +237,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferences&&(identical(other.emailNotificationsEnabled, emailNotificationsEnabled) || other.emailNotificationsEnabled == emailNotificationsEnabled)&&(identical(other.pushNotificationsEnabled, pushNotificationsEnabled) || other.pushNotificationsEnabled == pushNotificationsEnabled)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferences&&(identical(other.emailNotificationsEnabled, emailNotificationsEnabled) || other.emailNotificationsEnabled == emailNotificationsEnabled)&&(identical(other.pushNotificationsEnabled, pushNotificationsEnabled) || other.pushNotificationsEnabled == pushNotificationsEnabled)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,emailNotificationsEnabled,pushNotificationsEnabled,lastUpdatedInstant);
+int get hashCode {
+    return Object.hash(runtimeType,emailNotificationsEnabled,pushNotificationsEnabled,lastUpdatedInstant);
+}
 
 @override
 String toString() {
-  return 'UserPreferences(emailNotificationsEnabled: $emailNotificationsEnabled, pushNotificationsEnabled: $pushNotificationsEnabled, lastUpdatedInstant: $lastUpdatedInstant)';
+    return 'UserPreferences(emailNotificationsEnabled: $emailNotificationsEnabled, pushNotificationsEnabled: $pushNotificationsEnabled, lastUpdatedInstant: $lastUpdatedInstant)';
 }
 
 

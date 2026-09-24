@@ -72,6 +72,18 @@ variable "initial_owner_temp_password" {
   sensitive   = true
 }
 
+variable "ses_source_arn" {
+  description = "ARN of the verified SES identity (address or domain) used to send Cognito emails. Null = Cognito default sender (no-reply@verificationemail.com)."
+  type        = string
+  default     = null
+}
+
+variable "ses_from_email" {
+  description = "FROM address of Cognito emails; must belong to ses_source_arn. Ignored when ses_source_arn is null."
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "AWS tags applied to the Cognito resources"
   type        = map(string)

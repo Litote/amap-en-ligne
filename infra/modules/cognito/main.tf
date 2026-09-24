@@ -36,6 +36,33 @@ resource "aws_cognito_user_pool" "main" {
 
   mfa_configuration = "OFF"
 
+  # Code email sent by Cognito for forgot password and email address
+  # verification (invitations are suppressed: the back sends its own
+  # activation emails). {####} is replaced by the code.
+  verification_message_template {
+    default_email_option = "CONFIRM_WITH_CODE"
+    email_subject        = "Votre code de vérification AMAP en ligne"
+    email_message        = <<-EOT
+      Bonjour,<br><br>
+      Votre code de vérification est : <b>{####}</b><br><br>
+      Saisissez-le dans l'application pour continuer (réinitialisation du mot de passe ou vérification de votre adresse email).<br><br>
+      Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.<br><br>
+      L'équipe AMAP en ligne
+    EOT
+  }
+
+  # Cognito-managed emails (forgot password, verification codes) go through the
+  # instance SES identity. Without it Cognito falls back to COGNITO_DEFAULT:
+  # sender no-reply@verificationemail.com, capped at ~50 emails/day.
+  dynamic "email_configuration" {
+    for_each = var.ses_source_arn != null ? [1] : []
+    content {
+      email_sending_account = "DEVELOPER"
+      source_arn            = var.ses_source_arn
+      from_email_address    = var.ses_from_email
+    }
+  }
+
   user_attribute_update_settings {
     attributes_require_verification_before_update = ["email"]
   }

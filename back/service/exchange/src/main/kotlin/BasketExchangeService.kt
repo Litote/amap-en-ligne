@@ -7,18 +7,11 @@ import core.EntityTypeService
 import email.BasketExchangeAcceptedEmailPort
 import email.BasketExchangeRejectedEmailPort
 import email.BasketExchangeRequestReceivedEmailPort
-import email.MemberSummary
-import id.Id
 import id.generateId
 import id.toId
-import io.github.oshai.kotlinlogging.KotlinLogging
-import notificationpublisher.NotificationContent
 import org.koin.core.annotation.Single
 import persistence.changes.BasketExchangePayload
-import persistence.changes.Change
-import persistence.changes.ChangeOp
 import persistence.changes.ClientMutation
-import persistence.changes.Cursor
 import persistence.changes.Delete
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationOutcome
@@ -30,11 +23,7 @@ import persistence.model.BasketExchange
 import persistence.model.BasketExchangeRequest
 import persistence.model.BasketExchangeRequestStatus
 import persistence.model.BasketExchangeStatus
-import persistence.model.Delivery
 import persistence.model.EntityType
-import persistence.model.Member
-import persistence.model.NotificationCategory
-import persistence.model.Organization
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -82,6 +71,16 @@ class BasketExchangeService(
     private val notifier: BasketExchangeNotifier,
     private val commitmentValidator: BasketExchangeCommitmentValidator,
 ) : EntityTypeService<BasketExchangePayload>(EntityType.BasketExchange) {
+    private val outcomeNotifications =
+        BasketExchangeOutcomeNotifications(
+            memberSyncDAO,
+            organizationSyncDAO,
+            requestReceivedEmailPort,
+            acceptedEmailPort,
+            rejectedEmailPort,
+            notifier,
+        )
+
     override suspend fun applyUpsert(
         auth: AuthenticatedInfo,
         mutation: ClientMutation,
@@ -225,96 +224,46 @@ class BasketExchangeService(
         return applyStatusTransition(auth, mutation, existing, incoming, organizationId)
     }
 
-    /**
-     * Detects whether the incoming payload differs from [existing] only in the [BasketExchange.requests]
-     * list (add one new request or update one existing request to WITHDRAWN) while all other fields
-     * remain equal.
-     *
-     * Returns the detected [RequestMutation] or null if the delta spans more than just requests.
-     */
-    private fun detectRequestMutation(
-        existing: BasketExchange,
-        incoming: BasketExchange,
-    ): RequestMutation? {
-        val offerFieldsEqual =
-            existing.copy(requests = emptyList()) == incoming.copy(requests = emptyList())
-        if (!offerFieldsEqual) return null
-
-        val existingIds = existing.requests.map { it.requestId }.toSet()
-        val incomingIds = incoming.requests.map { it.requestId }.toSet()
-
-        // New request added (tmp_ id = creation)
-        val newRequests = incoming.requests.filter { it.requestId.id.startsWith(ClientMutation.TMP_ID_PREFIX) }
-        if (newRequests.size == 1 && existingIds == (incomingIds - newRequests.first().requestId)) {
-            return RequestMutation.Add(newRequests.first())
-        }
-
-        // Existing request transitioned (withdrawn by requester or refused by offerer), offer unchanged
-        val singleTransition = detectSingleRequestTransition(existing, incoming, existingIds, incomingIds)
-        if (singleTransition != null) return singleTransition
-
-        return null
-    }
-
-    /**
-     * Detects a single existing request transitioning from PENDING to either WITHDRAWN (by the
-     * requester) or REJECTED (individual refusal by the offerer, the offer staying OPEN), with all
-     * other requests unchanged.
-     */
-    private fun detectSingleRequestTransition(
-        existing: BasketExchange,
-        incoming: BasketExchange,
-        existingIds: Set<Id<BasketExchangeRequest>>,
-        incomingIds: Set<Id<BasketExchangeRequest>>,
-    ): RequestMutation? {
-        if (existingIds != incomingIds) return null
-        val transitioned =
-            incoming.requests.filter { req ->
-                val old = existing.requests.find { it.requestId == req.requestId }
-                old != null && old.status == BasketExchangeRequestStatus.PENDING &&
-                    (req.status == BasketExchangeRequestStatus.WITHDRAWN || req.status == BasketExchangeRequestStatus.REJECTED)
-            }
-        if (transitioned.size != 1) return null
-        val target = transitioned.first()
-        val unchangedOthers =
-            incoming.requests.all { req ->
-                req.requestId == target.requestId ||
-                    existing.requests.find { it.requestId == req.requestId } == req
-            }
-        if (!unchangedOthers) return null
-        return when (target.status) {
-            BasketExchangeRequestStatus.WITHDRAWN -> RequestMutation.Withdraw(target)
-            BasketExchangeRequestStatus.REJECTED -> RequestMutation.Refuse(target)
-            else -> null
-        }
-    }
-
-    private sealed interface RequestMutation {
-        data class Add(
-            val request: BasketExchangeRequest,
-        ) : RequestMutation
-
-        data class Withdraw(
-            val request: BasketExchangeRequest,
-        ) : RequestMutation
-
-        data class Refuse(
-            val request: BasketExchangeRequest,
-        ) : RequestMutation
-    }
-
     private suspend fun applyRequestMutation(
         auth: AuthenticatedInfo,
         mutation: ClientMutation,
         existing: BasketExchange,
         incoming: BasketExchange,
         organizationId: String,
-        requestMutation: RequestMutation,
+        requestMutation: BasketExchangeRequestMutation,
     ): MutationOutcome =
         when (requestMutation) {
-            is RequestMutation.Add -> applyAddRequest(auth, mutation, existing, incoming, organizationId, requestMutation.request)
-            is RequestMutation.Withdraw -> applyWithdrawRequest(auth, mutation, incoming, organizationId, requestMutation.request)
-            is RequestMutation.Refuse -> applyRefuseRequest(auth, mutation, existing, incoming, organizationId, requestMutation.request)
+            is BasketExchangeRequestMutation.Add -> {
+                applyAddRequest(
+                    auth,
+                    mutation,
+                    existing,
+                    incoming,
+                    organizationId,
+                    requestMutation.request,
+                )
+            }
+
+            is BasketExchangeRequestMutation.Withdraw -> {
+                applyWithdrawRequest(
+                    auth,
+                    mutation,
+                    incoming,
+                    organizationId,
+                    requestMutation.request,
+                )
+            }
+
+            is BasketExchangeRequestMutation.Refuse -> {
+                applyRefuseRequest(
+                    auth,
+                    mutation,
+                    existing,
+                    incoming,
+                    organizationId,
+                    requestMutation.request,
+                )
+            }
         }
 
     private suspend fun applyAddRequest(
@@ -397,39 +346,7 @@ class BasketExchangeService(
         basketExchangeSyncDAO.put(updated, buildUpsertChange(organizationId, updated))
 
         // Best-effort notification to the offerer
-        runCatching {
-            val offererMember = memberSyncDAO.getByOrganizationId(existing.organizationId).find { it.memberId == existing.offeringMemberId }
-            val requesterMember =
-                memberSyncDAO.getByOrganizationId(existing.organizationId).find {
-                    it.memberId ==
-                        savedRequest.requesterMemberId
-                }
-            if (offererMember != null && requesterMember != null) {
-                requestReceivedEmailPort.notifyOffererOfNewRequest(
-                    updated,
-                    savedRequest,
-                    offererMember.toSummary(),
-                    requesterMember.toSummary(),
-                    organization.name,
-                )
-                val requesterName = requesterMember.displayName()
-                val offeredDate = organization.deliveryDateLabel(existing.deliveryId)
-                val proposedDate = organization.deliveryDateLabel(proposedDeliveryId)
-                notifier.notifyMember(
-                    member = offererMember,
-                    category = NotificationCategory.BASKET_EXCHANGE_REQUEST_RECEIVED,
-                    defaultContent =
-                        NotificationContent(
-                            title = "Nouvelle demande d'échange de panier",
-                            body = "$requesterName propose son panier du $proposedDate en échange du vôtre du $offeredDate.",
-                            deepLink = requestsDeepLink(updated.basketExchangeId.id),
-                            relatedEntityId = updated.basketExchangeId.id,
-                        ),
-                    notificationOverrides = organization.notificationOverrides,
-                    organizationName = organization.name,
-                )
-            }
-        }.onFailure { logger.warn(it) { "failed to send basket-exchange request-received notification" } }
+        outcomeNotifications.onRequestAdded(existing, updated, savedRequest, organization, proposedDeliveryId)
 
         // serverEntityId = basketExchangeId because the request id is nested;
         // the front reconciles the tmp→real request id mapping on next sync.
@@ -499,28 +416,7 @@ class BasketExchangeService(
         basketExchangeSyncDAO.put(updated, buildUpsertChange(organizationId, updated))
 
         // Best-effort rejection notification to the refused requester
-        runCatching {
-            val members = memberSyncDAO.getByOrganizationId(existing.organizationId)
-            val requesterMember = members.find { it.memberId == target.requesterMemberId }
-            if (requesterMember != null) {
-                val org = organizationFor(existing.organizationId)
-                rejectedEmailPort.notifyRequesterRejected(updated, target, requesterMember.toSummary(), org?.name)
-                val offeredDate = org?.deliveryDateLabel(existing.deliveryId)
-                notifier.notifyMember(
-                    member = requesterMember,
-                    category = NotificationCategory.BASKET_EXCHANGE_REJECTED,
-                    defaultContent =
-                        NotificationContent(
-                            title = "Proposition d'échange refusée",
-                            body = "Votre proposition d'échange pour le panier du $offeredDate n'a pas été retenue.",
-                            deepLink = exchangeDeepLink(),
-                            relatedEntityId = updated.basketExchangeId.id,
-                        ),
-                    notificationOverrides = org?.notificationOverrides ?: emptyMap(),
-                    organizationName = org?.name,
-                )
-            }
-        }.onFailure { logger.warn(it) { "failed to send basket-exchange refusal notification" } }
+        outcomeNotifications.onRequestRefused(existing, updated, target)
 
         return applied(mutation, updated.basketExchangeId.id)
     }
@@ -575,34 +471,7 @@ class BasketExchangeService(
         basketExchangeSyncDAO.put(updated, buildUpsertChange(organizationId, updated))
 
         // Best-effort rejection notifications
-        runCatching {
-            val orgId = existing.organizationId
-            val members = memberSyncDAO.getByOrganizationId(orgId)
-            val org = organizationFor(orgId)
-            val overrides = org?.notificationOverrides ?: emptyMap()
-            val offeredDate = org?.deliveryDateLabel(existing.deliveryId)
-            rejectAllPending
-                .filter { it.status == BasketExchangeRequestStatus.REJECTED }
-                .forEach { req ->
-                    val requesterMember = members.find { it.memberId == req.requesterMemberId }
-                    if (requesterMember != null) {
-                        rejectedEmailPort.notifyRequesterRejected(updated, req, requesterMember.toSummary(), org?.name)
-                        notifier.notifyMember(
-                            member = requesterMember,
-                            category = NotificationCategory.BASKET_EXCHANGE_REJECTED,
-                            defaultContent =
-                                NotificationContent(
-                                    title = "Échange de panier annulé",
-                                    body = "L'offre d'échange de panier du $offeredDate que vous aviez demandée a été annulée.",
-                                    deepLink = exchangeDeepLink(),
-                                    relatedEntityId = updated.basketExchangeId.id,
-                                ),
-                            notificationOverrides = overrides,
-                            organizationName = org?.name,
-                        )
-                    }
-                }
-        }.onFailure { logger.warn(it) { "failed to send basket-exchange rejection notifications on cancel" } }
+        outcomeNotifications.onCancelled(existing, updated, rejectAllPending)
 
         return applied(mutation, updated.basketExchangeId.id)
     }
@@ -656,124 +525,10 @@ class BasketExchangeService(
         basketExchangeSyncDAO.put(updated, buildUpsertChange(organizationId, updated))
 
         // Best-effort email notifications
-        runCatching {
-            val members = memberSyncDAO.getByOrganizationId(existing.organizationId)
-            val org = organizationFor(existing.organizationId)
-            val overrides = org?.notificationOverrides ?: emptyMap()
-            val offeredDate = org?.deliveryDateLabel(existing.deliveryId)
-            resolvedRequests.forEach { req ->
-                val requesterMember = members.find { it.memberId == req.requesterMemberId }
-                if (requesterMember != null) {
-                    when (req.status) {
-                        BasketExchangeRequestStatus.ACCEPTED -> {
-                            acceptedEmailPort.notifyRequesterAccepted(updated, req, requesterMember.toSummary(), org?.name)
-                            val proposedDate = org?.deliveryDateLabel(req.proposedDeliveryId)
-                            notifier.notifyMember(
-                                member = requesterMember,
-                                category = NotificationCategory.BASKET_EXCHANGE_ACCEPTED,
-                                defaultContent =
-                                    NotificationContent(
-                                        title = "Échange de panier confirmé",
-                                        body =
-                                            "Votre échange est confirmé : vous récupérez le panier du $offeredDate, " +
-                                                "vous cédez le vôtre du $proposedDate.",
-                                        deepLink = exchangeDeepLink(),
-                                        relatedEntityId = updated.basketExchangeId.id,
-                                    ),
-                                notificationOverrides = overrides,
-                                organizationName = org?.name,
-                            )
-                        }
-
-                        BasketExchangeRequestStatus.REJECTED -> {
-                            rejectedEmailPort.notifyRequesterRejected(updated, req, requesterMember.toSummary(), org?.name)
-                            notifier.notifyMember(
-                                member = requesterMember,
-                                category = NotificationCategory.BASKET_EXCHANGE_REJECTED,
-                                defaultContent =
-                                    NotificationContent(
-                                        title = "Demande de panier non retenue",
-                                        body = "Votre proposition d'échange pour le panier du $offeredDate n'a pas été retenue.",
-                                        deepLink = exchangeDeepLink(),
-                                        relatedEntityId = updated.basketExchangeId.id,
-                                    ),
-                                notificationOverrides = overrides,
-                                organizationName = org?.name,
-                            )
-                        }
-
-                        else -> {
-                            Unit
-                        }
-                    }
-                }
-            }
-        }.onFailure { logger.warn(it) { "failed to send basket-exchange acceptance/rejection notifications" } }
+        outcomeNotifications.onAccepted(existing, updated, resolvedRequests)
 
         return applied(mutation, updated.basketExchangeId.id)
     }
 
     // endregion
-
-    private fun buildUpsertChange(
-        organizationId: String,
-        exchange: BasketExchange,
-    ): Change =
-        Change(
-            cursor = Cursor.next(),
-            entityType = EntityType.BasketExchange,
-            entityId = exchange.basketExchangeId.id,
-            scopeKey = SyncScope.Organization(organizationId).key,
-            op = ChangeOp.UPSERT,
-            payload = BasketExchangePayload(exchange),
-            producedAt = System.currentTimeMillis(),
-        )
-
-    private fun Member.toSummary(): MemberSummary =
-        MemberSummary(
-            memberId = memberId.id,
-            firstName = firstName ?: "",
-            lastName = lastName ?: "",
-            email = email ?: "",
-        )
-
-    /** Human-readable name for notification copy ("Prénom Nom", falling back to "Un membre"). */
-    private fun Member.displayName(): String {
-        val name = listOfNotNull(firstName, lastName).filter { it.isNotBlank() }.joinToString(" ")
-        return name.ifBlank { "Un membre" }
-    }
-
-    /** French date label of [deliveryId] within this organization, or "?" if unknown. */
-    private fun Organization.deliveryDateLabel(deliveryId: Id<Delivery>?): String {
-        val delivery = deliveryId?.let { id -> deliveries.find { it.deliveryId == id } } ?: return "?"
-        val dt = delivery.scheduledDate
-        val month = FRENCH_MONTHS.getOrElse(dt.month.ordinal) { "" }
-        return "${dt.day} $month ${dt.year}".trim()
-    }
-
-    private fun requestsDeepLink(basketExchangeId: String): String = "/basket-exchange/$basketExchangeId/requests"
-
-    private fun exchangeDeepLink(): String = "/basket-exchange"
-
-    /** Loads the organization for [organizationId] (name + notification overrides), or null if unknown. */
-    private suspend fun organizationFor(organizationId: Id<Organization>): Organization? = organizationSyncDAO.getById(organizationId)
-
-    private companion object {
-        private val logger = KotlinLogging.logger {}
-        private val FRENCH_MONTHS =
-            listOf(
-                "janvier",
-                "février",
-                "mars",
-                "avril",
-                "mai",
-                "juin",
-                "juillet",
-                "août",
-                "septembre",
-                "octobre",
-                "novembre",
-                "décembre",
-            )
-    }
 }

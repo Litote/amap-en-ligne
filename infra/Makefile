@@ -223,7 +223,7 @@ help:
 	@echo "    sync-serializable  Scan @Serializable classes under back/ and merge their Companion/serializer() entries into reachability-metadata.json"
 	@echo ""
 	@echo "  AWS"
-	@echo "    bootstrap          Create state bucket + DynamoDB lock (once only)"
+	@echo "    bootstrap          Create state bucket + deployer IAM (once only)"
 	@echo "    dev                Build + deploy backend (Lambda) + frontend (web) to dev"
 	@echo "    dev-back           Deploy backend (Lambda) to dev only"
 	@echo "    dev-web            Deploy frontend (web) to dev only"

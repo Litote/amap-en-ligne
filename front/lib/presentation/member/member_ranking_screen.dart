@@ -159,11 +159,9 @@ class _MemberRankingScreenState extends State<MemberRankingScreen> {
     final contractIds = seasonContractIds(_contracts, seasonYear);
 
     // Denominator: ACTIVE members only.
-    final activeMembers = _allMembers.where((m) {
-      final status = m.accountStatus;
-      if (status != null) return status == MemberAccountStatus.active;
-      return m.activeStatus;
-    }).toList();
+    final activeMembers = _allMembers
+        .where((m) => m.accountStatus == MemberAccountStatus.active)
+        .toList();
 
     final memberId = me.memberId;
     final myCount = completedRegistrationsInSeason(org, memberId, contractIds);

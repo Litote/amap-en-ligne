@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:amap_en_ligne/data/local/database.dart';
 import 'package:amap_en_ligne/domain/model/admin_organization_request.dart';
 import 'package:amap_en_ligne/domain/model/admin_producer_request.dart';
@@ -12,11 +10,7 @@ import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/member_invitation.dart';
 import 'package:amap_en_ligne/domain/model/organization_creation_request.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
-import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
-import 'package:amap_en_ligne/domain/sync/entity_payload.dart';
-import 'package:amap_en_ligne/domain/sync/entity_type.dart';
 import 'package:amap_en_ligne/domain/sync/mutation_op.dart';
-import 'package:amap_en_ligne/domain/sync/sync_scope.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -234,60 +228,6 @@ void main() {
       await db.drainPendingMutations(<String>[]);
       expect((await db.readPendingMutations()).length, 1);
     });
-
-    test(
-      'legacy upsert without scope is backfilled from its payload scope',
-      () async {
-        await db.customStatement(
-          'INSERT INTO pending_mutations (client_op_id, scope_key, payload_json, created_at) '
-          'VALUES (?, NULL, ?, ?)',
-          [upsertMutation.clientOpId, jsonEncode(upsertMutation), 1],
-        );
-
-        final pending = await db.readPendingMutationEntries();
-
-        expect(pending.single.scopeKey, testProducerScopeKey);
-        final stored =
-            await (db.select(
-                  db.pendingMutations,
-                )..where((t) => t.clientOpId.equals(upsertMutation.clientOpId)))
-                .getSingle();
-        expect(stored.scopeKey, testProducerScopeKey);
-      },
-    );
-
-    test(
-      'legacy delete without scope resolves from a matching queued upsert',
-      () async {
-        const member = Member(memberId: 'tmp_member', organizationId: 'org-1');
-        const upsertMutation = ClientMutation(
-          clientOpId: 'op-upsert',
-          op: Upsert(payload: MemberPayload(member: member)),
-        );
-        const deleteMutation = ClientMutation(
-          clientOpId: 'op-delete',
-          op: Delete(entityType: EntityType.member, entityId: 'tmp_member'),
-        );
-
-        await db.customStatement(
-          'INSERT INTO pending_mutations (client_op_id, scope_key, payload_json, created_at) '
-          'VALUES (?, NULL, ?, ?)',
-          [upsertMutation.clientOpId, jsonEncode(upsertMutation), 1],
-        );
-        await db.customStatement(
-          'INSERT INTO pending_mutations (client_op_id, scope_key, payload_json, created_at) '
-          'VALUES (?, NULL, ?, ?)',
-          [deleteMutation.clientOpId, jsonEncode(deleteMutation), 2],
-        );
-
-        final pending = await db.readPendingMutationEntries();
-
-        expect(pending.map((entry) => entry.scopeKey), [
-          organizationScopeKey('org-1'),
-          organizationScopeKey('org-1'),
-        ]);
-      },
-    );
   });
 
   group('members CRUD', () {
@@ -307,9 +247,12 @@ void main() {
     test('upsert is idempotent', () async {
       final m = buildMember();
       await db.upsertMember(orgId, m);
-      await db.upsertMember(orgId, m.copyWith(activeStatus: false));
+      await db.upsertMember(
+        orgId,
+        m.copyWith(accountStatus: MemberAccountStatus.suspended),
+      );
       final rows = await db.watchMembers(orgId).first;
-      expect(rows.single.activeStatus, false);
+      expect(rows.single.accountStatus, MemberAccountStatus.suspended);
     });
 
     test('delete removes the row', () async {
@@ -867,5 +810,59 @@ void main() {
       expect(rows.single.errorReportId, 'er-real-1');
       expect(rows.single.errorMessage, 'Error');
     });
+  });
+
+  group('schema version mismatch', () {
+    Future<AppDatabase> openLegacy(int userVersion) async {
+      final legacy = AppDatabase(
+        NativeDatabase.memory(
+          setup: (raw) {
+            // Pre-squash layout: an obsolete table plus a current table with
+            // an incompatible shape, stamped with a foreign schema version.
+            raw
+              ..execute('CREATE TABLE legacy_table (id TEXT)')
+              ..execute('CREATE TABLE sync_cursors (legacy TEXT)')
+              ..execute("INSERT INTO sync_cursors VALUES ('stale')")
+              ..execute('PRAGMA user_version = $userVersion');
+          },
+        ),
+      );
+      addTearDown(legacy.close);
+      return legacy;
+    }
+
+    Future<List<String>> tableNames(AppDatabase database) async {
+      final rows = await database
+          .customSelect(
+            "SELECT name FROM sqlite_master WHERE type = 'table' "
+            "AND name NOT LIKE 'sqlite_%'",
+          )
+          .get();
+      return rows.map((row) => row.read<String>('name')).toList();
+    }
+
+    for (final userVersion in [5, 42]) {
+      test(
+        'user_version $userVersion rebuilds the cache instead of throwing',
+        () async {
+          final legacy = await openLegacy(userVersion);
+
+          expect(await legacy.readAllScopeCursors(), isEmpty);
+          await legacy.writeCursor(testProducerScopeKey, 'cursor-1');
+          expect(await legacy.readCursor(testProducerScopeKey), 'cursor-1');
+
+          final names = await tableNames(legacy);
+          expect(names, isNot(contains('legacy_table')));
+          expect(
+            names.toSet(),
+            legacy.allTables.map((table) => table.actualTableName).toSet(),
+          );
+          final version = await legacy
+              .customSelect('PRAGMA user_version')
+              .getSingle();
+          expect(version.read<int>('user_version'), legacy.schemaVersion);
+        },
+      );
+    }
   });
 }

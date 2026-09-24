@@ -26,21 +26,18 @@ import persistence.dao.DeliveryTemplateSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationSyncDAO
 import persistence.dao.ProducerAccountSyncDAO
-import persistence.model.AccessibilityOptions
 import persistence.model.ActivityType
 import persistence.model.BasketSize
 import persistence.model.Contract
 import persistence.model.Delivery
 import persistence.model.DeliveryContract
 import persistence.model.DeliveryContractStatus
-import persistence.model.DeliveryReminders
 import persistence.model.DeliveryStatus
 import persistence.model.DeliveryTemplate
 import persistence.model.EarlySlot
 import persistence.model.Member
 import persistence.model.MemberPreferences
 import persistence.model.MemberRegistration
-import persistence.model.MemberSettings
 import persistence.model.MemberSlot
 import persistence.model.NotificationCategory
 import persistence.model.Organization
@@ -973,14 +970,7 @@ internal class OrganizationServiceTest {
         Member(
             memberId = memberId.toId(),
             organizationId = organizationId.toId(),
-            activeStatus = true,
             email = "$memberId@example.com",
-            memberSettings =
-                MemberSettings(
-                    deliveryReminders = DeliveryReminders(daysBefore = 1, reminderTime = "08:00"),
-                    accessibilityOptions = AccessibilityOptions(highContrast = false, largeText = false, screenReader = false),
-                    lastUpdatedInstant = now,
-                ),
             memberPreferences =
                 MemberPreferences(
                     deliveryRemindersEnabled = true,

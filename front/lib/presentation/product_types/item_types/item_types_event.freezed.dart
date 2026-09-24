@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'item_types_event.dart';
@@ -9,6 +9,7 @@ part of 'item_types_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$ItemTypesEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ItemTypesEvent()';
+    return 'ItemTypesEvent()';
 }
 
 
@@ -202,16 +203,18 @@ $ItemTypesRequestedCopyWith<ItemTypesRequested> get copyWith => _$ItemTypesReque
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesRequested&&(identical(other.productType, productType) || other.productType == productType));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypesRequested&&(identical(other.productType, productType) || other.productType == productType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productType);
+int get hashCode {
+    return Object.hash(runtimeType,productType);
+}
 
 @override
 String toString() {
-  return 'ItemTypesEvent.requested(productType: $productType)';
+    return 'ItemTypesEvent.requested(productType: $productType)';
 }
 
 
@@ -278,16 +281,18 @@ $ItemTypeAddedCopyWith<ItemTypeAdded> get copyWith => _$ItemTypeAddedCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypeAdded&&(identical(other.name, name) || other.name == name)&&(identical(other.imageSvg, imageSvg) || other.imageSvg == imageSvg));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypeAdded&&(identical(other.name, name) || other.name == name)&&(identical(other.imageSvg, imageSvg) || other.imageSvg == imageSvg));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,imageSvg);
+int get hashCode {
+    return Object.hash(runtimeType,name,imageSvg);
+}
 
 @override
 String toString() {
-  return 'ItemTypesEvent.added(name: $name, imageSvg: $imageSvg)';
+    return 'ItemTypesEvent.added(name: $name, imageSvg: $imageSvg)';
 }
 
 
@@ -345,16 +350,18 @@ $ItemTypeRemovedCopyWith<ItemTypeRemoved> get copyWith => _$ItemTypeRemovedCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypeRemoved&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypeRemoved&&(identical(other.itemTypeId, itemTypeId) || other.itemTypeId == itemTypeId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,itemTypeId);
+int get hashCode {
+    return Object.hash(runtimeType,itemTypeId);
+}
 
 @override
 String toString() {
-  return 'ItemTypesEvent.removed(itemTypeId: $itemTypeId)';
+    return 'ItemTypesEvent.removed(itemTypeId: $itemTypeId)';
 }
 
 
@@ -411,16 +418,18 @@ $ItemTypeUpdatedCopyWith<ItemTypeUpdated> get copyWith => _$ItemTypeUpdatedCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypeUpdated&&(identical(other.itemType, itemType) || other.itemType == itemType));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ItemTypeUpdated&&(identical(other.itemType, itemType) || other.itemType == itemType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,itemType);
+int get hashCode {
+    return Object.hash(runtimeType,itemType);
+}
 
 @override
 String toString() {
-  return 'ItemTypesEvent.updated(itemType: $itemType)';
+    return 'ItemTypesEvent.updated(itemType: $itemType)';
 }
 
 

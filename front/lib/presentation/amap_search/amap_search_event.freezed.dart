@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'amap_search_event.dart';
@@ -9,6 +9,7 @@ part of 'amap_search_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$AmapSearchEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AmapSearchEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AmapSearchEvent()';
+    return 'AmapSearchEvent()';
 }
 
 
@@ -191,7 +192,7 @@ class OrgsLoadRequested implements AmapSearchEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgsLoadRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgsLoadRequested);
 }
 
 
@@ -200,7 +201,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AmapSearchEvent.orgsLoadRequested()';
+    return 'AmapSearchEvent.orgsLoadRequested()';
 }
 
 
@@ -228,16 +229,18 @@ $OrgSelectedCopyWith<OrgSelected> get copyWith => _$OrgSelectedCopyWithImpl<OrgS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgSelected&&(identical(other.org, org) || other.org == org));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is OrgSelected&&(identical(other.org, org) || other.org == org));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,org);
+int get hashCode {
+    return Object.hash(runtimeType,org);
+}
 
 @override
 String toString() {
-  return 'AmapSearchEvent.orgSelected(org: $org)';
+    return 'AmapSearchEvent.orgSelected(org: $org)';
 }
 
 
@@ -305,16 +308,18 @@ $JoinFormSubmittedCopyWith<JoinFormSubmitted> get copyWith => _$JoinFormSubmitte
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is JoinFormSubmitted&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is JoinFormSubmitted&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,firstName,lastName,email);
+int get hashCode {
+    return Object.hash(runtimeType,firstName,lastName,email);
+}
 
 @override
 String toString() {
-  return 'AmapSearchEvent.joinFormSubmitted(firstName: $firstName, lastName: $lastName, email: $email)';
+    return 'AmapSearchEvent.joinFormSubmitted(firstName: $firstName, lastName: $lastName, email: $email)';
 }
 
 

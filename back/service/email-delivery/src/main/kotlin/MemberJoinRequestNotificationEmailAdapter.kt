@@ -6,6 +6,7 @@ import email.MemberJoinRequestNotificationEmailPort
 import org.koin.core.annotation.Single
 import persistence.dao.MemberSyncDAO
 import persistence.model.EmailMessage
+import persistence.model.MemberAccountStatus
 import persistence.model.MemberJoinRequest
 
 /**
@@ -25,7 +26,7 @@ internal class MemberJoinRequestNotificationEmailAdapter(
         val content = EmailTemplates.memberJoinRequestSubmitted(request, organizationName)
         memberSyncDAO
             .getByOrganizationId(request.organizationId)
-            .filter { it.activeStatus && Role.ADMIN in it.roles }
+            .filter { it.accountStatus == MemberAccountStatus.ACTIVE && Role.ADMIN in it.roles }
             .forEach { admin ->
                 val email = admin.email
                 if (!email.isNullOrBlank()) {

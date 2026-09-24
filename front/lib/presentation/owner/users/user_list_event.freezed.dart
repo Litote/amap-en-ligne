@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'user_list_event.dart';
@@ -9,6 +9,7 @@ part of 'user_list_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$UserListEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListEvent);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListEvent);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserListEvent()';
+    return 'UserListEvent()';
 }
 
 
@@ -215,7 +216,7 @@ class UserListLoadRequested implements UserListEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListLoadRequested);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListLoadRequested);
 }
 
 
@@ -224,7 +225,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'UserListEvent.loaded()';
+    return 'UserListEvent.loaded()';
 }
 
 
@@ -252,16 +253,18 @@ $UserListSearchQueryChangedCopyWith<UserListSearchQueryChanged> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListSearchQueryChanged&&(identical(other.query, query) || other.query == query));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListSearchQueryChanged&&(identical(other.query, query) || other.query == query));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,query);
+int get hashCode {
+    return Object.hash(runtimeType,query);
+}
 
 @override
 String toString() {
-  return 'UserListEvent.searchQueryChanged(query: $query)';
+    return 'UserListEvent.searchQueryChanged(query: $query)';
 }
 
 
@@ -318,16 +321,18 @@ $UserListAmapFilterChangedCopyWith<UserListAmapFilterChanged> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListAmapFilterChanged&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListAmapFilterChanged&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationId);
+int get hashCode {
+    return Object.hash(runtimeType,organizationId);
+}
 
 @override
 String toString() {
-  return 'UserListEvent.amapFilterChanged(organizationId: $organizationId)';
+    return 'UserListEvent.amapFilterChanged(organizationId: $organizationId)';
 }
 
 
@@ -384,16 +389,18 @@ $UserListProducerFilterChangedCopyWith<UserListProducerFilterChanged> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListProducerFilterChanged&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListProducerFilterChanged&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,organizationId);
+int get hashCode {
+    return Object.hash(runtimeType,organizationId);
+}
 
 @override
 String toString() {
-  return 'UserListEvent.producerFilterChanged(organizationId: $organizationId)';
+    return 'UserListEvent.producerFilterChanged(organizationId: $organizationId)';
 }
 
 
@@ -450,16 +457,18 @@ $UserListRoleFilterChangedCopyWith<UserListRoleFilterChanged> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListRoleFilterChanged&&(identical(other.filter, filter) || other.filter == filter));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListRoleFilterChanged&&(identical(other.filter, filter) || other.filter == filter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,filter);
+int get hashCode {
+    return Object.hash(runtimeType,filter);
+}
 
 @override
 String toString() {
-  return 'UserListEvent.roleFilterChanged(filter: $filter)';
+    return 'UserListEvent.roleFilterChanged(filter: $filter)';
 }
 
 
@@ -516,16 +525,18 @@ $UserListStatusFilterChangedCopyWith<UserListStatusFilterChanged> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListStatusFilterChanged&&(identical(other.status, status) || other.status == status));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListStatusFilterChanged&&(identical(other.status, status) || other.status == status));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status);
+int get hashCode {
+    return Object.hash(runtimeType,status);
+}
 
 @override
 String toString() {
-  return 'UserListEvent.statusFilterChanged(status: $status)';
+    return 'UserListEvent.statusFilterChanged(status: $status)';
 }
 
 
@@ -582,16 +593,18 @@ $UserListPageChangedCopyWith<UserListPageChanged> get copyWith => _$UserListPage
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListPageChanged&&(identical(other.page, page) || other.page == page));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserListPageChanged&&(identical(other.page, page) || other.page == page));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,page);
+int get hashCode {
+    return Object.hash(runtimeType,page);
+}
 
 @override
 String toString() {
-  return 'UserListEvent.pageChanged(page: $page)';
+    return 'UserListEvent.pageChanged(page: $page)';
 }
 
 

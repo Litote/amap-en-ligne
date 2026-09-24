@@ -81,6 +81,12 @@ variable "ses_from_email" {
   default     = ""
 }
 
+variable "ses_create_identity" {
+  description = "Create an SES email-address identity for ses_from_email. Set false when the sender's domain (e.g. litote.org) is already a verified SES domain identity."
+  type        = bool
+  default     = true
+}
+
 variable "instance_name" {
   description = "Human-readable name of this instance (shown in discovery endpoint)"
   type        = string

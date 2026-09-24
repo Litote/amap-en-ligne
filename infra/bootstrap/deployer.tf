@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "deployer" {
     resources = ["*"]
   }
 
-  # DynamoDB — Terraform state lock table + the single application table
+  # DynamoDB — the single application table
   statement {
     sid    = "DynamoDB"
     effect = "Allow"
@@ -59,15 +59,14 @@ data "aws_iam_policy_document" "deployer" {
       "dynamodb:TagResource",
       "dynamodb:UntagResource",
       "dynamodb:ListTagsOfResource",
-      # Used by the Terraform backend for locking and the bootstrap server item
+      # Used for the bootstrap server / initial owner items
       "dynamodb:GetItem",
       "dynamodb:PutItem",
       "dynamodb:DeleteItem"
     ]
     resources = [
-      "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${var.project}-tflock",
-      "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${var.dynamo_table_name}",
-      "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${var.dynamo_table_name}/index/*"
+      "arn:aws:dynamodb:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamo_table_name}",
+      "arn:aws:dynamodb:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamo_table_name}/index/*"
     ]
   }
 
@@ -309,6 +308,15 @@ data "aws_iam_policy_document" "deployer" {
     resources = [
       "arn:aws:ses:*:${data.aws_caller_identity.current.account_id}:identity/*"
     ]
+  }
+
+  # Cognito creates its SES email service-linked role on the first user pool
+  # update with email_sending_account = DEVELOPER.
+  statement {
+    sid       = "CognitoEmailSLR"
+    effect    = "Allow"
+    actions   = ["iam:CreateServiceLinkedRole"]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/email.cognito-idp.amazonaws.com/*"]
   }
 
   # CloudFront — web distribution, origin access control, response headers

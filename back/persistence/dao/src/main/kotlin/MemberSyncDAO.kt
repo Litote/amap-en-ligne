@@ -3,6 +3,7 @@ package persistence.dao
 import id.Id
 import persistence.changes.Change
 import persistence.model.Member
+import persistence.model.MemberAccountStatus
 import persistence.model.Organization
 
 interface MemberSyncDAO {
@@ -15,7 +16,7 @@ interface MemberSyncDAO {
      *
      * Incremental OWNER-scope Member sync IS supported: every member write fans out an
      * `instance-owner`-scoped [Change] in addition to the `organization:{id}` one (see
-     * `MemberService.buildUpsertChanges` / `buildDeleteChanges`), so an OWNER polling with a
+     * `buildUpsertChanges` / `buildDeleteChanges` in `MemberChanges.kt`), so an OWNER polling with a
      * cursor receives member updates through `DataService.syncScope` without a forced bootstrap.
      * Regression test: `DataServiceTest."GIVEN owner scope member cursor WHEN sync THEN owner
      * receives member changes incrementally"`.
@@ -60,23 +61,21 @@ interface MemberSyncDAO {
     )
 
     /**
-     * Atomically flips `active_status` on every Member row whose [Member.memberId]
-     * equals [sub], keeps `account_status` aligned (`ACTIVE` / `SUSPENDED`),
-     * and writes the supplied Changes.
+     * Atomically sets `account_status` on every Member row whose [Member.memberId]
+     * equals [sub] and writes the supplied Changes.
      *
      * Since [memberId] == sub by convention, this is a single-row update in the
      * common single-AMAP case.
      */
-    suspend fun setActiveStatusBySub(
+    suspend fun setAccountStatusBySub(
         sub: String,
-        activeStatus: Boolean,
+        accountStatus: MemberAccountStatus,
         changes: List<Change>,
     )
 
     /**
      * Atomically anonymises every Member row whose [Member.memberId] equals [sub]:
-     * clears member PII, forces `active_status = false`,
-     * sets `account_status = SUSPENDED`, and writes the supplied Changes.
+     * clears member PII, sets `account_status = SUSPENDED`, and writes the supplied Changes.
      */
     suspend fun anonymiseBySub(
         sub: String,

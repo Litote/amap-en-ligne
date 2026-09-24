@@ -257,7 +257,7 @@ class PublicService(
         val copy = overrides.resolveCopy(category, defaultTitle, defaultBody)
         memberSyncDAO
             .getByOrganizationId(organizationId)
-            .filter { it.activeStatus && Role.ADMIN in it.roles }
+            .filter { it.accountStatus == MemberAccountStatus.ACTIVE && Role.ADMIN in it.roles }
             .forEach { admin ->
                 // memberId == sub by convention
                 val sub = admin.memberId.id

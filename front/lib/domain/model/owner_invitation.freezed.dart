@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'owner_invitation.dart';
@@ -9,6 +9,7 @@ part of 'owner_invitation.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $OwnerInvitationCopyWith<OwnerInvitation> get copyWith => _$OwnerInvitationCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerInvitation&&(identical(other.invitationId, invitationId) || other.invitationId == invitationId)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt)&&(identical(other.activatedAt, activatedAt) || other.activatedAt == activatedAt));
+  final _this = this as OwnerInvitation;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerInvitation&&(identical(other.invitationId, _this.invitationId) || other.invitationId == _this.invitationId)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.submittedAt, _this.submittedAt) || other.submittedAt == _this.submittedAt)&&(identical(other.resendRequestedAt, _this.resendRequestedAt) || other.resendRequestedAt == _this.resendRequestedAt)&&(identical(other.activatedAt, _this.activatedAt) || other.activatedAt == _this.activatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,invitationId,firstName,lastName,email,status,submittedAt,resendRequestedAt,activatedAt);
+int get hashCode {
+  final _this = this as OwnerInvitation;
+  return Object.hash(runtimeType,_this.invitationId,_this.firstName,_this.lastName,_this.email,_this.status,_this.submittedAt,_this.resendRequestedAt,_this.activatedAt);
+}
 
 @override
 String toString() {
-  return 'OwnerInvitation(invitationId: $invitationId, firstName: $firstName, lastName: $lastName, email: $email, status: $status, submittedAt: $submittedAt, resendRequestedAt: $resendRequestedAt, activatedAt: $activatedAt)';
+  final _this = this as OwnerInvitation;
+  return 'OwnerInvitation(invitationId: ${_this.invitationId}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, email: ${_this.email}, status: ${_this.status}, submittedAt: ${_this.submittedAt}, resendRequestedAt: ${_this.resendRequestedAt}, activatedAt: ${_this.activatedAt})';
 }
 
 
@@ -66,7 +72,7 @@ class _$OwnerInvitationCopyWithImpl<$Res>
 /// Create a copy of OwnerInvitation
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? invitationId = null,Object? firstName = null,Object? lastName = null,Object? email = null,Object? status = null,Object? submittedAt = null,Object? resendRequestedAt = freezed,Object? activatedAt = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(OwnerInvitation(
 invitationId: null == invitationId ? _self.invitationId : invitationId // ignore: cast_nullable_to_non_nullable
 as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
@@ -241,16 +247,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerInvitation&&(identical(other.invitationId, invitationId) || other.invitationId == invitationId)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt)&&(identical(other.activatedAt, activatedAt) || other.activatedAt == activatedAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerInvitation&&(identical(other.invitationId, invitationId) || other.invitationId == invitationId)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.resendRequestedAt, resendRequestedAt) || other.resendRequestedAt == resendRequestedAt)&&(identical(other.activatedAt, activatedAt) || other.activatedAt == activatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,invitationId,firstName,lastName,email,status,submittedAt,resendRequestedAt,activatedAt);
+int get hashCode {
+    return Object.hash(runtimeType,invitationId,firstName,lastName,email,status,submittedAt,resendRequestedAt,activatedAt);
+}
 
 @override
 String toString() {
-  return 'OwnerInvitation(invitationId: $invitationId, firstName: $firstName, lastName: $lastName, email: $email, status: $status, submittedAt: $submittedAt, resendRequestedAt: $resendRequestedAt, activatedAt: $activatedAt)';
+    return 'OwnerInvitation(invitationId: $invitationId, firstName: $firstName, lastName: $lastName, email: $email, status: $status, submittedAt: $submittedAt, resendRequestedAt: $resendRequestedAt, activatedAt: $activatedAt)';
 }
 
 

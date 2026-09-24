@@ -210,13 +210,6 @@ server_id = resp['Items'][0]['sk']['S'] if resp.get('Items') else ''
 
 EPOCH = '1970-01-01T00:00:00Z'
 
-def _member_settings():
-    return json.dumps({
-        'delivery_reminders': {'days_before': 1, 'reminder_time': '08:00'},
-        'accessibility_options': {'high_contrast': False, 'large_text': False, 'screen_reader': False},
-        'last_updated_instant': EPOCH,
-    }, separators=(',', ':'))
-
 def _member_prefs():
     return json.dumps({
         'delivery_reminders_enabled': True,
@@ -318,12 +311,10 @@ for sub, roles, email in members:
         'member_id':           {'S': sub},
         'organization_id':     {'S': 'amap-dev'},
         'roles':               {'SS': roles},
-        'active_status':       {'BOOL': True},
         'account_status':      {'S': 'ACTIVE'},
         'email':               {'S': email},
         'contracts':           {'S': '[]'},
         'registrations':       {'S': '[]'},
-        'member_settings':     {'S': _member_settings()},
         'member_preferences':  {'S': _member_prefs()},
         'user_preferences':    {'S': _user_prefs()},
         'user_settings':       {'S': _user_settings()},
