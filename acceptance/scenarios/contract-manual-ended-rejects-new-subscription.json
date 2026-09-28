@@ -1,0 +1,112 @@
+{
+  "id": "contract-manual-ended-rejects-new-subscription",
+  "title": "Adding a new member to a manually ENDED contract (future dates) is rejected with CONTRACT_ENDED",
+  "targets": ["contract-lifecycle"],
+  "given": {
+    "backendState": "organization:org-1 with an ended contract:contract-1 (season 2020); member:admin-1 with role ADMIN",
+    "appState": "fresh organization cache synchronized from bootstrap"
+  },
+  "when": [
+    {
+      "actor": "admin",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-create-ended-contract",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Contract",
+                "contract": {
+                  "contract_id": "contract-3",
+                  "name": "Saison 2027 (manually ended)",
+                  "organization_id": "org-1",
+                  "producer_account_id": "producer-1",
+                  "min_delivery_date": "2027-01-01",
+                  "max_delivery_date": "2027-12-31",
+                  "delivery_count": 52,
+                  "season_year": 2027,
+                  "status": "ENDED",
+                  "product_prices": [
+                    {
+                      "product_type_id": "pt-tomato"
+                    }
+                  ],
+                  "coordinators": [],
+                  "members": []
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "actor": "admin",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-add-member-to-ended",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Contract",
+                "contract": {
+                  "contract_id": "contract-3",
+                  "name": "Saison 2027 (manually ended)",
+                  "organization_id": "org-1",
+                  "producer_account_id": "producer-1",
+                  "min_delivery_date": "2027-01-01",
+                  "max_delivery_date": "2027-12-31",
+                  "delivery_count": 52,
+                  "season_year": 2027,
+                  "status": "ENDED",
+                  "product_prices": [
+                    {
+                      "product_type_id": "pt-tomato"
+                    }
+                  ],
+                  "coordinators": [],
+                  "members": [
+                    {
+                      "member_id": "member-2",
+                      "subscription_instant": "2027-01-15T00:00:00Z",
+                      "status": "ACTIVE",
+                      "subscriptions": [
+                        {
+                          "product_type_id": "pt-tomato"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-add-member-to-ended",
+          "status": "REJECTED",
+          "error": {
+            "code": "CONTRACT_ENDED"
+          }
+        }
+      ]
+    }
+  }
+}

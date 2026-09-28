@@ -1,0 +1,4 @@
+{
+  "id": "admin-invite-member-no-double-sync",
+  "title": "Admin invites a member without triggering double sync"
+}

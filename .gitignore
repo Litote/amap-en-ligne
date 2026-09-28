@@ -1,0 +1,25 @@
+# Gradle build output (back/build/generated/** tracked — see back/.gitignore)
+.gradle/
+**/build/*
+
+# IntelliJ IDEA
+.idea/
+!.idea/runConfigurations/*
+*.iml
+*.ipr
+*.iws
+out/
+
+# Kotlin
+.kotlin
+
+# DynamoDB Local runtime data
+**/docker/dynamodb/
+
+#ai
+PLAN.md
+.claude/worktrees/
+.playwright-mcp/
+
+#local data
+/data

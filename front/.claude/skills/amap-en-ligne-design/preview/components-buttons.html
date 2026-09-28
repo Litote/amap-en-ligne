@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Buttons</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 14px;}
+  .filled { font: 500 14px/1 Roboto; letter-spacing:0.5px; padding: 10px 24px; border-radius: 9999px; color: #fff; border: none; cursor:pointer; }
+  .outlined { font: 500 14px/1 Roboto; letter-spacing:0.5px; padding: 9px 23px; border-radius: 9999px; background: transparent; border: 1px solid #73796E; color: #386A20; cursor:pointer;}
+  .text { font: 500 14px/1 Roboto; letter-spacing:0.5px; padding: 10px 12px; background: transparent; border: none; color: #386A20; cursor:pointer;}
+  .lbl { font-size: 10px; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="lbl">FilledButton — primary action</div>
+  <div class="row">
+    <button class="filled" style="background:#4CAF50">SE CONNECTER</button>
+    <button class="filled" style="background:#2196F3">S'INSCRIRE À UNE AMAP</button>
+    <button class="filled" style="background:#FF9800">INSCRIVEZ-VOUS</button>
+    <button class="filled" style="background:#4CAF50;opacity:0.5;cursor:not-allowed">DISABLED</button>
+  </div>
+  <div class="lbl">OutlinedButton · TextButton</div>
+  <div class="row">
+    <button class="outlined">ANNULER</button>
+    <button class="outlined">RETOUR À L'ACCUEIL</button>
+    <button class="text">Mot de passe oublié ?</button>
+  </div>
+</div>
+</body>
+</html>

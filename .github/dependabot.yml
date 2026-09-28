@@ -1,0 +1,86 @@
+version: 2
+
+updates:
+  # ── GitHub Actions ──────────────────────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - github-actions
+
+  # ── Gradle (back) ──────────────────────────────────────────────────────────
+  - package-ecosystem: gradle
+    directory: /back
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - backend
+
+  # ── Gradle (root version catalog: gradle/libs.versions.toml) ───────────────
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - backend
+
+  # ── Flutter / Dart (pub) ────────────────────────────────────────────────────
+  - package-ecosystem: pub
+    directory: /front
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - flutter
+
+  # ── Gradle (front/android — standalone Flutter-generated Android build) ────
+  - package-ecosystem: gradle
+    directory: /front/android
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - flutter
+
+  # ── Terraform (infra) ───────────────────────────────────────────────────────
+  - package-ecosystem: terraform
+    directory: /infra
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - infra
+
+  # ── Terraform (infra bootstrap) ─────────────────────────────────────────────
+  - package-ecosystem: terraform
+    directory: /infra/bootstrap
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - infra

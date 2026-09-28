@@ -1,0 +1,79 @@
+{% extends "main.html" %}
+
+<!--
+  Page d'accueil personnalisée (page de garde).
+  Activée sur docs/index.md via le front matter `template: home.html`.
+  Le hero et les cartes sont injectés dans le bloc `tabs` (juste sous l'en-tête) ;
+  le bloc `content` est vidé pour ne pas afficher l'article Markdown par défaut.
+-->
+
+{% block tabs %}
+  {{ super() }}
+
+  <section class="amap-hero">
+    <div class="amap-hero__inner md-grid">
+      <div class="amap-hero__text">
+        <h1>Amap en&nbsp;ligne</h1>
+        <p class="amap-hero__tagline">
+          L'application libre qui simplifie l'organisation des livraisons de votre
+          AMAP&nbsp;: planning, bénévoles, contrats, paniers et échanges entre membres.
+        </p>
+        <div class="amap-hero__cta">
+          <a href="{{ 'guide/01-demarrage/' | url }}" class="md-button md-button--primary">
+            Démarrer
+          </a>
+          <a href="{{ 'guide/' | url }}" class="md-button">
+            Consulter le guide
+          </a>
+        </div>
+        <p class="amap-hero__meta">
+          Gratuit · Open-source (AGPL&nbsp;3.0) · Auto-hébergeable · Android, iPhone &amp; Web
+        </p>
+      </div>
+      <div class="amap-hero__art" aria-hidden="true">🥕</div>
+    </div>
+  </section>
+
+  <section class="amap-section md-grid">
+    <h2 class="amap-section__title">Pourquoi Amap en ligne&nbsp;?</h2>
+    <ul class="amap-cards">
+      <li class="amap-card">
+        <span class="amap-card__icon" aria-hidden="true">📶</span>
+        <h3>Fonctionne hors connexion</h3>
+        <p>Consultez et agissez sans réseau&nbsp;: tout se synchronise dès qu'une
+           connexion revient.</p>
+      </li>
+      <li class="amap-card">
+        <span class="amap-card__icon" aria-hidden="true">🧑‍🌾</span>
+        <h3>Pensé par rôle</h3>
+        <p>Amapien, coordinateur, producteur, administrateur&nbsp;: chacun trouve
+           ses outils.</p>
+      </li>
+      <li class="amap-card">
+        <span class="amap-card__icon" aria-hidden="true">🔄</span>
+        <h3>Bénévolat &amp; échanges</h3>
+        <p>Inscriptions aux créneaux, suivi des livraisons et échanges de paniers
+           entre membres.</p>
+      </li>
+      <li class="amap-card">
+        <span class="amap-card__icon" aria-hidden="true">🔓</span>
+        <h3>Libre &amp; respectueux</h3>
+        <p>Code ouvert, données personnelles protégées, installable sur votre propre
+           serveur.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="amap-section md-grid">
+    <h2 class="amap-section__title">Les guides par rôle</h2>
+    <ul class="amap-roles">
+      <li><a href="{{ 'guide/amapien/' | url }}">👤 Amapien</a></li>
+      <li><a href="{{ 'guide/coordinateur/' | url }}">🗂️ Coordinateur</a></li>
+      <li><a href="{{ 'guide/producteur/' | url }}">🌿 Producteur</a></li>
+      <li><a href="{{ 'guide/admin-amap/' | url }}">🛠️ Administrateur d'AMAP</a></li>
+      <li><a href="{{ 'guide/owner-instance/' | url }}">🏢 Administrateur d'instance</a></li>
+    </ul>
+  </section>
+{% endblock %}
+
+{% block content %}{% endblock %}

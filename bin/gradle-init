@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+set -euo pipefail
+shopt -s inherit_errexit
+
+# ====== Options / help =========================================================
+usage() {
+  cat <<'EOF'
+Usage: gradle-init [options] <path>
+
+<path> can be a directory or a file (its parent directory will be used).
+
+Options:
+  -n, --dry-run    Show the actions that would be performed without making changes
+  -h, --help       Show this help message
+
+This script creates symbolic links to the Gradle wrapper files and directories
+located in ${PROJECT_ROOT_DIR} inside <path>:
+  - gradlew              -> symlink to root gradlew
+  - gradle/wrapper/      -> symlink to root gradle/wrapper/ (not the whole gradle/)
+  - gradle.properties    -> symlink to root gradle.properties (overrides existing)
+EOF
+}
+
+DRY_RUN=0
+ARGS=()
+
+while (("$#")); do
+  case "${1:-}" in
+    -n|--dry-run) DRY_RUN=1; shift ;;
+    -h|--help) usage; exit 0 ;;
+    --) shift; while (("$#")); do ARGS+=("$1"); shift; done; break ;;
+    -*) echo "Unknown option: $1" >&2; usage; exit 2 ;;
+    *) ARGS+=("$1"); shift ;;
+  esac
+done
+
+if (( ${#ARGS[@]} != 1 )); then
+  echo "Error: exactly one <path> argument is required." >&2
+  usage
+  exit 2
+fi
+
+# ====== Project location / logs ===============================================
+OWN_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+PROJECT_ROOT_DIR="$(realpath "${OWN_DIR}/..")"
+
+
+# shellcheck disable=SC1091
+source "${PROJECT_ROOT_DIR}/bin/include/logs"
+
+# ====== Wrapper constants ======================================================
+WRAPPER_DIR="${PROJECT_ROOT_DIR}"
+WRAPPER_FILES=( "gradlew" "gradle.properties" )
+WRAPPER_FILES_NOT_TO_OVERRIDE=( )
+WRAPPER_DIRS=( "gradle/wrapper" )
+
+# ====== TARGET resolution ======================================================
+INPUT="${ARGS[0]}"
+if [[ -d "$INPUT" ]]; then
+  TARGET="$INPUT"
+else
+  TARGET="$(dirname -- "$INPUT")"
+fi
+
+if [[ ! -d "$TARGET" ]]; then
+  echo "Error: TARGET is not a directory: $TARGET" >&2
+  exit 1
+fi
+
+if [[ ! -d "$WRAPPER_DIR" ]]; then
+  echo "Error: wrapper directory not found: $WRAPPER_DIR" >&2
+  exit 1
+fi
+
+# Avoid dangerous self-linking (wrapper == target)
+if [[ "$(realpath "$TARGET")" == "$(realpath "$WRAPPER_DIR")" ]]; then
+  echo "Error: TARGET and WRAPPER_DIR refer to the same directory." >&2
+  exit 1
+fi
+
+# ====== Helpers ================================================================
+run() {
+  if (( DRY_RUN )); then
+    printf '[DRY] %s\n' "$*"
+  else
+    eval "$@"
+  fi
+}
+
+# Compute relative path from base to source
+relpath() {
+  local source="$1" base="$2"
+  perl -le 'use File::Spec; print File::Spec->abs2rel(@ARGV)' "$source" "$base"
+  return 0
+}
+
+link_target_for() {
+  local entry="$1"
+  local link_parent
+  link_parent="$(dirname -- "${TARGET}/${entry}")"
+  relpath "${WRAPPER_DIR}/${entry}" "$link_parent"
+}
+
+# ====== Execution ==============================================================
+pushd "$TARGET" >/dev/null
+
+log_info "Initializing Gradle wrapper in: $TARGET"
+log_info "Wrapper source: $WRAPPER_DIR"
+(( DRY_RUN )) && log_info "Dry-run mode: no changes will be made."
+
+# Directories (e.g., gradle/wrapper)
+for d in "${WRAPPER_DIRS[@]}"; do
+  link_target="$(link_target_for "$d")"
+  parent="$(dirname -- "$d")"
+  if [[ "$parent" != "." ]]; then
+    run "mkdir -p -- '$parent'"
+  fi
+  if [[ -e "$d" || -L "$d" ]]; then
+    log_info "Removing existing directory or symlink: ${TARGET}/${d}"
+    run "rm -rf -- '$d'"
+  fi
+  log_info "Creating symlink: ${TARGET}/${d} -> ${link_target}"
+  run "ln -s -- '${link_target}' '${d}'"
+done
+
+# Files (e.g., gradlew)
+for f in "${WRAPPER_FILES[@]}"; do
+  link_target="$(link_target_for "$f")"
+  if [[ -e "$f" || -L "$f" ]]; then
+    log_info "Removing existing file or symlink: ${TARGET}/${f}"
+    run "rm -f -- '$f'"
+  fi
+  log_info "Creating symlink: ${TARGET}/${f} -> ${link_target}"
+  run "ln -s -- '${link_target}' '${f}'"
+done
+
+# Files not to override (e.g., local overrides)
+for f in "${WRAPPER_FILES_NOT_TO_OVERRIDE[@]}"; do
+  link_target="$(link_target_for "$f")"
+  if [[ -e "$f" || -L "$f" ]]; then
+    log_info "Not override: ${TARGET}/${f}"
+  else
+    log_info "Creating symlink: ${TARGET}/${f} -> ${link_target}"
+      run "ln -s -- '${link_target}' '${f}'"
+  fi
+done
+
+popd >/dev/null
+log_info "Done."

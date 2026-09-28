@@ -1,0 +1,14 @@
+rules:
+  dangerous-triggers:
+    ignore:
+      # pull_request_target is intentional: these dependabot autofix workflows check
+      # out the base branch (trusted) and only pull safe, dependabot-authored files
+      # from the PR branch before regenerating lock/verification metadata.
+      - dependabot-gradle-verification.yml:3
+      - dependabot-flutter-lock.yml:3
+
+  bot-conditions:
+    ignore:
+      # Restricting to dependabot[bot] is the intended guard for these workflows.
+      - dependabot-gradle-verification.yml:20
+      - dependabot-flutter-lock.yml:18

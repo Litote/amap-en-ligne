@@ -1,0 +1,8 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          # Match back's `Json { explicitNulls = false }` — nullable fields with
+          # null values are omitted from the wire JSON.
+          include_if_null: false

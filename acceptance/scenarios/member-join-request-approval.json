@@ -1,0 +1,9 @@
+{
+  "id": "member-join-request-approval",
+  "title": "A member join request can be approved through sync and creates a pending member invitation",
+  "targets": ["flutter"],
+  "given": {
+    "backendState": "organization with a pending member join request",
+    "appState": "request cached in drift"
+  }
+}

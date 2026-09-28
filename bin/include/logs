@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+# Only enable color output if STDOUT (aka file descriptor 1) does refer to a terminal, or we are running in a CI job.
+[[ -t 1 ]] || [[ "${CI:-}" ]] && __enable_color_output=1
+
+function color {
+  [[ "${__enable_color_output:-}" ]] || return
+
+  local color="${1:-}"
+
+  case $color in
+  black)
+    tput setaf 0
+    ;;
+  bg_black)
+    tput setab 0
+    ;;
+  red)
+    tput setaf 1
+    ;;
+  bg_red)
+    tput setab 1
+    ;;
+  green)
+    tput setaf 2
+    ;;
+  bg_green)
+    tput setab 2
+    ;;
+  yellow)
+    tput setaf 3
+    ;;
+  bg_yellow)
+    tput setab 3
+    ;;
+  blue)
+    tput setaf 4
+    ;;
+  bg_blue)
+    tput setab 4
+    ;;
+  magenta)
+    tput setaf 5
+    ;;
+  bg_magenta)
+    tput setab 5
+    ;;
+  cyan)
+    tput setaf 6
+    ;;
+  bg_cyan)
+    tput setab 6
+    ;;
+  white)
+    tput setaf 7
+    ;;
+  bg_white)
+    tput setab 7
+    ;;
+  bold)
+    tput bold
+    ;;
+  reverse)
+    tput reverse
+    ;;
+  reset)
+    tput sgr0
+    ;;
+  esac
+}
+
+function log_debug {
+  if [[ -z ${DEBUG:-} ]]; then
+    return
+  fi
+
+  local message="${1:-}"
+
+  printf >&2 "%s%s[DEBUG]%s %s\n" "$(color bold)" "$(color cyan)" "$(color reset)" "${message}"
+}
+
+function log_info {
+  local message="${1:-}"
+
+  printf >&2 "%s%s[INFO]%s %s\n" "$(color bold)" "$(color blue)" "$(color reset)" "${message}"
+}
+
+function log_error {
+  local message="${1:-}"
+
+  printf >&2 "%s%s[ERROR]%s %s\n" "$(color bold)" "$(color red)" "$(color reset)" "${message}"
+}
+
+function log_warning {
+  local message="${1:-}"
+
+  printf >&2 "%s%s[WARNING]%s %s\n" "$(color bold)" "$(color yellow)" "$(color reset)" "${message}"
+}

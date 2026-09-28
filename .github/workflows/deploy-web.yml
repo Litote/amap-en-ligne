@@ -1,0 +1,126 @@
+name: Deploy — Web (AWS)
+
+# The automatic dev deploy is NOT triggered by `push` here: `ci.yml` calls this
+# workflow (`workflow_call`) on a push to main only once the back, front and
+# acceptance test jobs have passed. `workflow_dispatch` is the manual deploy.
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: 'Deployment target'
+        type: string
+        default: dev
+    # Declared optional: environment secrets (production / prod) are resolved by
+    # the jobs' `environment:` and take precedence over what the caller passes.
+    secrets:
+      AWS_ROLE_ARN:
+        required: false
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Deployment target (dev = automatic on push to main; prod = manual only)'
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+
+concurrency:
+  # One web deploy at a time per target; do not cancel in-progress deploys
+  group: deploy-web-${{ inputs.target == 'prod' && 'prod' || 'dev' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Build Flutter web + sync to S3 + invalidate CloudFront ────────────────
+  # Called by ci.yml after the tests pass on a push to main → dev (mirrors
+  # deploy-lambda); manual dispatch → the chosen target. The GitHub environment selects the
+  # per-target variables/secrets; prod lives in a separate AWS account behind
+  # the `prod` environment's protection rules.
+  deploy-web:
+    name: Deploy Web (WASM)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    environment: ${{ inputs.target == 'prod' && 'prod' || 'production' }}
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Flutter
+        uses: $/.github/actions/setup-flutter
+        with:
+          working-directory: front
+
+      - name: Install dependencies
+        working-directory: front
+        run: flutter pub get --enforce-lockfile
+
+      - name: Build Web (WASM)
+        working-directory: front
+        env:
+          GIT_SHA: ${{ github.sha }}
+        # --build-number stamps version.json (PackageInfo.buildNumber) with the
+        # deploy run number so "À propos" reflects build freshness, not the
+        # static +1 from pubspec.yaml.
+        run: |
+          flutter build web --wasm \
+            --build-number="${GITHUB_RUN_NUMBER}" \
+            --dart-define=GIT_COMMIT_HASH="${GIT_SHA:0:7}"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: '~1.11'
+
+      - name: Terraform init
+        working-directory: infra
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+        run: terraform init -backend-config="bucket=${TF_STATE_BUCKET}"
+
+      - name: Select Terraform workspace
+        working-directory: infra
+        run: terraform workspace select "${{ inputs.target == 'prod' && 'prod' || 'dev' }}"
+
+      # Read the deploy target from Terraform outputs — single source of truth,
+      # identical to the infra/Makefile deploy-web-* targets.
+      - name: Resolve web bucket and CloudFront distribution
+        id: tf
+        working-directory: infra
+        run: |
+          echo "web_bucket=$(terraform output -raw web_bucket)" >> "$GITHUB_OUTPUT"
+          echo "distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> "$GITHUB_OUTPUT"
+
+      # --exclude "cgu.html" is mandatory: cgu.html is managed by Terraform as an
+      # aws_s3_object; a `sync --delete` without the exclusion would remove it.
+      - name: Sync build to S3
+        env:
+          WEB_BUCKET: ${{ steps.tf.outputs.web_bucket }}
+        run: |
+          aws s3 sync front/build/web/ "s3://${WEB_BUCKET}/" --delete --exclude "cgu.html"
+          # index.html is also served for every SPA deep link (CloudFront rewrite on
+          # the default behavior): never let the edge cache the app shell.
+          aws s3 cp front/build/web/index.html "s3://${WEB_BUCKET}/index.html" \
+            --cache-control "no-cache" --content-type "text/html"
+
+      - name: Invalidate CloudFront
+        env:
+          DISTRIBUTION_ID: ${{ steps.tf.outputs.distribution_id }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${DISTRIBUTION_ID}" \
+            --paths "/*" \
+            --no-cli-pager

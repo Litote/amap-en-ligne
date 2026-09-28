@@ -1,0 +1,11 @@
+# Keep generated files
+!**/build/generated
+!**/build/generated/**
+
+# Except version-stamped codegen: its content changes on every release-please
+# bump of VERSION_NAME, so tracking it would leave a stale file drifting after
+# each release.
+**/build/generated/buildInfo/**
+
+# Per-deployment local env file (committed: `.env.example`).
+deploy/jvm/.env

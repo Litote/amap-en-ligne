@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Iconography</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  body { font-family: var(--font-sans); }
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .icon { display:flex; flex-direction:column; align-items:center; gap: 6px; padding: 10px 4px; background: var(--surface-container-low); border-radius: 8px; }
+  .icon .glyph { font-family: 'Material Icons Outlined','Material Icons'; font-size: 28px; color: var(--fg1); font-feature-settings: 'liga'; }
+  .icon .name { font-size: 10px; color: var(--fg2); font-family: 'Roboto Mono', monospace; }
+  .lbl { font-size: 10px; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="lbl">Material Symbols Outlined · the only icon set in the app</div>
+  <div class="grid">
+    <div class="icon"><div class="glyph">sync</div><div class="name">sync</div></div>
+    <div class="icon"><div class="glyph">add</div><div class="name">add</div></div>
+    <div class="icon"><div class="glyph">delete</div><div class="name">delete</div></div>
+    <div class="icon"><div class="glyph">check_circle</div><div class="name">check_circle</div></div>
+    <div class="icon"><div class="glyph">chevron_right</div><div class="name">chevron_right</div></div>
+    <div class="icon"><div class="glyph">arrow_back</div><div class="name">arrow_back</div></div>
+  </div>
+</div>
+</body>
+</html>

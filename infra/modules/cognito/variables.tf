@@ -1,0 +1,94 @@
+variable "name" {
+  description = "Naming prefix (project-env)"
+  type        = string
+}
+
+variable "domain_prefix" {
+  description = "Cognito Hosted UI domain prefix (must be unique within the region)"
+  type        = string
+}
+
+variable "callback_urls" {
+  description = "Allowed OAuth2 callback URLs for the client (mobile + web)"
+  type        = list(string)
+  default     = []
+}
+
+variable "logout_urls" {
+  description = "Allowed OAuth2 logout URLs"
+  type        = list(string)
+  default     = []
+}
+
+variable "groups" {
+  description = "Cognito groups to create (aligned with the Role enum on the back side)"
+  type        = list(string)
+  default     = ["OWNER", "ADMIN", "PRODUCER", "COORDINATOR", "VOLUNTEER"]
+}
+
+variable "api_scopes" {
+  description = "OAuth2 scopes exposed by the resource server (must match the Scope enum on the back side)"
+  type = list(object({
+    name        = string
+    description = string
+  }))
+  default = [
+    { name = "read:profile", description = "Read profile information" },
+    { name = "write:profile", description = "Update profile information" },
+    { name = "read:deliveries", description = "Read deliveries" },
+    { name = "write:deliveries", description = "Write deliveries" },
+    { name = "manage:deliveries", description = "Manage deliveries" },
+  ]
+}
+
+variable "access_token_validity_minutes" {
+  description = <<-EOT
+    Access token validity duration (minutes). Keep it short (<= 15): authorization is
+    JWT-only with no server-side revocation, so a revoked role stays usable until expiry.
+  EOT
+  type        = number
+  default     = 15
+}
+
+variable "id_token_validity_minutes" {
+  description = "ID token validity duration (minutes)"
+  type        = number
+  default     = 15
+}
+
+variable "refresh_token_validity_days" {
+  description = "Refresh token validity duration (days)"
+  type        = number
+  default     = 30
+}
+
+variable "initial_owner_email" {
+  description = "Email of the first owner to create at bootstrap. Empty = no initial user."
+  type        = string
+  default     = ""
+}
+
+variable "initial_owner_temp_password" {
+  description = "Password of the first owner (must satisfy the policy: 12 chars, upper, lower, digit). The user can sign in directly without a change challenge."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "ses_source_arn" {
+  description = "ARN of the verified SES identity (address or domain) used to send Cognito emails. Null = Cognito default sender (no-reply@verificationemail.com)."
+  type        = string
+  default     = null
+}
+
+variable "ses_from_email" {
+  description = "FROM address of Cognito emails; must belong to ses_source_arn. Ignored when ses_source_arn is null."
+  type        = string
+  default     = null
+}
+
+variable "tags" {
+  description = "AWS tags applied to the Cognito resources"
+  type        = map(string)
+  default     = {}
+}

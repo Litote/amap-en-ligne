@@ -1,0 +1,82 @@
+{
+  "id": "member-invitation-sync",
+  "title": "A synced member invitation can be created and resent while remaining pending",
+  "targets": ["flutter"],
+  "given": {
+    "backendState": "organization exists and caller is authorized on its sync scope",
+    "appState": "fresh organization cache"
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "organization:org-1": null
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-create",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "MemberInvitation",
+                "memberInvitation": {
+                  "invitation_id": "tmp_member_invitation",
+                  "organization_id": "org-1",
+                  "email": "alice@example.org",
+                  "first_name": "Alice",
+                  "last_name": "Martin",
+                  "roles": ["VOLUNTEER"],
+                  "status": "PENDING_ACTIVATION",
+                  "created_at": "2026-01-01T00:00:00Z",
+                  "expires_at": "2026-01-08T00:00:00Z"
+                }
+              }
+            }
+          },
+          {
+            "client_op_id": "op-resend",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "MemberInvitation",
+                "memberInvitation": {
+                  "invitation_id": "inv-1",
+                  "organization_id": "org-1",
+                  "email": "alice@example.org",
+                  "first_name": "Alice",
+                  "last_name": "Martin",
+                  "roles": ["VOLUNTEER"],
+                  "status": "PENDING_ACTIVATION",
+                  "created_at": "2026-01-01T00:00:00Z",
+                  "expires_at": "2026-01-08T00:00:00Z",
+                  "resend_requested_at": "2026-01-02T00:00:00Z"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-create",
+          "status": "APPLIED",
+          "serverEntityId": {
+            "kind": "present-and-not-equal",
+            "value": "tmp_member_invitation"
+          }
+        },
+        {
+          "clientOpId": "op-resend",
+          "status": "APPLIED",
+          "serverEntityId": "inv-1"
+        }
+      ]
+    }
+  }
+}

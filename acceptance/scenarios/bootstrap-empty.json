@@ -1,0 +1,35 @@
+{
+  "id": "bootstrap-empty",
+  "title": "Bootstrap returns an empty snapshot on a fresh backend",
+  "targets": ["server", "flutter"],
+  "given": {
+    "backendState": "empty",
+    "appState": "fresh"
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": {},
+        "mutations": []
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "changesByEntityType": {
+        "ProductType": 0
+      },
+      "snapshotByEntityType": {
+        "ProductType": {
+          "itemCount": 0,
+          "cursor": {
+            "kind": "non-empty-string"
+          }
+        }
+      }
+    }
+  }
+}

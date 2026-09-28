@@ -1,0 +1,240 @@
+name: Deploy — Lambda (AWS)
+
+# The automatic dev deploy is NOT triggered by `push` here: `ci.yml` calls this
+# workflow (`workflow_call`) on a push to main only once the back, front and
+# acceptance test jobs have passed. `pull_request` still builds the native image
+# and runs `terraform plan` (no deploy); `workflow_dispatch` is the manual deploy.
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: 'Deployment target'
+        type: string
+        default: dev
+    # Declared optional: environment secrets (production / prod) are resolved by
+    # the jobs' `environment:` and take precedence over what the caller passes.
+    secrets:
+      GRADLE_ENCRYPTION_KEY:
+        required: false
+      AWS_ROLE_ARN:
+        required: false
+      TF_VAR_COGNITO_CLIENT_ID:
+        required: false
+      TF_VAR_INITIAL_OWNER_EMAIL:
+        required: false
+      TF_VAR_INITIAL_OWNER_TEMP_PASSWORD:
+        required: false
+      TF_VAR_SES_FROM_EMAIL:
+        required: false
+  pull_request:
+    branches: [main]
+    paths:
+      - 'back/**'
+      - 'infra/**'
+      - '.github/workflows/deploy-lambda.yml'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Deployment target (dev = automatic on push to main; prod = manual only)'
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+
+concurrency:
+  # One deploy at a time per target; do not cancel in-progress deploys
+  group: deploy-lambda-${{ inputs.target == 'prod' && 'prod' || 'dev' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ── GraalVM native compile ────────────────────────────────────────────────
+  build-native:
+    name: Build Lambda (GraalVM native)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up GraalVM CE 25
+        uses: graalvm/setup-graalvm@0426e2e191540e8514dff98dc52a5f5146a2a276 # v1.6.6
+        with:
+          java-version: '25'
+          distribution: 'graalvm-community'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'false'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          build-scan-publish: false
+
+      - name: Compile native image
+        working-directory: back
+        run: ./gradlew :deploy:lambda:packageNative
+
+      - name: Upload lambda.zip
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lambda-zip
+          path: back/deploy/lambda/build/libs/lambda.zip
+          retention-days: 7
+
+  # ── Terraform plan (PR only) ──────────────────────────────────────────────
+  terraform-plan:
+    name: Terraform plan
+    runs-on: ubuntu-latest
+    # Dependabot PRs cannot access Actions secrets/OIDC, so AWS auth would fail.
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
+    needs: build-native
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download lambda.zip
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: lambda-zip
+          path: back/deploy/lambda/build/libs
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: '~1.11'
+
+      - name: Terraform init
+        working-directory: infra
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+        run: terraform init -backend-config="bucket=${TF_STATE_BUCKET}"
+
+      - name: Select Terraform workspace
+        working-directory: infra
+        run: terraform workspace select -or-create dev
+
+      - name: Terraform plan
+        working-directory: infra
+        run: terraform plan -no-color
+        env:
+          TF_VAR_cognito_client_id: ${{ secrets.TF_VAR_COGNITO_CLIENT_ID }}
+          TF_VAR_instance_api_url: ${{ vars.INSTANCE_API_URL }}
+          TF_VAR_initial_owner_email: ${{ secrets.TF_VAR_INITIAL_OWNER_EMAIL }}
+          TF_VAR_initial_owner_temp_password: ${{ secrets.TF_VAR_INITIAL_OWNER_TEMP_PASSWORD }}
+          TF_VAR_ses_from_email: ${{ secrets.TF_VAR_SES_FROM_EMAIL }}
+          TF_VAR_ses_create_identity: ${{ vars.SES_CREATE_IDENTITY || 'true' }}
+
+  # ── Terraform apply ───────────────────────────────────────────────────────
+  # Push to main → dev. Manual dispatch → the chosen target (dev or prod).
+  # The GitHub environment selects the per-target variables/secrets; prod lives
+  # in a separate AWS account behind the `prod` environment's protection rules.
+  terraform-apply:
+    name: Terraform apply
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build-native
+    environment: ${{ inputs.target == 'prod' && 'prod' || 'production' }}
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download lambda.zip
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: lambda-zip
+          path: back/deploy/lambda/build/libs
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: '~1.11'
+
+      - name: Terraform init
+        working-directory: infra
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+        run: terraform init -backend-config="bucket=${TF_STATE_BUCKET}"
+
+      - name: Select Terraform workspace
+        working-directory: infra
+        run: terraform workspace select -or-create "${{ inputs.target == 'prod' && 'prod' || 'dev' }}"
+
+      - name: Terraform apply
+        working-directory: infra
+        run: terraform apply -auto-approve -no-color
+        env:
+          TF_VAR_cognito_client_id: ${{ secrets.TF_VAR_COGNITO_CLIENT_ID }}
+          TF_VAR_instance_api_url: ${{ vars.INSTANCE_API_URL }}
+          TF_VAR_initial_owner_email: ${{ secrets.TF_VAR_INITIAL_OWNER_EMAIL }}
+          TF_VAR_initial_owner_temp_password: ${{ secrets.TF_VAR_INITIAL_OWNER_TEMP_PASSWORD }}
+          TF_VAR_ses_from_email: ${{ secrets.TF_VAR_SES_FROM_EMAIL }}
+          TF_VAR_ses_create_identity: ${{ vars.SES_CREATE_IDENTITY || 'true' }}
+
+  # ── Lambda function code deploy ───────────────────────────────────────────
+  deploy-function:
+    name: Deploy Lambda function code
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: [build-native, terraform-apply]
+    environment: ${{ inputs.target == 'prod' && 'prod' || 'production' }}
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Download lambda.zip
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: lambda-zip
+
+      - name: Update Lambda function code
+        env:
+          FUNCTION_NAME: ${{ vars.AWS_LAMBDA_FUNCTION_NAME }}
+        run: |
+          aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --zip-file fileb://lambda.zip \
+            --no-cli-pager
+
+      - name: Wait for update to complete
+        env:
+          FUNCTION_NAME: ${{ vars.AWS_LAMBDA_FUNCTION_NAME }}
+        run: |
+          aws lambda wait function-updated \
+            --function-name "$FUNCTION_NAME" \
+            --no-cli-pager

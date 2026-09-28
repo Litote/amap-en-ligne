@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Form inputs</title>
+<link rel="stylesheet" href="_card.css">
+<style>
+  .field { position: relative; margin-bottom: 16px; }
+  .field input, .field .ctrl {
+    width: 100%; box-sizing: border-box;
+    padding: 14px 12px; border: 1px solid #73796E; border-radius: 4px;
+    font: 16px/1.2 Roboto; background: transparent; color: var(--fg1);
+    outline: none;
+  }
+  .field input:focus { border-color: #386A20; border-width: 2px; padding: 13px 11px;}
+  .field .label {
+    position: absolute; left: 10px; top: -7px;
+    background: var(--bg1); padding: 0 4px;
+    font: 12px/1 Roboto; color: var(--fg2);
+  }
+  .field.focused .label { color: #386A20; }
+  .ctrl { display:flex; justify-content:space-between; align-items:center; padding: 14px 12px;}
+  .chevron { color: var(--fg2); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="field focused">
+    <div class="label">Email</div>
+    <input value="test@example.com">
+  </div>
+  <div class="field">
+    <div class="label">Mot de passe</div>
+    <input type="password" value="••••••••">
+  </div>
+  <div class="field">
+    <div class="label">Serveur</div>
+    <div class="ctrl"><span>AMAP des Collines</span><span class="chevron material-symbols-outlined">chevron_right</span></div>
+  </div>
+</div>
+</body>
+</html>

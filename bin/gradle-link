@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+shopt -s inherit_errexit
+
+# ===== Options and usage ======================================================
+usage() {
+  cat <<'EOF'
+Usage: gradle-link [options]
+
+Options:
+  -n, --dry-run    Show what would be executed without making any changes
+  -h, --help       Show this help message
+
+This script finds every Gradle project (containing settings.gradle.kts)
+and runs "bin/gradle-init" in each, to link the Gradle wrapper.
+EOF
+}
+
+DRY_RUN=0
+
+while (("$#")); do
+  case "${1:-}" in
+    -n|--dry-run) DRY_RUN=1; shift ;;
+    -h|--help) usage; exit 0 ;;
+    -*) echo "Unknown option: $1" >&2; usage; exit 2 ;;
+    *) echo "Unexpected argument: $1" >&2; usage; exit 2 ;;
+  esac
+done
+
+# ===== Setup ==================================================================
+OWN_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+PROJECT_ROOT_DIR="$(realpath "${OWN_DIR}/..")"
+
+# Load logs if available, otherwise fallback
+if [[ -f "${PROJECT_ROOT_DIR}/bin/include/logs" ]]; then
+  # shellcheck disable=SC1091
+  source "${PROJECT_ROOT_DIR}/bin/include/logs"
+else
+  log_info() { printf '[INFO] %s\n' "$*"; }
+fi
+
+log_info "Linking Gradle wrapper"
+
+# ===== Main execution =========================================================
+find_gradle_projects() {
+  find "${PROJECT_ROOT_DIR}" \
+    -mindepth 2 \
+    -name 'settings.gradle.kts' \
+    -not -path '*/gradle/*' \
+    -not -path '*/front/android/*' \
+    -not -path '*/front/build/*' \
+    -not -path '*/front/.dart_tool/*' \
+    -print0 | sort -z
+}
+
+display_path() {
+  realpath --relative-to="${PROJECT_ROOT_DIR}" "$1"
+}
+
+if (( DRY_RUN )); then
+  log_info "Dry-run mode: no changes will be made."
+  while IFS= read -r -d '' settings_file; do
+    printf '[DRY] Would process: ./%s\n' "$(display_path "$settings_file")"
+  done < <(find_gradle_projects)
+else
+  while IFS= read -r -d '' settings_file; do
+    "${OWN_DIR}/gradle-init" "$settings_file"
+  done < <(find_gradle_projects)
+fi
+
+log_info "Done."

@@ -1,0 +1,9 @@
+package org.koin.ksp.generated
+
+import org.koin.meta.annotations.*
+@MetaModule("memberjoinrequest.MemberJoinRequestModule",id="51i6wc", includes=["core.CoreModule"])
+public class _KSP_MemberjoinrequestMemberJoinRequestModule
+@MetaDefinition("memberjoinrequest.MemberJoinRequestService",moduleTagId="51i6wc:MemberjoinrequestMemberJoinRequestModule", dependencies=["memberJoinRequestSyncDAO:persistence.dao.MemberJoinRequestSyncDAO","memberJoinRequestDAO:persistence.dao.MemberJoinRequestDAO","memberSyncDAO:persistence.dao.MemberSyncDAO","memberInvitationDAO:persistence.dao.MemberInvitationSyncDAO","activationTokenDAO:persistence.dao.ActivationTokenDAO","memberInvitationEmailPort:email.MemberInvitationEmailPort","rejectionEmailPort:email.MemberJoinRequestRejectionEmailPort","organizationSyncDAO:persistence.dao.OrganizationSyncDAO"], binds=["core.EntityTypeService"])
+public class _KSP_MemberjoinrequestMemberJoinRequestService
+@MetaDefinition("memberjoinrequest.MemberJoinRequestService",moduleTagId="51i6wc:MemberjoinrequestMemberJoinRequestModule", dependencies=["memberJoinRequestSyncDAO:persistence.dao.MemberJoinRequestSyncDAO","memberJoinRequestDAO:persistence.dao.MemberJoinRequestDAO","memberSyncDAO:persistence.dao.MemberSyncDAO","memberInvitationDAO:persistence.dao.MemberInvitationSyncDAO","activationTokenDAO:persistence.dao.ActivationTokenDAO","memberInvitationEmailPort:email.MemberInvitationEmailPort","rejectionEmailPort:email.MemberJoinRequestRejectionEmailPort","organizationSyncDAO:persistence.dao.OrganizationSyncDAO"], binds=["core.EntityTypeService"])
+public val _KSP_CoreEntityTypeService : Unit get() = Unit
