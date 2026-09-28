@@ -411,6 +411,39 @@ void main() {
     );
 
     blocTest<UserManagementBloc, UserManagementState>(
+      'submitInvitation refuses an email already invited and still pending '
+      '(any case)',
+      build: buildBloc,
+      seed: () => UserManagementState.loaded(
+        members: _members,
+        memberInvitations: [
+          _invitation.copyWith(expiresAt: '2999-01-01T00:00:00Z'),
+        ],
+        inviteFirstName: 'Alice',
+        inviteLastName: 'Martin',
+        inviteEmail: 'Alice@Example.com',
+        inviteRoles: const {Role.volunteer},
+      ),
+      act: (bloc) => bloc.add(const UserManagementEvent.submitInvitation()),
+      expect: () => [
+        isA<UserManagementLoaded>().having(
+          (s) => s.inviteError,
+          'inviteError',
+          'Une invitation est déjà en attente pour cet email.',
+        ),
+      ],
+      verify: (_) => verifyNever(
+        () => memberInvitationRepo.create(
+          organizationId: any(named: 'organizationId'),
+          email: any(named: 'email'),
+          firstName: any(named: 'firstName'),
+          lastName: any(named: 'lastName'),
+          roles: any(named: 'roles'),
+        ),
+      ),
+    );
+
+    blocTest<UserManagementBloc, UserManagementState>(
       'submitInvitation refuses the email of an existing member (any case)',
       build: buildBloc,
       seed: () => UserManagementState.loaded(

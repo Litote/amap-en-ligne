@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/domain/auth/user_role.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_bloc.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_event.dart';
@@ -223,10 +224,11 @@ void main() {
     });
 
     group('role-based landing — producer role', () {
-      test('on / is redirected to /product-types', () {
+      // Spec screen-common-01-menu: the producer home is its dashboard.
+      test('on / is redirected to /producer-dashboard', () {
         expect(
           computeRouterRedirect(Uri.parse('/'), 'u-1', role: UserRole.producer),
-          '/product-types',
+          '/producer-dashboard',
         );
       });
     });
@@ -364,6 +366,140 @@ void main() {
           );
         },
       );
+    });
+
+    group('role guard — screens outside the user role', () {
+      String? redirect(
+        String path,
+        UserRole role, [
+        Set<Role> memberRoles = const {},
+      ]) => computeRouterRedirect(
+        Uri.parse(path),
+        'u-1',
+        role: role,
+        memberRoles: memberRoles,
+      );
+
+      test('a volunteer is sent home from admin, coordinator, owner and '
+          'producer screens', () {
+        for (final path in [
+          '/members',
+          '/admin/organization-config',
+          '/admin/producers',
+          '/admin/producers/enroll',
+          '/admin/delivery-templates',
+          '/admin/membership-requests',
+          '/coordinator/contracts',
+          '/coordinator/time-slots',
+          '/coordinator/tracking/d-1',
+          '/slots',
+          '/owner/dashboard',
+          '/admin/organization-requests',
+          '/producer-dashboard',
+          '/product-types/new',
+        ]) {
+          expect(
+            redirect(path, UserRole.volunteer, {Role.volunteer}),
+            '/dashboard',
+            reason: path,
+          );
+        }
+      });
+
+      test('a volunteer keeps the member and common screens', () {
+        for (final path in [
+          '/dashboard',
+          '/contracts',
+          '/planning',
+          '/history/ranking',
+          '/basket-exchange/overview',
+          '/notifications',
+          '/preferences',
+          '/help',
+        ]) {
+          expect(
+            redirect(path, UserRole.volunteer, {Role.volunteer}),
+            isNull,
+            reason: path,
+          );
+        }
+      });
+
+      test('a coordinator reaches coordinator screens, not admin ones', () {
+        const roles = {Role.volunteer, Role.coordinator};
+        expect(
+          redirect('/coordinator/time-slots', UserRole.coordinator, roles),
+          isNull,
+        );
+        expect(
+          redirect(
+            '/coordinator/post-delivery/d-1',
+            UserRole.coordinator,
+            roles,
+          ),
+          isNull,
+        );
+        expect(redirect('/planning', UserRole.coordinator, roles), isNull);
+        expect(redirect('/members', UserRole.coordinator, roles), '/dashboard');
+      });
+
+      test(
+        'an admin reaches admin and coordinator screens, not owner ones',
+        () {
+          const roles = {Role.admin};
+          expect(redirect('/members', UserRole.admin, roles), isNull);
+          expect(
+            redirect('/admin/organization-config', UserRole.admin, roles),
+            isNull,
+          );
+          expect(
+            redirect('/coordinator/time-slots', UserRole.admin, roles),
+            isNull,
+          );
+          expect(
+            redirect('/admin/organization-requests', UserRole.admin, roles),
+            '/dashboard',
+          );
+          expect(
+            redirect('/admin/producer-requests', UserRole.admin, roles),
+            '/dashboard',
+          );
+          expect(
+            redirect('/owner/dashboard', UserRole.admin, roles),
+            '/dashboard',
+          );
+        },
+      );
+
+      test('an owner reaches owner screens only', () {
+        expect(redirect('/owner/dashboard', UserRole.owner), isNull);
+        expect(
+          redirect('/admin/organization-requests', UserRole.owner),
+          isNull,
+        );
+        expect(redirect('/admin/producer-requests', UserRole.owner), isNull);
+        expect(redirect('/members', UserRole.owner), '/owner/dashboard');
+        expect(redirect('/dashboard', UserRole.owner), '/owner/dashboard');
+      });
+
+      test('an owner who is also an AMAP admin keeps the admin screens', () {
+        expect(redirect('/members', UserRole.owner, {Role.admin}), isNull);
+      });
+
+      test('a producer reaches producer screens only', () {
+        expect(redirect('/producer-dashboard', UserRole.producer), isNull);
+        expect(redirect('/producer-deliveries', UserRole.producer), isNull);
+        expect(redirect('/product-types/p-1/items', UserRole.producer), isNull);
+        expect(redirect('/notifications', UserRole.producer), isNull);
+        expect(
+          redirect('/dashboard', UserRole.producer),
+          '/producer-dashboard',
+        );
+        expect(
+          redirect('/coordinator/time-slots', UserRole.producer),
+          '/producer-dashboard',
+        );
+      });
     });
 
     group('intended destination preservation', () {

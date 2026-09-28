@@ -1,5 +1,7 @@
+import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/data/sync/sync_repository.dart';
@@ -30,6 +32,12 @@ class _MockOrganizationRepository extends Mock
 
 class _MockProducerAccountRepository extends Mock
     implements ProducerAccountRepository {}
+
+class _MockOwnerInvitationRepository extends Mock
+    implements OwnerInvitationRepository {}
+
+class _MockMemberInvitationRepository extends Mock
+    implements MemberInvitationRepository {}
 
 class _MockSyncRepository extends Mock implements SyncRepository {}
 
@@ -111,6 +119,12 @@ Future<void> _pump(
       RepositoryProvider<OwnerRepository>.value(value: ownerRepo),
       RepositoryProvider<MemberRepository>.value(value: memberRepo),
       RepositoryProvider<OrganizationRepository>.value(value: orgRepo),
+      RepositoryProvider<OwnerInvitationRepository>.value(
+        value: _emptyOwnerInvitations(),
+      ),
+      RepositoryProvider<MemberInvitationRepository>.value(
+        value: _emptyMemberInvitations(),
+      ),
       RepositoryProvider<ProducerAccountRepository>.value(value: producerRepo),
       RepositoryProvider<SyncRepository>.value(value: effectiveSyncRepo),
     ],
@@ -234,10 +248,7 @@ void main() {
 
       expect(find.text('Statut :'), findsOneWidget);
       expect(find.widgetWithText(FilterChip, 'Actif'), findsOneWidget);
-      expect(
-        find.widgetWithText(FilterChip, 'Invitation en attente'),
-        findsOneWidget,
-      );
+      expect(find.widgetWithText(FilterChip, 'Invité'), findsOneWidget);
       expect(find.widgetWithText(FilterChip, 'Suspendu'), findsOneWidget);
     });
 
@@ -317,7 +328,7 @@ void main() {
       expect(find.text('Alice Martin'), findsOneWidget);
       expect(find.text('alice@exemple.fr'), findsAtLeastNWidgets(1));
       // Status chip in ListTile subtitle.
-      expect(find.text('Invitation en attente'), findsAtLeastNWidgets(1));
+      expect(find.text('Invité'), findsAtLeastNWidgets(1));
       expect(find.text('Admin'), findsAtLeastNWidgets(1));
     });
 
@@ -499,4 +510,16 @@ void main() {
       expect(find.text('1 utilisateur correspond aux filtres'), findsOneWidget);
     });
   });
+}
+
+OwnerInvitationRepository _emptyOwnerInvitations() {
+  final repository = _MockOwnerInvitationRepository();
+  when(repository.watchAll).thenAnswer((_) => Stream.value(const []));
+  return repository;
+}
+
+MemberInvitationRepository _emptyMemberInvitations() {
+  final repository = _MockMemberInvitationRepository();
+  when(repository.watchAll).thenAnswer((_) => Stream.value(const []));
+  return repository;
 }

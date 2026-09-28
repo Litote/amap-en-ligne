@@ -59,6 +59,5 @@ private fun Map<String, AttributeValue>.toPublicOrganizationSummary(): PublicOrg
     PublicOrganizationSummary(
         organizationId = (get("sk") as AttributeValue.S).value.toId(),
         name = (get("name") as AttributeValue.S).value,
-        contactEmail = (get("contact_email") as AttributeValue.S).value,
         activeStatus = (get("active_status") as AttributeValue.Bool).value,
     )

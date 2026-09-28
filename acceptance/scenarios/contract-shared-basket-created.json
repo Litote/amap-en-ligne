@@ -1,7 +1,7 @@
 {
   "id": "contract-shared-basket-created",
   "title": "Upsert a contract with a tmp_ shared basket grouping two members sharing an identical subscription is APPLIED and the contract is persisted",
-  "targets": ["contract-lifecycle"],
+  "targets": ["contract-lifecycle", "flutter"],
   "given": {
     "backendState": "empty; member:admin-1 authorized on organization:org-1 with role ADMIN",
     "appState": "fresh"

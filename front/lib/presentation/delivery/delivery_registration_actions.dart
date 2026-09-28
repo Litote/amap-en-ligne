@@ -64,30 +64,94 @@ void registerToSlotAction(
 
 /// Removes [memberId]'s first active registration on [delivery] and flushes
 /// sync. Locates the slot dynamically.
+///
+/// When [member] is given, a snackbar confirms the unregistration and offers
+/// an ANNULER action registering them back on the same slot.
 void unregisterFromDeliveryAction(
   BuildContext context, {
   required Delivery delivery,
   required String memberId,
   required Organization org,
+  Member? member,
 }) {
+  final found = _activeRegistrationSlot(delivery, memberId);
+  if (found == null) return;
+  final (contract, slot) = found;
+  final repository = context.read<OrganizationRepository>();
+  final syncBloc = context.read<SyncBloc>();
+  repository.unregisterFromSlot(
+    currentOrg: org,
+    deliveryId: delivery.deliveryId,
+    contractId: contract.contractId,
+    slotKind: slot.slotKind,
+    memberId: memberId,
+  );
+  syncBloc.add(const SyncEvent.mutationApplied());
+  if (member == null) return;
+  ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+    SnackBar(
+      content: const Text('Vous êtes désinscrit(e).'),
+      // A snackbar with an action persists by default: it would stay over the
+      // screen (and its bottom actions) until dismissed.
+      persist: false,
+      duration: const Duration(seconds: 6),
+      action: SnackBarAction(
+        label: 'ANNULER',
+        onPressed: () => _registerBack(
+          repository,
+          syncBloc,
+          organizationId: org.organizationId,
+          deliveryId: delivery.deliveryId,
+          contractId: contract.contractId,
+          slotKind: slot.slotKind,
+          member: member,
+        ),
+      ),
+    ),
+  );
+}
+
+/// The (contract link, slot) holding [memberId]'s first non-cancelled
+/// registration on [delivery], or null when they are not registered.
+(DeliveryContract, MemberSlot)? _activeRegistrationSlot(
+  Delivery delivery,
+  String memberId,
+) {
   for (final contract in delivery.contracts) {
     for (final slot in contract.slots) {
-      for (final reg in slot.registrations) {
-        if (reg.memberId == memberId &&
-            reg.status != RegistrationStatus.cancelled) {
-          context.read<OrganizationRepository>().unregisterFromSlot(
-            currentOrg: org,
-            deliveryId: delivery.deliveryId,
-            contractId: contract.contractId,
-            slotKind: slot.slotKind,
-            memberId: memberId,
-          );
-          context.read<SyncBloc>().add(const SyncEvent.mutationApplied());
-          return;
-        }
-      }
+      final registered = slot.registrations.any(
+        (reg) =>
+            reg.memberId == memberId &&
+            reg.status != RegistrationStatus.cancelled,
+      );
+      if (registered) return (contract, slot);
     }
   }
+  return null;
+}
+
+/// Undo of [unregisterFromDeliveryAction]: re-reads the organization (the
+/// card's copy still holds the removed registration, which would make the
+/// registration a no-op) and registers [member] back on the same slot.
+Future<void> _registerBack(
+  OrganizationRepository repository,
+  SyncBloc syncBloc, {
+  required String organizationId,
+  required String deliveryId,
+  required String contractId,
+  required SlotKind slotKind,
+  required Member member,
+}) async {
+  final latest = await repository.watch(organizationId).first;
+  if (latest == null) return;
+  await repository.registerToSlot(
+    currentOrg: latest,
+    deliveryId: deliveryId,
+    contractId: contractId,
+    slotKind: slotKind,
+    me: member,
+  );
+  syncBloc.add(const SyncEvent.mutationApplied());
 }
 
 /// Registration button. The [label] is supplied by the caller (the copy differs
@@ -135,12 +199,16 @@ class UnregisterButton extends StatelessWidget {
     required this.delivery,
     required this.memberId,
     required this.org,
+    this.member,
     super.key,
   });
 
   final Delivery delivery;
   final String memberId;
   final Organization org;
+
+  /// The registered member — enables the ANNULER (re-register) action.
+  final Member? member;
 
   @override
   Widget build(BuildContext context) => TextButton.icon(
@@ -149,6 +217,7 @@ class UnregisterButton extends StatelessWidget {
       delivery: delivery,
       memberId: memberId,
       org: org,
+      member: member,
     ),
     icon: const Text('❌'),
     label: const Text('SE DÉSINSCRIRE'),

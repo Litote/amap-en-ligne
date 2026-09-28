@@ -18,6 +18,7 @@ import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -712,6 +713,157 @@ void main() {
       },
     );
 
+    testWidgets(
+      'unregistering offers an ANNULER action that registers the member back '
+      'on the same slot, from the up-to-date organization',
+      (tester) async {
+        final reg = buildRegistration(
+          memberId: _kMemberId,
+          status: RegistrationStatus.registered,
+        );
+        final contract = buildContract(
+          contractId: 'c-1',
+          slots: [
+            buildSlot(
+              requiredVolunteers: 3,
+              currentRegistrations: 1,
+              registrations: [reg],
+            ),
+          ],
+        );
+        final delivery = buildDelivery(
+          deliveryId: 'd-1',
+          scheduledDate: tomorrowIso(),
+          contracts: [contract],
+        );
+        final afterUnregister = buildOrg(
+          deliveries: [
+            delivery.copyWith(
+              contracts: [
+                contract.copyWith(slots: [buildSlot(requiredVolunteers: 3)]),
+              ],
+            ),
+          ],
+        );
+        when(
+          () => orgRepo.unregisterFromSlot(
+            currentOrg: any(named: 'currentOrg'),
+            deliveryId: any(named: 'deliveryId'),
+            contractId: any(named: 'contractId'),
+            slotKind: any(named: 'slotKind'),
+            memberId: any(named: 'memberId'),
+          ),
+        ).thenAnswer((_) async {
+          orgStream.add(afterUnregister);
+        });
+        when(
+          () => orgRepo.registerToSlot(
+            currentOrg: any(named: 'currentOrg'),
+            deliveryId: any(named: 'deliveryId'),
+            contractId: any(named: 'contractId'),
+            slotKind: any(named: 'slotKind'),
+            me: any(named: 'me'),
+          ),
+        ).thenAnswer((_) async {});
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          templateRepo: templateRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+          initialMonth: _tomorrowMonth(),
+        );
+        await tester.pump();
+        orgStream.add(buildOrg(deliveries: [delivery]));
+        memberStream.add(_buildMember());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        await tester.tap(find.text('SE DÉSINSCRIRE'));
+        await tester.pump();
+        // Let the snackbar finish its entrance animation.
+        await tester.pump(const Duration(seconds: 1));
+
+        expect(find.text('Vous êtes désinscrit(e).'), findsOneWidget);
+        await tester.tap(find.widgetWithText(SnackBarAction, 'ANNULER'));
+        await tester.pump();
+        orgStream.add(afterUnregister);
+        await tester.pump(const Duration(milliseconds: 50));
+
+        verify(
+          () => orgRepo.registerToSlot(
+            currentOrg: afterUnregister,
+            deliveryId: 'd-1',
+            contractId: 'c-1',
+            slotKind: SlotKind.standard,
+            me: any(named: 'me'),
+          ),
+        ).called(1);
+      },
+    );
+
+    testWidgets(
+      'the unregistration snackbar goes away on its own (an action snackbar '
+      'persists by default and would hide the bottom actions)',
+      (tester) async {
+        final reg = buildRegistration(
+          memberId: _kMemberId,
+          status: RegistrationStatus.registered,
+        );
+        final delivery = buildDelivery(
+          deliveryId: 'd-1',
+          scheduledDate: tomorrowIso(),
+          contracts: [
+            buildContract(
+              contractId: 'c-1',
+              slots: [
+                buildSlot(
+                  requiredVolunteers: 3,
+                  currentRegistrations: 1,
+                  registrations: [reg],
+                ),
+              ],
+            ),
+          ],
+        );
+        when(
+          () => orgRepo.unregisterFromSlot(
+            currentOrg: any(named: 'currentOrg'),
+            deliveryId: any(named: 'deliveryId'),
+            contractId: any(named: 'contractId'),
+            slotKind: any(named: 'slotKind'),
+            memberId: any(named: 'memberId'),
+          ),
+        ).thenAnswer((_) async {});
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          templateRepo: templateRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+          initialMonth: _tomorrowMonth(),
+        );
+        await tester.pump();
+        orgStream.add(buildOrg(deliveries: [delivery]));
+        memberStream.add(_buildMember());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        await tester.tap(find.text('SE DÉSINSCRIRE'));
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.text('Vous êtes désinscrit(e).'), findsOneWidget);
+
+        await tester.pump(const Duration(seconds: 10));
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.text('Vous êtes désinscrit(e).'), findsNothing);
+      },
+    );
+
     // --- Urgency labels ---
 
     testWidgets('critical slot (< 50%) shows S\'INSCRIRE MAINTENANT 🚨', (
@@ -753,6 +905,39 @@ void main() {
       expect(find.textContaining("S'INSCRIRE MAINTENANT"), findsOneWidget);
       expect(find.textContaining('🚨'), findsOneWidget);
     });
+
+    testWidgets(
+      'short-staffed delivery weeks away is "recherchés", not urgent',
+      (tester) async {
+        final slot = buildSlot(requiredVolunteers: 5, currentRegistrations: 2);
+        final contract = buildContract(contractId: 'c-1', slots: [slot]);
+        final delivery = buildDelivery(
+          scheduledDate: daysFromNowIso(20),
+          contracts: [contract],
+        );
+        final scheduled = DateTime.now().add(const Duration(days: 20));
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          templateRepo: templateRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+          initialMonth: DateTime(scheduled.year, scheduled.month),
+        );
+        await tester.pump();
+
+        orgStream.add(buildOrg(deliveries: [delivery]));
+        memberStream.add(_buildMember());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        expect(find.text('🙋 Bénévoles recherchés'), findsOneWidget);
+        expect(find.textContaining('BESOIN URGENT'), findsNothing);
+        expect(find.textContaining("S'INSCRIRE MAINTENANT"), findsNothing);
+      },
+    );
 
     // --- EARLY + STANDARD two-button layout ---
 
@@ -1105,6 +1290,57 @@ void main() {
 
     // --- Month navigation ---
 
+    testWidgets('fits a phone screen: month navigation and footer labels '
+        'stay on one line, chevrons stay visible', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await _pump(
+        tester,
+        orgRepo: orgRepo,
+        memberRepo: memberRepo,
+        templateRepo: templateRepo,
+        authService: authService,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+
+      orgStream.add(buildOrg(deliveries: []));
+      memberStream.add(_buildMember());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(tester.takeException(), isNull);
+      final rightChevron = tester.getRect(find.byIcon(Icons.chevron_right));
+      expect(rightChevron.right, lessThanOrEqualTo(390));
+      final lineHeight = tester.getSize(find.text('AIDE')).height;
+      // Narrow footer: shorter "HISTORIQUE" label (the long one had to be
+      // scaled down to an unreadable size).
+      expect(find.text('MON HISTORIQUE'), findsNothing);
+      for (final label in ['ACCUEIL', 'HISTORIQUE', 'AIDE']) {
+        // One line each: no word broken in the middle ("ACCUEI L").
+        expect(tester.getSize(find.text(label)).height, lineHeight);
+        expect(tester.getSize(find.text(label)).height, lessThan(30));
+      }
+      // Neighbouring months drop the year on a phone so they keep a
+      // readable size; the current month keeps it.
+      String month(DateTime m) {
+        final raw = DateFormat('MMMM', 'fr').format(m);
+        return raw[0].toUpperCase() + raw.substring(1);
+      }
+
+      final now = DateTime.now();
+      expect(
+        find.text(month(DateTime(now.year, now.month - 1))),
+        findsOneWidget,
+      );
+      expect(
+        find.text(month(DateTime(now.year, now.month + 1))),
+        findsOneWidget,
+      );
+      expect(find.text('${month(now)} ${now.year}'), findsOneWidget);
+    });
+
     testWidgets('renders month navigation arrows and prev/next labels', (
       tester,
     ) async {
@@ -1319,6 +1555,10 @@ void main() {
     testWidgets(
       'shows "(téléphone non communiqué)" when coordinator phone is null',
       (tester) async {
+        // Desktop width: the card is much wider than its content.
+        tester.view.physicalSize = const Size(1600, 1200);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
         final coordinator = _buildCoordinator(
           memberId: 'coord-1',
           firstName: 'Jean',
@@ -1356,6 +1596,17 @@ void main() {
         await tester.pump(const Duration(milliseconds: 50));
 
         expect(find.textContaining('téléphone non communiqué'), findsOneWidget);
+        // The phone mention follows the name instead of sticking to the
+        // card's right edge.
+        final nameRight =
+            tester.getTopLeft(find.text('Jean Morel')).dx +
+            tester
+                .renderObject<RenderParagraph>(find.text('Jean Morel'))
+                .getMaxIntrinsicWidth(double.infinity);
+        final phoneLeft = tester
+            .getTopLeft(find.textContaining('téléphone non communiqué'))
+            .dx;
+        expect(phoneLeft - nameRight, lessThan(2));
       },
     );
 
@@ -1436,11 +1687,12 @@ void main() {
       expect(find.byType(InkWell), findsWidgets);
     });
 
-    testWidgets('coordinator memberId not in membersById is silently ignored', (
+    testWidgets('a coordinator not (yet) in membersById is not "à confirmer"', (
       tester,
     ) async {
-      // The contract lists 'unknown-id' but no member with that id is in
-      // the watch stream — should show "Coordinateur à confirmer".
+      // The contract lists 'unknown-id' but no member with that id is in the
+      // watch stream (e.g. members not loaded yet after login): someone does
+      // coordinate, so never claim it still has to be confirmed.
       final contract = buildContract(
         contractId: 'c-1',
         coordinators: const ['unknown-id'],
@@ -1467,9 +1719,9 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
 
-      // "unknown-id" is not shown; falls back to "Coordinateur à confirmer".
       expect(find.textContaining('unknown-id'), findsNothing);
-      expect(find.textContaining('Coordinateur à confirmer'), findsOneWidget);
+      expect(find.textContaining('Coordinateur à confirmer'), findsNothing);
+      expect(find.textContaining('Coordinateur inscrit'), findsOneWidget);
     });
 
     // --- Cancelled slots ---

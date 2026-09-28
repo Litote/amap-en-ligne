@@ -16,4 +16,34 @@ void main() {
       'La date de première livraison doit précéder la date de dernière livraison.',
     );
   });
+
+  group('weeklyDeliveryCount', () {
+    test('counts both bounds: four Wednesdays from the 7th to the 28th', () {
+      expect(
+        weeklyDeliveryCount(DateTime(2026, 10, 7), DateTime(2026, 10, 28)),
+        4,
+      );
+    });
+
+    test('a single-day contract has one delivery', () {
+      expect(
+        weeklyDeliveryCount(DateTime(2026, 10, 7), DateTime(2026, 10, 7)),
+        1,
+      );
+    });
+
+    test('a partial last week does not add a delivery', () {
+      expect(
+        weeklyDeliveryCount(DateTime(2026, 10, 7), DateTime(2026, 10, 20)),
+        2,
+      );
+    });
+
+    test('an inverted range falls back to one delivery', () {
+      expect(
+        weeklyDeliveryCount(DateTime(2026, 10, 28), DateTime(2026, 10, 7)),
+        1,
+      );
+    });
+  });
 }

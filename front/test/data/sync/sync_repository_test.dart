@@ -13,6 +13,7 @@ import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
+import 'package:amap_en_ligne/domain/model/producer_schedule.dart';
 import 'package:amap_en_ligne/domain/sync/change.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
 import 'package:amap_en_ligne/domain/sync/entity_payload.dart';
@@ -51,6 +52,65 @@ void main() {
 
   tearDown(() async {
     await db.close();
+  });
+
+  group('producer schedules (read-only projection)', () {
+    const schedule = ProducerSchedule(
+      organizationId: 'org-1',
+      producerAccountId: testTenantId,
+      organizationName: 'AMAP des Collines',
+      deliveries: [
+        ProducerScheduleDelivery(
+          deliveryId: 'd-1',
+          scheduledDate: '2026-10-01T18:00',
+          status: DeliveryStatus.planned,
+        ),
+      ],
+    );
+
+    test(
+      'a producer bootstrap stores its schedules; a tombstone drops one',
+      () async {
+        var call = 0;
+        when(() => api.sync(any())).thenAnswer((_) async {
+          call++;
+          return call == 1
+              ? const SyncResponse(
+                  authorizedScopes: [testProducerScopeKey],
+                  results: {
+                    testProducerScopeKey: BootstrapScopeSyncResult(
+                      items: [
+                        ProducerSchedulePayload(producerSchedule: schedule),
+                      ],
+                      nextCursor: 'c1',
+                    ),
+                  },
+                )
+              : const SyncResponse(
+                  authorizedScopes: [testProducerScopeKey],
+                  results: {
+                    testProducerScopeKey: IncrementalScopeSyncResult(
+                      changes: [
+                        Change(
+                          entityType: EntityType.producerSchedule,
+                          entityId: 'org-1',
+                          op: ChangeOp.delete,
+                          producedAt: 2,
+                        ),
+                      ],
+                      nextCursor: 'c2',
+                    ),
+                  },
+                );
+        });
+
+        await repo.sync(tenantId: testTenantId);
+        expect(await db.watchProducerSchedules(testTenantId).first, [schedule]);
+
+        await repo.sync(tenantId: testTenantId);
+        expect(await db.watchProducerSchedules(testTenantId).first, isEmpty);
+      },
+    );
   });
 
   group('scope bootstrap', () {
@@ -1236,5 +1296,63 @@ void main() {
         expect((outcome as SyncSuccess).memberOrOwnerUpdated, isFalse);
       },
     );
+  });
+
+  group('cache owner (user switch)', () {
+    Future<SyncRequest> syncAs(String? userId) async {
+      SyncRequest? sent;
+      when(() => api.sync(any())).thenAnswer((invocation) async {
+        sent = invocation.positionalArguments.single as SyncRequest;
+        return const SyncResponse(authorizedScopes: [testProducerScopeKey]);
+      });
+      await SyncRepository(
+        db: db,
+        api: api,
+        currentUserId: () => userId,
+      ).sync(tenantId: testTenantId);
+      return sent!;
+    }
+
+    Future<void> seedCacheOf(String userId) async {
+      await syncAs(userId);
+      await db.writeCursor(testProducerScopeKey, 'c1');
+      final productType = buildProductType();
+      await db.upsertProductType(productType);
+      await db.enqueuePendingMutation(
+        buildProductTypeUpsertMutation(productType: productType),
+        scopeKey: testProducerScopeKey,
+      );
+    }
+
+    test(
+      'another user never sends the previous user pending mutations nor cursors',
+      () async {
+        await seedCacheOf('user-a');
+
+        final request = await syncAs('user-b');
+
+        expect(request.mutations, isEmpty);
+        expect(request.cursors[testProducerScopeKey], isNull);
+        expect(await db.watchProductTypes(testTenantId).first, isEmpty);
+        expect(await db.readPendingMutations(), isEmpty);
+      },
+    );
+
+    test('the same user keeps its pending mutations and cursors', () async {
+      await seedCacheOf('user-a');
+
+      final request = await syncAs('user-a');
+
+      expect(request.mutations, hasLength(1));
+      expect(request.cursors[testProducerScopeKey], 'c1');
+    });
+
+    test('an unknown current user leaves the cache untouched', () async {
+      await seedCacheOf('user-a');
+
+      final request = await syncAs(null);
+
+      expect(request.mutations, hasLength(1));
+    });
   });
 }

@@ -33,6 +33,7 @@ public val persistence_dynamo_DynamoModule : Module get() = module {
 	single(createdAtStart=true) { _ -> persistence.dynamo.ProducerRequestSyncDynamoDAO(client=get())} bind(persistence.dao.ProducerRequestSyncDAO::class)
 	single(createdAtStart=true) { _ -> persistence.dynamo.ProducerSyncDynamoDAO(client=get())} bind(persistence.dao.ProducerSyncDAO::class)
 	single(createdAtStart=true) { _ -> persistence.dynamo.ProductTypeSyncDynamoDAO(client=get())} bind(persistence.dao.ProductTypeSyncDAO::class)
+	single(createdAtStart=true) { _ -> persistence.dynamo.SentAlertDynamoDAO(client=get())} bind(persistence.dao.SentAlertDAO::class)
 	single(createdAtStart=true) { _ -> persistence.dynamo.ServerDynamoDAO(client=get())} bind(persistence.dao.ServerDAO::class)
 	single(createdAtStart=true) { _ -> moduleInstance.dynamoClient(properties=get())} bind(persistence.dynamo.DynamoClient::class)
 }

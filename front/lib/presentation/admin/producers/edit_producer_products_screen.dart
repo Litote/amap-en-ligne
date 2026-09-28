@@ -1,3 +1,4 @@
+import 'package:amap_en_ligne/data/repositories/product_type_repository.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
@@ -18,20 +19,43 @@ class EditProducerProductsScreen extends StatelessWidget {
   final ProducerAccount producerAccount;
 
   @override
-  Widget build(BuildContext context) => _EditProducerProductsView(
-    organization: organization,
-    producerAccount: producerAccount,
-  );
+  Widget build(BuildContext context) {
+    if (producerAccount.managementMode == ProducerManagementMode.noAccount) {
+      // ProducerAccount.products is the single source of truth here.
+      return _EditProducerProductsView(
+        organization: organization,
+        producerAccount: producerAccount,
+        catalog: producerAccount.products,
+      );
+    }
+    return StreamBuilder<List<ProductType>>(
+      stream: context.read<ProductTypeRepository>().watch(
+        producerAccount.producerAccountId,
+      ),
+      builder: (context, snapshot) => _EditProducerProductsView(
+        organization: organization,
+        producerAccount: producerAccount,
+        catalog: accountBackedCatalog(
+          producerAccount,
+          snapshot.data ?? const <ProductType>[],
+        ),
+      ),
+    );
+  }
 }
 
 class _EditProducerProductsView extends StatefulWidget {
   const _EditProducerProductsView({
     required this.organization,
     required this.producerAccount,
+    required this.catalog,
   });
 
   final Organization organization;
   final ProducerAccount producerAccount;
+
+  /// Products the admin can pick for this AMAP (account-backed producer).
+  final List<ProducerProduct> catalog;
 
   @override
   State<_EditProducerProductsView> createState() =>
@@ -116,6 +140,8 @@ class _EditProducerProductsViewState extends State<_EditProducerProductsView> {
       final actionInProgress = _actionInProgressOf(state);
       return ConnectedScaffold(
         title: 'Modifier les produits',
+        // Pushed over the producer screens: back arrow, not the menu.
+        onBack: () => Navigator.of(context).pop(),
         body: Column(
           children: [
             Padding(
@@ -147,7 +173,7 @@ class _EditProducerProductsViewState extends State<_EditProducerProductsView> {
                       onAdd: () => _addManagedProduct(context),
                     )
                   : _CatalogProductsBody(
-                      producerProducts: widget.producerAccount.products,
+                      producerProducts: widget.catalog,
                       selectedProductTypeIds: _selectedProductTypeIds,
                       selectedBasketSizes: _selectedBasketSizes,
                       onSelectionChanged: _toggleCatalogProduct,
@@ -249,7 +275,7 @@ class _EditProducerProductsViewState extends State<_EditProducerProductsView> {
         producerAccount: widget.producerAccount,
         products: _selectedProductTypeIds
             .map((productTypeId) {
-              final product = widget.producerAccount.products
+              final product = widget.catalog
                   .where(
                     (candidate) => candidate.productTypeId == productTypeId,
                   )

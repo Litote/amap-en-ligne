@@ -156,6 +156,63 @@ void main() {
   );
 
   blocTest<ProducerManagementBloc, ProducerManagementState>(
+    'an organization refresh keeps the enrollment steps (sync during entry)',
+    setUp: () {
+      refreshController = StreamController<Organization?>();
+      when(
+        () => orgRepo.watch(_testOrgId),
+      ).thenAnswer((_) => refreshController.stream);
+    },
+    build: buildBloc,
+    act: (bloc) async {
+      bloc.add(const ProducerManagementEvent.loadRequested());
+      refreshController.add(_baseOrg);
+      await Future<void>.delayed(Duration.zero);
+      bloc.add(const ProducerManagementEvent.enrollSearchChanged(''));
+      await Future<void>.delayed(Duration.zero);
+      refreshController.add(_updatedOrg);
+      await Future<void>.delayed(Duration.zero);
+      bloc.add(
+        const ProducerManagementEvent.enrollProducerSelected(
+          ProducerAccount(producerAccountId: 'pa-9', name: 'Ferme'),
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+      refreshController.add(_baseOrg);
+      await refreshController.close();
+    },
+    tearDown: () async {
+      if (!refreshController.isClosed) {
+        await refreshController.close();
+      }
+    },
+    expect: () => [
+      const ProducerManagementState.loading(),
+      isA<ProducerManagementListLoaded>(),
+      isA<ProducerManagementEnrollStep1>().having(
+        (s) => s.organization,
+        'organization',
+        _baseOrg,
+      ),
+      isA<ProducerManagementEnrollStep1>().having(
+        (s) => s.organization,
+        'organization',
+        _updatedOrg,
+      ),
+      isA<ProducerManagementEnrollStep2>().having(
+        (s) => s.organization,
+        'organization',
+        _updatedOrg,
+      ),
+      isA<ProducerManagementEnrollStep2>().having(
+        (s) => s.organization,
+        'organization',
+        _baseOrg,
+      ),
+    ],
+  );
+
+  blocTest<ProducerManagementBloc, ProducerManagementState>(
     'loadRequested emits error when org is null',
     setUp: () {
       final organizationController = StreamController<Organization?>();

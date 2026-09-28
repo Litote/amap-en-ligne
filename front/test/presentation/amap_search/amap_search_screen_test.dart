@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:amap_en_ligne/data/network/public_api.dart';
 import 'package:amap_en_ligne/domain/model/member_join_request.dart';
-import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/public_organization.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,15 +20,13 @@ const _stubServerConfig = GoTrueServerConfig(
   gotrueUrl: 'https://test.example/auth',
 );
 
-const _orgA = Organization(
+const _orgA = PublicOrganization(
   organizationId: 'org-a',
   name: 'Les Jardins de Provence',
-  contactEmail: 'jardins@example.com',
 );
-const _orgB = Organization(
+const _orgB = PublicOrganization(
   organizationId: 'org-b',
   name: 'Ferme du Coteau',
-  contactEmail: 'coteau@example.com',
 );
 
 void main() {
@@ -75,7 +73,7 @@ void main() {
   testWidgets('shows a progress indicator while organizations load', (
     tester,
   ) async {
-    final completer = Completer<List<Organization>>();
+    final completer = Completer<List<PublicOrganization>>();
     when(
       () => publicApi.listOrganizations(),
     ).thenAnswer((_) => completer.future);

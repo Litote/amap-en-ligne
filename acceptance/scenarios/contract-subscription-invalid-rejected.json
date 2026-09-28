@@ -1,7 +1,7 @@
 {
   "id": "contract-subscription-invalid-rejected",
   "title": "Upsert contract with invalid member subscription (no match to product prices) is rejected with INVALID_SUBSCRIPTION",
-  "targets": ["contract-lifecycle"],
+  "targets": ["contract-lifecycle", "flutter"],
   "given": {
     "backendState": "empty",
     "appState": "fresh"

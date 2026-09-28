@@ -28,10 +28,14 @@ final class MemberInvitationSyncHandler implements EntitySyncHandler {
     AppDatabase db, {
     required String entityId,
     required String scopeKey,
-  }) => db.deleteMemberInvitation(
-    (SyncScope.fromKey(scopeKey) as OrganizationSyncScope).organizationId,
-    entityId,
-  );
+  }) => switch (SyncScope.fromKey(scopeKey)) {
+    OrganizationSyncScope(:final organizationId) => db.deleteMemberInvitation(
+      organizationId,
+      entityId,
+    ),
+    // `instance-owner` (OWNER view): the tombstone carries no organization.
+    _ => db.deleteMemberInvitationById(entityId),
+  };
 
   @override
   Future<void> remapTmpId(

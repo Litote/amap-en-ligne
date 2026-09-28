@@ -1,6 +1,7 @@
 package sync
 
 import authentication.AuthenticatedInfo
+import authentication.Role
 import core.AuthorizedScopeResolver
 import core.EntityTypeService
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -144,7 +145,8 @@ class DataService(
         } else {
             val changes = changeDAO.since(scope.key, cursor)
             IncrementalScopeResult(
-                changes = changes,
+                changes = changes.filter { isVisible(auth, scope, it.entityType) },
+                // The cursor moves past the hidden changes too.
                 nextCursor = changes.lastOrNull()?.cursor ?: cursor,
             )
         }
@@ -170,6 +172,10 @@ class DataService(
         entityType: EntityType,
     ): List<EntityPayload> =
         when {
+            !isVisible(auth, scope, entityType) -> {
+                emptyList()
+            }
+
             scope == SyncScope.InstanceOwner && entityType == EntityType.Member -> {
                 memberSyncDAO.listAll().map { MemberPayload(it) }
             }
@@ -178,6 +184,21 @@ class DataService(
                 service(entityType).snapshot(auth, scope)
             }
         }
+
+    /**
+     * Invitations and join requests carry the personal data of people who are not
+     * members yet (email, name, custom invitation copy): on an organization scope
+     * they are only served to its administrators, both at bootstrap and in the
+     * incremental feed (the [Change] rows are shared by every member of the scope).
+     */
+    private fun isVisible(
+        auth: AuthenticatedInfo,
+        scope: SyncScope,
+        entityType: EntityType,
+    ): Boolean =
+        scope !is SyncScope.Organization ||
+            entityType !in ADMIN_ONLY_ORGANIZATION_ENTITY_TYPES ||
+            auth.roles.any { it == Role.ADMIN || it == Role.OWNER }
 
     /**
      * Best-effort write of the idempotency record after an APPLIED mutation.
@@ -243,5 +264,8 @@ class DataService(
 
     private companion object {
         private val logger = KotlinLogging.logger {}
+
+        private val ADMIN_ONLY_ORGANIZATION_ENTITY_TYPES =
+            setOf(EntityType.MemberInvitation, EntityType.MemberJoinRequest)
     }
 }

@@ -65,6 +65,10 @@ public val _KSP_PersistenceDaoOrganizationRequestSyncDAO : Unit get() = Unit
 public class _KSP_PersistenceDynamoContractSyncDynamoDAO
 @MetaDefinition("persistence.dynamo.ContractSyncDynamoDAO",moduleTagId="b06v5h:PersistenceDynamoDynamoModule", dependencies=["client:persistence.dynamo.DynamoClient"], binds=["persistence.dao.ContractSyncDAO"])
 public val _KSP_PersistenceDaoContractSyncDAO : Unit get() = Unit
+@MetaDefinition("persistence.dynamo.SentAlertDynamoDAO",moduleTagId="b06v5h:PersistenceDynamoDynamoModule", dependencies=["client:persistence.dynamo.DynamoClient"], binds=["persistence.dao.SentAlertDAO"])
+public class _KSP_PersistenceDynamoSentAlertDynamoDAO
+@MetaDefinition("persistence.dynamo.SentAlertDynamoDAO",moduleTagId="b06v5h:PersistenceDynamoDynamoModule", dependencies=["client:persistence.dynamo.DynamoClient"], binds=["persistence.dao.SentAlertDAO"])
+public val _KSP_PersistenceDaoSentAlertDAO : Unit get() = Unit
 @MetaDefinition("persistence.dynamo.OwnerSyncDynamoDAO",moduleTagId="b06v5h:PersistenceDynamoDynamoModule", dependencies=["client:persistence.dynamo.DynamoClient"], binds=["persistence.dao.OwnerSyncDAO"])
 public class _KSP_PersistenceDynamoOwnerSyncDynamoDAO
 @MetaDefinition("persistence.dynamo.OwnerSyncDynamoDAO",moduleTagId="b06v5h:PersistenceDynamoDynamoModule", dependencies=["client:persistence.dynamo.DynamoClient"], binds=["persistence.dao.OwnerSyncDAO"])

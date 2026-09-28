@@ -23,6 +23,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import memberinvitation.MemberInvitationService
 import notification.DeviceTokenService
 import notification.NotificationService
 import organization.OrganizationService
@@ -37,7 +38,9 @@ import persistence.changes.ClientMutation
 import persistence.changes.ContractPayload
 import persistence.changes.Delete
 import persistence.changes.DeliveryTemplatePayload
+import persistence.changes.EntityPayload
 import persistence.changes.IncrementalScopeResult
+import persistence.changes.MemberInvitationPayload
 import persistence.changes.MemberPayload
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationOutcome
@@ -53,6 +56,7 @@ import persistence.dao.ChangeDAO
 import persistence.dao.ContractSyncDAO
 import persistence.dao.DeliveryTemplateSyncDAO
 import persistence.dao.ErrorReportSyncDAO
+import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationRequestDAO
 import persistence.dao.OrganizationRequestSyncDAO
@@ -76,6 +80,8 @@ import persistence.model.DeliveryStatus
 import persistence.model.DeliveryTemplate
 import persistence.model.EntityType
 import persistence.model.Member
+import persistence.model.MemberInvitation
+import persistence.model.MemberInvitationStatus
 import persistence.model.MemberPreferences
 import persistence.model.Organization
 import persistence.model.OrganizationProducer
@@ -95,6 +101,7 @@ import produceraccount.ProducerAccountChangeFactory
 import produceraccount.ProducerAccountLifecycleService
 import produceraccount.ProducerAccountService
 import produceraccount.ProducerAccountUpsertNormalizer
+import produceraccount.ProducerScheduleService
 import producerrequest.ProducerRequestService
 import producttype.ProductTypeService
 import kotlin.test.Test
@@ -243,6 +250,11 @@ internal class DataServiceTest {
                     services =
                         listOf(
                             ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                            ProducerScheduleService(
+                                mockk { coEvery { listAll() } returns emptyList() },
+                                mockk(relaxed = true),
+                                mockk(relaxed = true),
+                            ),
                             NoProducerAccounts,
                             NotificationService(
                                 notificationSyncDAO = mockk(relaxed = true),
@@ -291,6 +303,11 @@ internal class DataServiceTest {
                     services =
                         listOf(
                             ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                            ProducerScheduleService(
+                                mockk { coEvery { listAll() } returns emptyList() },
+                                mockk(relaxed = true),
+                                mockk(relaxed = true),
+                            ),
                             NoProducerAccounts,
                             NotificationService(
                                 notificationSyncDAO = mockk(relaxed = true),
@@ -334,6 +351,11 @@ internal class DataServiceTest {
                     services =
                         listOf(
                             ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                            ProducerScheduleService(
+                                mockk { coEvery { listAll() } returns emptyList() },
+                                mockk(relaxed = true),
+                                mockk(relaxed = true),
+                            ),
                             NoProducerAccounts,
                             NotificationService(
                                 notificationSyncDAO = mockk(relaxed = true),
@@ -423,6 +445,11 @@ internal class DataServiceTest {
                     services =
                         listOf(
                             ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                            ProducerScheduleService(
+                                mockk { coEvery { listAll() } returns emptyList() },
+                                mockk(relaxed = true),
+                                mockk(relaxed = true),
+                            ),
                             NoProducerAccounts,
                             NotificationService(
                                 notificationSyncDAO = mockk(relaxed = true),
@@ -461,6 +488,11 @@ internal class DataServiceTest {
             services =
                 listOf(
                     ProductTypeService(productTypeDAO, mockk { coEvery { findById(any()) } returns null }, mockk()),
+                    ProducerScheduleService(
+                        mockk { coEvery { listAll() } returns emptyList() },
+                        mockk(relaxed = true),
+                        mockk(relaxed = true),
+                    ),
                     NoProducerAccounts,
                     NotificationService(
                         notificationSyncDAO = mockk(relaxed = true),
@@ -519,7 +551,7 @@ internal class DataServiceTest {
 
             val organizationSyncDAO = mockk<OrganizationSyncDAO>()
             val capturedOrg = slot<Organization>()
-            coEvery { organizationSyncDAO.put(capture(capturedOrg), any()) } returns Unit
+            coEvery { organizationSyncDAO.put(capture(capturedOrg), any(), any()) } returns Unit
             coEvery { organizationSyncDAO.getById(any()) } returns null
 
             val producerAccountSyncDAO = mockk<ProducerAccountSyncDAO>()
@@ -745,11 +777,34 @@ internal class DataServiceTest {
                         ),
                 )
             coEvery { memberSyncDAO.listAll() } returns listOf(member)
+            val pendingInvitation =
+                MemberInvitation(
+                    invitationId = "invitation-1",
+                    organizationId = "org-1".toId(),
+                    email = "alice@example.org",
+                    firstName = "Alice",
+                    lastName = "Martin",
+                    roles = setOf(Role.VOLUNTEER),
+                    status = MemberInvitationStatus.PENDING_ACTIVATION,
+                    createdAt = Instant.fromEpochMilliseconds(1),
+                    expiresAt = Instant.fromEpochMilliseconds(2),
+                )
 
             val service =
                 DataService(
                     services =
                         listOf(
+                            MemberInvitationService(
+                                memberInvitationDAO =
+                                    mockk<MemberInvitationSyncDAO> {
+                                        coEvery { listPending() } returns listOf(pendingInvitation)
+                                    },
+                                memberSyncDAO = memberSyncDAO,
+                                activationTokenDAO = mockk(relaxed = true),
+                                memberInvitationEmailPort = mockk(relaxed = true),
+                                organizationSyncDAO = mockk(relaxed = true),
+                                ownerSyncDAO = mockk(relaxed = true),
+                            ),
                             OrganizationRequestService(
                                 organizationRequestSyncDAO =
                                     mockk<OrganizationRequestSyncDAO> {
@@ -860,7 +915,7 @@ internal class DataServiceTest {
             val response = service.sync(ownerAuth, emptyMap())
 
             val result = assertIs<BootstrapScopeResult>(response.results.getValue(SyncScope.InstanceOwner.key))
-            assertEquals(listOf(MemberPayload(member)), result.items)
+            assertEquals(listOf(MemberPayload(member), MemberInvitationPayload(pendingInvitation)), result.items)
         }
 
     @Test
@@ -888,7 +943,7 @@ internal class DataServiceTest {
 
             val organizationSyncDAO = mockk<OrganizationSyncDAO>()
             val capturedOrg = slot<Organization>()
-            coEvery { organizationSyncDAO.put(capture(capturedOrg), any()) } returns Unit
+            coEvery { organizationSyncDAO.put(capture(capturedOrg), any(), any()) } returns Unit
             coEvery { organizationSyncDAO.getById(any()) } returns null
 
             val now = Instant.fromEpochMilliseconds(1_000L)
@@ -1040,7 +1095,7 @@ internal class DataServiceTest {
 
             val organizationSyncDAO = mockk<OrganizationSyncDAO>()
             val capturedOrg = slot<Organization>()
-            coEvery { organizationSyncDAO.put(capture(capturedOrg), any()) } returns Unit
+            coEvery { organizationSyncDAO.put(capture(capturedOrg), any(), any()) } returns Unit
             coEvery { organizationSyncDAO.getById(any()) } returns null
 
             val now = Instant.fromEpochMilliseconds(1_000L)
@@ -1072,7 +1127,7 @@ internal class DataServiceTest {
                 DataService(
                     services =
                         listOf(
-                            DeliveryTemplateService(deliveryTemplateSyncDAO),
+                            DeliveryTemplateService(deliveryTemplateSyncDAO, mockk { coEvery { getById(any()) } returns null }),
                             OrganizationService(
                                 organizationSyncDAO = organizationSyncDAO,
                                 deliveryTemplateSyncDAO = mockk(relaxed = true),
@@ -1147,7 +1202,7 @@ internal class DataServiceTest {
 
             val organizationSyncDAO = mockk<OrganizationSyncDAO>()
             val capturedOrg = slot<Organization>()
-            coEvery { organizationSyncDAO.put(capture(capturedOrg), any()) } returns Unit
+            coEvery { organizationSyncDAO.put(capture(capturedOrg), any(), any()) } returns Unit
             coEvery { organizationSyncDAO.getById(any()) } returns null
 
             val now = Instant.fromEpochMilliseconds(1_000L)
@@ -1296,7 +1351,7 @@ internal class DataServiceTest {
 
             val organizationSyncDAO = mockk<OrganizationSyncDAO>()
             val capturedOrg = slot<Organization>()
-            coEvery { organizationSyncDAO.put(capture(capturedOrg), any()) } returns Unit
+            coEvery { organizationSyncDAO.put(capture(capturedOrg), any(), any()) } returns Unit
             coEvery { organizationSyncDAO.getById(any()) } returns null
 
             val now = Instant.fromEpochMilliseconds(1_000L)
@@ -1675,6 +1730,138 @@ internal class DataServiceTest {
             assertEquals(realContractId, capturedDeliveryContract.contractId.id)
         }
 
+    // ---- Admin-only organization data (invitations, join requests) ----
+
+    private val adminOnlyOrgId = "org-private"
+    private val adminOnlyScope = SyncScope.Organization(adminOnlyOrgId)
+    private val privateInvitation =
+        MemberInvitation(
+            invitationId = "invitation-private",
+            organizationId = adminOnlyOrgId.toId(),
+            email = "invitee@example.org",
+            firstName = "Ivy",
+            lastName = "Invitee",
+            roles = setOf(Role.VOLUNTEER),
+            status = MemberInvitationStatus.PENDING_ACTIVATION,
+            createdAt = Instant.fromEpochMilliseconds(1),
+            expiresAt = Instant.fromEpochMilliseconds(2),
+        )
+
+    private fun orgAuth(role: Role) =
+        AuthenticatedInfo(
+            memberId = "caller-${role.name}",
+            firstName = "C",
+            lastName = "Aller",
+            email = "caller@example.org",
+            organizationId = adminOnlyOrgId,
+            roles = listOf(role),
+        )
+
+    /** Every organization-scope entity type answers an empty snapshot, except the invitations. */
+    private fun adminOnlyDataService(
+        auth: AuthenticatedInfo,
+        changeDAO: ChangeDAO = mockk(relaxed = true),
+    ) = DataService(
+        services =
+            SyncScope.Organization(adminOnlyOrgId).entityTypes.map { type ->
+                FixedSnapshotService(
+                    type,
+                    if (type == EntityType.MemberInvitation) listOf(MemberInvitationPayload(privateInvitation)) else emptyList(),
+                )
+            } +
+                listOf(
+                    NotificationService(
+                        notificationSyncDAO = mockk(relaxed = true),
+                        authorizedScopeResolver = testScopeResolverForAdmin(auth.memberId, adminOnlyOrgId),
+                    ),
+                    DeviceTokenService(
+                        deviceTokenSyncDAO = mockk(relaxed = true),
+                        authorizedScopeResolver = testScopeResolverForAdmin(auth.memberId, adminOnlyOrgId),
+                    ),
+                ),
+        changeDAO = changeDAO,
+        appliedClientOpDAO = appliedClientOpDAO,
+        memberSyncDAO = mockk(relaxed = true),
+        authorizedScopeResolver = testScopeResolverForAdmin(auth.memberId, adminOnlyOrgId),
+    )
+
+    @Test
+    fun `GIVEN a volunteer WHEN bootstrapping the organization THEN member invitations are left out`() =
+        runTest {
+            val auth = orgAuth(Role.VOLUNTEER)
+
+            val response = adminOnlyDataService(auth).sync(auth, mapOf(adminOnlyScope.key to null))
+
+            val result = assertIs<BootstrapScopeResult>(response.results.getValue(adminOnlyScope.key))
+            assertTrue(result.items.none { it is MemberInvitationPayload })
+        }
+
+    @Test
+    fun `GIVEN an admin WHEN bootstrapping the organization THEN member invitations are included`() =
+        runTest {
+            val auth = orgAuth(Role.ADMIN)
+
+            val response = adminOnlyDataService(auth).sync(auth, mapOf(adminOnlyScope.key to null))
+
+            val result = assertIs<BootstrapScopeResult>(response.results.getValue(adminOnlyScope.key))
+            assertEquals(listOf(MemberInvitationPayload(privateInvitation)), result.items)
+        }
+
+    @Test
+    fun `GIVEN a coordinator WHEN syncing incrementally THEN invitation and join request changes are filtered out`() =
+        runTest {
+            val auth = orgAuth(Role.COORDINATOR)
+            val changeDAO = mockk<ChangeDAO>()
+            val invitationChange =
+                Change(
+                    cursor = "c2",
+                    entityType = EntityType.MemberInvitation,
+                    entityId = "invitation-private",
+                    scopeKey = adminOnlyScope.key,
+                    op = ChangeOp.UPSERT,
+                    payload = MemberInvitationPayload(privateInvitation),
+                    producedAt = 1,
+                )
+            val joinRequestChange =
+                invitationChange.copy(cursor = "c3", entityType = EntityType.MemberJoinRequest, entityId = "jr-1", payload = null)
+            val templateChange =
+                invitationChange.copy(cursor = "c4", entityType = EntityType.DeliveryTemplate, entityId = "tmpl-1", payload = null)
+            coEvery { changeDAO.countSince(adminOnlyScope.key, "c1", any()) } returns 3
+            coEvery { changeDAO.since(adminOnlyScope.key, "c1") } returns
+                listOf(invitationChange, joinRequestChange, templateChange)
+
+            val response = adminOnlyDataService(auth, changeDAO).sync(auth, mapOf(adminOnlyScope.key to "c1"))
+
+            val result = assertIs<IncrementalScopeResult>(response.results.getValue(adminOnlyScope.key))
+            assertEquals(listOf(templateChange), result.changes)
+            // The cursor still moves past the hidden changes.
+            assertEquals("c4", result.nextCursor)
+        }
+
+    @Test
+    fun `GIVEN an admin WHEN syncing incrementally THEN invitation changes are served`() =
+        runTest {
+            val auth = orgAuth(Role.ADMIN)
+            val changeDAO = mockk<ChangeDAO>()
+            val invitationChange =
+                Change(
+                    cursor = "c2",
+                    entityType = EntityType.MemberInvitation,
+                    entityId = "invitation-private",
+                    scopeKey = adminOnlyScope.key,
+                    op = ChangeOp.UPSERT,
+                    payload = MemberInvitationPayload(privateInvitation),
+                    producedAt = 1,
+                )
+            coEvery { changeDAO.countSince(adminOnlyScope.key, "c1", any()) } returns 1
+            coEvery { changeDAO.since(adminOnlyScope.key, "c1") } returns listOf(invitationChange)
+
+            val response = adminOnlyDataService(auth, changeDAO).sync(auth, mapOf(adminOnlyScope.key to "c1"))
+
+            val result = assertIs<IncrementalScopeResult>(response.results.getValue(adminOnlyScope.key))
+            assertEquals(listOf(invitationChange), result.changes)
+        }
+
     // ---- Authorization guard tests (transverse P0/P1 safety net) ----
 
     @Test
@@ -1764,7 +1951,7 @@ internal class DataServiceTest {
                 DataService(
                     services =
                         listOf(
-                            DeliveryTemplateService(deliveryTemplateSyncDAO),
+                            DeliveryTemplateService(deliveryTemplateSyncDAO, mockk { coEvery { getById(any()) } returns null }),
                             NotificationService(
                                 notificationSyncDAO = mockk(relaxed = true),
                                 authorizedScopeResolver = testScopeResolverForAdmin(volunteerAuth.memberId, organizationId),
@@ -1823,4 +2010,24 @@ private object NoProducerAccounts : EntityTypeService<ProducerAccountPayload>(En
     ): MutationOutcome = error("unused")
 
     override suspend fun snapshot(auth: AuthenticatedInfo): List<ProducerAccountPayload> = emptyList()
+}
+
+/** Snapshot-only service answering a fixed list, for scope-level visibility tests. */
+private class FixedSnapshotService(
+    type: EntityType,
+    private val items: List<EntityPayload>,
+) : EntityTypeService<EntityPayload>(type) {
+    override suspend fun applyUpsert(
+        auth: AuthenticatedInfo,
+        mutation: ClientMutation,
+        payload: EntityPayload,
+    ): MutationOutcome = error("unused")
+
+    override suspend fun applyDelete(
+        auth: AuthenticatedInfo,
+        mutation: ClientMutation,
+        op: Delete,
+    ): MutationOutcome = error("unused")
+
+    override suspend fun snapshot(auth: AuthenticatedInfo): List<EntityPayload> = items
 }

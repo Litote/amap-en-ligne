@@ -34,36 +34,36 @@ class ConnectedScaffold extends StatelessWidget {
   final VoidCallback? onBack;
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final isDesktop = constraints.maxWidth >= _desktopBreakpoint;
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          leading: onBack != null
-              ? BackButton(onPressed: onBack)
-              : isDesktop
-              ? null
-              : Semantics(
-                  button: true,
-                  label: 'Ouvrir le menu de navigation',
-                  onTap: () =>
+  Widget build(BuildContext context) {
+    // Compare the *window* width, like AppShellLayout: the scaffold itself
+    // only gets the width left by the permanent sidebar.
+    final isDesktop = MediaQuery.sizeOf(context).width >= _desktopBreakpoint;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        leading: onBack != null
+            ? BackButton(onPressed: onBack)
+            : isDesktop
+            ? null
+            : Semantics(
+                button: true,
+                label: 'Ouvrir le menu de navigation',
+                onTap: () =>
+                    context.read<NavBloc>().add(const NavEvent.opened()),
+                excludeSemantics: true,
+                child: IconButton(
+                  key: const Key('nav_menu_button'),
+                  icon: const Icon(Icons.menu),
+                  tooltip: 'Ouvrir le menu de navigation',
+                  onPressed: () =>
                       context.read<NavBloc>().add(const NavEvent.opened()),
-                  excludeSemantics: true,
-                  child: IconButton(
-                    key: const Key('nav_menu_button'),
-                    icon: const Icon(Icons.menu),
-                    tooltip: 'Ouvrir le menu de navigation',
-                    onPressed: () =>
-                        context.read<NavBloc>().add(const NavEvent.opened()),
-                  ),
                 ),
-          automaticallyImplyLeading: onBack != null || !isDesktop,
-          actions: actions,
-        ),
-        body: body,
-        floatingActionButton: floatingActionButton,
-      );
-    },
-  );
+              ),
+        automaticallyImplyLeading: onBack != null || !isDesktop,
+        actions: actions,
+      ),
+      body: body,
+      floatingActionButton: floatingActionButton,
+    );
+  }
 }

@@ -118,19 +118,52 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('asks to select a delivery before showing anything', (
+  testWidgets('preselects the next delivery, not the oldest one', (
     tester,
   ) async {
-    final delivery = buildDelivery(scheduledDate: '2030-01-15T18:00:00');
-    when(
-      () => orgRepo.watch(any()),
-    ).thenAnswer((_) => Stream.value(buildOrg(deliveries: [delivery])));
+    final past = buildDelivery(
+      deliveryId: 'd-past',
+      scheduledDate: '2020-01-15T18:00:00',
+    );
+    final next = buildDelivery(
+      deliveryId: 'd-next',
+      scheduledDate: '2030-01-15T18:00:00',
+    );
+    final later = buildDelivery(
+      deliveryId: 'd-later',
+      scheduledDate: '2030-02-15T18:00:00',
+    );
+    when(() => orgRepo.watch(any())).thenAnswer(
+      (_) => Stream.value(buildOrg(deliveries: [later, past, next])),
+    );
 
     await pump(tester);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    expect(find.text('Sélectionnez une livraison.'), findsOneWidget);
-    expect(find.text('Télécharger PDF'), findsNothing);
+    expect(find.text('Sélectionnez une livraison.'), findsNothing);
+    expect(find.text('15 janvier 2030 • 18h00'), findsOneWidget);
+    expect(find.text('Télécharger PDF'), findsOneWidget);
+  });
+
+  testWidgets('preselects the most recent delivery when all are past', (
+    tester,
+  ) async {
+    final older = buildDelivery(
+      deliveryId: 'd-older',
+      scheduledDate: '2020-01-15T18:00:00',
+    );
+    final recent = buildDelivery(
+      deliveryId: 'd-recent',
+      scheduledDate: '2020-02-12T18:00:00',
+    );
+    when(
+      () => orgRepo.watch(any()),
+    ).thenAnswer((_) => Stream.value(buildOrg(deliveries: [older, recent])));
+
+    await pump(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('12 février 2020 • 18h00'), findsOneWidget);
   });
 
   testWidgets('shows "Aucune livraison." when the org has no deliveries', (
@@ -237,20 +270,25 @@ void main() {
     expect(attendanceSheetFilename(delivery), 'emargement-2026-10-01.pdf');
   });
 
+  test('the volunteer PDF says so when nobody registered', () {
+    expect(attendanceVolunteerSheetEmptyNote(0), 'Aucun bénévole inscrit.');
+    expect(attendanceVolunteerSheetEmptyNote(2), isNull);
+  });
+
   group('PDF titles', () {
     final delivery = buildDelivery(scheduledDate: '2026-10-01T18:00:00');
 
     test('volunteer sheet shows a French date, not the raw ISO instant', () {
       expect(
         attendanceVolunteerSheetTitle(delivery),
-        'Émargement bénévoles - 1 octobre 2026',
+        'Émargement bénévoles - 1er octobre 2026',
       );
     });
 
     test('basket sheet avoids glyphs missing from the default PDF font', () {
       expect(
         attendanceBasketSheetTitle('Oeufs — Boîte de 12', delivery),
-        'Récupération paniers - Oeufs - Boîte de 12 - 1 octobre 2026',
+        'Récupération paniers - Oeufs - Boîte de 12 - 1er octobre 2026',
       );
     });
   });

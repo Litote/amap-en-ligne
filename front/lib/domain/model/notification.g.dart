@@ -55,4 +55,6 @@ const _$NotificationCategoryEnumMap = {
   NotificationCategory.producerRequestSubmitted: 'PRODUCER_REQUEST_SUBMITTED',
   NotificationCategory.slotCancelled: 'SLOT_CANCELLED',
   NotificationCategory.slotRescheduled: 'SLOT_RESCHEDULED',
+  NotificationCategory.volunteerShortage: 'VOLUNTEER_SHORTAGE',
+  NotificationCategory.volunteerUrgentNeed: 'VOLUNTEER_URGENT_NEED',
 };

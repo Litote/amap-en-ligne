@@ -202,7 +202,7 @@ class _IdentityFormState extends State<_IdentityForm> {
         border: OutlineInputBorder(),
       ),
       validator: (v) => (v == null || v.trim().isEmpty)
-          ? 'Le nom est requis'
+          ? kFieldRequiredMessage
           : requiredName(v),
       textInputAction: TextInputAction.next,
     ),
@@ -217,10 +217,10 @@ class _IdentityFormState extends State<_IdentityForm> {
       keyboardType: TextInputType.emailAddress,
       validator: (v) {
         if (v == null || v.trim().isEmpty) {
-          return "L'email de contact est requis";
+          return kFieldRequiredMessage;
         }
         if (!isValidEmail(v)) {
-          return "L'adresse email n'est pas valide";
+          return kInvalidEmailMessage;
         }
         return null;
       },
@@ -272,7 +272,7 @@ class _IdentityFormState extends State<_IdentityForm> {
       validator: (v) {
         if (v == null || v.trim().isEmpty) return null;
         if (!isValidHttpUrl(v)) {
-          return "L'URL n'est pas valide (ex. https://…)";
+          return kInvalidUrlMessage;
         }
         return null;
       },

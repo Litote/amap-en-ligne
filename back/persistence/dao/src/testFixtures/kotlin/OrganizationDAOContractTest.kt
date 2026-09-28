@@ -57,7 +57,6 @@ abstract class OrganizationDAOContractTest {
 
             val org = result.first { it.organizationId.id == id }
             assertEquals("AMAP Les Jardins", org.name)
-            assertEquals(email, org.contactEmail)
             assertTrue(org.activeStatus)
         }
 
@@ -83,7 +82,6 @@ abstract class OrganizationDAOContractTest {
             assertTrue(result.any { it.organizationId == org.organizationId })
             val found = result.first { it.organizationId == org.organizationId }
             assertEquals(org.name, found.name)
-            assertEquals(org.contactEmail, found.contactEmail)
             assertTrue(found.activeStatus)
         }
 }

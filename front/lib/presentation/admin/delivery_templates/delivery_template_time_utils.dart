@@ -1,3 +1,4 @@
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:flutter/material.dart';
 
 TimeOfDay? parseDeliveryTemplateTime(String? value) {
@@ -21,7 +22,7 @@ String? validateStandardEndTime({
   required TimeOfDay? standardStartTime,
   required TimeOfDay? standardEndTime,
 }) {
-  if (standardEndTime == null) return 'Champ requis.';
+  if (standardEndTime == null) return kFieldRequiredMessage;
   final startMinutes = deliveryTemplateTimeToMinutes(standardStartTime);
   final endMinutes = deliveryTemplateTimeToMinutes(standardEndTime);
   if (startMinutes != null &&
@@ -38,7 +39,7 @@ String? validateEarlyArrivalTime({
   required TimeOfDay? standardStartTime,
 }) {
   if (!hasEarlySlot) return null;
-  if (earlyArrivalTime == null) return 'Champ requis.';
+  if (earlyArrivalTime == null) return kFieldRequiredMessage;
   final earlyMinutes = deliveryTemplateTimeToMinutes(earlyArrivalTime);
   final startMinutes = deliveryTemplateTimeToMinutes(standardStartTime);
   if (earlyMinutes != null &&

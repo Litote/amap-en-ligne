@@ -1,7 +1,9 @@
 package organization
 
+import core.BasketComposition
 import core.InputRules
 import persistence.model.Delivery
+import persistence.model.NotificationCategory
 import persistence.model.Organization
 
 /**
@@ -27,6 +29,7 @@ internal fun organizationFormError(
         return "default_language must be a two-letter code (e.g. fr)"
     }
     notificationOverridesError(persisted, incoming)?.let { return it }
+    itemTypesError(persisted, incoming)?.let { return it }
     val persistedDeliveries = persisted?.deliveries.orEmpty().associateBy { it.deliveryId }
     incoming.deliveries.forEach { delivery ->
         deliveryFormError(persistedDeliveries[delivery.deliveryId], delivery)?.let { return it }
@@ -40,7 +43,24 @@ private val LANGUAGE_CODE = Regex("[a-z]{2}")
 // would reach members as is. Mirrors `alertOverrideError` in `alert_templates_bloc.dart`.
 private val ALERT_PLACEHOLDER = Regex("\\{[^{}]*}")
 
-/** Rejects changed admin alert overrides containing a `{…}` placeholder. */
+// Org alerts actually published with `resolveCopy` — mirrors `kCustomisableAlertCategories` in
+// `alert_templates_bloc.dart`. DELIVERY_REMINDER is never sent; owner categories have no org.
+private val CUSTOMISABLE_ALERT_CATEGORIES =
+    setOf(
+        NotificationCategory.SLOT_CANCELLED,
+        NotificationCategory.SLOT_RESCHEDULED,
+        NotificationCategory.VOLUNTEER_SHORTAGE,
+        NotificationCategory.VOLUNTEER_URGENT_NEED,
+        NotificationCategory.BASKET_EXCHANGE_REQUEST_RECEIVED,
+        NotificationCategory.BASKET_EXCHANGE_ACCEPTED,
+        NotificationCategory.BASKET_EXCHANGE_REJECTED,
+        NotificationCategory.MEMBER_JOIN_REQUEST_SUBMITTED,
+    )
+
+/**
+ * Rejects changed admin alert overrides of a category that is never sent with the org copy,
+ * or containing a `{…}` placeholder.
+ */
 private fun notificationOverridesError(
     persisted: Organization?,
     incoming: Organization,
@@ -48,11 +68,32 @@ private fun notificationOverridesError(
     val previous = persisted?.notificationOverrides.orEmpty()
     incoming.notificationOverrides.forEach { (category, override) ->
         if (override == previous[category]) return@forEach
+        if (category !in CUSTOMISABLE_ALERT_CATEGORIES) {
+            return "notification_overrides.$category cannot be customised"
+        }
         listOfNotNull(override.title, override.body).forEach { text ->
             if (ALERT_PLACEHOLDER.containsMatchIn(text)) {
                 return "notification_overrides.$category must not contain {…} placeholders (sent verbatim)"
             }
         }
+    }
+    return null
+}
+
+/**
+ * Changed entries of the organization component catalog follow the producer catalog rules
+ * (`ProductTypeValidation`): a name and a small SVG-only icon. An oversized icon would push
+ * the whole organization item over the DynamoDB 400 KB limit.
+ */
+private fun itemTypesError(
+    persisted: Organization?,
+    incoming: Organization,
+): String? {
+    val previous = persisted?.itemTypes.orEmpty().associateBy { it.id }
+    incoming.itemTypes.forEach { itemType ->
+        if (itemType == previous[itemType.id]) return@forEach
+        InputRules.requireName("item_types.name", itemType.name)?.let { return it }
+        InputRules.optionalSvg("item_types.image_svg", itemType.imageSvg)?.let { return it }
     }
     return null
 }
@@ -86,32 +127,9 @@ private fun deliveryFormError(
     return null
 }
 
-/**
- * Mirrors the coordinator basket-composition editor (`delivery_description_screen.dart`):
- * a component needs a name (the free-entry form; catalog components carry their catalog
- * name) and a bounded optional weight. Only components that are new or edited are checked,
- * so legacy components (e.g. an empty name snapshot) never block the delivery.
- */
+/** Composition rules shared with the producer path — see [BasketComposition.itemsError]. */
 private fun basketItemsError(
     persisted: Delivery?,
     incoming: Delivery,
     label: String,
-): String? {
-    val persistedItems =
-        persisted
-            ?.basketDescriptions
-            .orEmpty()
-            .flatMap { it.items }
-            .toSet()
-    incoming.basketDescriptions
-        .flatMap { it.items }
-        .filterNot { it in persistedItems }
-        .forEach { item ->
-            InputRules.requireName("$label basket item name", item.name)?.let { return it }
-            val weight = item.weight
-            if (weight != null && weight.length > InputRules.MAX_NAME_LENGTH) {
-                return "$label basket item weight must be at most ${InputRules.MAX_NAME_LENGTH} characters"
-            }
-        }
-    return null
-}
+): String? = BasketComposition.itemsError(persisted?.basketDescriptions.orEmpty(), incoming.basketDescriptions, label)

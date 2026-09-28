@@ -24,3 +24,15 @@ String? contractDateRangeError(String minDate, String maxDate) {
   return 'La date de première livraison doit précéder la date de dernière '
       'livraison.';
 }
+
+/// Default number of weekly deliveries between the first and the last
+/// delivery dates, both included (7 → 28 October = 4 Wednesdays). Never
+/// below 1, the minimum the form accepts.
+int weeklyDeliveryCount(DateTime minDate, DateTime maxDate) {
+  final days = DateTime.utc(
+    maxDate.year,
+    maxDate.month,
+    maxDate.day,
+  ).difference(DateTime.utc(minDate.year, minDate.month, minDate.day)).inDays;
+  return days < 0 ? 1 : days ~/ 7 + 1;
+}

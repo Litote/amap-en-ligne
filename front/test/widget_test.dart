@@ -215,7 +215,12 @@ void main() {
     );
 
     // Drain async work: auth bootstrap → session emission → BlocBuilder rebuild
-    // → router redirect → ProductTypesScreen mount → initial sync attempt.
+    // → router redirect → producer dashboard mount → initial sync attempt.
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+
+    // A producer lands on its dashboard, which opens its product catalog.
+    expect(find.text('Mon tableau de bord'), findsOneWidget);
+    await tester.tap(find.text('Catalogue de produits'));
     await tester.pumpAndSettle(const Duration(milliseconds: 100));
 
     expect(find.text('Types de produits'), findsOneWidget);
@@ -320,7 +325,7 @@ void main() {
       );
 
       await tester.pumpAndSettle(const Duration(milliseconds: 100));
-      expect(find.text('Types de produits'), findsOneWidget);
+      expect(find.text('Mon tableau de bord'), findsOneWidget);
 
       authService.emit(const AuthState.unauthenticated());
       await tester.pump();
@@ -331,6 +336,11 @@ void main() {
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);
+
+      // Unmount the app subtree first: the producer dashboard watches the
+      // database, and closing it under a live query stream never completes.
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
 
       await authService.dispose();
       await db.close();
@@ -546,7 +556,7 @@ void main() {
     );
 
     await tester.pumpAndSettle(const Duration(milliseconds: 100));
-    expect(find.text('Types de produits'), findsOneWidget);
+    expect(find.text('Mon tableau de bord'), findsOneWidget);
 
     // Open the navigation menu to access the sign-out item.
     await tester.tap(find.byKey(const Key('nav_menu_button')));
@@ -562,6 +572,11 @@ void main() {
       findsNothing,
     );
     expect(tester.takeException(), isNull);
+
+    // Unmount and flush the fake clock: the producer dashboard watched the
+    // database, and closing it with a query still pending never completes.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
 
     await authService.dispose();
     await db.close();
@@ -675,6 +690,11 @@ void main() {
     expect(authService.signOutCalls, 1);
     expect(find.byKey(const Key('login_email')), findsOneWidget);
     expect(tester.takeException(), isNull);
+
+    // Unmount and flush the fake clock before closing the database (see the
+    // logout test above).
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 100));
 
     await authService.dispose();
     await db.close();

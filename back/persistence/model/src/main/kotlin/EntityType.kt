@@ -34,6 +34,9 @@ enum class EntityType {
     AttendanceEmailRequest,
     Producer,
     ErrorReport,
+
+    /** Read-only, derived projection (never stored, never mutated by clients). */
+    ProducerSchedule,
 }
 
 /** All synced entity types (union). */

@@ -10,5 +10,6 @@ public val produceraccount_ProducerAccountModule : Module get() = module {
 	single() { _ -> produceraccount.ProducerAccountLifecycleService(producerAccountSyncDAO=get(),userProvisioningPort=get(),accountLifecycleEmailPort=get(),accountDeletionLogDAO=get(),changeFactory=get())} 
 	single(createdAtStart=true) { _ -> produceraccount.ProducerAccountService(producerAccountSyncDAO=get(),organizationSyncDAO=get(),upsertNormalizer=get(),changeFactory=get(),lifecycleService=get())} bind(core.EntityTypeService::class)
 	single() { _ -> produceraccount.ProducerAccountUpsertNormalizer(producerAccountSyncDAO=get())} 
+	single(createdAtStart=true) { _ -> produceraccount.ProducerScheduleService(organizationSyncDAO=get(),contractSyncDAO=get(),productTypeDAO=get())} bind(core.EntityTypeService::class)
 }
 public val produceraccount.ProducerAccountModule.module : org.koin.core.module.Module get() = produceraccount_ProducerAccountModule

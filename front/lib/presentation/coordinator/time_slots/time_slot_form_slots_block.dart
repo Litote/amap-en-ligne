@@ -1,6 +1,7 @@
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart'
     show activeRegistrationsExcluding, deliveryCoordinatorIds;
+import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slots_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -119,13 +120,13 @@ class _SlotRow extends StatelessWidget {
                 ),
               ),
               if (_isCancelled)
-                Chip(
-                  label: const Text('ANNULÉ'),
+                StatusBadge(
+                  'ANNULÉ',
                   labelStyle: TextStyle(
                     color: Theme.of(context).colorScheme.error,
                   ),
                   side: BorderSide(color: Theme.of(context).colorScheme.error),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  compact: false,
                 ),
             ],
           ),
@@ -205,6 +206,7 @@ class _SlotRow extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Supprimer ce créneau ?'),
+        semanticLabel: 'Supprimer ce créneau ?',
         content: const Text('Cette action est définitive.'),
         actions: [
           TextButton(

@@ -3,7 +3,9 @@ import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
+import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_volunteer_summary.dart';
+import 'package:amap_en_ligne/presentation/coordinator/time_slots/delivery_deletion.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slots_bloc.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_status_chip.dart';
@@ -138,7 +140,7 @@ class _DeliveryList extends StatelessWidget {
           direction: DismissDirection.endToStart,
           // A swipe is easy to trigger by accident (e.g. while scrolling on
           // mobile) and the deletion cannot be undone.
-          confirmDismiss: (_) => _confirmDeletion(context, delivery),
+          confirmDismiss: (_) => confirmDeliveryDeletion(context, delivery),
           onDismissed: (_) {
             context.read<TimeSlotsBloc>().add(
               TimeSlotsEvent.deleteRequested(
@@ -156,42 +158,6 @@ class _DeliveryList extends StatelessWidget {
       const SizedBox(height: 16),
     ];
   }
-
-  static Future<bool> _confirmDeletion(
-    BuildContext context,
-    Delivery delivery,
-  ) async {
-    final registered = [
-      for (final link in delivery.contracts)
-        for (final slot in link.slots) activeRegistrationsCount(slot),
-    ].fold(0, (a, b) => a + b);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Supprimer la livraison ?'),
-        content: Text(
-          'La livraison du ${formatDeliveryDateTime(delivery.scheduledDate)} '
-          'sera supprimée. Cette action est irréversible.'
-          '${registered == 0 ? '' : '\n\n${_registeredWarning(registered)}'}',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('ANNULER'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('SUPPRIMER'),
-          ),
-        ],
-      ),
-    );
-    return confirmed ?? false;
-  }
-
-  static String _registeredWarning(int count) => count == 1
-      ? '1 bénévole inscrit perdra son inscription.'
-      : '$count bénévoles inscrits perdront leur inscription.';
 
   static void _sortByDate(List<Delivery> deliveries) {
     deliveries.sort(
@@ -249,14 +215,17 @@ class _DeliveryCard extends StatelessWidget {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SlotStatusChip(
-                  slotStatus: deliverySlotStatus(
-                    delivery,
-                    mainContractIds: mainContractIds,
+                if (summary.required > 0) ...[
+                  SlotStatusChip(
+                    slotStatus: deliverySlotStatus(
+                      delivery,
+                      mainContractIds: mainContractIds,
+                      now: DateTime.now(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text('${summary.current}/${summary.required} bénévoles'),
+                  const SizedBox(height: 4),
+                ],
+                Text(volunteerSummaryLabel(summary)),
                 if (coordinators.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
@@ -282,9 +251,8 @@ class _DeliveryCard extends StatelessWidget {
                 label: const Text('MODIFIER'),
               ),
               TextButton.icon(
-                onPressed: () => context.push(
-                  '/coordinator/tracking/${delivery.deliveryId}',
-                ),
+                onPressed: () =>
+                    openDeliveryTracking(context, delivery.deliveryId),
                 icon: const Icon(Icons.fact_check_outlined),
                 label: const Text('SUIVRE'),
               ),

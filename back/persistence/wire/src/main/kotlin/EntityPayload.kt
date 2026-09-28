@@ -22,6 +22,7 @@ import persistence.model.OwnerInvitation
 import persistence.model.Producer
 import persistence.model.ProducerAccount
 import persistence.model.ProducerRequest
+import persistence.model.ProducerSchedule
 import persistence.model.ProductType
 
 /**
@@ -322,4 +323,12 @@ data class ErrorReportPayload(
     override val entityType: EntityType get() = EntityType.ErrorReport
 
     override fun extractTmpId(): String? = errorReport.errorReportId.id.takeIf { it.startsWith(ClientMutation.TMP_ID_PREFIX) }
+}
+
+@Serializable
+@SerialName("ProducerSchedule")
+data class ProducerSchedulePayload(
+    val producerSchedule: ProducerSchedule,
+) : EntityPayload {
+    override val entityType: EntityType get() = EntityType.ProducerSchedule
 }

@@ -1,0 +1,195 @@
+{
+  "id": "producer-enrollment-account-backed-fans-out",
+  "title": "Enrolling an account-backed producer in an AMAP fans its account out to the AMAP, the instance owners and the producer's own feed",
+  "targets": [
+    "server",
+    "flutter"
+  ],
+  "description": "Enrolling is an Organization upsert only (Organization.producers). The back mirrors the new link onto the ProducerAccount (organizations) and emits a ProducerAccount upsert on every linked organization scope, on instance-owner and on producer-account:{id} — otherwise the AMAP never receives the producer's name.",
+  "given": {
+    "backendState": "organization org-1",
+    "appState": "fresh",
+    "producerAccounts": [
+      {
+        "producerAccountId": "producerAccountId",
+        "name": "Ferme des Collines"
+      }
+    ]
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "save": {
+        "cursorRefs": {
+          "producer-account:producerAccountId": "producerCursor"
+        }
+      },
+      "request": {
+        "cursors": {},
+        "mutations": []
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "as": "owner",
+      "save": {
+        "cursorRefs": {
+          "instance-owner": "ownerInstanceCursor",
+          "owner:acceptance-owner": "ownerFeedCursor"
+        }
+      },
+      "request": {
+        "cursors": {},
+        "mutations": []
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "as": "admin:org-1",
+      "save": {
+        "cursorRefs": {
+          "organization:org-1": "orgCursor",
+          "member:acceptance-admin-org-1": "memberFeedCursor"
+        }
+      },
+      "request": {
+        "cursors": {},
+        "mutations": []
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "as": "admin:org-1",
+      "request": {
+        "cursors": {
+          "organization:org-1": "$ref:orgCursor",
+          "member:acceptance-admin-org-1": "$ref:memberFeedCursor"
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-enroll",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Organization",
+                "organization": {
+                  "organization_id": "org-1",
+                  "name": "Test Organization",
+                  "contact_email": "test@example.com",
+                  "active_status": true,
+                  "timezone": "Europe/Paris",
+                  "default_language": "fr",
+                  "created_instant": "2025-01-01T00:00:00Z",
+                  "last_updated_instant": "2025-01-01T00:00:00Z",
+                  "producers": [
+                    {
+                      "producer_account_id": "producerAccountId",
+                      "association_instant": "2026-01-01T00:00:00Z",
+                      "status": "ACTIVE"
+                    }
+                  ],
+                  "products": [
+                    {
+                      "name": "Légumes",
+                      "product_type_id": "pt-vegetables",
+                      "producer_account_id": "producerAccountId",
+                      "supported_basket_sizes": [
+                        {
+                          "name": "small"
+                        }
+                      ]
+                    }
+                  ],
+                  "deliveries": []
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expect": {
+        "statusCode": 200,
+        "mutationOutcomes": [
+          {
+            "clientOpId": "op-enroll",
+            "status": "APPLIED",
+            "serverEntityId": {
+              "kind": "equals",
+              "value": "org-1"
+            }
+          }
+        ],
+        "containsChanges": [
+          {
+            "entityType": "ProducerAccount",
+            "entityId": "producerAccountId",
+            "op": "UPSERT",
+            "scopeKey": "organization:org-1",
+            "payload": {
+              "name": "Ferme des Collines"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "as": "owner",
+      "request": {
+        "cursors": {
+          "instance-owner": "$ref:ownerInstanceCursor",
+          "owner:acceptance-owner": "$ref:ownerFeedCursor"
+        },
+        "mutations": []
+      },
+      "expect": {
+        "statusCode": 200,
+        "containsChanges": [
+          {
+            "entityType": "ProducerAccount",
+            "entityId": "producerAccountId",
+            "op": "UPSERT",
+            "scopeKey": "instance-owner"
+          }
+        ]
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "request": {
+        "cursors": {
+          "producer-account:producerAccountId": "$ref:producerCursor"
+        },
+        "mutations": []
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "containsChanges": [
+        {
+          "entityType": "ProducerAccount",
+          "entityId": "producerAccountId",
+          "op": "UPSERT",
+          "scopeKey": "producer-account:producerAccountId",
+          "payload": {
+            "organizations": [
+              {
+                "organization_id": "org-1",
+                "association_instant": "2026-01-01T00:00:00Z",
+                "status": "ACTIVE"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

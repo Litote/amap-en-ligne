@@ -2345,6 +2345,180 @@ void main() {
     });
   });
 
+  group('upcomingActiveDeliveries include', () {
+    test('filtre avant d\'appliquer la limite', () {
+      Delivery upcoming(String id) => buildDelivery(
+        deliveryId: id,
+        scheduledDate: isoOf(tomorrow),
+        contracts: [
+          buildContract(slots: [slotWith()]),
+        ],
+      );
+      final org = buildOrg(deliveries: [upcoming('hidden'), upcoming('shown')]);
+
+      final result = upcomingActiveDeliveries(
+        org,
+        now,
+        limit: 1,
+        include: (d) => d.deliveryId != 'hidden',
+      );
+
+      expect(result.map((d) => d.deliveryId), ['shown']);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // deliveryWithoutInPreparationContracts
+  // ---------------------------------------------------------------------------
+
+  group('deliveryWithoutInPreparationContracts', () {
+    Contract contractOf(
+      String id,
+      ContractStatus status, {
+      String producerAccountId = 'producer-1',
+      List<String> productTypeIds = const [],
+    }) => Contract(
+      contractId: id,
+      name: 'Contrat $id',
+      organizationId: 'org-1',
+      producerAccountId: producerAccountId,
+      minDeliveryDate: '2026-01-01',
+      maxDeliveryDate: '2026-12-31',
+      deliveryCount: 10,
+      seasonYear: 2026,
+      status: status,
+      productPrices: [
+        for (final id in productTypeIds) ProductPrice(productTypeId: id),
+      ],
+    );
+
+    BasketDeliveryDescription description(String productTypeId) =>
+        BasketDeliveryDescription(
+          productTypeId: productTypeId,
+          basketSizeName: 'Petit',
+        );
+
+    test('retire les liens et les produits apportés seulement par un contrat '
+        'en préparation', () {
+      final delivery = buildDelivery(
+        contracts: [
+          buildContract(contractId: 'c-active'),
+          buildContract(contractId: 'c-prep'),
+        ],
+        basketDescriptions: [description('pt-eggs'), description('pt-cheese')],
+      );
+      final contracts = [
+        contractOf(
+          'c-active',
+          ContractStatus.active,
+          productTypeIds: ['pt-eggs'],
+        ),
+        contractOf(
+          'c-prep',
+          ContractStatus.inPreparation,
+          producerAccountId: 'producer-2',
+          productTypeIds: ['pt-cheese'],
+        ),
+      ];
+
+      final visible = deliveryWithoutInPreparationContracts(
+        delivery,
+        buildOrg(),
+        contracts,
+      );
+
+      expect(visible.contracts.map((c) => c.contractId), ['c-active']);
+      expect(visible.basketDescriptions.map((d) => d.productTypeId), [
+        'pt-eggs',
+      ]);
+    });
+
+    test('garde un produit aussi apporté par un contrat visible', () {
+      final delivery = buildDelivery(
+        contracts: [
+          buildContract(contractId: 'c-active'),
+          buildContract(contractId: 'c-prep'),
+        ],
+        basketDescriptions: [description('pt-cheese')],
+      );
+      final contracts = [
+        contractOf(
+          'c-active',
+          ContractStatus.active,
+          productTypeIds: ['pt-cheese'],
+        ),
+        contractOf(
+          'c-prep',
+          ContractStatus.inPreparation,
+          productTypeIds: ['pt-cheese'],
+        ),
+      ];
+
+      final visible = deliveryWithoutInPreparationContracts(
+        delivery,
+        buildOrg(),
+        contracts,
+      );
+
+      expect(visible.basketDescriptions.map((d) => d.productTypeId), [
+        'pt-cheese',
+      ]);
+    });
+
+    test('contrat sans prix : ses produits sont ceux de son producteur', () {
+      final delivery = buildDelivery(
+        contracts: [buildContract(contractId: 'c-prep')],
+        basketDescriptions: [description('pt-cheese')],
+      );
+      final org = buildOrg(
+        products: [
+          const OrgProduct(
+            productTypeId: 'pt-cheese',
+            producerAccountId: 'producer-2',
+            name: 'Fromages',
+          ),
+        ],
+      );
+
+      final visible = deliveryWithoutInPreparationContracts(delivery, org, [
+        contractOf(
+          'c-prep',
+          ContractStatus.inPreparation,
+          producerAccountId: 'producer-2',
+        ),
+      ]);
+
+      expect(visible.contracts, isEmpty);
+      expect(visible.basketDescriptions, isEmpty);
+    });
+
+    test('rien ne change sans contrat en préparation', () {
+      final delivery = buildDelivery(
+        contracts: [buildContract(contractId: 'c-active')],
+        basketDescriptions: [description('pt-eggs')],
+      );
+
+      final visible = deliveryWithoutInPreparationContracts(
+        delivery,
+        buildOrg(),
+        [contractOf('c-active', ContractStatus.active)],
+      );
+
+      expect(visible, delivery);
+    });
+  });
+
+  group('canSeeContractsInPreparation', () {
+    test('vrai pour un coordinateur ou un admin, faux pour un amapien', () {
+      expect(
+        canSeeContractsInPreparation(const {Role.volunteer, Role.coordinator}),
+        isTrue,
+      );
+      expect(canSeeContractsInPreparation(const {Role.admin}), isTrue);
+      expect(canSeeContractsInPreparation(const {Role.volunteer}), isFalse);
+    });
+  });
+
   // ---------------------------------------------------------------------------
   // defaultPlanningMonth
   // ---------------------------------------------------------------------------
@@ -2383,11 +2557,128 @@ void main() {
       expect(defaultPlanningMonth(org, june29), DateTime(2026, 6));
     });
 
-    test('keeps current month when no delivery this month', () {
+    test('opens on the month of the next delivery when none remains this '
+        'month', () {
       final org = buildOrg(
-        deliveries: [buildDelivery(scheduledDate: isoOnDay(2026, 7, 5))],
+        deliveries: [
+          buildDelivery(scheduledDate: isoOnDay(2026, 9, 3)),
+          buildDelivery(deliveryId: 'd-2', scheduledDate: isoOnDay(2026, 8, 6)),
+        ],
       );
-      expect(defaultPlanningMonth(org, june29), DateTime(2026, 6));
+      expect(defaultPlanningMonth(org, june29), DateTime(2026, 8));
+    });
+
+    test('keeps current month when there is no delivery at all', () {
+      expect(defaultPlanningMonth(buildOrg(), june29), DateTime(2026, 6));
+    });
+  });
+
+  group('deliveryContractsToCollect', () {
+    test('leaves out the links without any basket (nothing to collect)', () {
+      final delivery = buildDelivery(
+        contracts: [
+          buildContract(contractId: 'c-eggs', basketQuantity: 2),
+          buildContract(contractId: 'c-draft', basketQuantity: 0),
+        ],
+      );
+
+      expect(deliveryContractsToCollect(delivery).map((c) => c.contractId), [
+        'c-eggs',
+      ]);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Presence recorded on the tracking screen (CONFIRMED) is a participation
+  // ---------------------------------------------------------------------------
+
+  group('presence recorded as CONFIRMED counts as a participation', () {
+    MemberRegistration presentReg(String memberId) => buildRegistration(
+      memberId: memberId,
+      status: RegistrationStatus.confirmed,
+    );
+
+    Delivery pastDelivery(String id, String date, MemberRegistration reg) =>
+        buildDelivery(
+          deliveryId: id,
+          scheduledDate: date,
+          status: DeliveryStatus.completed,
+          contracts: [
+            buildContract(
+              contractId: 'c-1',
+              slots: [
+                slotWith(registrations: [reg]),
+              ],
+            ),
+          ],
+        );
+
+    final org = buildOrg(
+      deliveries: [
+        pastDelivery('d-1', '2026-06-03T18:00:00', presentReg('m-1')),
+        pastDelivery('d-2', '2026-06-10T18:00:00', completedReg('m-1')),
+        pastDelivery('d-3', '2026-06-17T18:00:00', activeReg('m-1')),
+        pastDelivery('d-4', '2026-06-24T18:00:00', cancelledReg('m-1')),
+      ],
+    );
+
+    test('isPresentRegistrationStatus: CONFIRMED and COMPLETED only', () {
+      expect(isPresentRegistrationStatus(RegistrationStatus.confirmed), isTrue);
+      expect(isPresentRegistrationStatus(RegistrationStatus.completed), isTrue);
+      expect(
+        isPresentRegistrationStatus(RegistrationStatus.registered),
+        isFalse,
+      );
+      expect(
+        isPresentRegistrationStatus(RegistrationStatus.cancelled),
+        isFalse,
+      );
+    });
+
+    test('completedRegistrationsInSeason', () {
+      expect(completedRegistrationsInSeason(org, 'm-1', {'c-1'}), 2);
+    });
+
+    test('personalCompletedRegistrations', () {
+      expect(
+        personalCompletedRegistrations(
+          org,
+          'm-1',
+        ).map((e) => e.delivery.deliveryId),
+        ['d-2', 'd-1'],
+      );
+    });
+
+    test('lastCompletedDelivery and lastCompletedDeliveryInSeason', () {
+      final onlyConfirmed = buildOrg(
+        deliveries: [
+          pastDelivery('d-1', '2026-06-03T18:00:00', presentReg('m-1')),
+        ],
+      );
+      expect(lastCompletedDelivery(onlyConfirmed, 'm-1')?.deliveryId, 'd-1');
+      expect(
+        lastCompletedDeliveryInSeason(onlyConfirmed, 'm-1', {
+          'c-1',
+        })?.deliveryId,
+        'd-1',
+      );
+    });
+
+    test('seasonMonthlyParticipationCounts', () {
+      const contract = Contract(
+        contractId: 'c-1',
+        name: 'Contrat c-1',
+        organizationId: 'org-1',
+        producerAccountId: 'producer-1',
+        minDeliveryDate: '2026-06-01',
+        maxDeliveryDate: '2026-06-30',
+        deliveryCount: 4,
+        seasonYear: 2026,
+      );
+      expect(
+        seasonMonthlyParticipationCounts(org, 'm-1', [contract], {'c-1'}),
+        [(year: 2026, month: 6, count: 2)],
+      );
     });
   });
 }

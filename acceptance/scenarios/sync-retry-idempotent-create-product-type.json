@@ -1,7 +1,7 @@
 {
   "id": "sync-retry-idempotent-create-product-type",
   "title": "Resending the same client_op_id after a lost response does not create a second entity",
-  "targets": ["server"],
+  "targets": ["server", "flutter"],
   "given": {
     "backendState": "empty",
     "appState": "fresh"

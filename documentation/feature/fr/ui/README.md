@@ -34,7 +34,7 @@ Ce dossier regroupe les spécifications UI en français, structurées par profil
 - `screen-coordinator-04-delivery-tracking.md` : suivi de livraison en temps réel
 - `screen-coordinator-05-post-delivery-sync.md` : synchronisation post-livraison
 - `screen-coordinator-06-basket-exchange.md` : échanges de paniers entre membres
-- `screen-coordinator-07-delivery-template.md` : renvoi vers la gestion des templates de livraison
+- `screen-coordinator-07-delivery-template.md` : renvoi vers la gestion des modèles de livraison
 - `screen-coordinator-08-member-contracts.md` : affectation des contrats aux amapiens
 - `screen-coordinator-09-contract-definition.md` : définition et modification des contrats de saison
 

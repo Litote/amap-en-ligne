@@ -70,11 +70,26 @@ class ProducerManagementBloc
         if (org == null) {
           return const ProducerManagementState.error(_kOrgNotFound);
         }
-        return switch (state) {
+        // A refresh (sync) only updates the organization: it must not send
+        // an enrollment in progress or an open detail back to the list.
+        final current = state;
+        return switch (current) {
           ProducerManagementListLoaded(:final statusFilter) => _buildListLoaded(
             org,
             statusFilter: statusFilter,
             preserveExplicitFilter: true,
+          ),
+          ProducerManagementDetailLoaded() => current.copyWith(
+            organization: org,
+          ),
+          ProducerManagementEnrollStep1() => current.copyWith(
+            organization: org,
+          ),
+          ProducerManagementEnrollStep2() => current.copyWith(
+            organization: org,
+          ),
+          ProducerManagementEnrollNoAccountStep2() => current.copyWith(
+            organization: org,
           ),
           _ => _buildListLoaded(org),
         };

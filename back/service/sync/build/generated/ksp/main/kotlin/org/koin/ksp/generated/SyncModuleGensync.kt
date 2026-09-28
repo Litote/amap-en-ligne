@@ -23,7 +23,8 @@ public val sync_SyncModule : Module get() = module {
 		producer.ProducerModule().module,
 		produceraccount.ProducerAccountModule().module,
 		producerrequest.ProducerRequestModule().module,
-		producttype.ProductTypeModule().module)
+		producttype.ProductTypeModule().module,
+		volunteershortage.VolunteerShortageModule().module)
 	single(createdAtStart=true) { _ -> sync.DataService(services=getAll(),changeDAO=get(),memberSyncDAO=get(),authorizedScopeResolver=get(),appliedClientOpDAO=get())} 
 	single(createdAtStart=true) { _ -> sync.ExportService(dataService=get(),organizationSyncDAO=get(),producerAccountSyncDAO=get(),productTypeDAO=get(),memberSyncDAO=get())} 
 	single(createdAtStart=true) { _ -> sync.ImportService(organizationSyncDAO=get(),producerAccountSyncDAO=get(),memberSyncDAO=get(),contractSyncDAO=get(),deliveryTemplateSyncDAO=get(),basketExchangeSyncDAO=get(),memberInvitationDAO=get(),memberJoinRequestSyncDAO=get(),productTypeDAO=get(),ownerSyncDAO=get())} 

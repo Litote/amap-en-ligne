@@ -31,8 +31,9 @@ Interface permettant aux membres d'échanger leurs paniers entre eux. L'échange
 │                                                             │
 │  📊 Mon historique                                          │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │  ✅ Échanges réussis cette année : 3                   │ │
-│  │  ✅ 31 Jan ↔ 14 Fév · Jean Martin                     │ │
+│  │  ✅ Échanges conclus cette année : 3                   │ │
+│  │  ✅ 31 Jan ↔ 14 Fév — Échangé · Jean Martin           │ │
+│  │  ⏸️ 21 Fév — Annulé par moi                            │ │
 │  │  [VOIR HISTORIQUE COMPLET]                             │ │
 │  └─────────────────────────────────────────────────────────┘ │
 │                                                             │
@@ -47,7 +48,7 @@ Interface permettant aux membres d'échanger leurs paniers entre eux. L'échange
 - **[PROPOSER UN ÉCHANGE]** : ouvre la modal de création d'une proposition (sélection de la livraison à céder + motif/disponibilités).
 - **[DEMANDER ÉCHANGE]** : ouvre la modal de demande sur un échange disponible — le demandeur y choisit **la livraison qu'il propose en retour**.
 - **[VOIR LES DEMANDES]** : écran des demandes reçues pour une proposition, avec le panier proposé en retour par chaque demandeur.
-- **[ANNULER]** : annule une proposition en cours (les demandes en attente sont automatiquement refusées).
+- **[ANNULER]** : annule une proposition en cours, après confirmation (« Annuler cette proposition ? » → **[ANNULER LA PROPOSITION]** / **[NON]**) ; les demandes en attente sont automatiquement refusées.
 - **[VOIR HISTORIQUE COMPLET]** : navigation vers l'historique détaillé (`/basket-exchange/history`, flèche retour dans l'en-tête).
 - **[VUE D'ENSEMBLE]** : tableau récapitulatif de tous les échanges en cours de l'AMAP, ouvert à tous les membres (`/basket-exchange/overview`).
 
@@ -80,6 +81,8 @@ Interface permettant aux membres d'échanger leurs paniers entre eux. L'échange
 │              [ANNULER]    [PROPOSER]                         │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+La liste des livraisons ne propose que les paniers que le membre peut céder : livraisons à venir et actives, d'un contrat (*CONTRACT*) auquel il est inscrit (inscription non annulée) et, pour un panier partagé, dont c'est son tour ; chaque livraison est libellée par le nom de **ses** contrats concernés (ex. « Mercredi 31 Jan • Légumes Bio »), jamais par les autres contrats de la livraison. La même règle s'applique au panier proposé en retour dans « Demander cet échange ». Le serveur refuse (`FORBIDDEN`) une proposition ou une contre-proposition portant sur un contrat auquel le membre n'est pas inscrit.
 
 ### Processus de demande (avec contre-livraison)
 

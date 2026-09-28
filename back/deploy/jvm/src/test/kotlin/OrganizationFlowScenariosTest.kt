@@ -2,6 +2,7 @@ package deploy.jvm
 
 import id.Id
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -11,13 +12,19 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import persistence.changes.BootstrapScopeResult
 import persistence.changes.ClientMutation
+import persistence.changes.EntityPayload
+import persistence.changes.MemberJoinRequestPayload
+import persistence.changes.MutationStatus
 import persistence.changes.OrganizationRequestPayload
+import persistence.changes.ProducerRequestPayload
 import persistence.changes.SyncRequest
 import persistence.changes.SyncResponse
 import persistence.changes.SyncScope
 import persistence.changes.Upsert
+import persistence.model.MemberJoinRequestStatus
 import persistence.model.OrganizationRequest
 import persistence.model.OrganizationRequestStatus
+import persistence.model.ProducerRequestStatus
 import serialization.json
 import java.net.URI
 import java.net.http.HttpRequest
@@ -26,6 +33,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Execution(ExecutionMode.SAME_THREAD)
@@ -42,7 +50,7 @@ class OrganizationFlowScenariosTest : JvmSyncTestSupport() {
         }
 
     private fun executeScenario(scenario: OrganizationFlowScenario) {
-        assertEquals("empty", scenario.given.backendState, "Unsupported backendState in ${scenario.id}")
+        val organizationId = applyBackendState(scenario)
 
         val savedRefs = mutableMapOf<String, String>()
         var lastResponse: HttpResponse<String>? = null
@@ -54,6 +62,7 @@ class OrganizationFlowScenariosTest : JvmSyncTestSupport() {
                 roles = listOf("OWNER"),
                 producerAccountId = null,
             )
+        val adminToken = organizationId?.let(::adminTokenFor)
 
         for (step in scenario.steps) {
             val resolvedParams =
@@ -63,9 +72,9 @@ class OrganizationFlowScenariosTest : JvmSyncTestSupport() {
 
             val response =
                 when (step.action) {
-                    "submit_organization_request" -> {
-                        val body = requireNotNull(step.request) { "submit_organization_request requires a request body in ${scenario.id}" }
-                        val resp = postRaw("/v1/organization-requests", body.toString())
+                    in PUBLIC_SUBMISSION_PATHS -> {
+                        val body = requireNotNull(step.request) { "${step.action} requires a request body in ${scenario.id}" }
+                        val resp = postRaw(PUBLIC_SUBMISSION_PATHS.getValue(step.action), body.toString())
                         if (resp.statusCode() == 201) {
                             val responseBody = json.parseToJsonElement(resp.body()).jsonObject
                             step.save?.requestIdRef?.let { ref ->
@@ -115,11 +124,62 @@ class OrganizationFlowScenariosTest : JvmSyncTestSupport() {
                         approvalResponse
                     }
 
-                    "list_organization_requests" -> {
+                    "review_producer_request" -> {
+                        val requestId = resolvedParams["requestId"] ?: error("Missing requestId param in ${scenario.id}")
+                        val status =
+                            ProducerRequestStatus.valueOf(resolvedParams["status"] ?: error("Missing status param in ${scenario.id}"))
+                        val request =
+                            postSyncWithToken(SyncRequest(), ownerToken)
+                                .bootstrapItems()
+                                .filterIsInstance<ProducerRequestPayload>()
+                                .find { it.producerRequest.requestId.id == requestId }
+                                ?.producerRequest
+                                ?: error("Producer request $requestId not found in owner snapshot for ${scenario.id}")
+                        postAppliedMutation(
+                            scenarioId = scenario.id,
+                            token = ownerToken,
+                            mutation =
+                                ClientMutation(
+                                    clientOpId = "review-$requestId",
+                                    op = Upsert(ProducerRequestPayload(request.copy(status = status))),
+                                ),
+                        )
+                    }
+
+                    "review_member_join_request" -> {
+                        val token =
+                            requireNotNull(adminToken) { "review_member_join_request needs an organization backendState in ${scenario.id}" }
+                        val requestId = resolvedParams["requestId"] ?: error("Missing requestId param in ${scenario.id}")
+                        val status =
+                            MemberJoinRequestStatus.valueOf(resolvedParams["status"] ?: error("Missing status param in ${scenario.id}"))
+                        val request =
+                            postSyncWithToken(SyncRequest(), token)
+                                .bootstrapItems()
+                                .filterIsInstance<MemberJoinRequestPayload>()
+                                .find { it.memberJoinRequest.requestId.id == requestId }
+                                ?.memberJoinRequest
+                                ?: error("Member join request $requestId not found in admin snapshot for ${scenario.id}")
+                        postAppliedMutation(
+                            scenarioId = scenario.id,
+                            token = token,
+                            mutation =
+                                ClientMutation(
+                                    clientOpId = "review-$requestId",
+                                    op = Upsert(MemberJoinRequestPayload(request.copy(status = status))),
+                                ),
+                        )
+                    }
+
+                    "list_organization_requests", "owner_sync" -> {
                         postSyncWithTokenRaw(
                             SyncRequest(cursors = emptyMap(), mutations = emptyList()),
                             ownerToken,
                         )
+                    }
+
+                    "admin_sync" -> {
+                        val token = requireNotNull(adminToken) { "admin_sync needs an organization backendState in ${scenario.id}" }
+                        postSyncWithTokenRaw(SyncRequest(), token)
                     }
 
                     else -> {
@@ -132,11 +192,80 @@ class OrganizationFlowScenariosTest : JvmSyncTestSupport() {
         val expectation =
             scenario.then.lastResponse
                 ?: error("Scenario ${scenario.id} targets organization-flow but has no lastResponse expectation")
+        val finalResponse = requireNotNull(lastResponse) { "No steps executed in ${scenario.id}" }
         assertEquals(
             expectation.statusCode,
-            requireNotNull(lastResponse) { "No steps executed in ${scenario.id}" }.statusCode(),
+            finalResponse.statusCode(),
             "Unexpected HTTP status in ${scenario.id}",
         )
+        if (expectation.snapshotContains.isNotEmpty()) {
+            val items = json.decodeFromString(SyncResponse.serializer(), finalResponse.body()).bootstrapItems()
+            expectation.snapshotContains.forEach { expected ->
+                assertTrue(
+                    items.any { it.entityType == expected.entityType && it.entityJsonContains(expected.fields) },
+                    "Snapshot in ${scenario.id} does not contain ${expected.entityType} ${expected.fields}; got " +
+                        items.filter { it.entityType == expected.entityType },
+                )
+            }
+        }
+    }
+
+    /** Returns the organization id of an `organization {id}` backend state (seeded with an ADMIN), null for `empty`. */
+    private fun applyBackendState(scenario: OrganizationFlowScenario): String? {
+        val backendState = scenario.given.backendState
+        return when {
+            backendState == "empty" -> {
+                null
+            }
+
+            backendState.startsWith(ORGANIZATION_STATE_PREFIX) -> {
+                backendState.removePrefix(ORGANIZATION_STATE_PREFIX).also(::insertOrganizationDirectly)
+            }
+
+            else -> {
+                error("Unsupported backendState `$backendState` in ${scenario.id}")
+            }
+        }
+    }
+
+    private fun adminTokenFor(organizationId: String): String {
+        val adminSub = "organization-flow-admin-$organizationId"
+        insertMemberDirectly(memberId = adminSub, organizationId = organizationId, roles = listOf("ADMIN"))
+        return mintGoTrueToken(
+            subject = adminSub,
+            email = "$adminSub@example.com",
+            roles = listOf("ADMIN"),
+            organizationId = organizationId,
+            producerAccountId = null,
+        )
+    }
+
+    /** Posts a single review mutation; a documented review step must be APPLIED for the story to continue. */
+    private fun postAppliedMutation(
+        scenarioId: String,
+        token: String,
+        mutation: ClientMutation,
+    ): HttpResponse<String> {
+        val response = postSyncWithTokenRaw(SyncRequest(mutations = listOf(mutation)), token)
+        assertEquals(200, response.statusCode(), "Unexpected review status in $scenarioId")
+        val outcome = json.decodeFromString(SyncResponse.serializer(), response.body()).mutations.single()
+        assertEquals(MutationStatus.APPLIED, outcome.status, "Review ${mutation.clientOpId} not applied in $scenarioId: $outcome")
+        return response
+    }
+
+    private fun SyncResponse.bootstrapItems(): List<EntityPayload> =
+        results.values.filterIsInstance<BootstrapScopeResult>().flatMap { it.items }
+
+    /** True when the payload's entity object (the single object-valued field next to `type`) holds every expected field. */
+    private fun EntityPayload.entityJsonContains(expectedFields: JsonObject): Boolean {
+        val entity =
+            json
+                .encodeToJsonElement(EntityPayload.serializer(), this)
+                .jsonObject
+                .values
+                .filterIsInstance<JsonObject>()
+                .single()
+        return expectedFields.all { (key, value) -> entity[key] == value }
     }
 
     private fun postRaw(
@@ -177,6 +306,16 @@ class OrganizationFlowScenariosTest : JvmSyncTestSupport() {
         return json.decodeFromString(SyncResponse.serializer(), response.body())
     }
 }
+
+private const val ORGANIZATION_STATE_PREFIX = "organization "
+
+/** Unauthenticated onboarding submissions; each answers `201` with the created `request_id`. */
+private val PUBLIC_SUBMISSION_PATHS =
+    mapOf(
+        "submit_organization_request" to "/v1/organization-requests",
+        "submit_producer_request" to "/v1/producer-requests",
+        "submit_member_join_request" to "/v1/public/member-join-requests",
+    )
 
 private fun loadOrganizationFlowScenarios(): List<OrganizationFlowScenario> =
     Files

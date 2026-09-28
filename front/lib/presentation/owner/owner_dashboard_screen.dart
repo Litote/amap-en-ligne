@@ -2,6 +2,7 @@ import 'package:amap_en_ligne/data/repositories/organization_request_repository.
 import 'package:amap_en_ligne/data/repositories/producer_request_repository.dart';
 import 'package:amap_en_ligne/domain/model/admin_organization_request.dart';
 import 'package:amap_en_ligne/domain/model/admin_producer_request.dart';
+import 'package:amap_en_ligne/presentation/auth/auth_bloc.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_status_banner.dart';
@@ -53,6 +54,8 @@ class OwnerDashboardScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   children: [
                     const SyncStatusBanner(),
+                    const _OwnerIdentityLine(),
+                    const SizedBox(height: 16),
                     _PendingRequestsCard(
                       pendingCount: stats.pendingCount,
                       onTap: () => context.go(_organizationRequestsRoute),
@@ -339,4 +342,24 @@ class _InstanceStats {
   final int activeOrganizations;
   final int requestsThisMonth;
   final int rejectedThisMonth;
+}
+
+/// Spec header line « Alice Martin (Admin Instance) »: the connected owner's
+/// name, or the role alone when the owner has not filled it in yet.
+class _OwnerIdentityLine extends StatelessWidget {
+  const _OwnerIdentityLine();
+
+  @override
+  Widget build(BuildContext context) {
+    final fullName = context.select<AuthBloc, String>(
+      (bloc) => [
+        bloc.state.firstName?.trim() ?? '',
+        bloc.state.lastName?.trim() ?? '',
+      ].where((part) => part.isNotEmpty).join(' '),
+    );
+    return Text(
+      fullName.isEmpty ? 'Admin Instance' : '$fullName (Admin Instance)',
+      style: Theme.of(context).textTheme.titleSmall,
+    );
+  }
 }

@@ -71,7 +71,7 @@ Chaque carte de livraison (*DELIVERY*) affiche :
 - **Sous-titre** : « N/M bénévoles » où N est la somme des inscriptions actuelles (`currentRegistrations`) et M la somme des bénévoles requis (`requiredVolunteers`) sur l'ensemble des livraisons (*slots*) de tous les contrats (*contracts*) de la livraison lorsqu'un détail par livraison existe ; sinon, M reprend le minimum de bénévoles configuré sur la livraison.
 - **Ligne Coordinateurs** : pour chaque livraison-contrat (*DELIVERY_CONTRACT*), affiche le nom du produit suivi de la liste des coordinateurs (séparés par `·`). Une livraison-contrat sans coordinateur affiche `—`.
 - **Bandeau d'alerte** « ⚠️ Coordinateur manquant : <produits> » : visible si au moins une livraison-contrat a `coordinators.isEmpty()` et que la livraison est encore active.
-- **Action [ME PORTER COORDINATEUR]** : visible uniquement quand la livraison est active et qu'au moins une livraison-contrat n'a pas de coordinateur. Ouvre un sélecteur permettant de choisir le contrat sur lequel se positionner. L'utilisateur connecté est ajouté à la liste `coordinators` du contrat choisi via une mutation sync (*Upsert(OrganizationPayload)*).
+- **Action [ME PORTER COORDINATEUR]** : visible uniquement quand la livraison est active et qu'au moins une livraison-contrat sans coordinateur porte un contrat dont l'utilisateur connecté fait partie des coordinateurs référents (*CONTRACT.coordinators*) — le back refuse toute autre affectation (ADR-004). Ouvre un sélecteur permettant de choisir le contrat sur lequel se positionner. L'utilisateur connecté est ajouté à la liste `coordinators` du contrat choisi via une mutation sync (*Upsert(OrganizationPayload)*).
 - **Action [Suivre]** : bouton explicite (aligné à droite, en bas de la carte) ouvrant l'écran de suivi de la distribution. Redondant avec le tap sur la carte entière, conservé pour rendre l'action visible. Cette section n'étant rendue que pour les coordinateurs (*COORDINATOR*), le bouton est par construction réservé à ce rôle.
 
 ### État de chargement
@@ -85,7 +85,7 @@ Pendant le chargement de l'organisation depuis le cache local, un `CircularProgr
 | `[➕ NOUVELLE LIVRAISON]` | `/coordinator/time-slots/new` | Navigation directe vers le formulaire de création d'une livraison dans la gestion des livraisons ([Écran 2](screen-coordinator-02-time-slots.md)) |
 | Carte de livraison | `/coordinator/tracking/:deliveryId` | Ouvre l'écran de suivi de livraison ([Écran 4](screen-coordinator-04-delivery-tracking.md)) |
 | `[Suivre]` (carte de livraison) | `/coordinator/tracking/:deliveryId` | Bouton explicite ouvrant le même écran de suivi de livraison ([Écran 4](screen-coordinator-04-delivery-tracking.md)) |
-| `[ME PORTER COORDINATEUR]` (carte de livraison) | reste sur le dashboard | Affiche un sélecteur listant les livraisons-contrats sans coordinateur, ajoute l'utilisateur connecté à `coordinators` du contrat choisi puis ferme le sélecteur |
+| `[ME PORTER COORDINATEUR]` (carte de livraison) | reste sur le dashboard | Affiche un sélecteur listant les livraisons-contrats sans coordinateur dont l'utilisateur est coordinateur référent, ajoute l'utilisateur connecté à `coordinators` du contrat choisi puis ferme le sélecteur |
 
 ## Références
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:amap_en_ligne/data/local/database.dart';
 import 'package:amap_en_ligne/domain/model/admin_organization_request.dart';
 import 'package:amap_en_ligne/domain/model/admin_producer_request.dart';
@@ -302,6 +304,56 @@ void main() {
       );
       await db.drainPendingMutations(<String>[]);
       expect((await db.readPendingMutations()).length, 1);
+    });
+  });
+
+  group('member invitations on the instance-owner scope', () {
+    MemberInvitation buildInvitation(String id, String orgId) =>
+        MemberInvitation(
+          invitationId: id,
+          organizationId: orgId,
+          email: '$id@example.com',
+          firstName: 'Alice',
+          lastName: 'Martin',
+          roles: const {},
+          status: InvitationStatus.pendingActivation,
+          createdAt: '2026-09-01T00:00:00Z',
+          expiresAt: '2026-09-08T00:00:00Z',
+        );
+
+    test('watchAllMemberInvitations lists the invitations of every '
+        'organization', () async {
+      await db.upsertMemberInvitation('org-1', buildInvitation('i-1', 'org-1'));
+      await db.upsertMemberInvitation('org-2', buildInvitation('i-2', 'org-2'));
+
+      final all = await db.watchAllMemberInvitations().first;
+
+      expect(all.map((i) => i.invitationId), unorderedEquals(['i-1', 'i-2']));
+    });
+
+    test(
+      'clearScopeData(instance-owner) drops the member invitations',
+      () async {
+        await db.upsertMemberInvitation(
+          'org-1',
+          buildInvitation('i-1', 'org-1'),
+        );
+
+        await db.clearScopeData('instance-owner');
+
+        expect(await db.watchAllMemberInvitations().first, isEmpty);
+      },
+    );
+
+    test('deleteMemberInvitationById removes the invitation whatever its '
+        'organization', () async {
+      await db.upsertMemberInvitation('org-1', buildInvitation('i-1', 'org-1'));
+      await db.upsertMemberInvitation('org-2', buildInvitation('i-2', 'org-2'));
+
+      await db.deleteMemberInvitationById('i-1');
+
+      final all = await db.watchAllMemberInvitations().first;
+      expect(all.map((i) => i.invitationId), ['i-2']);
     });
   });
 
@@ -953,6 +1005,33 @@ void main() {
           .get();
       return rows.map((row) => row.read<String>('name')).toList();
     }
+
+    test(
+      'upgrading from v3 adds cache_owners and keeps queued mutations',
+      () async {
+        final dir = Directory.systemTemp.createTempSync('amap_db_v3');
+        addTearDown(() => dir.deleteSync(recursive: true));
+        final file = File('${dir.path}/app.sqlite');
+
+        final v3 = AppDatabase(NativeDatabase(file));
+        final productType = buildProductType();
+        await v3.enqueuePendingMutation(
+          buildProductTypeUpsertMutation(productType: productType),
+          scopeKey: testProducerScopeKey,
+        );
+        await v3.customStatement('DROP TABLE cache_owners');
+        await v3.customStatement('PRAGMA user_version = 3');
+        await v3.close();
+
+        final upgraded = AppDatabase(NativeDatabase(file));
+        addTearDown(upgraded.close);
+
+        expect(await upgraded.readPendingMutations(), hasLength(1));
+        expect(await upgraded.readCacheOwner(), isNull);
+        await upgraded.writeCacheOwner('user-a');
+        expect(await upgraded.readCacheOwner(), 'user-a');
+      },
+    );
 
     for (final userVersion in [5, 42]) {
       test(

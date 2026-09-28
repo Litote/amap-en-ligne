@@ -3,6 +3,7 @@ package contract
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
+import core.ProducerScheduleProjection
 import id.generateId
 import id.toId
 import kotlinx.datetime.LocalDate
@@ -90,24 +91,14 @@ class ContractService(
         }
 
         if (persisted != null) {
-            val newMemberIds =
-                contract.members
-                    .map { it.memberId }
-                    .toSet() -
-                    persisted.members.map { it.memberId }.toSet()
-            if (newMemberIds.isNotEmpty()) {
-                val today = resolveToday(organizationId)
-                if (persisted.isEffectivelyEnded(today)) {
-                    return rejected(
-                        mutation,
-                        MutationErrorCode.CONTRACT_ENDED,
-                        "contract ${persisted.contractId.id} ended on ${persisted.maxDeliveryDate}: cannot add new member subscriptions",
-                    )
-                }
-            }
+            rejectNewMembersOnEndedContract(mutation, organizationId, persisted, contract)?.let { return it }
         }
 
-        contractSyncDAO.put(contract, buildUpsertChange(organizationId, contract))
+        contractSyncDAO.put(
+            contract,
+            buildUpsertChange(organizationId, contract),
+            upsertScheduleChanges(organizationId, existingContracts, persisted, contract),
+        )
         return applied(mutation, realId.id)
     }
 
@@ -121,10 +112,8 @@ class ContractService(
                 ?: return rejected(mutation, MutationErrorCode.FORBIDDEN, "missing organization id")
         requireAnyRole(auth, ALLOWED_ROLES, mutation, "only OWNER, ADMIN, or COORDINATOR may manage contracts")
             ?.let { return it }
-        val contract =
-            contractSyncDAO
-                .getByOrganizationId(organizationId.toId())
-                .find { it.contractId.id == op.entityId }
+        val contracts = contractSyncDAO.getByOrganizationId(organizationId.toId())
+        val contract = contracts.find { it.contractId.id == op.entityId }
         if (contract != null && contract.members.any { it.status != MemberContractStatus.CANCELLED }) {
             return rejected(mutation, MutationErrorCode.CONFLICT, "contract has active members")
         }
@@ -132,8 +121,53 @@ class ContractService(
             op.entityId.toId(),
             organizationId.toId(),
             buildDeleteChange(organizationId, op.entityId),
+            if (contract == null) emptyList() else producerScheduleChanges(organizationId, contracts, contracts - contract),
         )
         return applied(mutation, op.entityId)
+    }
+
+    private suspend fun rejectNewMembersOnEndedContract(
+        mutation: ClientMutation,
+        organizationId: String,
+        persisted: Contract,
+        contract: Contract,
+    ): MutationOutcome? {
+        val newMemberIds =
+            contract.members
+                .map { it.memberId }
+                .toSet() -
+                persisted.members.map { it.memberId }.toSet()
+        if (newMemberIds.isEmpty() || !persisted.isEffectivelyEnded(resolveToday(organizationId))) return null
+        return rejected(
+            mutation,
+            MutationErrorCode.CONTRACT_ENDED,
+            "contract ${persisted.contractId.id} ended on ${persisted.maxDeliveryDate}: cannot add new member subscriptions",
+        )
+    }
+
+    /**
+     * Only a rename or a producer change of an existing contract can alter the
+     * producers' schedules (a new contract reaches them once a delivery links it).
+     */
+    private suspend fun upsertScheduleChanges(
+        organizationId: String,
+        existingContracts: List<Contract>,
+        persisted: Contract?,
+        contract: Contract,
+    ): List<Change> {
+        if (persisted == null) return emptyList()
+        if (persisted.name == contract.name && persisted.producerAccountId == contract.producerAccountId) return emptyList()
+        return producerScheduleChanges(organizationId, existingContracts, existingContracts - persisted + contract)
+    }
+
+    /** Producers' read-only schedules affected by replacing [before] with [after]. */
+    private suspend fun producerScheduleChanges(
+        organizationId: String,
+        before: List<Contract>,
+        after: List<Contract>,
+    ): List<Change> {
+        val organization = organizationSyncDAO.getById(organizationId.toId()) ?: return emptyList()
+        return ProducerScheduleProjection.changes(organization, before, organization, after)
     }
 
     override suspend fun snapshot(auth: AuthenticatedInfo): List<ContractPayload> {

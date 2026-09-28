@@ -1,13 +1,17 @@
 import 'dart:async';
 
+import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
+import 'package:amap_en_ligne/domain/model/member_invitation.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
+import 'package:amap_en_ligne/domain/model/owner_invitation.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_list_event.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_list_state.dart';
@@ -23,12 +27,25 @@ class _Snapshot {
     required this.members,
     required this.organizations,
     required this.producerAccounts,
+    required this.ownerInvitations,
+    required this.memberInvitations,
   });
 
   final List<Owner> owners;
   final List<Member> members;
   final List<Organization> organizations;
   final List<ProducerAccount> producerAccounts;
+  final List<OwnerInvitation> ownerInvitations;
+  final List<MemberInvitation> memberInvitations;
+
+  List<UserRow> get rows => buildInstanceUserRows(
+    owners: owners,
+    members: members,
+    organizations: organizations,
+    producerAccounts: producerAccounts,
+    ownerInvitations: ownerInvitations,
+    memberInvitations: memberInvitations,
+  );
 }
 
 class UserListBloc extends Bloc<UserListEvent, UserListState> {
@@ -37,10 +54,14 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     required MemberRepository memberRepository,
     required OrganizationRepository organizationRepository,
     required ProducerAccountRepository producerAccountRepository,
+    required OwnerInvitationRepository ownerInvitationRepository,
+    required MemberInvitationRepository memberInvitationRepository,
   }) : _ownerRepo = ownerRepository,
        _memberRepo = memberRepository,
        _orgRepo = organizationRepository,
        _producerAccountRepo = producerAccountRepository,
+       _ownerInvitationRepo = ownerInvitationRepository,
+       _memberInvitationRepo = memberInvitationRepository,
        super(const UserListState.initial()) {
     on<UserListLoadRequested>(_onLoaded);
     on<UserListSearchQueryChanged>(_onSearchQueryChanged);
@@ -55,6 +76,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   final MemberRepository _memberRepo;
   final OrganizationRepository _orgRepo;
   final ProducerAccountRepository _producerAccountRepo;
+  final OwnerInvitationRepository _ownerInvitationRepo;
+  final MemberInvitationRepository _memberInvitationRepo;
 
   // Latest snapshot — updated by the combined stream, used for re-filtering.
   _Snapshot _snapshot = const _Snapshot(
@@ -62,6 +85,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     members: [],
     organizations: [],
     producerAccounts: [],
+    ownerInvitations: [],
+    memberInvitations: [],
   );
 
   Future<void> _onLoaded(
@@ -77,6 +102,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     final members = <Member>[];
     final organizations = <Organization>[];
     final producerAccounts = <ProducerAccount>[];
+    final ownerInvitations = <OwnerInvitation>[];
+    final memberInvitations = <MemberInvitation>[];
 
     final controller = StreamController<_Snapshot>();
 
@@ -85,6 +112,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       members: List.of(members),
       organizations: List.of(organizations),
       producerAccounts: List.of(producerAccounts),
+      ownerInvitations: List.of(ownerInvitations),
+      memberInvitations: List.of(memberInvitations),
     );
 
     final ownersSub = _ownerRepo.watchAll().listen((data) {
@@ -107,6 +136,20 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     });
     final producersSub = _producerAccountRepo.watchAll().listen((data) {
       producerAccounts
+        ..clear()
+        ..addAll(data);
+      if (!controller.isClosed) controller.add(snapshot());
+    });
+    final ownerInvitationsSub = _ownerInvitationRepo.watchAll().listen((data) {
+      ownerInvitations
+        ..clear()
+        ..addAll(data);
+      if (!controller.isClosed) controller.add(snapshot());
+    });
+    final memberInvitationsSub = _memberInvitationRepo.watchAll().listen((
+      data,
+    ) {
+      memberInvitations
         ..clear()
         ..addAll(data);
       if (!controller.isClosed) controller.add(snapshot());
@@ -154,6 +197,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     await membersSub.cancel();
     await orgsSub.cancel();
     await producersSub.cancel();
+    await ownerInvitationsSub.cancel();
+    await memberInvitationsSub.cancel();
     await controller.close();
   }
 
@@ -277,7 +322,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     required UserDisplayStatus? statusFilter,
     required int page,
   }) {
-    final allRows = _buildAllRows(snapshot);
+    final allRows = snapshot.rows;
     final filtered = _applyFilters(
       allRows,
       searchQuery: searchQuery,
@@ -305,58 +350,6 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       roleFilter: roleFilter,
       statusFilter: statusFilter,
     );
-  }
-
-  /// Aggregates owners + members + producer accounts into a sorted,
-  /// deduplicated list of [UserRow]s. Users identified by [identityKey] appear
-  /// at most
-  /// once; owners take precedence over member-only records, producers are
-  /// keyed by `producerAccountId`.
-  List<UserRow> _buildAllRows(_Snapshot snapshot) {
-    final organizationNamesById = {
-      for (final organization in snapshot.organizations)
-        organization.organizationId: organization.name,
-    };
-
-    // Start with all owners.
-    final byIdentityMap = <String, UserRow>{};
-    for (final owner in snapshot.owners) {
-      byIdentityMap[owner.ownerId] = userRowFromOwner(owner);
-    }
-
-    // Producer rows — keyed by producerAccountId since the wire payload does
-    // not carry a user-level identity key yet.
-    for (final pa in snapshot.producerAccounts) {
-      byIdentityMap.putIfAbsent(
-        pa.producerAccountId,
-        () => userRowFromProducerAccount(pa),
-      );
-    }
-
-    final membersByIdentity = <String, List<Member>>{};
-    for (final member in snapshot.members) {
-      membersByIdentity.putIfAbsent(member.memberId, () => []).add(member);
-    }
-
-    for (final entry in membersByIdentity.entries) {
-      final identityKey = entry.key;
-      final memberList = entry.value;
-      if (byIdentityMap.containsKey(identityKey)) continue;
-
-      final row = userRowFromMembers(memberList, organizationNamesById);
-      if (row != null) byIdentityMap[identityKey] = row;
-    }
-
-    final sorted = byIdentityMap.values.toList()
-      ..sort((a, b) {
-        final lastCmp = a.lastName.toLowerCase().compareTo(
-          b.lastName.toLowerCase(),
-        );
-        if (lastCmp != 0) return lastCmp;
-        return a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase());
-      });
-
-    return sorted;
   }
 
   List<UserRow> _applyFilters(

@@ -58,7 +58,7 @@ Interface de synchronisation des validations papier avec les données numérique
 - **[CONTACTER]** : Appel ou message au membre pour panier non récupéré
 - **[📊 GÉNÉRER RAPPORT]** : Création du rapport final de livraison
 - **[📧 RÉSUMÉ EMAIL]** : Envoi du résumé aux coordinateurs et participants
-- **[💾 ARCHIVER]** : Archivage définitif des données de la livraison
+- **[💾 ARCHIVER]** : Archivage définitif des données de la livraison (passage au statut `COMPLETED`). Désactivé avant le jour de la livraison, avec le message « La distribution pourra être clôturée à partir du {jour date}. »
 
 ### Édition des données synchronisées
 - **Statut bénévole** : Bascule entre « présent » et « absent »
@@ -74,8 +74,8 @@ Interface de synchronisation des validations papier avec les données numérique
 - **Contact membres** : Contact direct des membres n'ayant pas récupéré leur panier
 
 ### Calculs statistiques finaux
-- **Taux de présence** : Pourcentage de bénévoles présents / inscrits
-- **Taux de récupération** : Pourcentage de paniers récupérés / attendus
+- **Taux de présence** : Pourcentage de bénévoles présents / inscrits ; sans aucun inscrit, affiche « — (aucun bénévole inscrit) » plutôt que « 0% (0/0) »
+- **Taux de récupération** : Pourcentage de paniers récupérés / attendus. Les livraisons-contrats (*DELIVERY_CONTRACT*) sans aucun panier (ex. contrat encore en préparation) n'ont rien à récupérer : elles n'apparaissent pas dans le récapitulatif
 - **Incidents** : Décompte des problèmes rencontrés
 
 ## États de finalisation
@@ -92,6 +92,10 @@ Interface de synchronisation des validations papier avec les données numérique
 - **✅ Finalisée** : Toutes les données synchronisées et archivées
 - **📊 Rapportée** : Rapport généré et distribué
 - **💾 Archivée** : Données sauvegardées pour historique et statistiques
+
+## Règles métier
+
+- **Pas de clôture avant le jour de livraison** : une livraison ne peut passer au statut `COMPLETED` qu'à partir de sa date prévue (dans le fuseau de l'organisation). Le serveur refuse le passage à `COMPLETED` d'une livraison future (`INVALID_PAYLOAD`) ; une livraison déjà terminée reste modifiable.
 
 ## Actions de clôture
 

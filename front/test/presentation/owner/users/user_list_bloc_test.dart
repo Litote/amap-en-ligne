@@ -1,13 +1,18 @@
 import 'dart:async';
 
+import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
+import 'package:amap_en_ligne/domain/model/invitation_status.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
+import 'package:amap_en_ligne/domain/model/member_invitation.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
+import 'package:amap_en_ligne/domain/model/owner_invitation.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_list_bloc.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_list_event.dart';
@@ -25,6 +30,12 @@ class _MockOrganizationRepository extends Mock
 
 class _MockProducerAccountRepository extends Mock
     implements ProducerAccountRepository {}
+
+class _MockOwnerInvitationRepository extends Mock
+    implements OwnerInvitationRepository {}
+
+class _MockMemberInvitationRepository extends Mock
+    implements MemberInvitationRepository {}
 
 // ---------------------------------------------------------------------------
 // Test data helpers
@@ -152,14 +163,24 @@ void main() {
   late _MockMemberRepository memberRepo;
   late _MockOrganizationRepository orgRepo;
   late _MockProducerAccountRepository producerRepo;
+  late _MockOwnerInvitationRepository ownerInvitationRepo;
+  late _MockMemberInvitationRepository memberInvitationRepo;
 
   setUp(() {
     ownerRepo = _MockOwnerRepository();
     memberRepo = _MockMemberRepository();
     orgRepo = _MockOrganizationRepository();
     producerRepo = _MockProducerAccountRepository();
+    ownerInvitationRepo = _MockOwnerInvitationRepository();
+    memberInvitationRepo = _MockMemberInvitationRepository();
     when(
       () => producerRepo.watchAll(),
+    ).thenAnswer((_) => Stream.value(const []));
+    when(
+      () => ownerInvitationRepo.watchAll(),
+    ).thenAnswer((_) => Stream.value(const []));
+    when(
+      () => memberInvitationRepo.watchAll(),
     ).thenAnswer((_) => Stream.value(const []));
   });
 
@@ -168,6 +189,8 @@ void main() {
     memberRepository: memberRepo,
     organizationRepository: orgRepo,
     producerAccountRepository: producerRepo,
+    ownerInvitationRepository: ownerInvitationRepo,
+    memberInvitationRepository: memberInvitationRepo,
   );
 
   // ---------------------------------------------------------------------------
@@ -587,6 +610,96 @@ void main() {
     final loaded = await _awaitLoaded(bloc);
     expect(loaded.visibleRows, isEmpty);
     expect(loaded.totalCount, 0);
+    await bloc.close();
+  });
+
+  test('pending owner and member invitations are listed as invited; settled '
+      'invitations and emails that already have an account are not', () async {
+    _mockData(
+      ownerRepo: ownerRepo,
+      memberRepo: memberRepo,
+      orgRepo: orgRepo,
+      owners: [_owner()],
+      orgs: [_org()],
+    );
+    when(() => ownerInvitationRepo.watchAll()).thenAnswer(
+      (_) => Stream.value(const [
+        OwnerInvitation(
+          invitationId: 'oi-1',
+          firstName: 'Zoé',
+          lastName: 'Zed',
+          email: 'zoe@exemple.fr',
+          status: InvitationStatus.pendingActivation,
+          submittedAt: '2026-09-25T10:00:00Z',
+        ),
+        OwnerInvitation(
+          invitationId: 'oi-2',
+          firstName: 'Alice',
+          lastName: 'Martin',
+          email: 'ALICE@exemple.fr',
+          status: InvitationStatus.pendingActivation,
+          submittedAt: '2026-09-25T10:00:00Z',
+        ),
+        OwnerInvitation(
+          invitationId: 'oi-3',
+          firstName: 'Old',
+          lastName: 'Cancelled',
+          email: 'old@exemple.fr',
+          status: InvitationStatus.cancelled,
+          submittedAt: '2026-09-25T10:00:00Z',
+        ),
+      ]),
+    );
+    when(() => memberInvitationRepo.watchAll()).thenAnswer(
+      (_) => Stream.value(const [
+        MemberInvitation(
+          invitationId: 'mi-1',
+          organizationId: 'org-1',
+          email: 'julie@exemple.fr',
+          firstName: 'Julie',
+          lastName: 'Legrand',
+          roles: {Role.volunteer},
+          status: InvitationStatus.pendingActivation,
+          createdAt: '2026-09-25T10:00:00Z',
+          expiresAt: '2026-10-02T10:00:00Z',
+        ),
+      ]),
+    );
+
+    final bloc = buildBloc()..add(const UserListEvent.loaded());
+    final loaded = await _awaitSettled(bloc);
+
+    final invited = loaded.visibleRows
+        .where((r) => r.displayStatus == UserDisplayStatus.pendingInvitation)
+        .toList();
+    expect(invited.map((r) => r.displayName), ['Julie Legrand', 'Zoé Zed']);
+    expect(invited.first.memberships.single.organizationName, 'AMAP des Pins');
+    expect(loaded.totalCount, 3);
+    await bloc.close();
+  });
+
+  test('a producer without account is not a user of the instance', () async {
+    _mockData(
+      ownerRepo: ownerRepo,
+      memberRepo: memberRepo,
+      orgRepo: orgRepo,
+      producerRepo: producerRepo,
+      producerAccounts: const [
+        ProducerAccount(producerAccountId: 'pa-1', name: 'Ferme Avec Compte'),
+        ProducerAccount(
+          producerAccountId: 'pa-2',
+          name: 'Poulailler Sans Compte',
+          managementMode: ProducerManagementMode.noAccount,
+        ),
+      ],
+    );
+
+    final bloc = buildBloc()..add(const UserListEvent.loaded());
+    final loaded = await _awaitSettled(bloc);
+
+    expect(loaded.visibleRows.map((r) => r.producerAccountName), [
+      'Ferme Avec Compte',
+    ]);
     await bloc.close();
   });
 }

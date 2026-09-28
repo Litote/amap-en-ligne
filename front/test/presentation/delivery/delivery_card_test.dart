@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/delivery_template.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
@@ -5,7 +8,6 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -25,6 +27,8 @@ void main() {
     required Organization org,
     required DeliveryCardVariant variant,
     bool pendingContractActivation = false,
+    Member viewer = member,
+    List<Contract> contracts = const [],
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -32,11 +36,12 @@ void main() {
           body: SingleChildScrollView(
             child: DeliveryCard(
               delivery: delivery,
-              member: member,
+              member: viewer,
               org: org,
-              membersById: {member.memberId: member},
+              membersById: {viewer.memberId: viewer},
               variant: variant,
               pendingContractActivation: pendingContractActivation,
+              contracts: contracts,
             ),
           ),
         ),
@@ -67,6 +72,109 @@ void main() {
     expect(find.text('✅ COMPLET'), findsNothing);
   });
 
+  group('contrat en préparation', () {
+    Contract contractOf(String id, String name, ContractStatus status) =>
+        Contract(
+          contractId: id,
+          name: name,
+          organizationId: 'org-1',
+          producerAccountId: 'producer-$id',
+          minDeliveryDate: '2020-01-01',
+          maxDeliveryDate: '2100-12-31',
+          deliveryCount: 10,
+          seasonYear: 2026,
+          status: status,
+          productPrices: [ProductPrice(productTypeId: 'pt-$id')],
+        );
+
+    final contracts = [
+      contractOf('active', 'Oeufs', ContractStatus.active),
+      contractOf('prep', 'Fromages test', ContractStatus.inPreparation),
+    ];
+    final delivery = buildDelivery(
+      contracts: [
+        buildContract(contractId: 'active'),
+        buildContract(contractId: 'prep'),
+      ],
+    );
+
+    for (final variant in DeliveryCardVariant.values) {
+      testWidgets('$variant : caché à un amapien', (tester) async {
+        await pumpCard(
+          tester,
+          delivery: delivery,
+          org: buildOrg(deliveries: [delivery]),
+          variant: variant,
+          contracts: contracts,
+        );
+
+        expect(find.textContaining('Oeufs'), findsWidgets);
+        expect(find.textContaining('Fromages test'), findsNothing);
+      });
+    }
+
+    testWidgets('visible pour un coordinateur', (tester) async {
+      await pumpCard(
+        tester,
+        delivery: delivery,
+        org: buildOrg(deliveries: [delivery]),
+        variant: DeliveryCardVariant.planning,
+        contracts: contracts,
+        viewer: const Member(
+          memberId: memberId,
+          organizationId: 'org-1',
+          roles: {Role.volunteer, Role.coordinator},
+        ),
+      );
+
+      expect(find.textContaining('Fromages test'), findsOneWidget);
+    });
+  });
+
+  group('header time range ends with the standard slot', () {
+    // A full standard slot ending at 20:30, two hours being the old default.
+    Delivery deliveryEndingAt2030() {
+      final slot = buildSlot(
+        startTime: '2030-01-16T19:00:00',
+        endTime: '2030-01-16T20:30:00',
+        requiredVolunteers: 1,
+        currentRegistrations: 1,
+        status: SlotStatus.full,
+        registrations: [buildRegistration(memberId: 'volunteer-1')],
+      );
+      return buildDelivery(
+        scheduledDate: '2030-01-16T19:00:00',
+        contracts: [
+          buildContract(slots: [slot]),
+        ],
+      );
+    }
+
+    testWidgets('planning', (tester) async {
+      final delivery = deliveryEndingAt2030();
+      await pumpCard(
+        tester,
+        delivery: delivery,
+        org: buildOrg(deliveries: [delivery]),
+        variant: DeliveryCardVariant.planning,
+      );
+
+      expect(find.textContaining('• 19h00-20h30'), findsOneWidget);
+    });
+
+    testWidgets('dashboard', (tester) async {
+      final delivery = deliveryEndingAt2030();
+      await pumpCard(
+        tester,
+        delivery: delivery,
+        org: buildOrg(deliveries: [delivery]),
+        variant: DeliveryCardVariant.dashboard,
+      );
+
+      expect(find.textContaining('• 19h-20h30'), findsOneWidget);
+    });
+  });
+
   testWidgets('planning: full standard slot shows COMPLET and no register', (
     tester,
   ) async {
@@ -92,6 +200,48 @@ void main() {
 
     expect(find.text('✅ COMPLET'), findsOneWidget);
     expect(find.text("S'INSCRIRE"), findsNothing);
+  });
+
+  group('coordinateur inscrit (non compté parmi les bénévoles)', () {
+    final delivery = buildDelivery(
+      contracts: [
+        buildContract(
+          coordinators: [memberId],
+          slots: [
+            buildSlot(
+              requiredVolunteers: 2,
+              registrations: [buildRegistration(memberId: memberId)],
+            ),
+          ],
+        ),
+      ],
+    );
+
+    testWidgets('planning', (tester) async {
+      await pumpCard(
+        tester,
+        delivery: delivery,
+        org: buildOrg(deliveries: [delivery]),
+        variant: DeliveryCardVariant.planning,
+      );
+
+      expect(
+        find.text('✅ Vous êtes inscrit(e) comme coordinateur'),
+        findsOneWidget,
+      );
+      expect(find.text('✅ Vous êtes inscrit(e) comme bénévole'), findsNothing);
+    });
+
+    testWidgets('dashboard', (tester) async {
+      await pumpCard(
+        tester,
+        delivery: delivery,
+        org: buildOrg(deliveries: [delivery]),
+        variant: DeliveryCardVariant.dashboard,
+      );
+
+      expect(find.text('✅ Inscrit(e) comme coordinateur'), findsOneWidget);
+    });
   });
 
   testWidgets('dashboard: registered member sees Inscrit(e) and unregister', (
@@ -207,12 +357,23 @@ void main() {
       expect(find.text('🧺 Composition du panier'), findsOneWidget);
       // Screen readers get an actionable, emoji-free header.
       final semantics = tester.ensureSemantics();
-      final header = tester.getSemantics(
+      final headerNode = tester.getSemantics(
         find.bySemanticsLabel(RegExp(r'^Composition du panier$')),
       );
-      expect(header.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      final header = headerNode.getSemanticsData();
+      expect(header.hasAction(SemanticsAction.tap), isTrue);
+      expect(header.flagsCollection.isButton, isTrue);
+      expect(header.flagsCollection.isExpanded, Tristate.isFalse);
+      // No ancestor may block accessibility focus: the web engine then folds
+      // the header into the card's node (what ExpansionTile's live region did).
+      for (var node = headerNode.parent; node != null; node = node.parent) {
+        expect(
+          node.getSemanticsData().flagsCollection.isAccessibilityFocusBlocked,
+          isFalse,
+        );
+      }
       semantics.dispose();
-      // ExpansionTile is collapsed by default — expand it to reveal items.
+      // The section is collapsed by default — expand it to reveal items.
       await tester.tap(find.text('🧺 Composition du panier'));
       await tester.pumpAndSettle();
 
@@ -222,6 +383,32 @@ void main() {
       expect(find.text('Betteraves'), findsOneWidget);
     },
   );
+
+  testWidgets('planning: a delivery without volunteer slot (secondary '
+      'contract only) leaves no blank gap before the coordinators', (
+    tester,
+  ) async {
+    final delivery = buildDelivery(
+      scheduledDate: DateTime.now()
+          .add(const Duration(days: 7))
+          .toIso8601String()
+          .split('.')
+          .first,
+      contracts: [buildContract(slots: const [])],
+    );
+    await pumpCard(
+      tester,
+      delivery: delivery,
+      org: buildOrg(deliveries: [delivery]),
+      variant: DeliveryCardVariant.planning,
+    );
+
+    final dateBottom = tester.getRect(find.textContaining('📅')).bottom;
+    final coordinatorsTop = tester.getRect(find.text('👥 Coordinateurs :')).top;
+    // Only the regular spacing: no room reserved for the (absent) volunteer
+    // badge, counter and registration actions.
+    expect(coordinatorsTop - dateBottom, lessThanOrEqualTo(16));
+  });
 
   testWidgets('planning: no composition section when no items are described', (
     tester,

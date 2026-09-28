@@ -149,7 +149,7 @@ const _adminRoleItems = [
     route: '/admin/producers',
   ),
   NavItem(
-    label: 'Templates de livraison',
+    label: 'Modèles de livraison',
     icon: Icons.event_repeat,
     route: '/admin/delivery-templates',
   ),
@@ -204,7 +204,8 @@ const _producerItems = [
   NavItem(
     label: 'Accueil producteur',
     icon: Icons.home,
-    route: '/product-types',
+    // Dashboard: catalog, deliveries and preferences (screen-producer-01-home).
+    route: '/producer-dashboard',
   ),
 ];
 

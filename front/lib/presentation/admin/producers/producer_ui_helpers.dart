@@ -2,6 +2,7 @@ import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
+import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:flutter/material.dart';
 
 class ProducerManagementModeBadge extends StatelessWidget {
@@ -22,17 +23,31 @@ class ProducerManagementModeBadge extends StatelessWidget {
         text: colorScheme.onSurfaceVariant,
       ),
     };
-    return Chip(
-      label: Text(
-        producerManagementModeLabel(mode),
-        style: TextStyle(color: colors.text, fontSize: 12),
-      ),
+    return StatusBadge(
+      producerManagementModeLabel(mode),
+      labelStyle: TextStyle(color: colors.text, fontSize: 12),
       backgroundColor: colors.background,
-      padding: EdgeInsets.zero,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }
+
+/// Products an account-backed producer can offer in an AMAP: its account's
+/// `products` when set, otherwise its catalog — its [ProductType]s, synced
+/// read-only on the organization scope. Same rule as the back producer search.
+List<ProducerProduct> accountBackedCatalog(
+  ProducerAccount account,
+  List<ProductType> productTypes,
+) => account.products.isNotEmpty
+    ? account.products
+    : [
+        for (final productType in productTypes)
+          ProducerProduct(
+            name: productType.name,
+            productTypeId: productType.productTypeId,
+            supportedBasketSizes: productType.supportedBasketSizes,
+            description: productType.description,
+          ),
+      ];
 
 String producerManagementModeLabel(ProducerManagementMode mode) =>
     switch (mode) {
@@ -75,6 +90,9 @@ class _ManagedProducerProductDialogState
       [];
   final _formKey = GlobalKey<FormState>();
 
+  /// Why the last « Ajouter » was refused (duplicate or invalid size name).
+  String? _basketSizeError;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -90,6 +108,9 @@ class _ManagedProducerProductDialogState
           ? 'Ajouter un produit'
           : 'Modifier le produit',
     ),
+    semanticLabel: widget.initialProduct == null
+        ? 'Ajouter un produit'
+        : 'Modifier le produit',
     content: Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -156,11 +177,18 @@ class _ManagedProducerProductDialogState
                 Expanded(
                   child: TextFormField(
                     controller: _newBasketSizeController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Ajouter une taille',
                       hintText: 'Ex: Petit',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
+                      errorText: _basketSizeError,
+                      errorMaxLines: 2,
                     ),
+                    onChanged: (_) {
+                      if (_basketSizeError != null) {
+                        setState(() => _basketSizeError = null);
+                      }
+                    },
                     onFieldSubmitted: _addBasketSize,
                   ),
                 ),
@@ -189,10 +217,15 @@ class _ManagedProducerProductDialogState
     final newSize = _newBasketSizeController.text.trim();
     if (newSize.isEmpty) return;
     // Sizes are identified by name: refuse a case-insensitive duplicate (and
-    // an over-long name), same rule as the back.
-    if (basketSizesError([..._basketSizes, newSize]) != null) return;
+    // an over-long name), same rule as the back — and say why.
+    final error = basketSizesError([..._basketSizes, newSize]);
+    if (error != null) {
+      setState(() => _basketSizeError = error);
+      return;
+    }
     setState(() {
       _basketSizes.add(newSize);
+      _basketSizeError = null;
       _newBasketSizeController.clear();
     });
   }

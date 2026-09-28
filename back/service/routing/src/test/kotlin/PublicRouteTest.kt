@@ -14,6 +14,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -45,6 +46,7 @@ import persistence.model.Server
 import properties.Properties
 import sync.DataService
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -73,7 +75,6 @@ internal class PublicRouteTest {
                     PublicOrganizationSummary(
                         organizationId = "org-1".toId(),
                         name = "AMAP des Collines",
-                        contactEmail = "collines@example.com",
                         activeStatus = true,
                     ),
                 )
@@ -109,6 +110,82 @@ internal class PublicRouteTest {
                 val body = response.bodyAsText()
                 assertTrue(body.contains("org-1"))
                 assertTrue(body.contains("AMAP des Collines"))
+                assertFalse(body.contains("contact_email"))
+            }
+        }
+
+    private fun startMinimalKoin() =
+        startKoin {
+            modules(
+                module {
+                    single<DataService> { mockk(relaxed = true) }
+                    single<AuthenticationService> { mockk(relaxed = true) }
+                    single { HttpService() }
+                    single { stubInstanceConfig }
+                    single { mockk<PublicService>(relaxed = true) }
+                    single { mockk<AdminService>(relaxed = true) }
+                    single { mockk<ActivationService>(relaxed = true) }
+                    single { mockk<OwnerInvitationService>(relaxed = true) }
+                    single<ProducerAccountSyncDAO> { mockk(relaxed = true) }
+                    single<MemberSyncDAO> { mockk(relaxed = true) }
+                    single { mockk<owner.OwnerService>(relaxed = true) }
+                    single { mockk<produceraccount.ProducerAccountService>(relaxed = true) }
+                    single<Properties> { Properties.Instance }
+                },
+            )
+        }
+
+    @Test
+    fun `GIVEN a non JSON body WHEN POST member join request THEN 415 problem details without internal names`() =
+        runTest {
+            val koin = startMinimalKoin()
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val response =
+                    client.post("/v1/public/member-join-requests") {
+                        header(HttpHeaders.ContentType, ContentType.Text.Plain.toString())
+                        setBody("hello")
+                    }
+
+                assertEquals(HttpStatusCode.UnsupportedMediaType, response.status)
+                assertTrue(response.contentType()?.match(ContentType.Application.ProblemJson) == true)
+                val body = response.bodyAsText()
+                assertTrue(body.contains("urn:amap-en-ligne:problem:"), body)
+                assertFalse(body.contains("persistence."), body)
+            }
+        }
+
+    @Test
+    fun `GIVEN a known path WHEN called with another method THEN 405 problem details`() =
+        runTest {
+            val koin = startMinimalKoin()
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val response = client.get("/v1/organization-requests")
+
+                assertEquals(HttpStatusCode.MethodNotAllowed, response.status)
+                assertTrue(response.contentType()?.match(ContentType.Application.ProblemJson) == true)
+                assertTrue(response.bodyAsText().contains("urn:amap-en-ligne:problem:"))
+            }
+        }
+
+    @Test
+    fun `GIVEN an unknown path WHEN called THEN 404 problem details`() =
+        runTest {
+            val koin = startMinimalKoin()
+
+            testApplication {
+                application { dataRoutingModule(koin) }
+
+                val response = client.get("/v1/nope")
+
+                assertEquals(HttpStatusCode.NotFound, response.status)
+                assertTrue(response.contentType()?.match(ContentType.Application.ProblemJson) == true)
+                assertTrue(response.bodyAsText().contains("urn:amap-en-ligne:problem:not-found"))
             }
         }
 
@@ -568,6 +645,8 @@ internal class PublicRouteTest {
                     }
 
                 assertEquals(HttpStatusCode.BadRequest, response.status)
+                // A route's own error body is a problem document too (RFC 9457).
+                assertTrue(response.contentType()?.match(ContentType.Application.ProblemJson) == true)
                 assertTrue(response.bodyAsText().contains("INVALID_PAYLOAD"))
                 coVerify(exactly = 0) { publicService.createOrganizationRequest(any()) }
             }

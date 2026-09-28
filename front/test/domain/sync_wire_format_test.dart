@@ -242,6 +242,43 @@ void main() {
       expect(wireOf(payload), json);
     });
 
+    for (final (wire, category, type, wireType) in [
+      (
+        'VOLUNTEER_SHORTAGE',
+        NotificationCategory.volunteerShortage,
+        NotificationType.reminder,
+        'REMINDER',
+      ),
+      (
+        'VOLUNTEER_URGENT_NEED',
+        NotificationCategory.volunteerUrgentNeed,
+        NotificationType.urgent,
+        'URGENT',
+      ),
+    ]) {
+      test('Notification category $wire round-trip', () {
+        final json = {
+          'type': 'Notification',
+          'notification': {
+            'notification_id': 'notif-$wire',
+            'recipient_scope': 'member:m-1',
+            'type': wireType,
+            'category': wire,
+            'title': 'Bénévoles recherchés',
+            'body':
+                'Il manque 2 bénévoles pour la livraison du 15 octobre 2026.',
+            'deep_link': '/planning',
+            'related_entity_id': 'delivery-1',
+            'created_at': '2026-10-12T16:30:00Z',
+          },
+        };
+        final payload = EntityPayload.fromJson(json) as NotificationPayload;
+        expect(payload.notification.category, category);
+        expect(payload.notification.type, type);
+        expect(wireOf(payload), json);
+      });
+    }
+
     test('Notification category SLOT_RESCHEDULED round-trip', () {
       const json = {
         'type': 'Notification',
@@ -327,6 +364,31 @@ void main() {
       expect(inner.containsKey('active_status'), isFalse);
       // account_status is always present (non-nullable, default ACTIVE).
       expect(inner['account_status'], 'ACTIVE');
+    });
+
+    test('Member round-trips registered_at, omitted when unknown', () {
+      const json = {
+        'type': 'Member',
+        'member': {
+          'member_id': 'm-reg',
+          'organization_id': 'org-1',
+          'roles': ['VOLUNTEER'],
+          'account_status': 'ACTIVE',
+          'contracts': <Map<String, Object?>>[],
+          'registered_at': '2026-09-25T10:19:55.842Z',
+        },
+      };
+      final payload = EntityPayload.fromJson(json) as MemberPayload;
+      expect(payload.member.registeredAt, '2026-09-25T10:19:55.842Z');
+      expect(wireOf(payload), json);
+
+      final legacy = MemberPayload(
+        member: payload.member.copyWith(registeredAt: null),
+      );
+      expect(
+        (wireOf(legacy)['member'] as Map).containsKey('registered_at'),
+        isFalse,
+      );
     });
 
     test('Member discriminator round-trip with PII + accountStatus ACTIVE', () {
@@ -1144,6 +1206,53 @@ void main() {
       });
     });
 
+    group('ProducerSchedule / ProducerSchedulePayload', () {
+      // Same sample as back EntityPayloadTest (ProducerSchedulePayload).
+      const sample =
+          '{"type":"ProducerSchedule","producerSchedule":{'
+          '"organization_id":"org-1","producer_account_id":"pa-1",'
+          '"organization_name":"AMAP des Collines","deliveries":[{'
+          '"delivery_id":"d-1","scheduled_date":"2026-10-01T18:00",'
+          '"status":"PLANNED","contracts":[{"contract_id":"c-1",'
+          '"contract_name":"Fromages 2026","basket_quantity":12,'
+          '"status":"PENDING","contract_status":"ACTIVE"}]}]}}';
+
+      test('decodes the back projection', () {
+        final decoded = EntityPayload.fromJson(
+          jsonDecode(sample) as Map<String, dynamic>,
+        );
+
+        expect(decoded, isA<ProducerSchedulePayload>());
+        final schedule = (decoded as ProducerSchedulePayload).producerSchedule;
+        expect(schedule.organizationId, 'org-1');
+        expect(schedule.producerAccountId, 'pa-1');
+        expect(schedule.organizationName, 'AMAP des Collines');
+        final delivery = schedule.deliveries.single;
+        expect(delivery.deliveryId, 'd-1');
+        expect(delivery.scheduledDate, '2026-10-01T18:00');
+        expect(delivery.status, DeliveryStatus.planned);
+        expect(delivery.basketDescriptions, isEmpty);
+        final contract = delivery.contracts.single;
+        expect(contract.contractName, 'Fromages 2026');
+        expect(contract.basketQuantity, 12);
+        expect(contract.status, DeliveryContractStatus.pending);
+        expect(contract.contractStatus, ContractStatus.active);
+        expect(decoded.entityType, EntityType.producerSchedule);
+        expect(
+          entityTypeWireNames[EntityType.producerSchedule],
+          'ProducerSchedule',
+        );
+      });
+
+      test('round-trips through its wire form', () {
+        final decoded = EntityPayload.fromJson(
+          jsonDecode(sample) as Map<String, dynamic>,
+        );
+        final again = EntityPayload.fromJson(wireOf(decoded));
+        expect(again, decoded);
+      });
+    });
+
     group('ErrorReport / ErrorReportPayload', () {
       test('round-trip with all fields', () {
         const report = ErrorReport(
@@ -1583,9 +1692,6 @@ void main() {
       const json = {
         'delivery_reminders_enabled': true,
         'volunteer_alerts_enabled': false,
-        'reminder_24h_enabled': true,
-        'reminder_2h_enabled': false,
-        'reminder_30min_enabled': true,
         'urgent_need_alerts_enabled': false,
         'incomplete_slot_reminders_enabled': true,
         'planning_changes_alerts_enabled': false,
@@ -1594,9 +1700,6 @@ void main() {
       final prefs = MemberPreferences.fromJson(json);
       expect(prefs.deliveryRemindersEnabled, isTrue);
       expect(prefs.volunteerAlertsEnabled, isFalse);
-      expect(prefs.reminder24hEnabled, isTrue);
-      expect(prefs.reminder2hEnabled, isFalse);
-      expect(prefs.reminder30minEnabled, isTrue);
       expect(prefs.urgentNeedAlertsEnabled, isFalse);
       expect(prefs.incompleteSlotRemindersEnabled, isTrue);
       expect(prefs.planningChangesAlertsEnabled, isFalse);
@@ -1604,14 +1707,24 @@ void main() {
       expect(wireOf(prefs), json);
     });
 
+    test('legacy reminder keys (removed 24h/2h/30min) are ignored', () {
+      const json = {
+        'reminder_24h_enabled': true,
+        'reminder_2h_enabled': true,
+        'reminder_30min_enabled': false,
+        'last_updated_instant': '2026-05-20T10:00:00Z',
+      };
+      final prefs = MemberPreferences.fromJson(json);
+      expect(wireOf(prefs), isNot(contains('reminder_24h_enabled')));
+      expect(wireOf(prefs), isNot(contains('reminder_2h_enabled')));
+      expect(wireOf(prefs), isNot(contains('reminder_30min_enabled')));
+    });
+
     test('defaults applied when optional boolean fields are absent', () {
       const json = {'last_updated_instant': '2026-05-20T10:00:00Z'};
       final prefs = MemberPreferences.fromJson(json);
       expect(prefs.deliveryRemindersEnabled, isTrue);
       expect(prefs.volunteerAlertsEnabled, isTrue);
-      expect(prefs.reminder24hEnabled, isTrue);
-      expect(prefs.reminder2hEnabled, isTrue);
-      expect(prefs.reminder30minEnabled, isFalse);
       expect(prefs.urgentNeedAlertsEnabled, isTrue);
       expect(prefs.incompleteSlotRemindersEnabled, isFalse);
       expect(prefs.planningChangesAlertsEnabled, isTrue);
@@ -1631,9 +1744,6 @@ void main() {
             'member_preferences': {
               'delivery_reminders_enabled': true,
               'volunteer_alerts_enabled': true,
-              'reminder_24h_enabled': true,
-              'reminder_2h_enabled': true,
-              'reminder_30min_enabled': false,
               'urgent_need_alerts_enabled': true,
               'incomplete_slot_reminders_enabled': false,
               'planning_changes_alerts_enabled': true,
@@ -1644,7 +1754,10 @@ void main() {
         final payload = EntityPayload.fromJson(json);
         final member = (payload as MemberPayload).member;
         expect(member.memberPreferences, isNotNull);
-        expect(member.memberPreferences!.reminder30minEnabled, isFalse);
+        expect(
+          member.memberPreferences!.incompleteSlotRemindersEnabled,
+          isFalse,
+        );
         expect(
           member.memberPreferences!.lastUpdatedInstant,
           '2026-05-20T10:00:00Z',
@@ -1689,6 +1802,19 @@ void main() {
       expect(prefs.pushNotificationsEnabled, isFalse);
       expect(prefs.lastUpdatedInstant, '2026-05-20T11:00:00Z');
       expect(wireOf(prefs), json);
+    });
+
+    test('legacy reminder keys (removed 24h/2h/30min) are ignored', () {
+      const json = {
+        'reminder_24h_enabled': true,
+        'reminder_2h_enabled': true,
+        'reminder_30min_enabled': false,
+        'last_updated_instant': '2026-05-20T10:00:00Z',
+      };
+      final prefs = MemberPreferences.fromJson(json);
+      expect(wireOf(prefs), isNot(contains('reminder_24h_enabled')));
+      expect(wireOf(prefs), isNot(contains('reminder_2h_enabled')));
+      expect(wireOf(prefs), isNot(contains('reminder_30min_enabled')));
     });
 
     test('defaults applied when optional boolean fields are absent', () {
@@ -1979,6 +2105,24 @@ void main() {
       final encodedItem = delivery.basketDescriptions.first.items.first
           .toJson();
       expect(encodedItem, isNot(contains('image_svg')));
+    });
+
+    test('BasketDeliveryDescription carries items_updated_at, omitted when '
+        'null', () {
+      final stamped = BasketDeliveryDescription.fromJson({
+        'product_type_id': 'pt-1',
+        'basket_size_name': 'Petit',
+        'items_updated_at': '2026-10-01T11:00:00.000Z',
+      });
+      expect(stamped.itemsUpdatedAt, '2026-10-01T11:00:00.000Z');
+      expect(stamped.toJson()['items_updated_at'], '2026-10-01T11:00:00.000Z');
+      expect(
+        const BasketDeliveryDescription(
+          productTypeId: 'pt-1',
+          basketSizeName: 'Petit',
+        ).toJson(),
+        isNot(contains('items_updated_at')),
+      );
     });
 
     test('Organization round-trips the flat item_types SVG catalog', () {

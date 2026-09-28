@@ -183,6 +183,53 @@ void main() {
     },
   );
 
+  testWidgets(
+    'lists only the contracts the member subscribes to, by contract name',
+    (tester) async {
+      Contract contract(String id, String name, List<String> memberIds) =>
+          Contract(
+            contractId: id,
+            name: name,
+            organizationId: 'org-1',
+            producerAccountId: 'p-$id',
+            minDeliveryDate: '2099-01-01',
+            maxDeliveryDate: '2099-12-31',
+            deliveryCount: 10,
+            seasonYear: 2099,
+            members: [
+              for (final m in memberIds)
+                ContractMember(
+                  memberId: m,
+                  subscriptionInstant: '2099-01-01T00:00:00Z',
+                  status: ContractMemberStatus.active,
+                ),
+            ],
+          );
+      final both = _delivery(id: 'd-both').copyWith(
+        contracts: [
+          _delivery(contractId: 'c-mine').contracts.single,
+          _delivery(contractId: 'c-other').contracts.single,
+        ],
+      );
+      final notMine = _delivery(id: 'd-other', contractId: 'c-other');
+
+      await _pumpDialog(
+        tester,
+        org: _org([both, notMine]),
+        contracts: [
+          contract('c-mine', 'Oeufs automne', ['m-me']),
+          contract('c-other', 'Fromages test', ['m-someone']),
+        ],
+      );
+      await tester.tap(find.text('Choisir une livraison'));
+      await tester.pumpAndSettle();
+
+      // Only d-both is eligible, labelled with the member's own contract only.
+      expect(find.textContaining('Oeufs automne'), findsWidgets);
+      expect(find.textContaining('Fromages test'), findsNothing);
+    },
+  );
+
   testWidgets('ANNULER closes the dialog without submitting', (tester) async {
     final captured = await _pumpDialog(tester, org: _org([_delivery()]));
     expect(captured, isNull);

@@ -14,6 +14,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
 import 'package:amap_en_ligne/domain/model/owner_invitation.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
+import 'package:amap_en_ligne/domain/model/producer_schedule.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/sync/entity_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -50,6 +51,7 @@ sealed class EntityPayload {
           json,
         ),
         'ErrorReport' => ErrorReportPayload.fromJson(json),
+        'ProducerSchedule' => ProducerSchedulePayload.fromJson(json),
         final t => throw FormatException('Unknown EntityPayload type: $t'),
       };
 
@@ -456,5 +458,31 @@ abstract class ErrorReportPayload extends EntityPayload
   Map<String, dynamic> toJson() => {
     'type': 'ErrorReport',
     'errorReport': errorReport.toJson(),
+  };
+}
+
+/// Read-only projection served on the producer's feed (never sent upstream).
+@Freezed(toJson: false, fromJson: false)
+abstract class ProducerSchedulePayload extends EntityPayload
+    with _$ProducerSchedulePayload {
+  const factory ProducerSchedulePayload({
+    required ProducerSchedule producerSchedule,
+  }) = _ProducerSchedulePayload;
+  const ProducerSchedulePayload._() : super();
+
+  factory ProducerSchedulePayload.fromJson(Map<String, dynamic> json) =>
+      ProducerSchedulePayload(
+        producerSchedule: ProducerSchedule.fromJson(
+          json['producerSchedule'] as Map<String, dynamic>,
+        ),
+      );
+
+  @override
+  EntityType get entityType => EntityType.producerSchedule;
+
+  @override
+  Map<String, dynamic> toJson() => {
+    'type': 'ProducerSchedule',
+    'producerSchedule': producerSchedule.toJson(),
   };
 }

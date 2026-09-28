@@ -629,6 +629,7 @@ class _OrganizationBackupCardState extends State<_OrganizationBackupCard> {
     context: context,
     builder: (context) => AlertDialog(
       title: const Text('Import réussi avec avertissements'),
+      semanticLabel: 'Import réussi avec avertissements',
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -857,43 +858,6 @@ class _NotificationsCard extends StatelessWidget {
               'Notifications bénévolat',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const _SectionLabel("Rappels d'inscription"),
-            CheckboxListTile(
-              value: mp.reminder24hEnabled,
-              onChanged: (v) => context.read<UserPreferencesBloc>().add(
-                UserPreferencesEvent.reminderToggled(
-                  ReminderField.reminder24h,
-                  value: v ?? mp.reminder24hEnabled,
-                ),
-              ),
-              title: const Text('Rappel 24h avant le créneau'),
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
-            ),
-            CheckboxListTile(
-              value: mp.reminder2hEnabled,
-              onChanged: (v) => context.read<UserPreferencesBloc>().add(
-                UserPreferencesEvent.reminderToggled(
-                  ReminderField.reminder2h,
-                  value: v ?? mp.reminder2hEnabled,
-                ),
-              ),
-              title: const Text('Rappel 2h avant le créneau'),
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
-            ),
-            CheckboxListTile(
-              value: mp.reminder30minEnabled,
-              onChanged: (v) => context.read<UserPreferencesBloc>().add(
-                UserPreferencesEvent.reminderToggled(
-                  ReminderField.reminder30min,
-                  value: v ?? mp.reminder30minEnabled,
-                ),
-              ),
-              title: const Text('Rappel 30min avant le créneau'),
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
-            ),
             const _SectionLabel("Alertes d'urgence"),
             CheckboxListTile(
               value: mp.urgentNeedAlertsEnabled,
@@ -904,6 +868,7 @@ class _NotificationsCard extends StatelessWidget {
                 ),
               ),
               title: const Text('Notifier si besoin urgent de bénévoles'),
+              subtitle: const Text('La veille, si un créneau reste incomplet'),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,
             ),
@@ -916,8 +881,9 @@ class _NotificationsCard extends StatelessWidget {
                 ),
               ),
               title: const Text(
-                'Rappels pour manque de volontaire(s) sur la livraison',
+                'Rappels pour manque de bénévole(s) sur la livraison',
               ),
+              subtitle: const Text('3 jours avant la livraison'),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,
             ),

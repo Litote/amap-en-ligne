@@ -164,6 +164,30 @@ void main() {
       },
     );
 
+    test('memberMayOfferBasketOn requires a non-cancelled subscription', () {
+      final ordered = contractDeliveriesOrdered(org, 'c-1');
+      ContractMember sub(String id, ContractMemberStatus status) =>
+          ContractMember(
+            memberId: id,
+            subscriptionInstant: '2026-01-01T00:00:00Z',
+            status: status,
+          );
+      final subscribed = contract.copyWith(
+        members: [
+          sub('a', ContractMemberStatus.active),
+          sub('b', ContractMemberStatus.active),
+          sub('x', ContractMemberStatus.cancelled),
+        ],
+      );
+      // Subscribed and their turn.
+      expect(memberMayOfferBasketOn(subscribed, ordered, 'd0', 'a'), isTrue);
+      // Subscribed but the co-sharer's turn.
+      expect(memberMayOfferBasketOn(subscribed, ordered, 'd1', 'a'), isFalse);
+      // Not subscribed, or cancelled subscription.
+      expect(memberMayOfferBasketOn(subscribed, ordered, 'd0', 'z'), isFalse);
+      expect(memberMayOfferBasketOn(subscribed, ordered, 'd0', 'x'), isFalse);
+    });
+
     test('coSharersFor excludes the member', () {
       expect(coSharersFor(contract, 'a'), ['b']);
       expect(coSharersFor(contract, 'z'), isEmpty);

@@ -83,6 +83,25 @@ void main() {
     ).thenAnswer((_) async {});
   });
 
+  testWidgets(
+    'shows a not-found message instead of throwing when the product type is '
+    'no longer cached (e.g. cache cleared on logout)',
+    (tester) async {
+      when(
+        () => repo.watch(_tenantId),
+      ).thenAnswer((_) => Stream.value(const <ProductType>[]));
+
+      await tester.pumpWidget(
+        _buildScreen(repo: repo, syncBloc: syncBloc, productTypeId: 'gone'),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Type de produit introuvable.'), findsOneWidget);
+    },
+  );
+
   group('create mode', () {
     testWidgets(
       'the required error disappears as soon as the name is typed after a '

@@ -19,12 +19,16 @@ import 'package:amap_en_ligne/domain/model/organization_member_view.dart'
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
 import 'package:amap_en_ligne/domain/validation/delivery_rules.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/common/app_time_picker.dart';
+import 'package:amap_en_ligne/presentation/common/date_picker_field.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_ended_listener.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/coordinator/missing_coordinator_listener.dart';
+import 'package:amap_en_ligne/presentation/coordinator/time_slots/delivery_deletion.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slot_form_basket_composition_block.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slot_form_coordinator_block.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slot_form_slot_conflict_listener.dart';
@@ -37,7 +41,6 @@ import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 /// Slot-time override values passed to [_withDefaultSlots] and
 /// [_withRewrittenSlots]. Grouped into a single record to keep both functions
@@ -115,6 +118,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
       initialDate: _scheduledDate ?? DateTime.now(),
       firstDate: DateTime.now().subtract(const Duration(days: 1)),
       lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
+      helpText: datePickerHelpText,
     );
     if (picked != null) {
       setState(() => _scheduledDate = picked);
@@ -234,15 +238,26 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
     });
   }
 
+  /// Toggles [contractId]; checking a contract also checks its products so a
+  /// newly linked contract is present in the delivery's basket descriptions.
   void _toggleContractSelection(
     String contractId,
     bool selected,
-    Set<String> effectiveSelection,
-  ) {
+    Set<String> effectiveSelection, {
+    required Organization organization,
+    required List<Contract> contracts,
+  }) {
     setState(() {
       final next = {...effectiveSelection};
       if (selected) {
         next.add(contractId);
+        for (final contract in contracts) {
+          if (contract.contractId != contractId) continue;
+          _selectedProductTypeIds = {
+            ..._selectedProductTypeIds,
+            ..._allowedProductTypeIdsForContract(organization, contract),
+          };
+        }
       } else {
         next.remove(contractId);
       }
@@ -294,17 +309,20 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
     return producerAccountId;
   }
 
-  /// Products offered for selection: when the org has at least one active
-  /// contract, only the products of the selected contracts — those referenced
-  /// by the contract's productPrices, or every product of the contract's
-  /// producer for a legacy contract without any price entry. Otherwise (org
-  /// without contracts) every org product, as before.
+  /// Products offered for selection: when the org has contracts, only the
+  /// products of the selected active contracts — those referenced by the
+  /// contract's productPrices, or every product of the contract's producer
+  /// for a legacy contract without any price entry (none when no contract
+  /// applies at the date). An org without any contract offers every product.
   List<OrgProduct> _visibleProductsForContracts(
     Organization organization,
+    List<Contract> allContracts,
     List<Contract> activeContracts,
     Set<String> selectedContractIds,
   ) {
-    if (activeContracts.isEmpty) return organization.products;
+    // The whole catalog is only the fallback of an AMAP without any contract:
+    // contracts that do not apply (yet) at the date offer no product.
+    if (allContracts.isEmpty) return organization.products;
     final allowed = <String>{};
     for (final contract in activeContracts) {
       if (selectedContractIds.contains(contract.contractId)) {
@@ -326,29 +344,75 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
   /// [contractName] carries every org product (flat list, as the spec's
   /// no-contract fallback). Otherwise one group per checked contract holds the
   /// products allowed by that contract; a product shared by several contracts
-  /// appears under each (the selection — keyed by product-type id — is shared).
+  /// is listed once, in the first group, whose header then names every
+  /// contract bringing it (« A · B »).
   List<({String? contractName, List<OrgProduct> products})>
   _visibleProductGroups(
     Organization organization,
+    List<Contract> allContracts,
     List<Contract> activeContracts,
     Set<String> selectedContractIds,
   ) {
-    if (activeContracts.isEmpty) {
+    if (allContracts.isEmpty) {
       return [(contractName: null, products: organization.products)];
     }
-    final groups = <({String? contractName, List<OrgProduct> products})>[];
+    final names = <List<String>>[];
+    final productsByGroup = <List<OrgProduct>>[];
+    final groupOfProduct = <String, int>{};
     for (final contract in activeContracts) {
       if (!selectedContractIds.contains(contract.contractId)) continue;
-      final allowed = _allowedProductTypeIdsForContract(organization, contract);
-      // Iterate the org catalog to keep a stable order within each group.
-      final products = [
-        for (final product in organization.products)
-          if (allowed.contains(product.productTypeId)) product,
-      ];
-      if (products.isEmpty) continue;
-      groups.add((contractName: contract.name, products: products));
+      _addContractProductGroup(
+        contract,
+        _productsOfContract(organization, contract),
+        names,
+        productsByGroup,
+        groupOfProduct,
+      );
     }
-    return groups;
+    return [
+      for (var i = 0; i < productsByGroup.length; i++)
+        (contractName: names[i].join(' · '), products: productsByGroup[i]),
+    ];
+  }
+
+  /// Org products allowed by [contract], in the org catalog order (stable
+  /// order within each group).
+  List<OrgProduct> _productsOfContract(
+    Organization organization,
+    Contract contract,
+  ) {
+    final allowed = _allowedProductTypeIdsForContract(organization, contract);
+    return [
+      for (final product in organization.products)
+        if (allowed.contains(product.productTypeId)) product,
+    ];
+  }
+
+  /// Merges [contract]'s [products] into the groups being built by
+  /// [_visibleProductGroups]: names the contract on every group already
+  /// listing one of its products, then opens a new group for the products not
+  /// listed yet.
+  static void _addContractProductGroup(
+    Contract contract,
+    List<OrgProduct> products,
+    List<List<String>> names,
+    List<List<OrgProduct>> productsByGroup,
+    Map<String, int> groupOfProduct,
+  ) {
+    for (final index in {
+      for (final p in products) ?groupOfProduct[p.productTypeId],
+    }) {
+      names[index].add(contract.name);
+    }
+    final newProducts = products
+        .where((p) => !groupOfProduct.containsKey(p.productTypeId))
+        .toList();
+    if (newProducts.isEmpty) return;
+    for (final p in newProducts) {
+      groupOfProduct[p.productTypeId] = productsByGroup.length;
+    }
+    names.add([contract.name]);
+    productsByGroup.add(newProducts);
   }
 
   /// Product-type ids allowed by [contract]: those referenced by its product
@@ -912,6 +976,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
     );
     final products = _visibleProductsForContracts(
       org,
+      contracts,
       activeContracts,
       selectedContractIds,
     );
@@ -960,7 +1025,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
         await orgRepo.updateDelivery(currentOrg: org, delivery: updated);
       } else {
         final delivery = Delivery(
-          deliveryId: idGen.nextTmpId(),
+          deliveryId: newDeliveryId(idGen.next()),
           organizationId: org.organizationId,
           scheduledDate: scheduled.toIso8601String(),
           status: DeliveryStatus.planned,
@@ -989,11 +1054,32 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
         await orgRepo.addDelivery(currentOrg: org, delivery: delivery);
       }
       syncBloc.add(const SyncEvent.mutationApplied());
-      if (mounted) context.pop();
+      // Opened by its URL (reload, shared link), the form has nothing to pop.
+      if (mounted) backToDeliveryList(context);
     } on Object catch (e, stackTrace) {
       if (mounted) {
         showUnexpectedErrorSnackBar(context, e, stackTrace);
       }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _delete(Organization org, Delivery delivery) async {
+    if (!await confirmDeliveryDeletion(context, delivery)) return;
+    if (!mounted) return;
+    final orgRepo = context.read<OrganizationRepository>();
+    final syncBloc = context.read<SyncBloc>();
+    setState(() => _saving = true);
+    try {
+      await orgRepo.deleteDelivery(
+        currentOrg: org,
+        deliveryId: delivery.deliveryId,
+      );
+      syncBloc.add(const SyncEvent.mutationApplied());
+      if (mounted) backToDeliveryList(context);
+    } on Object catch (e, stackTrace) {
+      if (mounted) showUnexpectedErrorSnackBar(context, e, stackTrace);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -1069,6 +1155,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text("Modifier l'horaire ?"),
+        semanticLabel: "Modifier l'horaire ?",
         content: Text(
           '$activeCount inscrit(s) seront notifiés du changement '
           "d'horaire.",
@@ -1116,6 +1203,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
     ]..sort((a, b) => a.label.compareTo(b.label));
     final productGroups = _visibleProductGroups(
       org,
+      contracts,
       activeContracts,
       selectedContractIds,
     );
@@ -1131,6 +1219,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
     return ContractEndedListener(
       child: MissingCoordinatorListener(
         org: org,
+        contracts: contracts,
         child: SlotConflictListener(
           child: _FormBody(
             formKey: _formKey,
@@ -1140,12 +1229,15 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
             hasMissingSelectedTemplate:
                 _selectedDeliveryTemplateId != null && !selectedTemplateExists,
             contractOptions: contractOptions,
+            hasSeasonContracts: contracts.isNotEmpty,
             selectedContractIds: selectedContractIds,
             onContractSelectionChanged: (contractId, {required selected}) =>
                 _toggleContractSelection(
                   contractId,
                   selected,
                   selectedContractIds,
+                  organization: org,
+                  contracts: contracts,
                 ),
             productGroups: productGroups,
             selectedProductTypeIds: _selectedProductTypeIds,
@@ -1172,6 +1264,9 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
               onPickEarlyArrival: _pickEarlyArrivalTime,
             ),
             onSubmit: () => _submit(org, contracts, templates),
+            onDelete: existingDelivery == null
+                ? null
+                : () => _delete(org, existingDelivery),
             // Coordinator block data
             existingDelivery: existingDelivery,
             previewContractNames: previewContractNames,
@@ -1307,6 +1402,7 @@ class _FormBody extends StatelessWidget {
     required this.selectedDeliveryTemplateId,
     required this.hasMissingSelectedTemplate,
     required this.contractOptions,
+    required this.hasSeasonContracts,
     required this.selectedContractIds,
     required this.onContractSelectionChanged,
     required this.productGroups,
@@ -1322,6 +1418,7 @@ class _FormBody extends StatelessWidget {
     required this.onMinVolunteersChanged,
     required this.slotTimesBlock,
     required this.onSubmit,
+    required this.onDelete,
     required this.existingDelivery,
     required this.previewContractNames,
     required this.org,
@@ -1341,6 +1438,10 @@ class _FormBody extends StatelessWidget {
   /// producer's display name. Empty when the org has no active contract —
   /// the contract section is then hidden.
   final List<({String id, String label})> contractOptions;
+
+  /// Whether the org has any season contract at all: when it has some but
+  /// none covers the chosen date, the section says so instead of vanishing.
+  final bool hasSeasonContracts;
   final Set<String> selectedContractIds;
   final void Function(String contractId, {required bool selected})
   onContractSelectionChanged;
@@ -1363,6 +1464,9 @@ class _FormBody extends StatelessWidget {
   /// Editable per-delivery slot-time overrides (arrival / end / early slot).
   final Widget slotTimesBlock;
   final VoidCallback onSubmit;
+
+  /// Deletes the edited delivery (after confirmation); null at creation.
+  final VoidCallback? onDelete;
 
   /// The delivery being edited (null in creation mode).
   final Delivery? existingDelivery;
@@ -1448,6 +1552,19 @@ class _FormBody extends StatelessWidget {
                     )
                   : const Text('Enregistrer'),
             ),
+            if (onDelete != null) ...[
+              const SizedBox(height: 12),
+              // Also reachable here, not only by swiping the card of the
+              // delivery list (hidden gesture, no keyboard/screen-reader path).
+              OutlinedButton.icon(
+                onPressed: saving ? null : onDelete,
+                icon: const Icon(Icons.delete_outline),
+                label: const Text('Supprimer la livraison'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -1461,7 +1578,7 @@ class _FormBody extends StatelessWidget {
         title: Text(
           scheduledDate == null
               ? 'Sélectionner une date'
-              : '${scheduledDate!.day}/${scheduledDate!.month}/${scheduledDate!.year}',
+              : frenchDateFormat('EEEE d MMMM yyyy').format(scheduledDate!),
         ),
         leading: const Icon(Icons.calendar_today),
         onTap: onPickDate,
@@ -1513,15 +1630,17 @@ class _FormBody extends StatelessWidget {
     keyboardType: TextInputType.number,
     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
     validator: (v) {
-      if (v == null || v.isEmpty) return 'Champ obligatoire';
+      if (v == null || v.isEmpty) return kFieldRequiredMessage;
       final n = int.tryParse(v);
-      if (n == null || n < 1) return 'Valeur invalide';
+      if (n == null || n < 1) return kPositiveCountMessage;
       return null;
     },
   );
 
   Widget _buildContractsSection(BuildContext context) {
-    if (contractOptions.isEmpty) return const SizedBox.shrink();
+    if (contractOptions.isEmpty && !hasSeasonContracts) {
+      return const SizedBox.shrink();
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1531,6 +1650,15 @@ class _FormBody extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
+        if (contractOptions.isEmpty)
+          Text(
+            'Aucun contrat ne couvre cette date : vérifiez les dates de '
+            'première et de dernière livraison des contrats dans « Gestion '
+            'des contrats ».',
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+          ),
         ...contractOptions.map(
           (option) => CheckboxListTile(
             value: selectedContractIds.contains(option.id),

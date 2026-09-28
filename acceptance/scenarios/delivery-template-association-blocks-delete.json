@@ -1,9 +1,136 @@
 {
   "id": "delivery-template-association-blocks-delete",
   "title": "A synced delivery keeps its delivery_template_id so the admin sees template associations and future-linked templates cannot be deleted",
-  "targets": ["flutter"],
+  "targets": [
+    "server",
+    "flutter"
+  ],
   "given": {
-    "backendState": "organization exists and admin can sync its organization scope",
-    "appState": "fresh organization cache"
+    "backendState": "organization org-1",
+    "appState": "fresh"
+  },
+  "when": [
+    {
+      "actor": "client",
+      "action": "sync",
+      "as": "admin:org-1",
+      "save": {
+        "cursorRefs": {
+          "organization:org-1": "orgCursor",
+          "member:acceptance-admin-org-1": "memberFeedCursor"
+        },
+        "entityIdRefs": {
+          "op-create-template": "templateId"
+        }
+      },
+      "request": {
+        "cursors": {},
+        "mutations": [
+          {
+            "client_op_id": "op-create-template",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "DeliveryTemplate",
+                "deliveryTemplate": {
+                  "delivery_template_id": "tmp_template",
+                  "organization_id": "org-1",
+                  "name": "Jeudi soir",
+                  "standard_start_time": "18:00",
+                  "standard_end_time": "20:00",
+                  "desired_volunteer_count": 2
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "as": "admin:org-1",
+      "save": {
+        "cursorRefs": {
+          "organization:org-1": "orgCursor2",
+          "member:acceptance-admin-org-1": "memberFeedCursor2"
+        }
+      },
+      "request": {
+        "cursors": {
+          "organization:org-1": "$ref:orgCursor",
+          "member:acceptance-admin-org-1": "$ref:memberFeedCursor"
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-link-delivery",
+            "op": {
+              "type": "Upsert",
+              "payload": {
+                "type": "Organization",
+                "organization": {
+                  "organization_id": "org-1",
+                  "name": "Test Organization",
+                  "contact_email": "test@example.com",
+                  "active_status": true,
+                  "timezone": "Europe/Paris",
+                  "default_language": "fr",
+                  "created_instant": "2025-01-01T00:00:00Z",
+                  "last_updated_instant": "2025-01-01T00:00:00Z",
+                  "producers": [],
+                  "products": [],
+                  "deliveries": [
+                    {
+                      "delivery_id": "delivery-1",
+                      "organization_id": "org-1",
+                      "scheduled_date": "2099-06-15T18:00:00",
+                      "status": "PLANNED",
+                      "min_volunteers_required": 2,
+                      "delivery_template_id": "$ref:templateId",
+                      "contracts": []
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "as": "admin:org-1",
+      "request": {
+        "cursors": {
+          "organization:org-1": "$ref:orgCursor2",
+          "member:acceptance-admin-org-1": "$ref:memberFeedCursor2"
+        },
+        "mutations": [
+          {
+            "client_op_id": "op-delete-template",
+            "op": {
+              "type": "Delete",
+              "entity_type": "DeliveryTemplate",
+              "entity_id": "$ref:templateId"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-delete-template",
+          "status": "REJECTED",
+          "error": {
+            "code": "CONFLICT"
+          }
+        }
+      ]
+    }
   }
 }

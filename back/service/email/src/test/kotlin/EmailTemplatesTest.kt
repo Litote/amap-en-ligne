@@ -70,6 +70,18 @@ internal class EmailTemplatesTest {
     }
 
     @Test
+    fun `GIVEN expiry on the first of the month WHEN rendered THEN the day reads 1er`() {
+        // 2023-12-01T09:00:00Z = 2023-12-01 10h00 (Europe/Paris)
+        val content =
+            EmailTemplates.organizationActivation(
+                request = organizationRequest(),
+                activationUrl = "https://amap.example/activate?token=tok-first",
+                expiresAt = Instant.parse("2023-12-01T09:00:00Z"),
+            )
+        assertContains(content.body, "1er décembre 2023 à 10h00")
+    }
+
+    @Test
     fun `GIVEN member invitation WHEN rendered THEN body carries the activation link`() {
         val content =
             EmailTemplates.memberInvitation(
@@ -291,6 +303,76 @@ internal class EmailTemplatesTest {
         assertContains(content.body, "Claire Brun")
         assertContains(content.body, "claire@example.org")
         assertContains(content.body, "Légumes bio")
+    }
+
+    @Test
+    fun `GIVEN completed and cancelled registrations WHEN attendanceSheets rendered THEN only the non-cancelled ones are listed`() {
+        val base = buildDeliveryWithVolunteer()
+        val slot =
+            base.contracts
+                .single()
+                .slots
+                .single()
+        val template = slot.registrations.single()
+        val delivery =
+            base.copy(
+                contracts =
+                    listOf(
+                        base.contracts.single().copy(
+                            slots =
+                                listOf(
+                                    slot.copy(
+                                        registrations =
+                                            listOf(
+                                                template.copy(
+                                                    memberId = "m-2".toId(),
+                                                    displayName = "Paul Importé",
+                                                    status = RegistrationStatus.COMPLETED,
+                                                ),
+                                                template.copy(
+                                                    memberId = "m-3".toId(),
+                                                    displayName = "Anne Absente",
+                                                    status = RegistrationStatus.CANCELLED,
+                                                ),
+                                            ),
+                                    ),
+                                ),
+                        ),
+                    ),
+            )
+
+        val content = EmailTemplates.attendanceSheets(buildOrganization(), delivery)
+
+        assertContains(content.body, "Paul Importé")
+        assertFalse(content.body.contains("Anne Absente"))
+    }
+
+    @Test
+    fun `GIVEN a delivery coordinator registered on a slot WHEN attendanceSheets rendered THEN only volunteers are listed`() {
+        val base = buildDeliveryWithVolunteer()
+        val link = base.contracts.single()
+        val slot = link.slots.single()
+        val volunteer = slot.registrations.single()
+        val coordinator =
+            volunteer.copy(
+                memberId = "m-coord".toId(),
+                displayName = "Chef Coordinatrice",
+            )
+        val delivery =
+            base.copy(
+                contracts =
+                    listOf(
+                        link.copy(
+                            coordinators = listOf("m-coord".toId()),
+                            slots = listOf(slot.copy(registrations = listOf(volunteer, coordinator))),
+                        ),
+                    ),
+            )
+
+        val content = EmailTemplates.attendanceSheets(buildOrganization(), delivery)
+
+        assertContains(content.body, "Claire Brun")
+        assertFalse(content.body.contains("Chef Coordinatrice"))
     }
 
     @Test

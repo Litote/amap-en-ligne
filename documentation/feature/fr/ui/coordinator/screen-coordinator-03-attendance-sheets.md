@@ -85,7 +85,7 @@ Interface de génération des feuilles d'émargement pour validation des présen
   - Case « Présent »
   - Case « Absent »
   - Case signature (validation présence)
-- **Données** : Liste des MEMBER_SLOT confirmés pour la DELIVERY. Les coordinateurs (*COORDINATOR*) de la livraison sont exclus de cette liste (onglet « Bénévoles » et page PDF), même s'ils se sont inscrits sur un créneau — ils ne sont pas comptés comme bénévoles.
+- **Données** : Liste des MEMBER_SLOT confirmés pour la DELIVERY. Les coordinateurs (*COORDINATOR*) de la livraison sont exclus de cette liste (onglet « Bénévoles » et page PDF), même s'ils se sont inscrits sur un créneau — ils ne sont pas comptés comme bénévoles. Sans aucun bénévole inscrit, l'onglet et la page PDF affichent « Aucun bénévole inscrit. » (pas de tableau vide).
 
 ### Feuille récupération paniers
 - **Organisation par producteur** : Sections séparées pour chaque PRODUCER
@@ -96,7 +96,7 @@ Interface de génération des feuilles d'émargement pour validation des présen
   - Récupéré par (en cas d'échange de panier confirmé)
   - Case signature ou validation de récupération
 - **Données** : Liste des CONTRACT actifs pour la date de livraison
-- **Paniers échangés** : lorsqu'un échange de panier (*BASKET_EXCHANGE*) est confirmé pour cette livraison, la ligne du propriétaire du panier porte la mention « 🔄 Échange — à remettre à {membre} » (et la colonne « Récupéré par » dans le PDF). Cela couvre les deux côtés du troc : la livraison offerte (le panier de l'offreur est récupéré par le demandeur retenu) et la contre-livraison (le panier du demandeur est récupéré par l'offreur).
+- **Paniers échangés** : lorsqu'un échange de panier (*BASKET_EXCHANGE*) est confirmé pour cette livraison, la ligne du propriétaire du panier porte la mention « 🔄 Échange — à remettre à {membre} » (et la colonne « Récupéré par » dans le PDF). Cela couvre les deux côtés du troc : la livraison offerte (le panier de l'offreur est récupéré par le demandeur retenu) et la contre-livraison (le panier du demandeur est récupéré par l'offreur). Seul le panier du contrat échangé est concerné (contrat offert d'un côté, contrat proposé en retour de l'autre) : les paniers des autres contrats du membre ce jour-là restent à son nom.
 
 ### Statistiques d'aide
 - **Bénévoles inscrits** : Nombre total de MEMBER_SLOT confirmés
@@ -106,7 +106,7 @@ Interface de génération des feuilles d'émargement pour validation des présen
 ## Processus de génération
 
 ### Étapes de génération
-1. **Sélection créneau** : Choix de la DELIVERY cible
+1. **Sélection créneau** : Choix de la DELIVERY cible — à l'ouverture, la prochaine livraison non annulée (à partir d'aujourd'hui) est présélectionnée, à défaut la plus récente ; les bénévoles listés sont tous les inscrits non absents (statut `REGISTERED`, `CONFIRMED` = présent, ou `COMPLETED` pour les données importées), hors coordinateurs de la livraison
 2. **Configuration types** : Sélection des feuilles nécessaires
 3. **Paramétrage format** : Options d'impression et de mise en page
 4. **Prévisualisation** : Vérification avant génération finale

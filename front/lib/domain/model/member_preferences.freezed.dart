@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MemberPreferences {
 
-@JsonKey(name: 'delivery_reminders_enabled') bool get deliveryRemindersEnabled;@JsonKey(name: 'volunteer_alerts_enabled') bool get volunteerAlertsEnabled;@JsonKey(name: 'reminder_24h_enabled') bool get reminder24hEnabled;@JsonKey(name: 'reminder_2h_enabled') bool get reminder2hEnabled;@JsonKey(name: 'reminder_30min_enabled') bool get reminder30minEnabled;@JsonKey(name: 'urgent_need_alerts_enabled') bool get urgentNeedAlertsEnabled;@JsonKey(name: 'incomplete_slot_reminders_enabled') bool get incompleteSlotRemindersEnabled;@JsonKey(name: 'planning_changes_alerts_enabled') bool get planningChangesAlertsEnabled;@JsonKey(name: 'last_updated_instant') String get lastUpdatedInstant;
+@JsonKey(name: 'delivery_reminders_enabled') bool get deliveryRemindersEnabled;@JsonKey(name: 'volunteer_alerts_enabled') bool get volunteerAlertsEnabled;@JsonKey(name: 'urgent_need_alerts_enabled') bool get urgentNeedAlertsEnabled;@JsonKey(name: 'incomplete_slot_reminders_enabled') bool get incompleteSlotRemindersEnabled;@JsonKey(name: 'planning_changes_alerts_enabled') bool get planningChangesAlertsEnabled;@JsonKey(name: 'last_updated_instant') String get lastUpdatedInstant;
 /// Create a copy of MemberPreferences
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $MemberPreferencesCopyWith<MemberPreferences> get copyWith => _$MemberPreference
 @override
 bool operator ==(Object other) {
   final _this = this as MemberPreferences;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberPreferences&&(identical(other.deliveryRemindersEnabled, _this.deliveryRemindersEnabled) || other.deliveryRemindersEnabled == _this.deliveryRemindersEnabled)&&(identical(other.volunteerAlertsEnabled, _this.volunteerAlertsEnabled) || other.volunteerAlertsEnabled == _this.volunteerAlertsEnabled)&&(identical(other.reminder24hEnabled, _this.reminder24hEnabled) || other.reminder24hEnabled == _this.reminder24hEnabled)&&(identical(other.reminder2hEnabled, _this.reminder2hEnabled) || other.reminder2hEnabled == _this.reminder2hEnabled)&&(identical(other.reminder30minEnabled, _this.reminder30minEnabled) || other.reminder30minEnabled == _this.reminder30minEnabled)&&(identical(other.urgentNeedAlertsEnabled, _this.urgentNeedAlertsEnabled) || other.urgentNeedAlertsEnabled == _this.urgentNeedAlertsEnabled)&&(identical(other.incompleteSlotRemindersEnabled, _this.incompleteSlotRemindersEnabled) || other.incompleteSlotRemindersEnabled == _this.incompleteSlotRemindersEnabled)&&(identical(other.planningChangesAlertsEnabled, _this.planningChangesAlertsEnabled) || other.planningChangesAlertsEnabled == _this.planningChangesAlertsEnabled)&&(identical(other.lastUpdatedInstant, _this.lastUpdatedInstant) || other.lastUpdatedInstant == _this.lastUpdatedInstant));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberPreferences&&(identical(other.deliveryRemindersEnabled, _this.deliveryRemindersEnabled) || other.deliveryRemindersEnabled == _this.deliveryRemindersEnabled)&&(identical(other.volunteerAlertsEnabled, _this.volunteerAlertsEnabled) || other.volunteerAlertsEnabled == _this.volunteerAlertsEnabled)&&(identical(other.urgentNeedAlertsEnabled, _this.urgentNeedAlertsEnabled) || other.urgentNeedAlertsEnabled == _this.urgentNeedAlertsEnabled)&&(identical(other.incompleteSlotRemindersEnabled, _this.incompleteSlotRemindersEnabled) || other.incompleteSlotRemindersEnabled == _this.incompleteSlotRemindersEnabled)&&(identical(other.planningChangesAlertsEnabled, _this.planningChangesAlertsEnabled) || other.planningChangesAlertsEnabled == _this.planningChangesAlertsEnabled)&&(identical(other.lastUpdatedInstant, _this.lastUpdatedInstant) || other.lastUpdatedInstant == _this.lastUpdatedInstant));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as MemberPreferences;
-  return Object.hash(runtimeType,_this.deliveryRemindersEnabled,_this.volunteerAlertsEnabled,_this.reminder24hEnabled,_this.reminder2hEnabled,_this.reminder30minEnabled,_this.urgentNeedAlertsEnabled,_this.incompleteSlotRemindersEnabled,_this.planningChangesAlertsEnabled,_this.lastUpdatedInstant);
+  return Object.hash(runtimeType,_this.deliveryRemindersEnabled,_this.volunteerAlertsEnabled,_this.urgentNeedAlertsEnabled,_this.incompleteSlotRemindersEnabled,_this.planningChangesAlertsEnabled,_this.lastUpdatedInstant);
 }
 
 @override
 String toString() {
   final _this = this as MemberPreferences;
-  return 'MemberPreferences(deliveryRemindersEnabled: ${_this.deliveryRemindersEnabled}, volunteerAlertsEnabled: ${_this.volunteerAlertsEnabled}, reminder24hEnabled: ${_this.reminder24hEnabled}, reminder2hEnabled: ${_this.reminder2hEnabled}, reminder30minEnabled: ${_this.reminder30minEnabled}, urgentNeedAlertsEnabled: ${_this.urgentNeedAlertsEnabled}, incompleteSlotRemindersEnabled: ${_this.incompleteSlotRemindersEnabled}, planningChangesAlertsEnabled: ${_this.planningChangesAlertsEnabled}, lastUpdatedInstant: ${_this.lastUpdatedInstant})';
+  return 'MemberPreferences(deliveryRemindersEnabled: ${_this.deliveryRemindersEnabled}, volunteerAlertsEnabled: ${_this.volunteerAlertsEnabled}, urgentNeedAlertsEnabled: ${_this.urgentNeedAlertsEnabled}, incompleteSlotRemindersEnabled: ${_this.incompleteSlotRemindersEnabled}, planningChangesAlertsEnabled: ${_this.planningChangesAlertsEnabled}, lastUpdatedInstant: ${_this.lastUpdatedInstant})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $MemberPreferencesCopyWith<$Res>  {
   factory $MemberPreferencesCopyWith(MemberPreferences value, $Res Function(MemberPreferences) _then) = _$MemberPreferencesCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'delivery_reminders_enabled') bool deliveryRemindersEnabled,@JsonKey(name: 'volunteer_alerts_enabled') bool volunteerAlertsEnabled,@JsonKey(name: 'reminder_24h_enabled') bool reminder24hEnabled,@JsonKey(name: 'reminder_2h_enabled') bool reminder2hEnabled,@JsonKey(name: 'reminder_30min_enabled') bool reminder30minEnabled,@JsonKey(name: 'urgent_need_alerts_enabled') bool urgentNeedAlertsEnabled,@JsonKey(name: 'incomplete_slot_reminders_enabled') bool incompleteSlotRemindersEnabled,@JsonKey(name: 'planning_changes_alerts_enabled') bool planningChangesAlertsEnabled,@JsonKey(name: 'last_updated_instant') String lastUpdatedInstant
+@JsonKey(name: 'delivery_reminders_enabled') bool deliveryRemindersEnabled,@JsonKey(name: 'volunteer_alerts_enabled') bool volunteerAlertsEnabled,@JsonKey(name: 'urgent_need_alerts_enabled') bool urgentNeedAlertsEnabled,@JsonKey(name: 'incomplete_slot_reminders_enabled') bool incompleteSlotRemindersEnabled,@JsonKey(name: 'planning_changes_alerts_enabled') bool planningChangesAlertsEnabled,@JsonKey(name: 'last_updated_instant') String lastUpdatedInstant
 });
 
 
@@ -71,13 +71,10 @@ class _$MemberPreferencesCopyWithImpl<$Res>
 
 /// Create a copy of MemberPreferences
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? deliveryRemindersEnabled = null,Object? volunteerAlertsEnabled = null,Object? reminder24hEnabled = null,Object? reminder2hEnabled = null,Object? reminder30minEnabled = null,Object? urgentNeedAlertsEnabled = null,Object? incompleteSlotRemindersEnabled = null,Object? planningChangesAlertsEnabled = null,Object? lastUpdatedInstant = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? deliveryRemindersEnabled = null,Object? volunteerAlertsEnabled = null,Object? urgentNeedAlertsEnabled = null,Object? incompleteSlotRemindersEnabled = null,Object? planningChangesAlertsEnabled = null,Object? lastUpdatedInstant = null,}) {
   return _then(MemberPreferences(
 deliveryRemindersEnabled: null == deliveryRemindersEnabled ? _self.deliveryRemindersEnabled : deliveryRemindersEnabled // ignore: cast_nullable_to_non_nullable
 as bool,volunteerAlertsEnabled: null == volunteerAlertsEnabled ? _self.volunteerAlertsEnabled : volunteerAlertsEnabled // ignore: cast_nullable_to_non_nullable
-as bool,reminder24hEnabled: null == reminder24hEnabled ? _self.reminder24hEnabled : reminder24hEnabled // ignore: cast_nullable_to_non_nullable
-as bool,reminder2hEnabled: null == reminder2hEnabled ? _self.reminder2hEnabled : reminder2hEnabled // ignore: cast_nullable_to_non_nullable
-as bool,reminder30minEnabled: null == reminder30minEnabled ? _self.reminder30minEnabled : reminder30minEnabled // ignore: cast_nullable_to_non_nullable
 as bool,urgentNeedAlertsEnabled: null == urgentNeedAlertsEnabled ? _self.urgentNeedAlertsEnabled : urgentNeedAlertsEnabled // ignore: cast_nullable_to_non_nullable
 as bool,incompleteSlotRemindersEnabled: null == incompleteSlotRemindersEnabled ? _self.incompleteSlotRemindersEnabled : incompleteSlotRemindersEnabled // ignore: cast_nullable_to_non_nullable
 as bool,planningChangesAlertsEnabled: null == planningChangesAlertsEnabled ? _self.planningChangesAlertsEnabled : planningChangesAlertsEnabled // ignore: cast_nullable_to_non_nullable
@@ -167,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'delivery_reminders_enabled')  bool deliveryRemindersEnabled, @JsonKey(name: 'volunteer_alerts_enabled')  bool volunteerAlertsEnabled, @JsonKey(name: 'reminder_24h_enabled')  bool reminder24hEnabled, @JsonKey(name: 'reminder_2h_enabled')  bool reminder2hEnabled, @JsonKey(name: 'reminder_30min_enabled')  bool reminder30minEnabled, @JsonKey(name: 'urgent_need_alerts_enabled')  bool urgentNeedAlertsEnabled, @JsonKey(name: 'incomplete_slot_reminders_enabled')  bool incompleteSlotRemindersEnabled, @JsonKey(name: 'planning_changes_alerts_enabled')  bool planningChangesAlertsEnabled, @JsonKey(name: 'last_updated_instant')  String lastUpdatedInstant)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'delivery_reminders_enabled')  bool deliveryRemindersEnabled, @JsonKey(name: 'volunteer_alerts_enabled')  bool volunteerAlertsEnabled, @JsonKey(name: 'urgent_need_alerts_enabled')  bool urgentNeedAlertsEnabled, @JsonKey(name: 'incomplete_slot_reminders_enabled')  bool incompleteSlotRemindersEnabled, @JsonKey(name: 'planning_changes_alerts_enabled')  bool planningChangesAlertsEnabled, @JsonKey(name: 'last_updated_instant')  String lastUpdatedInstant)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MemberPreferences() when $default != null:
-return $default(_that.deliveryRemindersEnabled,_that.volunteerAlertsEnabled,_that.reminder24hEnabled,_that.reminder2hEnabled,_that.reminder30minEnabled,_that.urgentNeedAlertsEnabled,_that.incompleteSlotRemindersEnabled,_that.planningChangesAlertsEnabled,_that.lastUpdatedInstant);case _:
+return $default(_that.deliveryRemindersEnabled,_that.volunteerAlertsEnabled,_that.urgentNeedAlertsEnabled,_that.incompleteSlotRemindersEnabled,_that.planningChangesAlertsEnabled,_that.lastUpdatedInstant);case _:
   return orElse();
 
 }
@@ -188,10 +185,10 @@ return $default(_that.deliveryRemindersEnabled,_that.volunteerAlertsEnabled,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'delivery_reminders_enabled')  bool deliveryRemindersEnabled, @JsonKey(name: 'volunteer_alerts_enabled')  bool volunteerAlertsEnabled, @JsonKey(name: 'reminder_24h_enabled')  bool reminder24hEnabled, @JsonKey(name: 'reminder_2h_enabled')  bool reminder2hEnabled, @JsonKey(name: 'reminder_30min_enabled')  bool reminder30minEnabled, @JsonKey(name: 'urgent_need_alerts_enabled')  bool urgentNeedAlertsEnabled, @JsonKey(name: 'incomplete_slot_reminders_enabled')  bool incompleteSlotRemindersEnabled, @JsonKey(name: 'planning_changes_alerts_enabled')  bool planningChangesAlertsEnabled, @JsonKey(name: 'last_updated_instant')  String lastUpdatedInstant)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'delivery_reminders_enabled')  bool deliveryRemindersEnabled, @JsonKey(name: 'volunteer_alerts_enabled')  bool volunteerAlertsEnabled, @JsonKey(name: 'urgent_need_alerts_enabled')  bool urgentNeedAlertsEnabled, @JsonKey(name: 'incomplete_slot_reminders_enabled')  bool incompleteSlotRemindersEnabled, @JsonKey(name: 'planning_changes_alerts_enabled')  bool planningChangesAlertsEnabled, @JsonKey(name: 'last_updated_instant')  String lastUpdatedInstant)  $default,) {final _that = this;
 switch (_that) {
 case _MemberPreferences():
-return $default(_that.deliveryRemindersEnabled,_that.volunteerAlertsEnabled,_that.reminder24hEnabled,_that.reminder2hEnabled,_that.reminder30minEnabled,_that.urgentNeedAlertsEnabled,_that.incompleteSlotRemindersEnabled,_that.planningChangesAlertsEnabled,_that.lastUpdatedInstant);case _:
+return $default(_that.deliveryRemindersEnabled,_that.volunteerAlertsEnabled,_that.urgentNeedAlertsEnabled,_that.incompleteSlotRemindersEnabled,_that.planningChangesAlertsEnabled,_that.lastUpdatedInstant);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -208,10 +205,10 @@ return $default(_that.deliveryRemindersEnabled,_that.volunteerAlertsEnabled,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'delivery_reminders_enabled')  bool deliveryRemindersEnabled, @JsonKey(name: 'volunteer_alerts_enabled')  bool volunteerAlertsEnabled, @JsonKey(name: 'reminder_24h_enabled')  bool reminder24hEnabled, @JsonKey(name: 'reminder_2h_enabled')  bool reminder2hEnabled, @JsonKey(name: 'reminder_30min_enabled')  bool reminder30minEnabled, @JsonKey(name: 'urgent_need_alerts_enabled')  bool urgentNeedAlertsEnabled, @JsonKey(name: 'incomplete_slot_reminders_enabled')  bool incompleteSlotRemindersEnabled, @JsonKey(name: 'planning_changes_alerts_enabled')  bool planningChangesAlertsEnabled, @JsonKey(name: 'last_updated_instant')  String lastUpdatedInstant)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'delivery_reminders_enabled')  bool deliveryRemindersEnabled, @JsonKey(name: 'volunteer_alerts_enabled')  bool volunteerAlertsEnabled, @JsonKey(name: 'urgent_need_alerts_enabled')  bool urgentNeedAlertsEnabled, @JsonKey(name: 'incomplete_slot_reminders_enabled')  bool incompleteSlotRemindersEnabled, @JsonKey(name: 'planning_changes_alerts_enabled')  bool planningChangesAlertsEnabled, @JsonKey(name: 'last_updated_instant')  String lastUpdatedInstant)?  $default,) {final _that = this;
 switch (_that) {
 case _MemberPreferences() when $default != null:
-return $default(_that.deliveryRemindersEnabled,_that.volunteerAlertsEnabled,_that.reminder24hEnabled,_that.reminder2hEnabled,_that.reminder30minEnabled,_that.urgentNeedAlertsEnabled,_that.incompleteSlotRemindersEnabled,_that.planningChangesAlertsEnabled,_that.lastUpdatedInstant);case _:
+return $default(_that.deliveryRemindersEnabled,_that.volunteerAlertsEnabled,_that.urgentNeedAlertsEnabled,_that.incompleteSlotRemindersEnabled,_that.planningChangesAlertsEnabled,_that.lastUpdatedInstant);case _:
   return null;
 
 }
@@ -223,14 +220,11 @@ return $default(_that.deliveryRemindersEnabled,_that.volunteerAlertsEnabled,_tha
 @JsonSerializable()
 
 class _MemberPreferences implements MemberPreferences {
-  const _MemberPreferences({@JsonKey(name: 'delivery_reminders_enabled') this.deliveryRemindersEnabled = true, @JsonKey(name: 'volunteer_alerts_enabled') this.volunteerAlertsEnabled = true, @JsonKey(name: 'reminder_24h_enabled') this.reminder24hEnabled = true, @JsonKey(name: 'reminder_2h_enabled') this.reminder2hEnabled = true, @JsonKey(name: 'reminder_30min_enabled') this.reminder30minEnabled = false, @JsonKey(name: 'urgent_need_alerts_enabled') this.urgentNeedAlertsEnabled = true, @JsonKey(name: 'incomplete_slot_reminders_enabled') this.incompleteSlotRemindersEnabled = false, @JsonKey(name: 'planning_changes_alerts_enabled') this.planningChangesAlertsEnabled = true, @JsonKey(name: 'last_updated_instant') required this.lastUpdatedInstant});
+  const _MemberPreferences({@JsonKey(name: 'delivery_reminders_enabled') this.deliveryRemindersEnabled = true, @JsonKey(name: 'volunteer_alerts_enabled') this.volunteerAlertsEnabled = true, @JsonKey(name: 'urgent_need_alerts_enabled') this.urgentNeedAlertsEnabled = true, @JsonKey(name: 'incomplete_slot_reminders_enabled') this.incompleteSlotRemindersEnabled = false, @JsonKey(name: 'planning_changes_alerts_enabled') this.planningChangesAlertsEnabled = true, @JsonKey(name: 'last_updated_instant') required this.lastUpdatedInstant});
   factory _MemberPreferences.fromJson(Map<String, dynamic> json) => _$MemberPreferencesFromJson(json);
 
 @override@JsonKey(name: 'delivery_reminders_enabled') final  bool deliveryRemindersEnabled;
 @override@JsonKey(name: 'volunteer_alerts_enabled') final  bool volunteerAlertsEnabled;
-@override@JsonKey(name: 'reminder_24h_enabled') final  bool reminder24hEnabled;
-@override@JsonKey(name: 'reminder_2h_enabled') final  bool reminder2hEnabled;
-@override@JsonKey(name: 'reminder_30min_enabled') final  bool reminder30minEnabled;
 @override@JsonKey(name: 'urgent_need_alerts_enabled') final  bool urgentNeedAlertsEnabled;
 @override@JsonKey(name: 'incomplete_slot_reminders_enabled') final  bool incompleteSlotRemindersEnabled;
 @override@JsonKey(name: 'planning_changes_alerts_enabled') final  bool planningChangesAlertsEnabled;
@@ -249,18 +243,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberPreferences&&(identical(other.deliveryRemindersEnabled, deliveryRemindersEnabled) || other.deliveryRemindersEnabled == deliveryRemindersEnabled)&&(identical(other.volunteerAlertsEnabled, volunteerAlertsEnabled) || other.volunteerAlertsEnabled == volunteerAlertsEnabled)&&(identical(other.reminder24hEnabled, reminder24hEnabled) || other.reminder24hEnabled == reminder24hEnabled)&&(identical(other.reminder2hEnabled, reminder2hEnabled) || other.reminder2hEnabled == reminder2hEnabled)&&(identical(other.reminder30minEnabled, reminder30minEnabled) || other.reminder30minEnabled == reminder30minEnabled)&&(identical(other.urgentNeedAlertsEnabled, urgentNeedAlertsEnabled) || other.urgentNeedAlertsEnabled == urgentNeedAlertsEnabled)&&(identical(other.incompleteSlotRemindersEnabled, incompleteSlotRemindersEnabled) || other.incompleteSlotRemindersEnabled == incompleteSlotRemindersEnabled)&&(identical(other.planningChangesAlertsEnabled, planningChangesAlertsEnabled) || other.planningChangesAlertsEnabled == planningChangesAlertsEnabled)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberPreferences&&(identical(other.deliveryRemindersEnabled, deliveryRemindersEnabled) || other.deliveryRemindersEnabled == deliveryRemindersEnabled)&&(identical(other.volunteerAlertsEnabled, volunteerAlertsEnabled) || other.volunteerAlertsEnabled == volunteerAlertsEnabled)&&(identical(other.urgentNeedAlertsEnabled, urgentNeedAlertsEnabled) || other.urgentNeedAlertsEnabled == urgentNeedAlertsEnabled)&&(identical(other.incompleteSlotRemindersEnabled, incompleteSlotRemindersEnabled) || other.incompleteSlotRemindersEnabled == incompleteSlotRemindersEnabled)&&(identical(other.planningChangesAlertsEnabled, planningChangesAlertsEnabled) || other.planningChangesAlertsEnabled == planningChangesAlertsEnabled)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,deliveryRemindersEnabled,volunteerAlertsEnabled,reminder24hEnabled,reminder2hEnabled,reminder30minEnabled,urgentNeedAlertsEnabled,incompleteSlotRemindersEnabled,planningChangesAlertsEnabled,lastUpdatedInstant);
+    return Object.hash(runtimeType,deliveryRemindersEnabled,volunteerAlertsEnabled,urgentNeedAlertsEnabled,incompleteSlotRemindersEnabled,planningChangesAlertsEnabled,lastUpdatedInstant);
 }
 
 @override
 String toString() {
-    return 'MemberPreferences(deliveryRemindersEnabled: $deliveryRemindersEnabled, volunteerAlertsEnabled: $volunteerAlertsEnabled, reminder24hEnabled: $reminder24hEnabled, reminder2hEnabled: $reminder2hEnabled, reminder30minEnabled: $reminder30minEnabled, urgentNeedAlertsEnabled: $urgentNeedAlertsEnabled, incompleteSlotRemindersEnabled: $incompleteSlotRemindersEnabled, planningChangesAlertsEnabled: $planningChangesAlertsEnabled, lastUpdatedInstant: $lastUpdatedInstant)';
+    return 'MemberPreferences(deliveryRemindersEnabled: $deliveryRemindersEnabled, volunteerAlertsEnabled: $volunteerAlertsEnabled, urgentNeedAlertsEnabled: $urgentNeedAlertsEnabled, incompleteSlotRemindersEnabled: $incompleteSlotRemindersEnabled, planningChangesAlertsEnabled: $planningChangesAlertsEnabled, lastUpdatedInstant: $lastUpdatedInstant)';
 }
 
 
@@ -271,7 +265,7 @@ abstract mixin class _$MemberPreferencesCopyWith<$Res> implements $MemberPrefere
   factory _$MemberPreferencesCopyWith(_MemberPreferences value, $Res Function(_MemberPreferences) _then) = __$MemberPreferencesCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'delivery_reminders_enabled') bool deliveryRemindersEnabled,@JsonKey(name: 'volunteer_alerts_enabled') bool volunteerAlertsEnabled,@JsonKey(name: 'reminder_24h_enabled') bool reminder24hEnabled,@JsonKey(name: 'reminder_2h_enabled') bool reminder2hEnabled,@JsonKey(name: 'reminder_30min_enabled') bool reminder30minEnabled,@JsonKey(name: 'urgent_need_alerts_enabled') bool urgentNeedAlertsEnabled,@JsonKey(name: 'incomplete_slot_reminders_enabled') bool incompleteSlotRemindersEnabled,@JsonKey(name: 'planning_changes_alerts_enabled') bool planningChangesAlertsEnabled,@JsonKey(name: 'last_updated_instant') String lastUpdatedInstant
+@JsonKey(name: 'delivery_reminders_enabled') bool deliveryRemindersEnabled,@JsonKey(name: 'volunteer_alerts_enabled') bool volunteerAlertsEnabled,@JsonKey(name: 'urgent_need_alerts_enabled') bool urgentNeedAlertsEnabled,@JsonKey(name: 'incomplete_slot_reminders_enabled') bool incompleteSlotRemindersEnabled,@JsonKey(name: 'planning_changes_alerts_enabled') bool planningChangesAlertsEnabled,@JsonKey(name: 'last_updated_instant') String lastUpdatedInstant
 });
 
 
@@ -288,13 +282,10 @@ class __$MemberPreferencesCopyWithImpl<$Res>
 
 /// Create a copy of MemberPreferences
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? deliveryRemindersEnabled = null,Object? volunteerAlertsEnabled = null,Object? reminder24hEnabled = null,Object? reminder2hEnabled = null,Object? reminder30minEnabled = null,Object? urgentNeedAlertsEnabled = null,Object? incompleteSlotRemindersEnabled = null,Object? planningChangesAlertsEnabled = null,Object? lastUpdatedInstant = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? deliveryRemindersEnabled = null,Object? volunteerAlertsEnabled = null,Object? urgentNeedAlertsEnabled = null,Object? incompleteSlotRemindersEnabled = null,Object? planningChangesAlertsEnabled = null,Object? lastUpdatedInstant = null,}) {
   return _then(_MemberPreferences(
 deliveryRemindersEnabled: null == deliveryRemindersEnabled ? _self.deliveryRemindersEnabled : deliveryRemindersEnabled // ignore: cast_nullable_to_non_nullable
 as bool,volunteerAlertsEnabled: null == volunteerAlertsEnabled ? _self.volunteerAlertsEnabled : volunteerAlertsEnabled // ignore: cast_nullable_to_non_nullable
-as bool,reminder24hEnabled: null == reminder24hEnabled ? _self.reminder24hEnabled : reminder24hEnabled // ignore: cast_nullable_to_non_nullable
-as bool,reminder2hEnabled: null == reminder2hEnabled ? _self.reminder2hEnabled : reminder2hEnabled // ignore: cast_nullable_to_non_nullable
-as bool,reminder30minEnabled: null == reminder30minEnabled ? _self.reminder30minEnabled : reminder30minEnabled // ignore: cast_nullable_to_non_nullable
 as bool,urgentNeedAlertsEnabled: null == urgentNeedAlertsEnabled ? _self.urgentNeedAlertsEnabled : urgentNeedAlertsEnabled // ignore: cast_nullable_to_non_nullable
 as bool,incompleteSlotRemindersEnabled: null == incompleteSlotRemindersEnabled ? _self.incompleteSlotRemindersEnabled : incompleteSlotRemindersEnabled // ignore: cast_nullable_to_non_nullable
 as bool,planningChangesAlertsEnabled: null == planningChangesAlertsEnabled ? _self.planningChangesAlertsEnabled : planningChangesAlertsEnabled // ignore: cast_nullable_to_non_nullable

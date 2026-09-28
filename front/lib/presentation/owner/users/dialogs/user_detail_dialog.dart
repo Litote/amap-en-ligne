@@ -1,5 +1,7 @@
+import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/data/sync/sync_outcome.dart';
@@ -31,6 +33,9 @@ Future<void> showUserDetailDialog(BuildContext context, String userId) =>
           memberRepository: context.read<MemberRepository>(),
           organizationRepository: context.read<OrganizationRepository>(),
           producerAccountRepository: context.read<ProducerAccountRepository>(),
+          ownerInvitationRepository: context.read<OwnerInvitationRepository>(),
+          memberInvitationRepository: context
+              .read<MemberInvitationRepository>(),
         )..add(UserDetailEvent.loaded(userId)),
         child: _UserDetailDialog(userId: userId),
       ),
@@ -135,6 +140,7 @@ class _LoadedContent extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.close),
+              tooltip: 'Fermer',
               onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
             ),
           ],
@@ -160,7 +166,16 @@ class _LoadedContent extends StatelessWidget {
         else
           _AmapCard(row: row),
         const SizedBox(height: 16),
-        _DangerZone(row: row),
+        // A pending invitation has no account yet: nothing to suspend/delete.
+        if (!row.isInvitation) _DangerZone(row: row),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+            child: const Text('FERMER'),
+          ),
+        ),
       ],
     ),
   );
@@ -168,7 +183,7 @@ class _LoadedContent extends StatelessWidget {
   String _statusHeader(UserRow row) {
     final statusLabel = switch (row.displayStatus) {
       UserDisplayStatus.active => 'Actif',
-      UserDisplayStatus.pendingInvitation => 'Invitation en attente',
+      UserDisplayStatus.pendingInvitation => 'Invité',
       UserDisplayStatus.suspended => 'Suspendu',
     };
     final registeredStr = row.registeredAt != null
@@ -198,15 +213,18 @@ class _AmapCard extends StatelessWidget {
                       children: [
                         Expanded(child: Text(m.organizationName)),
                         Text(_rolesLabel(m.roles)),
-                        const SizedBox(width: 8),
-                        OutlinedButton(
-                          key: Key('modify_membership_${m.organizationId}'),
-                          onPressed: () => _openModifyDialog(context, bloc, m),
-                          style: OutlinedButton.styleFrom(
-                            shape: const StadiumBorder(),
+                        if (!row.isInvitation) ...[
+                          const SizedBox(width: 8),
+                          OutlinedButton(
+                            key: Key('modify_membership_${m.organizationId}'),
+                            onPressed: () =>
+                                _openModifyDialog(context, bloc, m),
+                            style: OutlinedButton.styleFrom(
+                              shape: const StadiumBorder(),
+                            ),
+                            child: const Text('Modifier'),
                           ),
-                          child: const Text('Modifier'),
-                        ),
+                        ],
                       ],
                     ),
                   ),

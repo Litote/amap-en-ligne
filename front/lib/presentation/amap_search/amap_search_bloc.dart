@@ -55,9 +55,13 @@ class AmapSearchBloc extends Bloc<AmapSearchEvent, AmapSearchState> {
     JoinFormSubmitted event,
     Emitter<AmapSearchState> emit,
   ) async {
-    final current = state;
-    if (current is! AmapSearchOrgsLoaded) return;
-    final org = current.selectedOrg;
+    // A refused submission leaves the form on screen in the error state: the
+    // user must be able to correct the email and send it again.
+    final org = switch (state) {
+      AmapSearchOrgsLoaded(:final selectedOrg) => selectedOrg,
+      AmapSearchError(:final selectedOrg) => selectedOrg,
+      _ => null,
+    };
     if (org == null) return;
 
     emit(AmapSearchState.submitting(org: org));
@@ -80,8 +84,10 @@ class AmapSearchBloc extends Bloc<AmapSearchEvent, AmapSearchState> {
       final message = switch (e.field) {
         MemberJoinConflictField.email =>
           'Cette adresse email est déjà inscrite pour cette AMAP.',
+        // Any active member's email, this AMAP's included.
         MemberJoinConflictField.emailMember =>
-          'Cette adresse email est déjà utilisée par un membre d\'une autre AMAP.',
+          'Un compte membre existe déjà avec cette adresse email : '
+              'connectez-vous avec elle, ou contactez votre AMAP.',
         MemberJoinConflictField.emailOwner =>
           'Cette adresse email est déjà utilisée par un administrateur de l\'instance.',
         MemberJoinConflictField.emailProducer =>

@@ -62,9 +62,6 @@ const _kInstant = '2025-01-01T00:00:00.000Z';
 const _memberPrefs = MemberPreferences(
   deliveryRemindersEnabled: true,
   volunteerAlertsEnabled: true,
-  reminder24hEnabled: true,
-  reminder2hEnabled: true,
-  reminder30minEnabled: false,
   urgentNeedAlertsEnabled: true,
   incompleteSlotRemindersEnabled: false,
   planningChangesAlertsEnabled: true,
@@ -528,7 +525,7 @@ void main() {
   // --------------------------------------------------------------------------
 
   testWidgets(
-    'shows Notifications bénévolat card with three subsection headers',
+    'shows Notifications bénévolat card with its subsection headers',
     (tester) async {
       await _pump(
         tester,
@@ -538,13 +535,12 @@ void main() {
       );
 
       expect(find.text('Notifications bénévolat'), findsOneWidget);
-      expect(find.textContaining("Rappels d'inscription"), findsOneWidget);
       expect(find.textContaining("Alertes d'urgence"), findsOneWidget);
       expect(find.textContaining('Canaux de notification'), findsOneWidget);
     },
   );
 
-  testWidgets('shows 8 checkboxes for notifications', (tester) async {
+  testWidgets('shows 5 checkboxes for notifications', (tester) async {
     await _pump(
       tester,
       memberRepo: memberRepo,
@@ -552,7 +548,7 @@ void main() {
       syncBloc: syncBloc,
     );
 
-    expect(find.byType(CheckboxListTile), findsNWidgets(8));
+    expect(find.byType(CheckboxListTile), findsNWidgets(5));
   });
 
   // --------------------------------------------------------------------------
@@ -582,11 +578,12 @@ void main() {
       syncBloc: syncBloc,
     );
 
-    // Toggle the 30min reminder (starts unchecked).
+    // Toggle the incomplete-slot reminder (starts unchecked).
     final checkbox = find.widgetWithText(
       CheckboxListTile,
-      'Rappel 30min avant le créneau',
+      'Rappels pour manque de bénévole(s) sur la livraison',
     );
+    await tester.ensureVisible(checkbox);
     await tester.tap(checkbox);
     await tester.pump();
 
@@ -609,10 +606,10 @@ void main() {
       syncBloc: syncBloc,
     );
 
-    // Toggle to make dirty — 30min is near the top of the notifications card.
+    // Toggle to make dirty.
     final checkbox = find.widgetWithText(
       CheckboxListTile,
-      'Rappel 30min avant le créneau',
+      'Rappels pour manque de bénévole(s) sur la livraison',
     );
     await tester.ensureVisible(checkbox);
     await tester.tap(checkbox);
@@ -650,7 +647,7 @@ void main() {
 
     final checkbox = find.widgetWithText(
       CheckboxListTile,
-      'Rappel 30min avant le créneau',
+      'Rappels pour manque de bénévole(s) sur la livraison',
     );
     await tester.ensureVisible(checkbox);
     await tester.tap(checkbox);
@@ -672,28 +669,6 @@ void main() {
   // Checkbox → bloc event dispatch
   // --------------------------------------------------------------------------
 
-  testWidgets('toggling reminder checkbox updates bloc state and sets dirty', (
-    tester,
-  ) async {
-    final bloc = await _pump(
-      tester,
-      memberRepo: memberRepo,
-      authService: authService,
-      syncBloc: syncBloc,
-    );
-
-    final checkbox = find.widgetWithText(
-      CheckboxListTile,
-      'Rappel 30min avant le créneau',
-    );
-    await tester.tap(checkbox);
-    await tester.pump();
-
-    final state = bloc.state as UserPreferencesReady;
-    expect(state.memberPreferences.reminder30minEnabled, isTrue);
-    expect(state.dirty, isTrue);
-  });
-
   testWidgets('toggling alert checkbox updates bloc state and sets dirty', (
     tester,
   ) async {
@@ -706,7 +681,7 @@ void main() {
 
     final checkbox = find.widgetWithText(
       CheckboxListTile,
-      'Rappels pour manque de volontaire(s) sur la livraison',
+      'Rappels pour manque de bénévole(s) sur la livraison',
     );
     await tester.ensureVisible(checkbox);
     await tester.tap(checkbox);
@@ -1132,9 +1107,7 @@ void main() {
   group('Alert templates card', () {
     late _MockAlertTemplatesBloc alertBloc;
 
-    setUpAll(
-      () => registerFallbackValue(const AlertTemplatesEvent.saved({})),
-    );
+    setUpAll(() => registerFallbackValue(const AlertTemplatesEvent.saved({})));
 
     setUp(() {
       alertBloc = _MockAlertTemplatesBloc();

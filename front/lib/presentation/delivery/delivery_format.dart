@@ -1,5 +1,5 @@
 import 'package:amap_en_ligne/domain/model/organization.dart';
-import 'package:intl/intl.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 
 /// Shared date/time formatting for delivery display widgets.
 ///
@@ -23,7 +23,7 @@ String formatDeliveryDateLine(
 }) {
   final date = DateTime.parse(scheduledDate);
   final pattern = longMonth ? 'EEEE d MMMM' : 'EEEE d MMM';
-  final dayPart = DateFormat(pattern, 'fr').format(date);
+  final dayPart = frenchDateFormat(pattern).format(date);
   final capitalised = _capitalise(dayPart);
 
   final start = _formatTime(date.hour, date.minute, padMinutes: longMonth);
@@ -31,7 +31,7 @@ String formatDeliveryDateLine(
   final String end;
   final parsedEnd = _tryParseIso(slotEndTime);
   if (parsedEnd != null) {
-    end = _formatTime(parsedEnd.hour, parsedEnd.minute, padMinutes: false);
+    end = _formatTime(parsedEnd.hour, parsedEnd.minute, padMinutes: longMonth);
   } else {
     end = _formatTime(date.hour + 2, date.minute, padMinutes: longMonth);
   }
@@ -43,7 +43,7 @@ String formatDeliveryDateLine(
 /// style: "Mercredi 17 Janvier • 18h00".
 String formatDeliveryDateTime(String scheduledDate) {
   final date = DateTime.parse(scheduledDate);
-  final raw = DateFormat("EEEE d MMMM • HH'h'mm", 'fr').format(date);
+  final raw = frenchDateFormat("EEEE d MMMM • HH'h'mm").format(date);
   return _capitalise(raw);
 }
 

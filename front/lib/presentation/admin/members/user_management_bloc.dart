@@ -624,6 +624,24 @@ class UserManagementBloc
       _submittingInvitation = false;
       return;
     }
+    // Same rule as the back: one pending (not expired) invitation per email,
+    // whatever the letter case — an expired one is replaced server-side.
+    final now = DateTime.now().toUtc();
+    final alreadyInvited = current.memberInvitations.any(
+      (i) =>
+          i.status == InvitationStatus.pendingActivation &&
+          i.email.trim().toLowerCase() == email &&
+          (DateTime.tryParse(i.expiresAt)?.isAfter(now) ?? true),
+    );
+    if (alreadyInvited) {
+      emit(
+        current.copyWith(
+          inviteError: 'Une invitation est déjà en attente pour cet email.',
+        ),
+      );
+      _submittingInvitation = false;
+      return;
+    }
 
     emit(current.copyWith(inviting: true, inviteError: null));
     try {

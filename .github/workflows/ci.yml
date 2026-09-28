@@ -333,12 +333,18 @@ jobs:
           fi
 
   # ── Dev deploys — only after the tests pass on a push to main ──────────────
-  # Which deploy a push needs, from the files it changed (same scopes the deploy
-  # workflows used to filter on with `on.push.paths`).
+  # Which deploy a push needs, from the files changed since that target was last
+  # deployed (same scopes the deploy workflows used to filter on with
+  # `on.push.paths`). The base is NOT the previous push (`github.event.before`):
+  # a push whose tests failed skips its deploys, so diffing the next push against
+  # it would silently drop the failed push's changes from the deploy.
   changes:
     name: Detect deploy scope
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      actions: read
     outputs:
       lambda: ${{ steps.diff.outputs.lambda }}
       web: ${{ steps.diff.outputs.web }}
@@ -349,28 +355,45 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Diff against the previous head
+      - name: Diff against the last deployed commit of each target
         id: diff
         env:
-          BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
-          # Unknown previous head (new branch, force-push): deploy everything.
-          if [[ "$BEFORE" =~ ^0+$ ]] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
-            echo "lambda=true" >> "$GITHUB_OUTPUT"
-            echo "web=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          changed="$(git diff --name-only "$BEFORE" "$GITHUB_SHA")"
-          if grep -qE '^(back/|infra/|\.github/workflows/deploy-lambda\.yml$)' <<<"$changed"; then
-            echo "lambda=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "lambda=false" >> "$GITHUB_OUTPUT"
-          fi
-          if grep -qE '^(front/|\.github/workflows/deploy-web\.yml$)' <<<"$changed"; then
-            echo "web=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "web=false" >> "$GITHUB_OUTPUT"
-          fi
+          # Head commit of the most recent completed push run on main whose job
+          # "$1" succeeded, i.e. the commit that target currently runs. Empty when
+          # none is found in the last 50 runs.
+          last_deployed() {
+            local id sha
+            while read -r id sha; do
+              if gh api "repos/$REPO/actions/runs/$id/jobs?per_page=100" \
+                   --jq '.jobs[] | select(.name == "'"$1"'" and .conclusion == "success") | .id' | grep -q .; then
+                echo "$sha"
+                return
+              fi
+            done < <(gh api "repos/$REPO/actions/workflows/ci.yml/runs?branch=main&event=push&status=completed&per_page=50" \
+                       --jq '.workflow_runs[] | "\(.id) \(.head_sha)"')
+          }
+
+          # $1 = output name, $2 = deploy job name, $3 = path regex of its scope.
+          # Unknown base (never deployed, history rewritten): deploy.
+          decide() {
+            local base
+            base="$(last_deployed "$2")"
+            if [[ -z "$base" ]] || ! git cat-file -e "$base^{commit}" 2>/dev/null \
+                 || git diff --name-only "$base" "$GITHUB_SHA" | grep -qE "$3"; then
+              echo "$1=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "$1=false" >> "$GITHUB_OUTPUT"
+            fi
+            echo "$1: last deployed ${base:-<none>}"
+          }
+
+          decide lambda 'Deploy Lambda (dev) / Deploy Lambda function code' \
+            '^(back/|infra/|\.github/workflows/deploy-lambda\.yml$)'
+          decide web 'Deploy Web (dev) / Deploy Web (WASM)' \
+            '^(front/|\.github/workflows/deploy-web\.yml$)'
 
   deploy-lambda:
     name: Deploy Lambda (dev)

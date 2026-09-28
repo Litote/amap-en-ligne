@@ -6,12 +6,14 @@ import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/domain/model/invitation_status.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/member_invitation.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/admin/members/user_management_bloc.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
+import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 /// Admin screen for managing organization members and their roles.
 ///
@@ -88,7 +90,7 @@ class _UserManagementView extends StatelessWidget {
     onPressed: () => context.read<UserManagementBloc>().add(
       const UserManagementEvent.showInviteForm(),
     ),
-    tooltip: 'Inviter un membre',
+    tooltip: _kInviteMemberTitle,
     child: const Icon(Icons.person_add),
   );
 
@@ -479,7 +481,7 @@ class _MemberTile extends StatelessWidget {
             ),
       trailing: IconButton(
         icon: const Icon(Icons.settings),
-        tooltip: 'Modifier les rôles',
+        tooltip: _kEditRolesTitle,
         onPressed: () => context.read<UserManagementBloc>().add(
           UserManagementEvent.editRolesRequested(member),
         ),
@@ -500,14 +502,10 @@ class _RoleBadge extends StatelessWidget {
   final Role role;
 
   @override
-  Widget build(BuildContext context) => Chip(
-    label: Text(
-      _roleLabel(role),
-      style: const TextStyle(color: Colors.white, fontSize: 12),
-    ),
+  Widget build(BuildContext context) => StatusBadge(
+    _roleLabel(role),
+    labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
     backgroundColor: _roleColor(role),
-    padding: EdgeInsets.zero,
-    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
   );
 }
 
@@ -534,7 +532,7 @@ class _MemberInvitationTile extends StatelessWidget {
         spacing: 4,
         runSpacing: 4,
         children: [
-          if (statusLabel != null) Chip(label: Text(statusLabel)),
+          if (statusLabel != null) StatusBadge(statusLabel, compact: false),
           ...invitation.roles.map((role) => _RoleBadge(role: role)),
         ],
       ),
@@ -624,7 +622,8 @@ class _EditRolesDialog extends StatelessWidget {
           if (state is! UserManagementLoaded) return const SizedBox.shrink();
           final pendingRoles = state.pendingRoles;
           return AlertDialog(
-            title: const Text('Modifier les rôles'),
+            title: const Text(_kEditRolesTitle),
+            semanticLabel: _kEditRolesTitle,
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -713,76 +712,10 @@ class _InviteDialog extends StatelessWidget {
     builder: (context, state) {
       if (state is! UserManagementLoaded) return const SizedBox.shrink();
       return AlertDialog(
-        title: const Text('Inviter un membre'),
+        title: const Text(_kInviteMemberTitle),
+        semanticLabel: _kInviteMemberTitle,
         content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                decoration: const InputDecoration(labelText: 'Prénom *'),
-                onChanged: (value) => context.read<UserManagementBloc>().add(
-                  UserManagementEvent.inviteFirstNameChanged(value),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Nom *'),
-                onChanged: (value) => context.read<UserManagementBloc>().add(
-                  UserManagementEvent.inviteLastNameChanged(value),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Email *'),
-                keyboardType: TextInputType.emailAddress,
-                onChanged: (value) => context.read<UserManagementBloc>().add(
-                  UserManagementEvent.inviteEmailChanged(value),
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text('Rôles *'),
-              CheckboxListTile(
-                title: const Text('Amapien'),
-                value: state.inviteRoles.contains(Role.volunteer),
-                onChanged: (checked) => context.read<UserManagementBloc>().add(
-                  UserManagementEvent.inviteRoleToggled(
-                    Role.volunteer,
-                    isChecked: checked ?? false,
-                  ),
-                ),
-              ),
-              CheckboxListTile(
-                title: const Text('Coordinateur'),
-                value: state.inviteRoles.contains(Role.coordinator),
-                onChanged: (checked) => context.read<UserManagementBloc>().add(
-                  UserManagementEvent.inviteRoleToggled(
-                    Role.coordinator,
-                    isChecked: checked ?? false,
-                  ),
-                ),
-              ),
-              if (canEditAdminRole)
-                CheckboxListTile(
-                  title: const Text('Admin'),
-                  value: state.inviteRoles.contains(Role.admin),
-                  onChanged: (checked) =>
-                      context.read<UserManagementBloc>().add(
-                        UserManagementEvent.inviteRoleToggled(
-                          Role.admin,
-                          isChecked: checked ?? false,
-                        ),
-                      ),
-                ),
-              if (state.inviteError != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  state.inviteError!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ],
-            ],
-          ),
+          child: _InviteForm(state: state, canEditAdminRole: canEditAdminRole),
         ),
         actions: [
           TextButton(
@@ -814,6 +747,86 @@ class _InviteDialog extends StatelessWidget {
   );
 }
 
+/// Fields of the invitation dialog. After a refused submit, each faulty
+/// field says why (same rules as the bloc); the errors follow the input as it
+/// is corrected.
+class _InviteForm extends StatelessWidget {
+  const _InviteForm({required this.state, required this.canEditAdminRole});
+
+  final UserManagementLoaded state;
+  final bool canEditAdminRole;
+
+  bool get _attempted => state.inviteError != null;
+
+  String? _fieldError(String? error) => _attempted ? error : null;
+
+  void _send(BuildContext context, UserManagementEvent event) =>
+      context.read<UserManagementBloc>().add(event);
+
+  Widget _roleTile(BuildContext context, Role role, String label) =>
+      CheckboxListTile(
+        title: Text(label),
+        value: state.inviteRoles.contains(role),
+        onChanged: (checked) => _send(
+          context,
+          UserManagementEvent.inviteRoleToggled(
+            role,
+            isChecked: checked ?? false,
+          ),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final errorStyle = TextStyle(color: Theme.of(context).colorScheme.error);
+    final inviteError = state.inviteError;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          decoration: InputDecoration(
+            labelText: 'Prénom *',
+            errorText: _fieldError(requiredName(state.inviteFirstName)),
+          ),
+          onChanged: (value) =>
+              _send(context, UserManagementEvent.inviteFirstNameChanged(value)),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          decoration: InputDecoration(
+            labelText: 'Nom *',
+            errorText: _fieldError(requiredName(state.inviteLastName)),
+          ),
+          onChanged: (value) =>
+              _send(context, UserManagementEvent.inviteLastNameChanged(value)),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          decoration: InputDecoration(
+            labelText: 'Email *',
+            errorText: _fieldError(requiredEmail(state.inviteEmail)),
+          ),
+          keyboardType: TextInputType.emailAddress,
+          onChanged: (value) =>
+              _send(context, UserManagementEvent.inviteEmailChanged(value)),
+        ),
+        const SizedBox(height: 8),
+        const Text('Rôles *'),
+        _roleTile(context, Role.volunteer, 'Amapien'),
+        _roleTile(context, Role.coordinator, 'Coordinateur'),
+        if (canEditAdminRole) _roleTile(context, Role.admin, 'Admin'),
+        if (_attempted && state.inviteRoles.isEmpty)
+          Text('Choisissez au moins un rôle.', style: errorStyle),
+        if (inviteError != null) ...[
+          const SizedBox(height: 8),
+          Text(inviteError, style: errorStyle),
+        ],
+      ],
+    );
+  }
+}
+
 class _ErrorView extends StatelessWidget {
   const _ErrorView({required this.message, required this.onRetry});
 
@@ -837,17 +850,19 @@ String? _formatLastSent(MemberInvitation invitation) {
   final rawDate = invitation.resendRequestedAt ?? invitation.createdAt;
   final dt = DateTime.tryParse(rawDate)?.toLocal();
   if (dt == null) return null;
-  final formatted = DateFormat('d MMM yyyy', 'fr').format(dt);
+  final formatted = frenchDateFormat('d MMM yyyy').format(dt);
   return invitation.resendRequestedAt != null
       ? 'Dernière relance le $formatted'
-      : 'Envoyée le $formatted';
+      // Not "Envoyée": an invitation created by an organization import is
+      // never emailed until the admin requests the connection.
+      : 'Invitation créée le $formatted';
 }
 
 String? _formatInvitationStatus(MemberInvitation invitation) {
   if (invitation.status == InvitationStatus.cancelled) {
     return null;
   }
-  return 'Invitation en attente';
+  return 'Invité';
 }
 
 Color _roleColor(Role role) => switch (role) {
@@ -867,6 +882,9 @@ String _roleLabel(Role role) => switch (role) {
 
 /// Default invitation email copy shown as a hint in the bulk-resend dialog.
 /// Leaving a field empty keeps the per-member default copy server-side.
+const _kInviteMemberTitle = 'Inviter un membre';
+const _kEditRolesTitle = 'Modifier les rôles';
+const _kAskToConnectTitle = 'Demander la connexion';
 const String _defaultInvitationSubject = "Invitation à rejoindre l'AMAP";
 const String _defaultInvitationBody =
     "Bonjour,\n\nVous avez été invité(e) à rejoindre l'AMAP sur AMAP en "
@@ -909,7 +927,7 @@ class _PendingConnectionBanner extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.mark_email_unread_outlined),
-            label: const Text('Demander la connexion'),
+            label: const Text(_kAskToConnectTitle),
           ),
         ],
       ),
@@ -952,7 +970,8 @@ class _BulkResendDialogState extends State<_BulkResendDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Demander la connexion'),
+    title: const Text(_kAskToConnectTitle),
+    semanticLabel: _kAskToConnectTitle,
     content: SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,

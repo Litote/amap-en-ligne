@@ -56,14 +56,13 @@ extension UserPreferencesEventPatterns on UserPreferencesEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _UserPreferencesLoaded value)?  loaded,TResult Function( _UserPreferencesOwnerLoaded value)?  ownerLoaded,TResult Function( _UserPreferencesProducerLoaded value)?  producerLoaded,TResult Function( _UserPreferencesReminderToggled value)?  reminderToggled,TResult Function( _UserPreferencesAlertToggled value)?  alertToggled,TResult Function( _UserPreferencesChannelToggled value)?  channelToggled,TResult Function( _UserPreferencesSaved value)?  saved,TResult Function( _UserPreferencesProfileSaved value)?  profileSaved,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _UserPreferencesLoaded value)?  loaded,TResult Function( _UserPreferencesOwnerLoaded value)?  ownerLoaded,TResult Function( _UserPreferencesProducerLoaded value)?  producerLoaded,TResult Function( _UserPreferencesAlertToggled value)?  alertToggled,TResult Function( _UserPreferencesChannelToggled value)?  channelToggled,TResult Function( _UserPreferencesSaved value)?  saved,TResult Function( _UserPreferencesProfileSaved value)?  profileSaved,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _UserPreferencesLoaded() when loaded != null:
 return loaded(_that);case _UserPreferencesOwnerLoaded() when ownerLoaded != null:
 return ownerLoaded(_that);case _UserPreferencesProducerLoaded() when producerLoaded != null:
-return producerLoaded(_that);case _UserPreferencesReminderToggled() when reminderToggled != null:
-return reminderToggled(_that);case _UserPreferencesAlertToggled() when alertToggled != null:
+return producerLoaded(_that);case _UserPreferencesAlertToggled() when alertToggled != null:
 return alertToggled(_that);case _UserPreferencesChannelToggled() when channelToggled != null:
 return channelToggled(_that);case _UserPreferencesSaved() when saved != null:
 return saved(_that);case _UserPreferencesProfileSaved() when profileSaved != null:
@@ -85,14 +84,13 @@ return profileSaved(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _UserPreferencesLoaded value)  loaded,required TResult Function( _UserPreferencesOwnerLoaded value)  ownerLoaded,required TResult Function( _UserPreferencesProducerLoaded value)  producerLoaded,required TResult Function( _UserPreferencesReminderToggled value)  reminderToggled,required TResult Function( _UserPreferencesAlertToggled value)  alertToggled,required TResult Function( _UserPreferencesChannelToggled value)  channelToggled,required TResult Function( _UserPreferencesSaved value)  saved,required TResult Function( _UserPreferencesProfileSaved value)  profileSaved,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _UserPreferencesLoaded value)  loaded,required TResult Function( _UserPreferencesOwnerLoaded value)  ownerLoaded,required TResult Function( _UserPreferencesProducerLoaded value)  producerLoaded,required TResult Function( _UserPreferencesAlertToggled value)  alertToggled,required TResult Function( _UserPreferencesChannelToggled value)  channelToggled,required TResult Function( _UserPreferencesSaved value)  saved,required TResult Function( _UserPreferencesProfileSaved value)  profileSaved,}){
 final _that = this;
 switch (_that) {
 case _UserPreferencesLoaded():
 return loaded(_that);case _UserPreferencesOwnerLoaded():
 return ownerLoaded(_that);case _UserPreferencesProducerLoaded():
-return producerLoaded(_that);case _UserPreferencesReminderToggled():
-return reminderToggled(_that);case _UserPreferencesAlertToggled():
+return producerLoaded(_that);case _UserPreferencesAlertToggled():
 return alertToggled(_that);case _UserPreferencesChannelToggled():
 return channelToggled(_that);case _UserPreferencesSaved():
 return saved(_that);case _UserPreferencesProfileSaved():
@@ -110,14 +108,13 @@ return profileSaved(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _UserPreferencesLoaded value)?  loaded,TResult? Function( _UserPreferencesOwnerLoaded value)?  ownerLoaded,TResult? Function( _UserPreferencesProducerLoaded value)?  producerLoaded,TResult? Function( _UserPreferencesReminderToggled value)?  reminderToggled,TResult? Function( _UserPreferencesAlertToggled value)?  alertToggled,TResult? Function( _UserPreferencesChannelToggled value)?  channelToggled,TResult? Function( _UserPreferencesSaved value)?  saved,TResult? Function( _UserPreferencesProfileSaved value)?  profileSaved,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _UserPreferencesLoaded value)?  loaded,TResult? Function( _UserPreferencesOwnerLoaded value)?  ownerLoaded,TResult? Function( _UserPreferencesProducerLoaded value)?  producerLoaded,TResult? Function( _UserPreferencesAlertToggled value)?  alertToggled,TResult? Function( _UserPreferencesChannelToggled value)?  channelToggled,TResult? Function( _UserPreferencesSaved value)?  saved,TResult? Function( _UserPreferencesProfileSaved value)?  profileSaved,}){
 final _that = this;
 switch (_that) {
 case _UserPreferencesLoaded() when loaded != null:
 return loaded(_that);case _UserPreferencesOwnerLoaded() when ownerLoaded != null:
 return ownerLoaded(_that);case _UserPreferencesProducerLoaded() when producerLoaded != null:
-return producerLoaded(_that);case _UserPreferencesReminderToggled() when reminderToggled != null:
-return reminderToggled(_that);case _UserPreferencesAlertToggled() when alertToggled != null:
+return producerLoaded(_that);case _UserPreferencesAlertToggled() when alertToggled != null:
 return alertToggled(_that);case _UserPreferencesChannelToggled() when channelToggled != null:
 return channelToggled(_that);case _UserPreferencesSaved() when saved != null:
 return saved(_that);case _UserPreferencesProfileSaved() when profileSaved != null:
@@ -138,13 +135,12 @@ return profileSaved(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( Member? member)?  loaded,TResult Function( Owner? owner)?  ownerLoaded,TResult Function( ProducerAccount? producerAccount)?  producerLoaded,TResult Function( ReminderField field,  bool value)?  reminderToggled,TResult Function( AlertField field,  bool value)?  alertToggled,TResult Function( ChannelField field,  bool value)?  channelToggled,TResult Function()?  saved,TResult Function( String? firstName,  String? lastName,  String? email,  String? phone,  String? producerName,  String? contactEmail,  String? address,  String? website)?  profileSaved,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( Member? member)?  loaded,TResult Function( Owner? owner)?  ownerLoaded,TResult Function( ProducerAccount? producerAccount)?  producerLoaded,TResult Function( AlertField field,  bool value)?  alertToggled,TResult Function( ChannelField field,  bool value)?  channelToggled,TResult Function()?  saved,TResult Function( String? firstName,  String? lastName,  String? email,  String? phone,  String? producerName,  String? contactEmail,  String? address,  String? website)?  profileSaved,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserPreferencesLoaded() when loaded != null:
 return loaded(_that.member);case _UserPreferencesOwnerLoaded() when ownerLoaded != null:
 return ownerLoaded(_that.owner);case _UserPreferencesProducerLoaded() when producerLoaded != null:
-return producerLoaded(_that.producerAccount);case _UserPreferencesReminderToggled() when reminderToggled != null:
-return reminderToggled(_that.field,_that.value);case _UserPreferencesAlertToggled() when alertToggled != null:
+return producerLoaded(_that.producerAccount);case _UserPreferencesAlertToggled() when alertToggled != null:
 return alertToggled(_that.field,_that.value);case _UserPreferencesChannelToggled() when channelToggled != null:
 return channelToggled(_that.field,_that.value);case _UserPreferencesSaved() when saved != null:
 return saved();case _UserPreferencesProfileSaved() when profileSaved != null:
@@ -166,13 +162,12 @@ return profileSaved(_that.firstName,_that.lastName,_that.email,_that.phone,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( Member? member)  loaded,required TResult Function( Owner? owner)  ownerLoaded,required TResult Function( ProducerAccount? producerAccount)  producerLoaded,required TResult Function( ReminderField field,  bool value)  reminderToggled,required TResult Function( AlertField field,  bool value)  alertToggled,required TResult Function( ChannelField field,  bool value)  channelToggled,required TResult Function()  saved,required TResult Function( String? firstName,  String? lastName,  String? email,  String? phone,  String? producerName,  String? contactEmail,  String? address,  String? website)  profileSaved,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( Member? member)  loaded,required TResult Function( Owner? owner)  ownerLoaded,required TResult Function( ProducerAccount? producerAccount)  producerLoaded,required TResult Function( AlertField field,  bool value)  alertToggled,required TResult Function( ChannelField field,  bool value)  channelToggled,required TResult Function()  saved,required TResult Function( String? firstName,  String? lastName,  String? email,  String? phone,  String? producerName,  String? contactEmail,  String? address,  String? website)  profileSaved,}) {final _that = this;
 switch (_that) {
 case _UserPreferencesLoaded():
 return loaded(_that.member);case _UserPreferencesOwnerLoaded():
 return ownerLoaded(_that.owner);case _UserPreferencesProducerLoaded():
-return producerLoaded(_that.producerAccount);case _UserPreferencesReminderToggled():
-return reminderToggled(_that.field,_that.value);case _UserPreferencesAlertToggled():
+return producerLoaded(_that.producerAccount);case _UserPreferencesAlertToggled():
 return alertToggled(_that.field,_that.value);case _UserPreferencesChannelToggled():
 return channelToggled(_that.field,_that.value);case _UserPreferencesSaved():
 return saved();case _UserPreferencesProfileSaved():
@@ -190,13 +185,12 @@ return profileSaved(_that.firstName,_that.lastName,_that.email,_that.phone,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( Member? member)?  loaded,TResult? Function( Owner? owner)?  ownerLoaded,TResult? Function( ProducerAccount? producerAccount)?  producerLoaded,TResult? Function( ReminderField field,  bool value)?  reminderToggled,TResult? Function( AlertField field,  bool value)?  alertToggled,TResult? Function( ChannelField field,  bool value)?  channelToggled,TResult? Function()?  saved,TResult? Function( String? firstName,  String? lastName,  String? email,  String? phone,  String? producerName,  String? contactEmail,  String? address,  String? website)?  profileSaved,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( Member? member)?  loaded,TResult? Function( Owner? owner)?  ownerLoaded,TResult? Function( ProducerAccount? producerAccount)?  producerLoaded,TResult? Function( AlertField field,  bool value)?  alertToggled,TResult? Function( ChannelField field,  bool value)?  channelToggled,TResult? Function()?  saved,TResult? Function( String? firstName,  String? lastName,  String? email,  String? phone,  String? producerName,  String? contactEmail,  String? address,  String? website)?  profileSaved,}) {final _that = this;
 switch (_that) {
 case _UserPreferencesLoaded() when loaded != null:
 return loaded(_that.member);case _UserPreferencesOwnerLoaded() when ownerLoaded != null:
 return ownerLoaded(_that.owner);case _UserPreferencesProducerLoaded() when producerLoaded != null:
-return producerLoaded(_that.producerAccount);case _UserPreferencesReminderToggled() when reminderToggled != null:
-return reminderToggled(_that.field,_that.value);case _UserPreferencesAlertToggled() when alertToggled != null:
+return producerLoaded(_that.producerAccount);case _UserPreferencesAlertToggled() when alertToggled != null:
 return alertToggled(_that.field,_that.value);case _UserPreferencesChannelToggled() when channelToggled != null:
 return channelToggled(_that.field,_that.value);case _UserPreferencesSaved() when saved != null:
 return saved();case _UserPreferencesProfileSaved() when profileSaved != null:
@@ -446,76 +440,6 @@ $ProducerAccountCopyWith<$Res>? get producerAccount {
     return _then(_self.copyWith(producerAccount: value));
   });
 }
-}
-
-/// @nodoc
-
-
-class _UserPreferencesReminderToggled implements UserPreferencesEvent {
-  const _UserPreferencesReminderToggled(this.field, {required this.value});
-  
-
- final  ReminderField field;
- final  bool value;
-
-/// Create a copy of UserPreferencesEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$UserPreferencesReminderToggledCopyWith<_UserPreferencesReminderToggled> get copyWith => __$UserPreferencesReminderToggledCopyWithImpl<_UserPreferencesReminderToggled>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserPreferencesReminderToggled&&(identical(other.field, field) || other.field == field)&&(identical(other.value, value) || other.value == value));
-}
-
-
-@override
-int get hashCode {
-    return Object.hash(runtimeType,field,value);
-}
-
-@override
-String toString() {
-    return 'UserPreferencesEvent.reminderToggled(field: $field, value: $value)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class _$UserPreferencesReminderToggledCopyWith<$Res> implements $UserPreferencesEventCopyWith<$Res> {
-  factory _$UserPreferencesReminderToggledCopyWith(_UserPreferencesReminderToggled value, $Res Function(_UserPreferencesReminderToggled) _then) = __$UserPreferencesReminderToggledCopyWithImpl;
-@useResult
-$Res call({
- ReminderField field, bool value
-});
-
-
-
-
-}
-/// @nodoc
-class __$UserPreferencesReminderToggledCopyWithImpl<$Res>
-    implements _$UserPreferencesReminderToggledCopyWith<$Res> {
-  __$UserPreferencesReminderToggledCopyWithImpl(this._self, this._then);
-
-  final _UserPreferencesReminderToggled _self;
-  final $Res Function(_UserPreferencesReminderToggled) _then;
-
-/// Create a copy of UserPreferencesEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? field = null,Object? value = null,}) {
-  return _then(_UserPreferencesReminderToggled(
-null == field ? _self.field : field // ignore: cast_nullable_to_non_nullable
-as ReminderField,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
-as bool,
-  ));
-}
-
-
 }
 
 /// @nodoc

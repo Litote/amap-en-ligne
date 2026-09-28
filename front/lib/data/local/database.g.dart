@@ -1006,6 +1006,195 @@ class PendingMutationsCompanion extends UpdateCompanion<PendingMutation> {
   }
 }
 
+class $CacheOwnersTable extends CacheOwners
+    with TableInfo<$CacheOwnersTable, CacheOwner> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CacheOwnersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, userId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cache_owners';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CacheOwner> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CacheOwner map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CacheOwner(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+    );
+  }
+
+  @override
+  $CacheOwnersTable createAlias(String alias) {
+    return $CacheOwnersTable(attachedDatabase, alias);
+  }
+}
+
+class CacheOwner extends DataClass implements Insertable<CacheOwner> {
+  final int id;
+  final String userId;
+  const CacheOwner({required this.id, required this.userId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user_id'] = Variable<String>(userId);
+    return map;
+  }
+
+  CacheOwnersCompanion toCompanion(bool nullToAbsent) {
+    return CacheOwnersCompanion(id: Value(id), userId: Value(userId));
+  }
+
+  factory CacheOwner.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CacheOwner(
+      id: serializer.fromJson<int>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'userId': serializer.toJson<String>(userId),
+    };
+  }
+
+  CacheOwner copyWith({int? id, String? userId}) =>
+      CacheOwner(id: id ?? this.id, userId: userId ?? this.userId);
+  CacheOwner copyWithCompanion(CacheOwnersCompanion data) {
+    return CacheOwner(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CacheOwner(')
+          ..write('id: $id, ')
+          ..write('userId: $userId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, userId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CacheOwner &&
+          other.id == this.id &&
+          other.userId == this.userId);
+}
+
+class CacheOwnersCompanion extends UpdateCompanion<CacheOwner> {
+  final Value<int> id;
+  final Value<String> userId;
+  const CacheOwnersCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+  });
+  CacheOwnersCompanion.insert({
+    this.id = const Value.absent(),
+    required String userId,
+  }) : userId = Value(userId);
+  static Insertable<CacheOwner> custom({
+    Expression<int>? id,
+    Expression<String>? userId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+    });
+  }
+
+  CacheOwnersCompanion copyWith({Value<int>? id, Value<String>? userId}) {
+    return CacheOwnersCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CacheOwnersCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $OrganizationsTable extends Organizations
     with TableInfo<$OrganizationsTable, OrganizationRow> {
   @override
@@ -6166,6 +6355,291 @@ class ErrorReportsCompanion extends UpdateCompanion<ErrorReportRow> {
   }
 }
 
+class $ProducerSchedulesTable extends ProducerSchedules
+    with TableInfo<$ProducerSchedulesTable, ProducerScheduleRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProducerSchedulesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _producerAccountIdMeta = const VerificationMeta(
+    'producerAccountId',
+  );
+  @override
+  late final GeneratedColumn<String> producerAccountId =
+      GeneratedColumn<String>(
+        'producer_account_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _organizationIdMeta = const VerificationMeta(
+    'organizationId',
+  );
+  @override
+  late final GeneratedColumn<String> organizationId = GeneratedColumn<String>(
+    'organization_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataJsonMeta = const VerificationMeta(
+    'dataJson',
+  );
+  @override
+  late final GeneratedColumn<String> dataJson = GeneratedColumn<String>(
+    'data_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    producerAccountId,
+    organizationId,
+    dataJson,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'producer_schedules';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ProducerScheduleRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('producer_account_id')) {
+      context.handle(
+        _producerAccountIdMeta,
+        producerAccountId.isAcceptableOrUnknown(
+          data['producer_account_id']!,
+          _producerAccountIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_producerAccountIdMeta);
+    }
+    if (data.containsKey('organization_id')) {
+      context.handle(
+        _organizationIdMeta,
+        organizationId.isAcceptableOrUnknown(
+          data['organization_id']!,
+          _organizationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_organizationIdMeta);
+    }
+    if (data.containsKey('data_json')) {
+      context.handle(
+        _dataJsonMeta,
+        dataJson.isAcceptableOrUnknown(data['data_json']!, _dataJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {producerAccountId, organizationId};
+  @override
+  ProducerScheduleRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProducerScheduleRow(
+      producerAccountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}producer_account_id'],
+      )!,
+      organizationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}organization_id'],
+      )!,
+      dataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data_json'],
+      )!,
+    );
+  }
+
+  @override
+  $ProducerSchedulesTable createAlias(String alias) {
+    return $ProducerSchedulesTable(attachedDatabase, alias);
+  }
+}
+
+class ProducerScheduleRow extends DataClass
+    implements Insertable<ProducerScheduleRow> {
+  final String producerAccountId;
+  final String organizationId;
+  final String dataJson;
+  const ProducerScheduleRow({
+    required this.producerAccountId,
+    required this.organizationId,
+    required this.dataJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['producer_account_id'] = Variable<String>(producerAccountId);
+    map['organization_id'] = Variable<String>(organizationId);
+    map['data_json'] = Variable<String>(dataJson);
+    return map;
+  }
+
+  ProducerSchedulesCompanion toCompanion(bool nullToAbsent) {
+    return ProducerSchedulesCompanion(
+      producerAccountId: Value(producerAccountId),
+      organizationId: Value(organizationId),
+      dataJson: Value(dataJson),
+    );
+  }
+
+  factory ProducerScheduleRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProducerScheduleRow(
+      producerAccountId: serializer.fromJson<String>(json['producerAccountId']),
+      organizationId: serializer.fromJson<String>(json['organizationId']),
+      dataJson: serializer.fromJson<String>(json['dataJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'producerAccountId': serializer.toJson<String>(producerAccountId),
+      'organizationId': serializer.toJson<String>(organizationId),
+      'dataJson': serializer.toJson<String>(dataJson),
+    };
+  }
+
+  ProducerScheduleRow copyWith({
+    String? producerAccountId,
+    String? organizationId,
+    String? dataJson,
+  }) => ProducerScheduleRow(
+    producerAccountId: producerAccountId ?? this.producerAccountId,
+    organizationId: organizationId ?? this.organizationId,
+    dataJson: dataJson ?? this.dataJson,
+  );
+  ProducerScheduleRow copyWithCompanion(ProducerSchedulesCompanion data) {
+    return ProducerScheduleRow(
+      producerAccountId: data.producerAccountId.present
+          ? data.producerAccountId.value
+          : this.producerAccountId,
+      organizationId: data.organizationId.present
+          ? data.organizationId.value
+          : this.organizationId,
+      dataJson: data.dataJson.present ? data.dataJson.value : this.dataJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProducerScheduleRow(')
+          ..write('producerAccountId: $producerAccountId, ')
+          ..write('organizationId: $organizationId, ')
+          ..write('dataJson: $dataJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(producerAccountId, organizationId, dataJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProducerScheduleRow &&
+          other.producerAccountId == this.producerAccountId &&
+          other.organizationId == this.organizationId &&
+          other.dataJson == this.dataJson);
+}
+
+class ProducerSchedulesCompanion extends UpdateCompanion<ProducerScheduleRow> {
+  final Value<String> producerAccountId;
+  final Value<String> organizationId;
+  final Value<String> dataJson;
+  final Value<int> rowid;
+  const ProducerSchedulesCompanion({
+    this.producerAccountId = const Value.absent(),
+    this.organizationId = const Value.absent(),
+    this.dataJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ProducerSchedulesCompanion.insert({
+    required String producerAccountId,
+    required String organizationId,
+    required String dataJson,
+    this.rowid = const Value.absent(),
+  }) : producerAccountId = Value(producerAccountId),
+       organizationId = Value(organizationId),
+       dataJson = Value(dataJson);
+  static Insertable<ProducerScheduleRow> custom({
+    Expression<String>? producerAccountId,
+    Expression<String>? organizationId,
+    Expression<String>? dataJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (producerAccountId != null) 'producer_account_id': producerAccountId,
+      if (organizationId != null) 'organization_id': organizationId,
+      if (dataJson != null) 'data_json': dataJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ProducerSchedulesCompanion copyWith({
+    Value<String>? producerAccountId,
+    Value<String>? organizationId,
+    Value<String>? dataJson,
+    Value<int>? rowid,
+  }) {
+    return ProducerSchedulesCompanion(
+      producerAccountId: producerAccountId ?? this.producerAccountId,
+      organizationId: organizationId ?? this.organizationId,
+      dataJson: dataJson ?? this.dataJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (producerAccountId.present) {
+      map['producer_account_id'] = Variable<String>(producerAccountId.value);
+    }
+    if (organizationId.present) {
+      map['organization_id'] = Variable<String>(organizationId.value);
+    }
+    if (dataJson.present) {
+      map['data_json'] = Variable<String>(dataJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProducerSchedulesCompanion(')
+          ..write('producerAccountId: $producerAccountId, ')
+          ..write('organizationId: $organizationId, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6174,6 +6648,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PendingMutationsTable pendingMutations = $PendingMutationsTable(
     this,
   );
+  late final $CacheOwnersTable cacheOwners = $CacheOwnersTable(this);
   late final $OrganizationsTable organizations = $OrganizationsTable(this);
   late final $ProducerAccountsTable producerAccounts = $ProducerAccountsTable(
     this,
@@ -6203,6 +6678,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AttendanceEmailRequestsTable attendanceEmailRequests =
       $AttendanceEmailRequestsTable(this);
   late final $ErrorReportsTable errorReports = $ErrorReportsTable(this);
+  late final $ProducerSchedulesTable producerSchedules =
+      $ProducerSchedulesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6211,6 +6688,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     productTypes,
     syncCursors,
     pendingMutations,
+    cacheOwners,
     organizations,
     producerAccounts,
     members,
@@ -6227,6 +6705,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     deviceTokens,
     attendanceEmailRequests,
     errorReports,
+    producerSchedules,
   ];
 }
 
@@ -6820,6 +7299,140 @@ typedef $$PendingMutationsTableProcessedTableManager =
         BaseReferences<_$AppDatabase, $PendingMutationsTable, PendingMutation>,
       ),
       PendingMutation,
+      PrefetchHooks Function()
+    >;
+typedef $$CacheOwnersTableCreateCompanionBuilder =
+    CacheOwnersCompanion Function({Value<int> id, required String userId});
+typedef $$CacheOwnersTableUpdateCompanionBuilder =
+    CacheOwnersCompanion Function({Value<int> id, Value<String> userId});
+
+class $$CacheOwnersTableFilterComposer
+    extends Composer<_$AppDatabase, $CacheOwnersTable> {
+  $$CacheOwnersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CacheOwnersTableOrderingComposer
+    extends Composer<_$AppDatabase, $CacheOwnersTable> {
+  $$CacheOwnersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CacheOwnersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CacheOwnersTable> {
+  $$CacheOwnersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+}
+
+class $$CacheOwnersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CacheOwnersTable,
+          CacheOwner,
+          $$CacheOwnersTableFilterComposer,
+          $$CacheOwnersTableOrderingComposer,
+          $$CacheOwnersTableAnnotationComposer,
+          $$CacheOwnersTableCreateCompanionBuilder,
+          $$CacheOwnersTableUpdateCompanionBuilder,
+          (
+            CacheOwner,
+            BaseReferences<_$AppDatabase, $CacheOwnersTable, CacheOwner>,
+          ),
+          CacheOwner,
+          PrefetchHooks Function()
+        > {
+  $$CacheOwnersTableTableManager(_$AppDatabase db, $CacheOwnersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CacheOwnersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CacheOwnersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CacheOwnersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> userId = const Value.absent(),
+              }) => CacheOwnersCompanion(id: id, userId: userId),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String userId,
+              }) => CacheOwnersCompanion.insert(id: id, userId: userId),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$CacheOwnersTable, CacheOwner>(table),
+                  BaseReferences<_$AppDatabase, $CacheOwnersTable, CacheOwner>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CacheOwnersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CacheOwnersTable,
+      CacheOwner,
+      $$CacheOwnersTableFilterComposer,
+      $$CacheOwnersTableOrderingComposer,
+      $$CacheOwnersTableAnnotationComposer,
+      $$CacheOwnersTableCreateCompanionBuilder,
+      $$CacheOwnersTableUpdateCompanionBuilder,
+      (
+        CacheOwner,
+        BaseReferences<_$AppDatabase, $CacheOwnersTable, CacheOwner>,
+      ),
+      CacheOwner,
       PrefetchHooks Function()
     >;
 typedef $$OrganizationsTableCreateCompanionBuilder =
@@ -9989,6 +10602,196 @@ typedef $$ErrorReportsTableProcessedTableManager =
       ErrorReportRow,
       PrefetchHooks Function()
     >;
+typedef $$ProducerSchedulesTableCreateCompanionBuilder =
+    ProducerSchedulesCompanion Function({
+      required String producerAccountId,
+      required String organizationId,
+      required String dataJson,
+      Value<int> rowid,
+    });
+typedef $$ProducerSchedulesTableUpdateCompanionBuilder =
+    ProducerSchedulesCompanion Function({
+      Value<String> producerAccountId,
+      Value<String> organizationId,
+      Value<String> dataJson,
+      Value<int> rowid,
+    });
+
+class $$ProducerSchedulesTableFilterComposer
+    extends Composer<_$AppDatabase, $ProducerSchedulesTable> {
+  $$ProducerSchedulesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get producerAccountId => $composableBuilder(
+    column: $table.producerAccountId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get organizationId => $composableBuilder(
+    column: $table.organizationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ProducerSchedulesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ProducerSchedulesTable> {
+  $$ProducerSchedulesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get producerAccountId => $composableBuilder(
+    column: $table.producerAccountId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get organizationId => $composableBuilder(
+    column: $table.organizationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ProducerSchedulesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ProducerSchedulesTable> {
+  $$ProducerSchedulesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get producerAccountId => $composableBuilder(
+    column: $table.producerAccountId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get organizationId => $composableBuilder(
+    column: $table.organizationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dataJson =>
+      $composableBuilder(column: $table.dataJson, builder: (column) => column);
+}
+
+class $$ProducerSchedulesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ProducerSchedulesTable,
+          ProducerScheduleRow,
+          $$ProducerSchedulesTableFilterComposer,
+          $$ProducerSchedulesTableOrderingComposer,
+          $$ProducerSchedulesTableAnnotationComposer,
+          $$ProducerSchedulesTableCreateCompanionBuilder,
+          $$ProducerSchedulesTableUpdateCompanionBuilder,
+          (
+            ProducerScheduleRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ProducerSchedulesTable,
+              ProducerScheduleRow
+            >,
+          ),
+          ProducerScheduleRow,
+          PrefetchHooks Function()
+        > {
+  $$ProducerSchedulesTableTableManager(
+    _$AppDatabase db,
+    $ProducerSchedulesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProducerSchedulesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProducerSchedulesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProducerSchedulesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> producerAccountId = const Value.absent(),
+                Value<String> organizationId = const Value.absent(),
+                Value<String> dataJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ProducerSchedulesCompanion(
+                producerAccountId: producerAccountId,
+                organizationId: organizationId,
+                dataJson: dataJson,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String producerAccountId,
+                required String organizationId,
+                required String dataJson,
+                Value<int> rowid = const Value.absent(),
+              }) => ProducerSchedulesCompanion.insert(
+                producerAccountId: producerAccountId,
+                organizationId: organizationId,
+                dataJson: dataJson,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ProducerSchedulesTable, ProducerScheduleRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ProducerSchedulesTable,
+                    ProducerScheduleRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ProducerSchedulesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ProducerSchedulesTable,
+      ProducerScheduleRow,
+      $$ProducerSchedulesTableFilterComposer,
+      $$ProducerSchedulesTableOrderingComposer,
+      $$ProducerSchedulesTableAnnotationComposer,
+      $$ProducerSchedulesTableCreateCompanionBuilder,
+      $$ProducerSchedulesTableUpdateCompanionBuilder,
+      (
+        ProducerScheduleRow,
+        BaseReferences<
+          _$AppDatabase,
+          $ProducerSchedulesTable,
+          ProducerScheduleRow
+        >,
+      ),
+      ProducerScheduleRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -9999,6 +10802,8 @@ class $AppDatabaseManager {
       $$SyncCursorsTableTableManager(_db, _db.syncCursors);
   $$PendingMutationsTableTableManager get pendingMutations =>
       $$PendingMutationsTableTableManager(_db, _db.pendingMutations);
+  $$CacheOwnersTableTableManager get cacheOwners =>
+      $$CacheOwnersTableTableManager(_db, _db.cacheOwners);
   $$OrganizationsTableTableManager get organizations =>
       $$OrganizationsTableTableManager(_db, _db.organizations);
   $$ProducerAccountsTableTableManager get producerAccounts =>
@@ -10034,4 +10839,6 @@ class $AppDatabaseManager {
       );
   $$ErrorReportsTableTableManager get errorReports =>
       $$ErrorReportsTableTableManager(_db, _db.errorReports);
+  $$ProducerSchedulesTableTableManager get producerSchedules =>
+      $$ProducerSchedulesTableTableManager(_db, _db.producerSchedules);
 }

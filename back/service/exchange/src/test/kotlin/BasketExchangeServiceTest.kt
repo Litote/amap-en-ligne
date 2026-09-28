@@ -691,6 +691,17 @@ internal class BasketExchangeServiceTest {
     // Both default deliveries (delivery-1, delivery-2) are linked to contract-1 on the same date,
     // so the canonical (scheduledDate, deliveryId) order is [delivery-1 (p=0), delivery-2 (p=1)].
     private fun buildSharedContract(memberIds: List<String>): persistence.model.Contract =
+        buildContract(subscribers = memberIds).copy(
+            sharedBaskets =
+                listOf(
+                    persistence.model.SharedBasket(
+                        sharedBasketId = "sb-1".toId(),
+                        memberIds = memberIds.map { it.toId() },
+                    ),
+                ),
+        )
+
+    private fun buildContract(subscribers: List<String>): persistence.model.Contract =
         persistence.model.Contract(
             contractId = CONTRACT_ID.toId(),
             name = "Panier partagé",
@@ -700,14 +711,65 @@ internal class BasketExchangeServiceTest {
             maxDeliveryDate = kotlinx.datetime.LocalDate(2030, 12, 31),
             deliveryCount = 2,
             seasonYear = 2030,
-            sharedBaskets =
-                listOf(
-                    persistence.model.SharedBasket(
-                        sharedBasketId = "sb-1".toId(),
-                        memberIds = memberIds.map { it.toId() },
-                    ),
-                ),
+            members =
+                subscribers.map {
+                    persistence.model.ContractMember(
+                        memberId = it.toId(),
+                        subscriptionInstant = Clock.System.now(),
+                        status = persistence.model.MemberContractStatus.ACTIVE,
+                    )
+                },
         )
+
+    @Test
+    fun `GIVEN offerer not subscribed to the contract WHEN create THEN REJECTED FORBIDDEN`() =
+        runTest {
+            val exchange = buildOpenExchange(TMP_EXCHANGE_ID)
+            val mutation = buildMutation(exchange)
+            coEvery { organizationSyncDAO.getById(any()) } returns buildOrganization()
+            coEvery { basketExchangeSyncDAO.getByOrganizationId(any()) } returns emptyList()
+            coEvery { contractSyncDAO.getByOrganizationId(any()) } returns listOf(buildContract(listOf("someone-else")))
+
+            val outcome = service.applyUpsert(offererAuth, mutation, BasketExchangePayload(exchange))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
+            coVerify(exactly = 0) { basketExchangeSyncDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN offerer subscribed to the contract WHEN create THEN APPLIED`() =
+        runTest {
+            val exchange = buildOpenExchange(TMP_EXCHANGE_ID)
+            val mutation = buildMutation(exchange)
+            coEvery { organizationSyncDAO.getById(any()) } returns buildOrganization()
+            coEvery { basketExchangeSyncDAO.getByOrganizationId(any()) } returns emptyList()
+            coEvery { basketExchangeSyncDAO.put(any(), any()) } returns Unit
+            coEvery { contractSyncDAO.getByOrganizationId(any()) } returns listOf(buildContract(listOf(OFFERER_ID)))
+
+            val outcome = service.applyUpsert(offererAuth, mutation, BasketExchangePayload(exchange))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    @Test
+    fun `GIVEN requester not subscribed to the counter-delivery contract WHEN add request THEN REJECTED FORBIDDEN`() =
+        runTest {
+            val existing = buildOpenExchange()
+            val newRequest =
+                buildPendingRequest(requestId = TMP_REQUEST_ID).copy(proposedContractId = CONTRACT_ID.toId())
+            val incoming = existing.copy(requests = listOf(newRequest))
+            val mutation = buildMutation(incoming)
+            coEvery { basketExchangeSyncDAO.findById(any(), any()) } returns existing
+            coEvery { basketExchangeSyncDAO.getByOrganizationId(any()) } returns listOf(existing)
+            coEvery { organizationSyncDAO.getById(any()) } returns buildOrganization()
+            coEvery { contractSyncDAO.getByOrganizationId(any()) } returns listOf(buildContract(listOf(OFFERER_ID)))
+
+            val outcome = service.applyUpsert(requesterAuth, mutation, BasketExchangePayload(incoming))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
+        }
 
     @Test
     fun `GIVEN shared basket and not the offerer's turn WHEN create THEN REJECTED FORBIDDEN`() =

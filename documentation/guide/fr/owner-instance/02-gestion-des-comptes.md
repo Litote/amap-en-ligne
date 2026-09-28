@@ -45,6 +45,11 @@ La liste agrège les comptes de toutes les AMAP et de tous les producteurs. Vous
 | **Invité** | Invitation envoyée, pas encore activée |
 | **Suspendu** | Connexion bloquée ; rôles et appartenances conservés |
 
+Une invitation en attente — d'un administrateur d'instance ou d'un membre d'AMAP —
+apparaît dans la liste avec le statut **Invité**. Sa fiche ne propose aucune action sur
+le compte tant que l'invitation n'est pas activée. Les producteurs **sans compte** (gérés
+par une AMAP) ne se connectent pas : ils n'apparaissent pas dans cette liste.
+
 ## Consulter une fiche
 
 Touchez une ligne pour ouvrir le **détail** de l'utilisateur : ses informations de
@@ -52,7 +57,11 @@ compte (en lecture seule) et ses appartenances (AMAP, producteur).
 
 - Pour un utilisateur membre d'une AMAP, le bouton **[Modifier]** en face d'une
   appartenance permet d'ajuster ses **rôles** dans cette AMAP (au moins un rôle ; l'AMAP
-  doit conserver au moins un admin), ou de le **[RETIRER DE L'AMAP]**.
+  doit conserver au moins un admin).
+- Retirer quelqu'un d'une AMAP relève de l'admin de cette AMAP, depuis sa gestion des
+  membres.
+- La fiche indique la **date d'inscription** (activation du compte) quand elle est
+  connue ; les comptes plus anciens n'en ont pas.
 
 ## Suspendre, réactiver, supprimer
 

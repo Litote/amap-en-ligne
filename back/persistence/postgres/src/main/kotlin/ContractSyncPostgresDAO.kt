@@ -58,6 +58,7 @@ internal class ContractSyncPostgresDAO(
     override suspend fun put(
         contract: Contract,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
         client.dataSource.tx { conn ->
             conn
@@ -117,6 +118,7 @@ internal class ContractSyncPostgresDAO(
                     stmt.executeUpdate()
                 }
             upsertChange(conn, change)
+            fanOutChanges.forEach { upsertChange(conn, it) }
         }
     }
 
@@ -124,6 +126,7 @@ internal class ContractSyncPostgresDAO(
         contractId: Id<Contract>,
         organizationId: Id<Organization>,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
         client.dataSource.tx { conn ->
             conn
@@ -135,6 +138,7 @@ internal class ContractSyncPostgresDAO(
                     stmt.executeUpdate()
                 }
             upsertChange(conn, change)
+            fanOutChanges.forEach { upsertChange(conn, it) }
         }
     }
 }

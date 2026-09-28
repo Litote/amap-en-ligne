@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:amap_en_ligne/data/repositories/attendance_email_request_repository.dart';
+import 'package:amap_en_ligne/data/repositories/contract_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/coordinator/coordinator_post_delivery_sync_screen.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
@@ -22,6 +24,8 @@ class _MockOrganizationRepository extends Mock
 class _MockAttendanceEmailRequestRepository extends Mock
     implements AttendanceEmailRequestRepository {}
 
+class _MockContractRepository extends Mock implements ContractRepository {}
+
 class _MockSyncBloc extends MockBloc<SyncEvent, SyncState>
     implements SyncBloc {}
 
@@ -32,13 +36,19 @@ Future<void> _pumpWith(
   required SyncBloc syncBloc,
   String tenantId = 'org-1',
   String deliveryId = 'd-1',
+  List<Contract> contracts = const [],
 }) async {
   when(() => syncBloc.state).thenReturn(const SyncState.idle());
   when(() => syncBloc.stream).thenAnswer((_) => const Stream.empty());
+  final contractRepo = _MockContractRepository();
+  when(
+    () => contractRepo.watch(any()),
+  ).thenAnswer((_) => Stream.value(contracts));
   await tester.pumpWidget(
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider<OrganizationRepository>.value(value: repo),
+        RepositoryProvider<ContractRepository>.value(value: contractRepo),
         RepositoryProvider<AttendanceEmailRequestRepository>.value(
           value: attendanceRepo,
         ),
@@ -280,6 +290,43 @@ void main() {
       );
       expect(find.textContaining('Panier œufs'), findsOneWidget);
     });
+
+    testWidgets(
+      'basket recap names the contract from the live catalog when the link '
+      'snapshot is blank (imported data)',
+      (tester) async {
+        final delivery = buildDelivery(
+          contracts: [
+            buildContract(contractId: 'c-1', deliveryDescription: ''),
+          ],
+        );
+
+        await _pumpWith(
+          tester,
+          repo: repo,
+          attendanceRepo: attendanceRepo,
+          syncBloc: syncBloc,
+          contracts: const [
+            Contract(
+              contractId: 'c-1',
+              name: 'Œufs 2026/2027',
+              organizationId: 'org-1',
+              producerAccountId: 'pa-1',
+              minDeliveryDate: '2020-01-01',
+              maxDeliveryDate: '2099-12-31',
+              deliveryCount: 10,
+              seasonYear: 2026,
+            ),
+          ],
+        );
+        await tester.pump();
+        orgStream.add(buildOrg(deliveries: [delivery]));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 10));
+
+        expect(find.text('Œufs 2026/2027'), findsOneWidget);
+      },
+    );
 
     testWidgets('shows 100% for distributed contract', (tester) async {
       final delivery = buildDelivery(
@@ -535,7 +582,10 @@ void main() {
     testWidgets('ARCHIVER confirms then marks the delivery COMPLETED', (
       tester,
     ) async {
-      final delivery = buildDelivery(contracts: [buildContract()]);
+      final delivery = buildDelivery(
+        scheduledDate: daysFromNowIso(0),
+        contracts: [buildContract()],
+      );
       when(
         () => repo.updateDeliveryStatus(
           currentOrg: any(named: 'currentOrg'),
@@ -574,10 +624,76 @@ void main() {
       verify(() => syncBloc.add(const SyncEvent.mutationApplied())).called(1);
     });
 
+    testWidgets(
+      'without any registration the presence rate says so instead of 0% (0/0)',
+      (tester) async {
+        final delivery = buildDelivery(
+          contracts: [
+            buildContract(basketQuantity: 2),
+            buildContract(
+              contractId: 'c-draft',
+              basketQuantity: 0,
+              deliveryDescription: 'Contrat en préparation',
+            ),
+          ],
+        );
+
+        await _pumpWith(
+          tester,
+          repo: repo,
+          attendanceRepo: attendanceRepo,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        orgStream.add(buildOrg(deliveries: [delivery]));
+        await tester.pump();
+
+        expect(find.text('— (aucun bénévole inscrit)'), findsOneWidget);
+        expect(find.textContaining('(0/0)'), findsNothing);
+        // A link without any basket has nothing to collect.
+        expect(find.text('Contrat en préparation'), findsNothing);
+        expect(find.text('0% (0/2)'), findsOneWidget);
+      },
+    );
+
+    testWidgets('ARCHIVER is disabled before the delivery day', (tester) async {
+      final delivery = buildDelivery(
+        scheduledDate: daysFromNowIso(1),
+        contracts: [buildContract()],
+      );
+
+      await _pumpWith(
+        tester,
+        repo: repo,
+        attendanceRepo: attendanceRepo,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+
+      orgStream.add(buildOrg(deliveries: [delivery]));
+      await tester.pump();
+
+      final button = tester.widget<FilledButton>(
+        find.ancestor(
+          of: find.text('ARCHIVER'),
+          matching: find.byType(FilledButton),
+        ),
+      );
+      expect(button.onPressed, isNull);
+      expect(
+        find.textContaining('pourra être clôturée à partir du'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('ARCHIVER cancelled does not touch the delivery', (
       tester,
     ) async {
-      final delivery = buildDelivery(contracts: [buildContract()]);
+      final delivery = buildDelivery(
+        scheduledDate: daysFromNowIso(0),
+        contracts: [buildContract()],
+      );
 
       await _pumpWith(
         tester,

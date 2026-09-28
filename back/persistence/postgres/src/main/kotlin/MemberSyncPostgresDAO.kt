@@ -33,7 +33,7 @@ internal class MemberSyncPostgresDAO(
                     SELECT member_id, organization_id, roles,
                            first_name, last_name, email, phone, account_status,
                            contracts, registrations,
-                           member_preferences, user_preferences, user_settings
+                           member_preferences, user_preferences, user_settings, registered_at
                     FROM member
                     WHERE organization_id = ?
                     """.trimIndent(),
@@ -57,7 +57,7 @@ internal class MemberSyncPostgresDAO(
                     SELECT member_id, organization_id, roles,
                            first_name, last_name, email, phone, account_status,
                            contracts, registrations,
-                           member_preferences, user_preferences, user_settings
+                           member_preferences, user_preferences, user_settings, registered_at
                     FROM member
                     """.trimIndent(),
                 ).use { stmt ->
@@ -92,7 +92,7 @@ internal class MemberSyncPostgresDAO(
                     SELECT member_id, organization_id, roles,
                            first_name, last_name, email, phone, account_status,
                            contracts, registrations,
-                           member_preferences, user_preferences, user_settings
+                           member_preferences, user_preferences, user_settings, registered_at
                     FROM member
                     WHERE member_id = ?
                     """.trimIndent(),
@@ -120,8 +120,8 @@ internal class MemberSyncPostgresDAO(
                         member_id, organization_id, roles,
                         first_name, last_name, email, phone, account_status,
                         contracts, registrations,
-                        member_preferences, user_preferences, user_settings
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb)
+                        member_preferences, user_preferences, user_settings, registered_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb, ?)
                     ON CONFLICT (member_id)
                     DO UPDATE SET
                         organization_id = EXCLUDED.organization_id,
@@ -135,7 +135,8 @@ internal class MemberSyncPostgresDAO(
                         registrations = EXCLUDED.registrations,
                         member_preferences = EXCLUDED.member_preferences,
                         user_preferences = EXCLUDED.user_preferences,
-                        user_settings = EXCLUDED.user_settings
+                        user_settings = EXCLUDED.user_settings,
+                        registered_at = EXCLUDED.registered_at
                     """.trimIndent(),
                 ).use { stmt ->
                     stmt.setString(1, member.memberId.id)
@@ -169,6 +170,7 @@ internal class MemberSyncPostgresDAO(
                         json.encodeToString(UserPreferences.serializer(), member.userPreferences),
                     )
                     stmt.setString(13, json.encodeToString(UserSettings.serializer(), member.userSettings))
+                    stmt.setLongOrNull(14, member.registeredAt)
                     stmt.executeUpdate()
                 }
             upsertChanges(conn, changes)
@@ -281,4 +283,5 @@ private fun ResultSet.toMember(): Member =
                 UserSettings.serializer(),
                 getString("user_settings"),
             ),
+        registeredAt = getInstantOrNull("registered_at"),
     )

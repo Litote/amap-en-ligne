@@ -250,7 +250,7 @@ L'action **[Ajouter un produit]** ouvre un formulaire permettant de saisir :
 
 | Action | Comportement |
 |--------|-------------|
-| [Modifier] | Visible uniquement pour un producteur **avec compte** ; ouvre l'étape 2 pré-remplie avec les produits actuels |
+| [Modifier] | Producteur **avec compte** : ouvre l'étape 2 pré-remplie avec les produits actuels, parmi son catalogue (ses types de produit). Producteur **sans compte** : ouvre l'édition de ses produits propres à l'AMAP |
 | [SUSPENDRE] | Passe le statut à `SUSPENDED` ; confirmation demandée avant envoi |
 | [RÉACTIVER] | Passe le statut à `ACTIVE` (visible uniquement si statut `SUSPENDED`) |
 | [METTRE FIN À L'ASSOCIATION] | Passe le statut à `TERMINATED` ; modal de confirmation |
@@ -276,7 +276,7 @@ L'action **[Ajouter un produit]** ouvre un formulaire permettant de saisir :
 | Action | Comportement |
 |--------|-------------|
 | [Ajouter un produit] | Ouvre le formulaire de création d'un produit propre à cette AMAP |
-| [Modifier] | Permet de changer le nom du produit et ses tailles de panier |
+| [Modifier] | Permet de changer le nom du produit et ses tailles de panier ; une taille déjà présente (casse ignorée) est refusée avec le message « La taille « … » est présente deux fois. » et le champ se vide après chaque ajout |
 | [Supprimer] | Retire le produit de la liste courante ; confirmation demandée |
 | [CONFIRMER L'AJOUT DU PRODUCTEUR] | Crée le producteur sans compte et sa liste de produits dans l'AMAP |
 | Après création | La fiche du producteur sans compte devient **lecture seule** pour l'admin ; seules les actions de statut restent disponibles |
@@ -306,8 +306,8 @@ L'action **[Ajouter un produit]** ouvre un formulaire permettant de saisir :
 |------|---------------|---------------------|
 | Avec compte | `ACTIVE` | [Modifier] · [SUSPENDRE] · [METTRE FIN À L'ASSOCIATION] |
 | Avec compte | `SUSPENDED` | [Modifier] · [RÉACTIVER] · [METTRE FIN À L'ASSOCIATION] |
-| Sans compte | `ACTIVE` | [SUSPENDRE] · [METTRE FIN À L'ASSOCIATION] |
-| Sans compte | `SUSPENDED` | [RÉACTIVER] · [METTRE FIN À L'ASSOCIATION] |
+| Sans compte | `ACTIVE` | [Modifier] · [SUSPENDRE] · [METTRE FIN À L'ASSOCIATION] |
+| Sans compte | `SUSPENDED` | [Modifier] · [RÉACTIVER] · [METTRE FIN À L'ASSOCIATION] |
 | Tous modes | `TERMINATED` | Aucune action ; lecture seule |
 
 ### Cas limites

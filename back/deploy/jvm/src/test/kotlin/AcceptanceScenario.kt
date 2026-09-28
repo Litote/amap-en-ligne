@@ -22,20 +22,44 @@ data class AcceptanceScenario(
 data class AcceptanceGiven(
     val backendState: String,
     val appState: String,
+    // Members seeded directly in the `organization {id}` AMAP before the first step.
+    val members: List<AcceptanceGivenMember> = emptyList(),
+    // Account-backed producer accounts seeded directly (not linked to any AMAP).
+    val producerAccounts: List<AcceptanceGivenProducerAccount> = emptyList(),
+)
+
+@Serializable
+data class AcceptanceGivenMember(
+    val memberId: String,
+    val roles: List<String>,
+)
+
+@Serializable
+data class AcceptanceGivenProducerAccount(
+    val producerAccountId: String,
+    val name: String,
 )
 
 @Serializable
 data class AcceptanceStep(
     val actor: String,
     val action: String,
+    // Caller identity the step's token is minted for: `producer` (default), `owner` or `admin:{organizationId}`.
+    @SerialName("as")
+    val caller: String? = null,
     val request: SyncRequest,
     val save: AcceptanceSave? = null,
+    // Checked right after this step (same shape as `then.lastResponse`), for multi-actor stories.
+    val expect: AcceptanceResponseExpectation? = null,
 )
 
 @Serializable
 data class AcceptanceSave(
     @SerialName("cursorRefs")
     val cursorRefs: Map<String, String> = emptyMap(),
+    // clientOpId -> ref name: saves the outcome's serverEntityId for later `$ref:` use.
+    @SerialName("entityIdRefs")
+    val entityIdRefs: Map<String, String> = emptyMap(),
 )
 
 @Serializable
@@ -78,6 +102,10 @@ data class AcceptanceChangeExpectation(
     val entityType: EntityType,
     val entityId: String,
     val op: String,
+    // When set, the change must come from this scope's result.
+    val scopeKey: String? = null,
+    // When set, the changed entity's JSON must hold these fields.
+    val payload: JsonObject? = null,
 )
 
 @Serializable

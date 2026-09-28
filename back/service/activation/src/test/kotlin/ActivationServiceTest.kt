@@ -254,7 +254,8 @@ internal class ActivationServiceTest {
                             member.accountStatus == MemberAccountStatus.ACTIVE &&
                             member.email == token.adminEmail &&
                             member.firstName == request.adminFirstName &&
-                            member.lastName == request.adminLastName
+                            member.lastName == request.adminLastName &&
+                            member.registeredAt != null
                     },
                     any(),
                 )
@@ -410,7 +411,7 @@ internal class ActivationServiceTest {
             val result = service.activate(token.token, "password789")
 
             assertIs<ActivationOutcome.Success>(result)
-            coVerify { memberSyncDAO.put(any(), any()) }
+            coVerify { memberSyncDAO.put(match { it.registeredAt != null }, any()) }
             coVerify { memberInvitationDAO.put(match { it.status == MemberInvitationStatus.ACTIVATED }, any()) }
             coVerify { activationTokenDAO.markActivated(token.token, any()) }
         }

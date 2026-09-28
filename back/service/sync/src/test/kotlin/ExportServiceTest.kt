@@ -21,6 +21,8 @@ import persistence.model.BasketSize
 import persistence.model.Member
 import persistence.model.MemberPreferences
 import persistence.model.Organization
+import persistence.model.OrganizationProducer
+import persistence.model.OrganizationProducerStatus
 import persistence.model.ProducerAccount
 import persistence.model.ProductType
 import persistence.model.UserPreferences
@@ -126,6 +128,43 @@ internal class ExportServiceTest {
             assertEquals(organizationId, success.export.organizationId)
             assertEquals("Test Instance", success.export.sourceInstance)
             assertEquals(listOf(MemberPayload(member)), success.export.scopes.organization)
+            assertEquals(listOf(ProductTypePayload(productType)), success.export.scopes.productTypes)
+        }
+
+    @Test
+    fun `GIVEN producer linked only through Organization producers WHEN export THEN its catalog is exported`() =
+        runTest {
+            // Legacy enrollment: the link lives in Organization.producers, with no per-organization
+            // producer row, so getByOrganizationId does not return it.
+            val linkedOrganization =
+                organization.copy(
+                    producers =
+                        listOf(
+                            OrganizationProducer("pa-1".toId(), now, OrganizationProducerStatus.ACTIVE),
+                            OrganizationProducer("pa-2".toId(), now, OrganizationProducerStatus.TERMINATED),
+                        ),
+                )
+            val dataService = mockk<DataService>()
+            coEvery { dataService.snapshotScope(any(), any()) } returns emptyList()
+            val organizationSyncDAO = mockk<OrganizationSyncDAO>()
+            coEvery { organizationSyncDAO.getById(organizationId.toId<Organization>()) } returns linkedOrganization
+            val producerAccountSyncDAO = mockk<ProducerAccountSyncDAO>()
+            coEvery { producerAccountSyncDAO.getByOrganizationId(any()) } returns emptyList()
+            val productTypeDAO = mockk<ProductTypeSyncDAO>()
+            coEvery { productTypeDAO.getByProducerAccountId("pa-1".toId()) } returns listOf(productType)
+            coEvery { productTypeDAO.getByProducerAccountId("pa-2".toId()) } returns
+                listOf(productType.copy(productTypeId = "pt-2".toId(), producerAccountId = "pa-2".toId()))
+
+            val service =
+                buildService(
+                    dataService = dataService,
+                    organizationSyncDAO = organizationSyncDAO,
+                    producerAccountSyncDAO = producerAccountSyncDAO,
+                    productTypeDAO = productTypeDAO,
+                )
+
+            val success = assertIs<ExportOutcome.Success>(service.exportOrganization(adminAuth(), organizationId, null))
+
             assertEquals(listOf(ProductTypePayload(productType)), success.export.scopes.productTypes)
         }
 

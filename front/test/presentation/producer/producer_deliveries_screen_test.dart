@@ -1,7 +1,8 @@
-import 'package:amap_en_ligne/data/repositories/contract_repository.dart';
-import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
-import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'dart:async';
+
+import 'package:amap_en_ligne/data/repositories/producer_schedule_repository.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/producer_schedule.dart';
 import 'package:amap_en_ligne/presentation/producer/producer_deliveries_screen.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
@@ -13,236 +14,148 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockOrganizationRepository extends Mock
-    implements OrganizationRepository {}
-
-class _MockContractRepository extends Mock implements ContractRepository {}
+class _MockProducerScheduleRepository extends Mock
+    implements ProducerScheduleRepository {}
 
 class _MockSyncBloc extends MockBloc<SyncEvent, SyncState>
     implements SyncBloc {}
 
-_MockSyncBloc _makeSyncBloc() {
-  final bloc = _MockSyncBloc();
-  when(() => bloc.state).thenReturn(const SyncState.idle());
-  when(() => bloc.stream).thenAnswer((_) => const Stream.empty());
-  return bloc;
-}
+const _producerAccountId = 'pa-1';
 
-const _orgId = 'org-1';
-const _producerAccountId = 'producer-sub-1';
-const _contractId = 'contract-1';
-
-const _contract = Contract(
-  contractId: _contractId,
-  name: 'Légumes',
-  organizationId: _orgId,
-  producerAccountId: _producerAccountId,
-  minDeliveryDate: '2025-01-01T00:00:00',
-  maxDeliveryDate: '2025-12-31T00:00:00',
-  deliveryCount: 12,
-  seasonYear: 2025,
+ProducerScheduleDelivery _delivery(
+  String id,
+  String date, {
+  String contractName = 'Fromages 2026',
+  int baskets = 12,
+}) => ProducerScheduleDelivery(
+  deliveryId: id,
+  scheduledDate: date,
+  status: DeliveryStatus.planned,
+  contracts: [
+    ProducerScheduleContract(
+      contractId: 'c-$id',
+      contractName: contractName,
+      basketQuantity: baskets,
+      status: DeliveryContractStatus.pending,
+    ),
+  ],
 );
 
-Delivery _delivery({
-  String deliveryId = 'd-1',
-  String scheduledDate = '2025-06-14T18:00:00',
-  DeliveryStatus status = DeliveryStatus.planned,
-  List<DeliveryContract> contracts = const [],
-}) => Delivery(
-  deliveryId: deliveryId,
-  organizationId: _orgId,
-  scheduledDate: scheduledDate,
-  status: status,
-  minVolunteersRequired: 3,
-  contracts: contracts,
-);
+void main() {
+  late _MockProducerScheduleRepository repository;
+  late StreamController<List<ProducerSchedule>> schedules;
 
-Organization _org({List<Delivery> deliveries = const []}) => Organization(
-  organizationId: _orgId,
-  name: 'AMAP Test',
-  contactEmail: 'test@amap.fr',
-  deliveries: deliveries,
-);
+  setUpAll(() async => initializeDateFormatting('fr'));
 
-DeliveryContract _dc({String contractId = _contractId}) => DeliveryContract(
-  contractId: contractId,
-  basketQuantity: 1,
-  deliveryDescription: '',
-  status: DeliveryContractStatus.pending,
-);
+  setUp(() {
+    repository = _MockProducerScheduleRepository();
+    schedules = StreamController<List<ProducerSchedule>>();
+    when(
+      () => repository.watch(_producerAccountId),
+    ).thenAnswer((_) => schedules.stream);
+  });
 
-Future<void> _pump(
-  WidgetTester tester, {
-  required _MockOrganizationRepository orgRepo,
-  required _MockContractRepository contractRepo,
-  String tenantId = _producerAccountId,
-  String producerAccountId = _producerAccountId,
-}) async {
-  await tester.pumpWidget(
-    MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<OrganizationRepository>.value(value: orgRepo),
-        RepositoryProvider<ContractRepository>.value(value: contractRepo),
-      ],
-      child: BlocProvider<SyncBloc>.value(
-        value: _makeSyncBloc(),
-        child: MaterialApp(
-          home: ProducerDeliveriesScreen(
-            tenantId: tenantId,
-            producerAccountId: producerAccountId,
+  tearDown(() => schedules.close());
+
+  Future<void> pump(WidgetTester tester) async {
+    final syncBloc = _MockSyncBloc();
+    when(() => syncBloc.state).thenReturn(const SyncState.idle());
+    when(() => syncBloc.stream).thenAnswer((_) => const Stream.empty());
+    await tester.pumpWidget(
+      RepositoryProvider<ProducerScheduleRepository>.value(
+        value: repository,
+        child: BlocProvider<SyncBloc>.value(
+          value: syncBloc,
+          child: const MaterialApp(
+            home: ProducerDeliveriesScreen(
+              producerAccountId: _producerAccountId,
+            ),
           ),
         ),
       ),
-    ),
-  );
-  // Two pumps needed: first lets the outer StreamBuilder receive the org, the
-  // second lets the inner StreamBuilder receive the contracts.
-  await tester.pump();
-  await tester.pump();
-}
+    );
+  }
 
-void main() {
-  late _MockOrganizationRepository orgRepo;
-  late _MockContractRepository contractRepo;
+  testWidgets('renders screen title', (tester) async {
+    await pump(tester);
 
-  setUpAll(() async {
-    await initializeDateFormatting('fr');
+    expect(find.text('Mes livraisons'), findsOneWidget);
   });
 
-  setUp(() {
-    orgRepo = _MockOrganizationRepository();
-    contractRepo = _MockContractRepository();
+  testWidgets('shows a spinner only until the local schedules are read', (
+    tester,
+  ) async {
+    await pump(tester);
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    // A producer has no AMAP data at all: the screen must settle on the
+    // empty state instead of spinning forever.
+    schedules.add(const []);
+    await tester.pump();
+
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.text('Aucune livraison à venir pour vos produits.'), findsOne);
   });
 
-  group('ProducerDeliveriesScreen', () {
-    testWidgets('shows loading spinner while org is not yet available', (
-      tester,
-    ) async {
-      when(
-        () => orgRepo.watch(_producerAccountId),
-      ).thenAnswer((_) => const Stream.empty());
-
-      await _pump(tester, orgRepo: orgRepo, contractRepo: contractRepo);
-
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    });
-
-    testWidgets('shows empty state when org has no relevant deliveries', (
-      tester,
-    ) async {
-      // Org with one delivery but no linked contracts for this producer.
-      const otherContractId = 'contract-other';
-      final org = _org(
+  testWidgets('lists the upcoming deliveries of every AMAP, soonest first, '
+      'with the AMAP, the contract and the number of baskets', (tester) async {
+    await pump(tester);
+    schedules.add([
+      ProducerSchedule(
+        organizationId: 'org-1',
+        producerAccountId: _producerAccountId,
+        organizationName: 'AMAP des Collines',
         deliveries: [
-          _delivery(contracts: [_dc(contractId: otherContractId)]),
+          _delivery('d-late', '2099-06-18T18:00:00'),
+          _delivery('d-past', '2000-06-11T18:00:00'),
         ],
-      );
-      when(
-        () => orgRepo.watch(_producerAccountId),
-      ).thenAnswer((_) => Stream.value(org));
-      when(() => contractRepo.watch(_orgId)).thenAnswer(
-        (_) => Stream.value([_contract]),
-      ); // contract-1 ≠ contract-other
-
-      await _pump(tester, orgRepo: orgRepo, contractRepo: contractRepo);
-
-      expect(find.text('Aucune livraison pour vos produits.'), findsOneWidget);
-    });
-
-    testWidgets('shows empty state when org has no deliveries at all', (
-      tester,
-    ) async {
-      when(
-        () => orgRepo.watch(_producerAccountId),
-      ).thenAnswer((_) => Stream.value(_org()));
-      when(
-        () => contractRepo.watch(_orgId),
-      ).thenAnswer((_) => Stream.value([_contract]));
-
-      await _pump(tester, orgRepo: orgRepo, contractRepo: contractRepo);
-
-      expect(find.text('Aucune livraison pour vos produits.'), findsOneWidget);
-    });
-
-    testWidgets('renders relevant deliveries', (tester) async {
-      final org = _org(
+      ),
+      ProducerSchedule(
+        organizationId: 'org-2',
+        producerAccountId: _producerAccountId,
+        organizationName: 'AMAP du Lac',
         deliveries: [
           _delivery(
-            deliveryId: 'd-1',
-            scheduledDate: '2025-06-14T18:00:00',
-            contracts: [_dc()], // links to contract-1 → this producer
-          ),
-          _delivery(
-            deliveryId: 'd-2',
-            scheduledDate: '2025-07-12T18:00:00',
-            contracts: [_dc()],
+            'd-soon',
+            '2099-06-04T18:00:00',
+            contractName: 'Tomme 2099',
+            baskets: 1,
           ),
         ],
-      );
-      when(
-        () => orgRepo.watch(_producerAccountId),
-      ).thenAnswer((_) => Stream.value(org));
-      when(
-        () => contractRepo.watch(_orgId),
-      ).thenAnswer((_) => Stream.value([_contract]));
+      ),
+    ]);
+    await tester.pumpAndSettle();
 
-      await _pump(tester, orgRepo: orgRepo, contractRepo: contractRepo);
+    final soon = tester.getTopLeft(find.text('AMAP du Lac'));
+    final late = tester.getTopLeft(find.text('AMAP des Collines'));
+    expect(soon.dy, lessThan(late.dy));
+    expect(find.text('Tomme 2099 — 1 panier'), findsOneWidget);
+    expect(find.text('Fromages 2026 — 12 paniers'), findsOneWidget);
+    // Past deliveries are not listed.
+    expect(find.textContaining('2000'), findsNothing);
+  });
 
-      // Two delivery tiles.
-      expect(find.byType(ListTile), findsNWidgets(2));
-    });
-
-    testWidgets('does not show deliveries from other producers', (
-      tester,
-    ) async {
-      const otherContract = Contract(
-        contractId: 'contract-other',
-        name: 'Fruits',
-        organizationId: _orgId,
-        producerAccountId: 'other-producer',
-        minDeliveryDate: '2025-01-01T00:00:00',
-        maxDeliveryDate: '2025-12-31T00:00:00',
-        deliveryCount: 12,
-        seasonYear: 2025,
-      );
-      final org = _org(
+  testWidgets('offers the basket composition on active deliveries only', (
+    tester,
+  ) async {
+    await pump(tester);
+    schedules.add([
+      ProducerSchedule(
+        organizationId: 'org-1',
+        producerAccountId: _producerAccountId,
+        organizationName: 'AMAP des Collines',
         deliveries: [
+          _delivery('d-open', '2099-06-04T18:00:00'),
           _delivery(
-            deliveryId: 'd-mine',
-            scheduledDate: '2025-06-14T18:00:00',
-            contracts: [_dc()], // contract-1 → this producer
-          ),
-          _delivery(
-            deliveryId: 'd-other',
-            scheduledDate: '2025-07-12T18:00:00',
-            contracts: [_dc(contractId: 'contract-other')], // other producer
-          ),
+            'd-done',
+            '2099-06-11T18:00:00',
+          ).copyWith(status: DeliveryStatus.completed),
         ],
-      );
-      when(
-        () => orgRepo.watch(_producerAccountId),
-      ).thenAnswer((_) => Stream.value(org));
-      when(
-        () => contractRepo.watch(_orgId),
-      ).thenAnswer((_) => Stream.value([_contract, otherContract]));
+      ),
+    ]);
+    await tester.pumpAndSettle();
 
-      await _pump(tester, orgRepo: orgRepo, contractRepo: contractRepo);
-
-      // Only the tile for this producer's delivery.
-      expect(find.byType(ListTile), findsOneWidget);
-    });
-
-    testWidgets('renders screen title', (tester) async {
-      when(
-        () => orgRepo.watch(_producerAccountId),
-      ).thenAnswer((_) => Stream.value(_org()));
-      when(
-        () => contractRepo.watch(_orgId),
-      ).thenAnswer((_) => Stream.value([]));
-
-      await _pump(tester, orgRepo: orgRepo, contractRepo: contractRepo);
-
-      expect(find.text('Mes livraisons'), findsOneWidget);
-    });
+    expect(find.text('COMPOSITION DU PANIER'), findsOneWidget);
   });
 }

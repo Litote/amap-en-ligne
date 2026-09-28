@@ -7,6 +7,7 @@ import instanceconfig.InstanceAuthConfigSerializers
 import instanceconfig.InstanceConfig
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.OutgoingContent
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -63,11 +64,31 @@ fun Application.dataRoutingModule(koin: KoinApplication) {
             }
         }
 
+    install(problemDetailsPlugin(routingJson))
     install(ContentNegotiation) {
         json(routingJson)
     }
 
     install(StatusPages) {
+        // A body in another format than JSON: the engine answers 415 itself with Ktor's
+        // plain-text message (it names internal classes) — replace it with a problem document.
+        status(HttpStatusCode.UnsupportedMediaType) { status ->
+            call.respond(status, httpService.unsupportedMediaTypeError(call.request.path()))
+        }
+        // Unknown path / known path with another method: routing answers without a body;
+        // give it a problem document. A route's own error body is left untouched.
+        status(HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed) { status ->
+            if (content !is OutgoingContent.NoContent) return@status
+            val path = call.request.path()
+            call.respond(
+                status,
+                if (status == HttpStatusCode.NotFound) {
+                    httpService.notFoundError(path)
+                } else {
+                    httpService.methodNotAllowedError(path)
+                },
+            )
+        }
         // Malformed / undecodable request bodies (thrown by `call.receive`) are client errors.
         exception<BadRequestException> { call, cause ->
             logger.debug(cause) { "Bad request: ${cause.message}" }

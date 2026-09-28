@@ -16,6 +16,7 @@ import persistence.dao.OrganizationSyncDAO
 import persistence.dao.ProducerAccountSyncDAO
 import persistence.dao.ProductTypeSyncDAO
 import persistence.model.Organization
+import persistence.model.OrganizationProducerStatus
 import kotlin.time.Clock
 
 /**
@@ -40,13 +41,13 @@ class ExportService(
         sourceInstance: String?,
     ): ExportOutcome {
         if (!isAuthorized(auth, organizationId)) return ExportOutcome.Forbidden
-        organizationSyncDAO.getById(organizationId.toId<Organization>()) ?: return ExportOutcome.NotFound
+        val organization = organizationSyncDAO.getById(organizationId.toId<Organization>()) ?: return ExportOutcome.NotFound
 
         val scope = SyncScope.Organization(organizationId)
         val enrichedAuth = auth.copy(organizationId = organizationId)
         val organizationPayloads = dataService.snapshotScope(enrichedAuth, scope)
 
-        val productTypePayloads = collectProductTypes(organizationId)
+        val productTypePayloads = collectProductTypes(organization)
 
         return ExportOutcome.Success(
             OrganizationExport(
@@ -63,11 +64,23 @@ class ExportService(
         )
     }
 
-    private suspend fun collectProductTypes(organizationId: String): List<EntityPayload> =
-        producerAccountSyncDAO
-            .getByOrganizationId(organizationId.toId<Organization>())
-            .flatMap { producer -> productTypeDAO.getByProducerAccountId(producer.producerAccountId) }
+    /**
+     * Linked producers = the per-organization producer rows **plus** the non-terminated
+     * `Organization.producers` links: account-backed producers enrolled before their
+     * per-organization row was written only exist in the latter (same rule as the
+     * `organization:{id}` bootstrap).
+     */
+    private suspend fun collectProductTypes(organization: Organization): List<EntityPayload> {
+        val producerIds =
+            producerAccountSyncDAO.getByOrganizationId(organization.organizationId).map { it.producerAccountId } +
+                organization.producers
+                    .filter { it.status != OrganizationProducerStatus.TERMINATED }
+                    .map { it.producerAccountId }
+        return producerIds
+            .distinct()
+            .flatMap { productTypeDAO.getByProducerAccountId(it) }
             .map { ProductTypePayload(it) }
+    }
 
     private suspend fun isAuthorized(
         auth: AuthenticatedInfo,

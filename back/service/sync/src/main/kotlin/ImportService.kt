@@ -4,6 +4,7 @@ package sync
 
 import authentication.AuthenticatedInfo
 import authentication.Role
+import core.memberInvitationChanges
 import id.Id
 import id.generateId
 import id.toId
@@ -130,7 +131,6 @@ class ImportService(
                 importableInvitations,
                 importableMembers,
                 targetId,
-                scopeKey,
                 targetOrganizationId,
             )
 
@@ -179,10 +179,13 @@ class ImportService(
 
     private fun extractPayloads(export: OrganizationExport): ExtractedPayloads =
         ExtractedPayloads(
+            // The organization scope also carries the linked producers' catalogs (read-only
+            // projection): archives whose product_types section missed them still restore them.
             productTypes =
-                export.scopes.productTypes
+                (export.scopes.productTypes + export.scopes.organization)
                     .filterIsInstance<ProductTypePayload>()
-                    .map { it.productType },
+                    .map { it.productType }
+                    .distinctBy { it.productTypeId },
             producerAccounts =
                 export.scopes.organization
                     .filterIsInstance<ProducerAccountPayload>()
@@ -318,17 +321,13 @@ class ImportService(
         invitations: List<MemberInvitation>,
         members: List<Member>,
         targetId: Id<Organization>,
-        scopeKey: String,
         targetOrganizationId: String,
     ): InvitationCounts {
         var skipped = 0
         for (invitation in invitations) {
             val rewritten = invitation.copy(organizationId = targetId)
             try {
-                memberInvitationDAO.put(
-                    rewritten,
-                    change(EntityType.MemberInvitation, rewritten.invitationId, scopeKey, MemberInvitationPayload(rewritten)),
-                )
+                memberInvitationDAO.put(rewritten, memberInvitationChanges(rewritten))
             } catch (e: DuplicatePendingInvitationException) {
                 skipped++
                 logger.warn(e) { "skipping invitation for already-pending email during import into $targetOrganizationId" }
@@ -360,10 +359,7 @@ class ImportService(
                     expiresAt = now + 168.hours,
                 )
             try {
-                memberInvitationDAO.put(
-                    invitation,
-                    change(EntityType.MemberInvitation, invitation.invitationId, scopeKey, MemberInvitationPayload(invitation)),
-                )
+                memberInvitationDAO.put(invitation, memberInvitationChanges(invitation))
                 generated++
             } catch (e: DuplicatePendingInvitationException) {
                 skipped++

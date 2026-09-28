@@ -24,14 +24,11 @@ Interface de configuration des préférences personnelles de l'utilisateur, nota
 │                                                             │
 │  📱 Notifications bénévolat                                 │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │  🔔 Rappels d'inscription                               │ │
-│  │  ✅ Rappel 24h avant la livraison                      │ │
-│  │  ✅ Rappel 2h avant la livraison                       │ │
-│  │  □ Rappel 30min avant la livraison                     │ │
-│  │                                                         │ │
 │  │  🚨 Alertes d'urgence                                   │ │
 │  │  ✅ Notifier si besoin urgent de bénévoles             │ │
-│  │  □ Rappels manque de volontaire(s) sur la livraison    │ │
+│  │     La veille, si un créneau reste incomplet            │ │
+│  │  □ Rappels manque de bénévole(s) sur la livraison      │ │
+│  │     3 jours avant la livraison                          │ │
 │  │  ✅ Modifications de planning                           │ │
 │  │                                                         │ │
 │  │  📧 Canaux de notification                              │ │
@@ -78,21 +75,18 @@ Interface de configuration des préférences personnelles de l'utilisateur, nota
 - **Validation** : Vérification email/téléphone pour certaines notifications
 
 #### 📱 **Notifications bénévolat**
-- **Rappels d'inscription** : Configuration des alertes avant livraisons
-  - Rappel 24h avant (recommandé)
-  - Rappel 2h avant (recommandé)
-  - Rappel 30min avant (optionnel)
-- **Alertes d'urgence** : Notifications pour livraisons critiques
-  - Besoin urgent de bénévoles
-  - Manque de volontaire(s) sur la livraison (relances)
-  - Modifications du planning
+- **Alertes d'urgence** : Notifications pour livraisons en manque de bénévoles
+  - Besoin urgent de bénévoles : la veille (24 h avant la livraison), si elle manque encore de bénévoles (activé par défaut)
+  - Manque de bénévole(s) sur la livraison : 3 jours avant la livraison, si elle manque de bénévoles (désactivé par défaut)
+  - Modifications du planning : annulation ou changement d'horaire d'un créneau où l'amapien est inscrit (activé par défaut)
+  - Les alertes de manque ne sont envoyées ni aux inscrits de la livraison ni à ses coordinateurs ; le besoin est calculé comme le compteur « N/M bénévoles » (créneaux du contrat principal, coordinateurs exclus)
 - **Canaux de notification** : Choix des moyens de contact
   - Notifications push (mobile)
   - Email (toujours disponible)
 
 #### ✏️ **Personnalisation des alertes** (Admin uniquement)
 
-Visible uniquement pour les membres ayant le rôle **Admin**. Permet de personnaliser le **titre** et le **corps** du message envoyé pour chaque type d'alerte de l'AMAP (créneau annulé, horaire de créneau modifié, rappel de livraison, demandes d'échange de panier reçues/acceptées/refusées, nouvelle demande d'adhésion).
+Visible uniquement pour les membres ayant le rôle **Admin**. Permet de personnaliser le **titre** et le **corps** du message envoyé pour chaque type d'alerte de l'AMAP (créneau annulé, horaire de créneau modifié, manque de bénévoles, besoin urgent de bénévoles, demandes d'échange de panier reçues/acceptées/refusées, nouvelle demande d'adhésion).
 
 - Chaque type d'alerte propose deux champs **facultatifs** : un titre et un corps. Laissés vides, le message par défaut du système est utilisé pour la partie concernée.
 - Le texte saisi remplace **tel quel** le message par défaut (aucune variable n'est interprétée).
@@ -100,6 +94,8 @@ Visible uniquement pour les membres ayant le rôle **Admin**. Permet de personna
 - Le bouton **[ENREGISTRER LES ALERTES]** sauvegarde uniquement cette section, indépendamment du bouton principal [ENREGISTRER LES MODIFICATIONS].
 
 > Les alertes destinées aux administrateurs d'instance (demande de création d'AMAP ou de compte producteur) ne sont pas personnalisables ici : elles ne dépendent d'aucune AMAP.
+>
+> Seules les alertes réellement envoyées sont proposées : le serveur refuse (`INVALID_PAYLOAD`) la personnalisation de toute autre catégorie (ex. rappel de livraison, jamais envoyé).
 
 #### 💾 **Sauvegarde & migration** (Admin uniquement)
 
@@ -155,7 +151,6 @@ Clic sur [EXPORTER MES DONNÉES] → Lecture de la base SQLite locale → Créat
 
 ### Contraintes techniques
 - **Email obligatoire** : Au moins un canal doit rester actif
-- **Cohérence temporelle** : Rappels dans l'ordre chronologique logique
 
 ### États d'activation
 - **✅ Activé** : Fonction opérationnelle
@@ -179,11 +174,11 @@ Clic sur [EXPORTER MES DONNÉES] → Lecture de la base SQLite locale → Créat
 
 ## Impact sur le système
 
-### Inscription automatique
-Lors d'une inscription via [S'INSCRIRE] :
-1. **Application des préférences** : Rappels selon configuration
-2. **Programmation automatique** : Notifications selon timing choisi
-3. **Canaux utilisés** : Uniquement ceux activés dans les préférences
+### Alertes de manque de bénévoles
+Un traitement planifié (toutes les 15 minutes) envoie les alertes de manque de bénévoles :
+1. **Application des préférences** : Seuls les amapiens ayant activé l'alerte concernée la reçoivent
+2. **Envoi unique** : Chaque alerte n'est envoyée qu'une fois par livraison et par amapien
+3. **Canaux utilisés** : Notification dans l'application, plus push/e-mail selon les canaux activés
 
 
 ## Références

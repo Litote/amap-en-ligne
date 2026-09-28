@@ -5,10 +5,10 @@ import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/producer_management_bloc.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/producer_ui_helpers.dart';
+import 'package:amap_en_ligne/presentation/nav/back_navigation.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 /// Two-step wizard to enroll a producer into an organization.
 ///
@@ -57,7 +57,7 @@ class _EnrollView extends StatelessWidget {
             (previous is ProducerManagementEnrollStep2 ||
                 previous is ProducerManagementEnrollNoAccountStep2),
         listener: (context, state) {
-          context.pop();
+          popOrGo(context, '/admin/producers');
         },
       ),
     ],
@@ -145,7 +145,7 @@ class _Step1State extends State<_Step1> {
   @override
   Widget build(BuildContext context) => ConnectedScaffold(
     title: 'Inscrire un producteur — Étape 1',
-    onBack: () => context.pop(),
+    onBack: () => popOrGo(context, '/admin/producers'),
     body: Column(
       children: [
         Padding(

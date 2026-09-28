@@ -8,35 +8,35 @@ anticipé). Les coordinateurs gagnent ainsi du temps lors de la création des li
 
 ## Y accéder
 
-Ouvrez le **[Menu]**, puis **[TEMPLATES DE LIVRAISON]** (ou l'accès rapide
-« Templates de livraison »).
+Ouvrez le **[Menu]**, puis **[Modèles de livraison]** (ou l'accès rapide
+« Modèles de livraison »).
 
 ## Créer un modèle
 
 1. Renseignez le **nom** du modèle.
 2. Définissez les **horaires standard** (début et fin).
 3. Indiquez le **nombre de bénévoles souhaité**.
-4. Cochez éventuellement **« Définir comme template par défaut »** (voir ci-dessous).
+4. Cochez éventuellement **« Définir comme modèle par défaut »** (voir ci-dessous).
 5. Pour proposer une arrivée anticipée, cochez **« Activer un créneau anticipé »** et
    renseignez :
    - l'**heure d'arrivée anticipée** (avant l'heure de début standard) ;
    - une **explication** visible par les amapiens ;
-   - le **nombre maximum de volontaires** pour ce créneau.
-6. Touchez **[CRÉER TEMPLATE]**.
+   - le **nombre maximum de bénévoles** pour ce créneau.
+6. Touchez **[CRÉER]**.
 
 ```
 ┌──────────────────────────────────────────────┐
-│ ➕ Nouveau template                             │
+│ ➕ Nouveau modèle                               │
 │   Nom : [Livraison avec réception anticipée]   │
 │   Horaires : Début [18:00]  Fin [20:00]        │
 │   Bénévoles souhaités : [6]                    │
-│   [ ] Définir comme template par défaut         │
+│   [ ] Définir comme modèle par défaut           │
 │   ┄ Créneau anticipé ┄                          │
 │   [✓] Activer un créneau anticipé               │
 │   Heure d'arrivée anticipée : [17:00]          │
 │   Explication : [Réception des légumes…]        │
-│   Max volontaires : [2]                         │
-│   [CRÉER TEMPLATE]                             │
+│   Nombre max de bénévoles : [2]                 │
+│   [CRÉER]                                      │
 └──────────────────────────────────────────────┘
 ```
 

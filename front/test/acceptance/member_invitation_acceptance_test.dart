@@ -9,9 +9,17 @@ import 'package:amap_en_ligne/data/id_generator.dart';
 import 'package:amap_en_ligne/data/local/database.dart';
 import 'package:amap_en_ligne/data/network/sync_api.dart';
 import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
+import 'package:amap_en_ligne/data/repositories/member_join_request_repository.dart';
 import 'package:amap_en_ligne/data/sync/sync_outcome.dart';
 import 'package:amap_en_ligne/data/sync/sync_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
+import 'package:amap_en_ligne/domain/model/admin_member_join_request.dart';
+import 'package:amap_en_ligne/domain/model/invitation_status.dart';
+import 'package:amap_en_ligne/domain/model/member_invitation.dart';
+import 'package:amap_en_ligne/domain/sync/change.dart';
+import 'package:amap_en_ligne/domain/sync/entity_payload.dart';
+import 'package:amap_en_ligne/domain/sync/entity_type.dart';
+import 'package:amap_en_ligne/domain/sync/mutation_op.dart';
 import 'package:amap_en_ligne/domain/sync/mutation_outcome.dart';
 import 'package:amap_en_ligne/domain/sync/scope_sync_result.dart';
 import 'package:amap_en_ligne/domain/sync/sync_request.dart';
@@ -26,6 +34,8 @@ void main() {
   const realInvitationId = 'inv-real-1';
 
   final story = _loadStory('admin-invite-member-no-double-sync');
+  final invitationSyncStory = _loadStory('member-invitation-sync');
+  final joinRequestApprovalStory = _loadStory('member-join-request-approval');
 
   late AppDatabase db;
   late _ScriptedSyncApi api;
@@ -132,6 +142,223 @@ void main() {
     // Cursor must be advanced.
     expect(await db.readCursor(orgScope), 'c1');
   });
+
+  // ---------------------------------------------------------------------------
+  // member-invitation-sync: create (tmp id remapped) then resend — the
+  // invitation stays PENDING_ACTIVATION under its server id.
+  // ---------------------------------------------------------------------------
+  test('${invitationSyncStory.title} [${invitationSyncStory.id}]', () async {
+    final idGen = _SequenceIdGenerator([
+      'op-create',
+      'member_invitation',
+      'op-resend',
+    ]);
+    final invitationRepo = MemberInvitationRepository(
+      db: db,
+      idGenerator: idGen,
+    );
+    await db.writeCursor(orgScope, 'c0');
+
+    await invitationRepo.create(
+      organizationId: orgId,
+      email: 'alice@example.org',
+      firstName: 'Alice',
+      lastName: 'Martin',
+      roles: const {Role.volunteer},
+    );
+    final createMutations = await db.readPendingMutations();
+    api = _ScriptedSyncApi([
+      _ExpectedSyncCall(
+        label: '${invitationSyncStory.id} create',
+        request: SyncRequest(
+          cursors: const {orgScope: 'c0'},
+          mutations: createMutations,
+        ),
+        response: const SyncResponse(
+          authorizedScopes: [orgScope],
+          results: {
+            orgScope: IncrementalScopeSyncResult(changes: [], nextCursor: 'c1'),
+          },
+          mutations: [
+            MutationOutcome(
+              clientOpId: 'op-create',
+              status: MutationStatus.applied,
+              serverEntityId: realInvitationId,
+            ),
+          ],
+        ),
+      ),
+    ]);
+    final syncRepo = SyncRepository(db: db, api: api);
+    expect(await syncRepo.sync(tenantId: orgId), isA<SyncSuccess>());
+    api.assertDrained();
+
+    // The resend targets the remapped server id, never the tmp one.
+    await invitationRepo.resend(
+      organizationId: orgId,
+      invitationId: realInvitationId,
+    );
+    final resendMutations = await db.readPendingMutations();
+    final resent =
+        ((resendMutations.single.op as Upsert).payload
+                as MemberInvitationPayload)
+            .memberInvitation;
+    expect(resent.invitationId, realInvitationId);
+    expect(resent.resendRequestedAt, isNotNull);
+
+    api = _ScriptedSyncApi([
+      _ExpectedSyncCall(
+        label: '${invitationSyncStory.id} resend',
+        request: SyncRequest(
+          cursors: const {orgScope: 'c1'},
+          mutations: resendMutations,
+        ),
+        response: SyncResponse(
+          authorizedScopes: const [orgScope],
+          results: {
+            orgScope: IncrementalScopeSyncResult(
+              changes: [
+                Change(
+                  entityType: EntityType.memberInvitation,
+                  entityId: realInvitationId,
+                  op: ChangeOp.upsert,
+                  payload: MemberInvitationPayload(memberInvitation: resent),
+                  producedAt: 2,
+                ),
+              ],
+              nextCursor: 'c2',
+            ),
+          },
+          mutations: const [
+            MutationOutcome(
+              clientOpId: 'op-resend',
+              status: MutationStatus.applied,
+              serverEntityId: realInvitationId,
+            ),
+          ],
+        ),
+      ),
+    ]);
+    expect(
+      await SyncRepository(db: db, api: api).sync(tenantId: orgId),
+      isA<SyncSuccess>(),
+    );
+
+    expect(await db.readPendingMutations(), isEmpty);
+    final invitation = (await db.getMemberInvitationsForOrganization(
+      orgId,
+    )).single;
+    expect(invitation.invitationId, realInvitationId);
+    expect(invitation.status, InvitationStatus.pendingActivation);
+    expect(invitation.resendRequestedAt, resent.resendRequestedAt);
+    expect(await db.readCursor(orgScope), 'c2');
+  });
+
+  // ---------------------------------------------------------------------------
+  // member-join-request-approval: the admin approves a cached PENDING request;
+  // the sync brings back the APPROVED request and the pending invitation the
+  // server created for it.
+  // ---------------------------------------------------------------------------
+  test(
+    '${joinRequestApprovalStory.title} [${joinRequestApprovalStory.id}]',
+    () async {
+      const pendingRequest = AdminMemberJoinRequest(
+        requestId: 'req-1',
+        organizationId: orgId,
+        email: 'bob@example.org',
+        firstName: 'Bob',
+        lastName: 'Durand',
+        status: MemberJoinRequestStatus.pending,
+        submittedAt: '2026-01-01T00:00:00Z',
+      );
+      await db.upsertMemberJoinRequest(pendingRequest);
+      await db.writeCursor(orgScope, 'c0');
+
+      final repo = MemberJoinRequestRepository(
+        db: db,
+        idGenerator: _SequenceIdGenerator(['op-approve']),
+      );
+      await repo.approve(pendingRequest);
+
+      final pending = await db.readPendingMutations();
+      final approved =
+          ((pending.single.op as Upsert).payload as MemberJoinRequestPayload)
+              .memberJoinRequest;
+      expect(approved.status, MemberJoinRequestStatus.approved);
+
+      const createdInvitation = MemberInvitation(
+        invitationId: realInvitationId,
+        organizationId: orgId,
+        email: 'bob@example.org',
+        firstName: 'Bob',
+        lastName: 'Durand',
+        roles: {Role.volunteer},
+        status: InvitationStatus.pendingActivation,
+        createdAt: '2026-01-02T00:00:00Z',
+        expiresAt: '2026-01-09T00:00:00Z',
+      );
+      api = _ScriptedSyncApi([
+        _ExpectedSyncCall(
+          label: joinRequestApprovalStory.id,
+          request: SyncRequest(
+            cursors: const {orgScope: 'c0'},
+            mutations: pending,
+          ),
+          response: SyncResponse(
+            authorizedScopes: const [orgScope],
+            results: {
+              orgScope: IncrementalScopeSyncResult(
+                changes: [
+                  Change(
+                    entityType: EntityType.memberJoinRequest,
+                    entityId: 'req-1',
+                    op: ChangeOp.upsert,
+                    payload: MemberJoinRequestPayload(
+                      memberJoinRequest: approved,
+                    ),
+                    producedAt: 1,
+                  ),
+                  const Change(
+                    entityType: EntityType.memberInvitation,
+                    entityId: realInvitationId,
+                    op: ChangeOp.upsert,
+                    payload: MemberInvitationPayload(
+                      memberInvitation: createdInvitation,
+                    ),
+                    producedAt: 2,
+                  ),
+                ],
+                nextCursor: 'c1',
+              ),
+            },
+            mutations: const [
+              MutationOutcome(
+                clientOpId: 'op-approve',
+                status: MutationStatus.applied,
+                serverEntityId: 'req-1',
+              ),
+            ],
+          ),
+        ),
+      ]);
+
+      expect(
+        await SyncRepository(db: db, api: api).sync(tenantId: orgId),
+        isA<SyncSuccess>(),
+      );
+
+      expect(await db.readPendingMutations(), isEmpty);
+      final requests = await db.watchMemberJoinRequests(orgId).first;
+      expect(requests.single.status, MemberJoinRequestStatus.approved);
+      final invitation = (await db.getMemberInvitationsForOrganization(
+        orgId,
+      )).single;
+      expect(invitation.email, 'bob@example.org');
+      expect(invitation.status, InvitationStatus.pendingActivation);
+      expect(invitation.roles, {Role.volunteer});
+      expect(await db.readCursor(orgScope), 'c1');
+    },
+  );
 }
 
 // ---------------------------------------------------------------------------

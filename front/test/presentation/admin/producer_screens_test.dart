@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:amap_en_ligne/data/network/admin_api.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
+import 'package:amap_en_ligne/data/repositories/product_type_repository.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockOrganizationRepository extends Mock
@@ -36,6 +38,9 @@ class _MockProducerAccountRepository extends Mock
     implements ProducerAccountRepository {}
 
 class _MockAdminApi extends Mock implements AdminApi {}
+
+class _MockProductTypeRepository extends Mock
+    implements ProductTypeRepository {}
 
 const _organization = Organization(
   organizationId: 'org-1',
@@ -140,7 +145,12 @@ Future<void> _pumpDetailScreen(
   required _MockOrganizationRepository organizationRepository,
   required _MockProducerAccountRepository producerAccountRepository,
   required _MockAdminApi adminApi,
+  List<ProductType> productTypes = const [],
 }) async {
+  final productTypeRepository = _MockProductTypeRepository();
+  when(
+    () => productTypeRepository.watch(any()),
+  ).thenAnswer((_) => Stream.value(productTypes));
   await tester.pumpWidget(
     MultiRepositoryProvider(
       providers: [
@@ -151,6 +161,9 @@ Future<void> _pumpDetailScreen(
           value: producerAccountRepository,
         ),
         RepositoryProvider<AdminApi>.value(value: adminApi),
+        RepositoryProvider<ProductTypeRepository>.value(
+          value: productTypeRepository,
+        ),
       ],
       child: BlocProvider<SyncBloc>.value(
         value: _makeSyncBloc(),
@@ -172,9 +185,10 @@ Future<void> _pumpProducerRouter(
   required _MockOrganizationRepository organizationRepository,
   required _MockProducerAccountRepository producerAccountRepository,
   required _MockAdminApi adminApi,
+  String initialLocation = '/admin/producers',
 }) async {
   final router = GoRouter(
-    initialLocation: '/admin/producers',
+    initialLocation: initialLocation,
     routes: [
       GoRoute(
         path: '/admin/producers',
@@ -183,6 +197,13 @@ Future<void> _pumpProducerRouter(
       GoRoute(
         path: '/admin/producers/enroll',
         builder: (_, _) => const EnrollProducerScreen(organizationId: 'org-1'),
+      ),
+      GoRoute(
+        path: '/admin/producers/:producerAccountId',
+        builder: (_, state) => ProducerDetailScreen(
+          organizationId: 'org-1',
+          producerAccountId: state.pathParameters['producerAccountId']!,
+        ),
       ),
     ],
   );
@@ -210,6 +231,8 @@ void main() {
   late _MockOrganizationRepository organizationRepository;
   late _MockProducerAccountRepository producerAccountRepository;
   late _MockAdminApi adminApi;
+
+  setUpAll(() async => initializeDateFormatting('fr'));
 
   setUp(() {
     organizationRepository = _MockOrganizationRepository();
@@ -274,24 +297,99 @@ void main() {
     expect(find.text('Avec compte'), findsOneWidget);
   });
 
-  testWidgets(
-    'account-backed producer detail does not show edit products button',
-    (tester) async {
-      // Products for ACCOUNT_BACKED producers are managed by the producer
-      // themselves — the admin must not be able to edit them.
-      await _pumpDetailScreen(
-        tester,
-        organizationRepository: organizationRepository,
-        producerAccountRepository: producerAccountRepository,
-        adminApi: adminApi,
-      );
+  testWidgets('account-backed producer products are selected from its catalog '
+      '(its product types) when its account lists none', (tester) async {
+    // Spec screen-admin-04: [Modifier] on an account-backed producer opens the
+    // selection of its catalog products for this AMAP. Its account usually
+    // has no `products`: the catalog is its ProductTypes (synced read-only
+    // on the organization scope), as the back producer search does.
+    when(() => producerAccountRepository.watchAll()).thenAnswer(
+      (_) => Stream.value([
+        _producerProfiles.first.copyWith(products: const []),
+        ..._producerProfiles.skip(1),
+      ]),
+    );
+    await _pumpDetailScreen(
+      tester,
+      organizationRepository: organizationRepository,
+      producerAccountRepository: producerAccountRepository,
+      adminApi: adminApi,
+      productTypes: const [
+        ProductType(
+          productTypeId: 'pt-1',
+          producerAccountId: 'pa-1',
+          name: 'Tomates',
+          supportedBasketSizes: [BasketSize(name: 'Petit')],
+        ),
+        ProductType(
+          productTypeId: 'pt-2',
+          producerAccountId: 'pa-1',
+          name: 'Salades',
+        ),
+      ],
+    );
 
-      expect(
-        find.byKey(const Key('edit_producer_products_button')),
-        findsNothing,
-      );
-    },
-  );
+    await tester.tap(find.byKey(const Key('edit_producer_products_button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Modifier les produits'), findsOneWidget);
+    // Pushed over the producer screen: a back arrow, not the menu.
+    expect(find.byType(BackButton), findsOneWidget);
+    expect(find.text("Ce producteur n'a aucun produit."), findsNothing);
+    expect(find.widgetWithText(CheckboxListTile, 'Tomates'), findsOneWidget);
+    expect(find.widgetWithText(CheckboxListTile, 'Salades'), findsOneWidget);
+  });
+
+  testWidgets('producer detail shows a French date, basket sizes and no '
+      'technical id', (tester) async {
+    await _pumpDetailScreen(
+      tester,
+      organizationRepository: organizationRepository,
+      producerAccountRepository: producerAccountRepository,
+      adminApi: adminApi,
+    );
+
+    expect(find.text('1er janv. 2025'), findsOneWidget);
+    expect(find.text('2025-01-01'), findsNothing);
+    expect(find.text('Identifiant'), findsNothing);
+    expect(find.text('pa-1'), findsNothing);
+    // Tomates is offered in the "Petit" basket size.
+    expect(find.text('Paniers : Petit'), findsOneWidget);
+  });
+
+  testWidgets('a terminated association offers no product editing', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MultiRepositoryProvider(
+        providers: [
+          RepositoryProvider<OrganizationRepository>.value(
+            value: organizationRepository,
+          ),
+          RepositoryProvider<ProducerAccountRepository>.value(
+            value: producerAccountRepository,
+          ),
+          RepositoryProvider<AdminApi>.value(value: adminApi),
+        ],
+        child: BlocProvider<SyncBloc>.value(
+          value: _makeSyncBloc(),
+          child: const MaterialApp(
+            home: ProducerDetailScreen(
+              organizationId: 'org-1',
+              producerAccountId: 'pa-3',
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(
+      find.byKey(const Key('edit_producer_products_button')),
+      findsNothing,
+    );
+  });
 
   testWidgets(
     'no-account producer product editor is prefilled from ProducerAccount.products',
@@ -389,6 +487,43 @@ void main() {
 
     expect(find.text('Voir la fiche'), findsOneWidget);
     expect(find.text('Modifier les produits'), findsOneWidget);
+  });
+
+  testWidgets('back from the enroll flow opened by its URL (nothing to pop) '
+      'lands on the producer list', (tester) async {
+    await _pumpProducerRouter(
+      tester,
+      organizationRepository: organizationRepository,
+      producerAccountRepository: producerAccountRepository,
+      adminApi: adminApi,
+      initialLocation: '/admin/producers/enroll',
+    );
+    expect(find.text('Inscrire un producteur — Étape 1'), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Inscrire un producteur — Étape 1'), findsNothing);
+    expect(find.byKey(const Key('add_producer_button')), findsOneWidget);
+  });
+
+  testWidgets('« Retour » from a producer page opened by its URL (nothing to '
+      'pop) lands on the producer list', (tester) async {
+    await _pumpProducerRouter(
+      tester,
+      organizationRepository: organizationRepository,
+      producerAccountRepository: producerAccountRepository,
+      adminApi: adminApi,
+      initialLocation: '/admin/producers/pa-1',
+    );
+    expect(find.text('Producteur'), findsWidgets);
+
+    await tester.tap(find.widgetWithText(TextButton, 'Retour'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const Key('add_producer_button')), findsOneWidget);
   });
 
   testWidgets('add producer button navigates to enroll flow', (tester) async {

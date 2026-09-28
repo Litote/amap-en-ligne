@@ -12,6 +12,7 @@ import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/data/sync/sync_outcome.dart';
 import 'package:amap_en_ligne/data/sync/sync_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
+import 'package:amap_en_ligne/domain/model/delivery_template.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/sync/change.dart';
@@ -38,6 +39,9 @@ void main() {
   final registrationStory = _loadStory('volunteer-self-registration');
   final unregisterStory = _loadStory('volunteer-self-unregister');
   final forbiddenStory = _loadStory('volunteer-register-other-forbidden');
+  final earlySlotStory = _loadStory(
+    'volunteer-register-early-slot-delivery-override',
+  );
 
   late AppDatabase db;
   late _ScriptedSyncApi api;
@@ -393,6 +397,137 @@ void main() {
     expect(localOrg, isNotNull);
     final localSlot = _findSlot(localOrg!);
     expect(localSlot.registrations, isEmpty);
+  });
+
+  // --------------------------------------------------------------------------
+  // Scenario 4 — volunteer-register-early-slot-delivery-override
+  // --------------------------------------------------------------------------
+  test('${earlySlotStory.title} [${earlySlotStory.id}]', () async {
+    const earlyOverride = EarlySlot(
+      arrivalTime: '16:30',
+      explanation: 'Réception des légumes',
+      maxVolunteers: 2,
+    );
+    Organization buildEarlyOrg({
+      List<MemberRegistration> registrations = const [],
+    }) {
+      final base = buildOrg();
+      final delivery = base.deliveries.single;
+      final contract = delivery.contracts.single;
+      return base.copyWith(
+        deliveries: [
+          // No template: the early slot only exists through the delivery-level
+          // override.
+          delivery.copyWith(
+            earlySlot: earlyOverride,
+            contracts: [
+              contract.copyWith(
+                slots: [
+                  MemberSlot(
+                    startTime: '2099-06-15T16:30:00',
+                    endTime: '2099-06-15T18:00:00',
+                    activityType: ActivityType.preparation,
+                    requiredVolunteers: 2,
+                    currentRegistrations: registrations.length,
+                    status: SlotStatus.open,
+                    slotKind: SlotKind.early,
+                    registrations: registrations,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    final idGen = _SequenceIdGenerator(['op-register-early']);
+    final orgRepo = OrganizationRepository(db: db, idGenerator: idGen);
+    final initialOrg = buildEarlyOrg();
+    await db.upsertOrganization(initialOrg);
+    await db.writeCursor(orgScope, 'c0');
+    final volunteer = buildVolunteer();
+    await db.upsertMember(orgId, volunteer);
+
+    await orgRepo.registerToSlot(
+      currentOrg: initialOrg,
+      deliveryId: deliveryId,
+      contractId: contractId,
+      slotKind: SlotKind.early,
+      me: volunteer,
+    );
+
+    // The enqueued upsert registers on the EARLY slot and keeps the
+    // delivery-level override the back uses to cap it.
+    final pending = await db.readPendingMutations();
+    final sentOrg =
+        ((pending.single.op as Upsert).payload as OrganizationPayload)
+            .organization;
+    final sentDelivery = sentOrg.deliveries.single;
+    expect(sentDelivery.earlySlot, earlyOverride);
+    final sentSlot = sentDelivery.contracts.single.slots.single;
+    expect(sentSlot.slotKind, SlotKind.early);
+    expect(sentSlot.registrations.single.memberId, volunteerId);
+
+    final orgAfterSync = buildEarlyOrg(
+      registrations: [
+        const MemberRegistration(
+          memberId: volunteerId,
+          displayName: 'Alice Volunteer',
+          memberEmail: 'volunteer@example.com',
+          registrationInstant: '2099-06-01T10:00:00Z',
+          status: RegistrationStatus.registered,
+        ),
+      ],
+    );
+    api = _ScriptedSyncApi([
+      _ExpectedSyncCall.response(
+        label: earlySlotStory.id,
+        request: SyncRequest(
+          cursors: const {orgScope: 'c0'},
+          mutations: pending,
+        ),
+        response: SyncResponse(
+          authorizedScopes: const [orgScope],
+          results: {
+            orgScope: IncrementalScopeSyncResult(
+              changes: [
+                Change(
+                  entityType: EntityType.organization,
+                  entityId: orgId,
+                  op: ChangeOp.upsert,
+                  payload: OrganizationPayload(organization: orgAfterSync),
+                  producedAt: 1,
+                ),
+              ],
+              nextCursor: 'c1',
+            ),
+          },
+          mutations: const [
+            MutationOutcome(
+              clientOpId: 'op-register-early',
+              status: MutationStatus.applied,
+              serverEntityId: orgId,
+            ),
+          ],
+        ),
+      ),
+    ]);
+
+    final outcome = await SyncRepository(
+      db: db,
+      api: api,
+    ).sync(tenantId: orgId);
+
+    expect(outcome, isA<SyncSuccess>());
+    expect(await db.readPendingMutations(), isEmpty);
+    final syncedOrg = await db.watchOrganization(orgId).first;
+    final syncedDelivery = syncedOrg!.deliveries.single;
+    expect(syncedDelivery.earlySlot, earlyOverride);
+    final syncedSlot = _findSlot(syncedOrg);
+    expect(syncedSlot.slotKind, SlotKind.early);
+    expect(syncedSlot.registrations.single.memberId, volunteerId);
+    expect(await db.readCursor(orgScope), 'c1');
   });
 }
 

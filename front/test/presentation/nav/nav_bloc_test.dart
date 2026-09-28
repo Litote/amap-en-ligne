@@ -131,7 +131,7 @@ void main() {
               'Accueil',
               'Utilisateurs',
               'Producteurs',
-              'Templates de livraison',
+              'Modèles de livraison',
               "Demandes d'adhésion",
             ]),
           ),

@@ -12,6 +12,12 @@ object InputRules {
     const val MAX_EMAIL_LENGTH = 254
     const val MAX_COMMENT_LENGTH = 2000
     const val MAX_PHONE_LENGTH = 30
+
+    /**
+     * Component icons are copied into `Organization.item_types`, stored with every delivery in
+     * one DynamoDB item (400 KB max): each icon must stay small.
+     */
+    const val MAX_SVG_LENGTH = 10_000
     private const val MIN_PHONE_DIGITS = 6
 
     // Pragmatic shape check (local@domain.tld, no whitespace): deliverability is
@@ -96,6 +102,28 @@ object InputRules {
             if (!seen.add(key)) return "$field must not contain the same name twice: $key"
         }
         return null
+    }
+
+    // Active SVG content: scripts, event handler attributes, javascript: URLs, embedded HTML.
+    private val SVG_ACTIVE_CONTENT =
+        Regex("""<script|\son[a-z]+\s*=|javascript:|<foreignobject""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Optional inline SVG markup (no raster, no URL), at most [MAX_SVG_LENGTH] characters and
+     * without active content (scripts, event handlers): icons are passive images.
+     */
+    fun optionalSvg(
+        field: String,
+        value: String?,
+    ): String? {
+        val svg = value?.trimStart()
+        return when {
+            svg.isNullOrEmpty() -> null
+            !svg.startsWith("<svg") && !svg.startsWith("<?xml") -> "$field must be inline SVG markup"
+            svg.length > MAX_SVG_LENGTH -> "$field must not exceed $MAX_SVG_LENGTH characters"
+            SVG_ACTIVE_CONTENT.containsMatchIn(svg) -> "$field must not contain scripts or event handlers"
+            else -> null
+        }
     }
 
     fun optionalComment(

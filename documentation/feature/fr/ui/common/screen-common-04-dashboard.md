@@ -29,7 +29,7 @@ Lorsqu'un seul rôle AMAP est détenu, aucun en-tête de section n'est affiché 
 │  ├──────────────────────────────────────┤   │
 │  │ 🌾 Producteurs               ›       │   │
 │  ├──────────────────────────────────────┤   │
-│  │ 🔁 Templates de livraison    ›       │   │
+│  │ 🔁 Modèles de livraison    ›       │   │
 │  ├──────────────────────────────────────┤   │
 │  │ ⚙️  Préférences               ›       │   │
 │  ├──────────────────────────────────────┤   │
@@ -109,6 +109,7 @@ Lorsque l'utilisateur détient au moins 2 rôles AMAP, chaque section est préc�
 │  └──────────────────────────────────────┘   │
 │                                             │
 │  ┌── Alertes ──────────────────────────┐   │
+│  │  • 1 demande d'adhésion en attente  │   │
 │  │  • 1 producteur suspendu            │   │
 │  └──────────────────────────────────────┘   │
 │                                             │
@@ -143,12 +144,13 @@ Voir la spécification complète dans [`../member/screen-member-01-home.md`](../
 
 Blocs principaux :
 
-- **Prochaines livraisons** : liste des 3 prochaines livraisons actives triées par date croissante, chacune affichant la date formatée (ex. « Mercredi 17 janvier ») et, le cas échéant, un badge d'urgence calculé depuis le taux de remplissage des créneaux bénévoles :
+- **Prochaines livraisons** : liste des prochaines livraisons actives triées par date croissante — sans celle déjà affichée dans « Ma prochaine participation » (« Aucune autre livraison à venir. » si c'était la seule) —, chacune affichant la date formatée (ex. « Mercredi 17 janvier ») et, le cas échéant, un badge d'urgence calculé depuis le taux de remplissage des créneaux bénévoles :
   - `✅ Complet` — taux ≥ 100 %
   - (pas de badge) — taux compris entre 80 % et 100 %
   - `⚠️ Places limitées` — taux compris entre 50 % et 80 %
-  - `🔴 Besoin urgent de bénévoles` — taux < 50 %
-- **Section Coordinateurs** : sous le badge d'urgence, chaque carte affiche la section détaillée `👥 Coordinateurs :` listant **chaque contrat (*DELIVERY_CONTRACT*) de la livraison** (nom du contrat résolu depuis le catalogue *CONTRACT*) avec, en dessous, le nom complet de son coordinateur (*COORDINATOR*) et son numéro de téléphone exposé en lien `tel:` cliquable (ou « (téléphone non communiqué) »). Une livraison-contrat sans coordinateur affiche « Coordinateur à confirmer ». Format identique à celui du planning (*screen-member-02*) et du suivi de livraison (*screen-coordinator-04*).
+  - `🙋 Bénévoles recherchés` — taux < 50 %, livraison dans plus de 3 jours
+  - `🔴 Besoin urgent de bénévoles` — taux < 50 %, livraison dans 3 jours ou moins
+- **Section Coordinateurs** : sous le badge d'urgence, chaque carte affiche la section détaillée `👥 Coordinateurs :` listant **chaque contrat (*DELIVERY_CONTRACT*) de la livraison** (nom du contrat résolu depuis le catalogue *CONTRACT*) avec, en dessous, le nom complet de son coordinateur (*COORDINATOR*) et son numéro de téléphone exposé en lien `tel:` cliquable (ou « (téléphone non communiqué) »). Une livraison-contrat sans coordinateur affiche « Coordinateur à confirmer ». Si la livraison-contrat a un coordinateur dont la fiche n'est pas encore synchronisée (juste après la connexion), la mention est « Coordinateur inscrit ». Format identique à celui du planning (*screen-member-02*) et du suivi de livraison (*screen-coordinator-04*).
 - **Mon historique** : nombre de livraisons au statut `completed` de la saison en cours, suivi de deux boutons `[VOIR PLANNING]` et `[MON HISTORIQUE]`.
 - Si aucune livraison à venir n'existe, la mention « Aucune livraison à venir. » est affichée à la place de la liste.
 
@@ -172,10 +174,10 @@ Voir la spécification complète dans [`../admin/screen-admin-01-home.md`](../ad
 Blocs principaux :
 
 - **Accès rapides** : liste de tuiles cliquables conduisant aux écrans de gestion.
-- **Alertes** : carte listant les anomalies détectées (ex. producteurs suspendus). Si aucune anomalie, affiche « Aucune alerte en cours. ».
+- **Alertes** : carte listant les points à traiter : demandes d'adhésion en attente (« N demande(s) d'adhésion en attente ») et producteurs suspendus. Chaque alerte est un lien vers l'écran où la traiter (« Demandes d'adhésion », « Producteurs »). Si rien n'est à signaler, affiche « Aucune alerte en cours. ».
 - **Synthèse** : carte présentant 3 compteurs issus du cache local — membres actifs, coordinateurs, producteurs actifs.
 
-Les données de la section Admin sont alimentées en temps réel depuis les flux `MemberRepository.watch(organizationId)` et `OrganizationRepository.watch(organizationId)`.
+Les données de la section Admin sont alimentées en temps réel depuis les flux `MemberRepository.watch(organizationId)`, `OrganizationRepository.watch(organizationId)` et `MemberJoinRequestRepository.watch(organizationId)`.
 
 ### État de chargement
 
@@ -193,12 +195,12 @@ Si l'utilisateur ne détient aucun rôle AMAP (cas transitoire possible juste ap
 | Carte de livraison (coordinateur) | Coordinateur | `/coordinator/tracking/:deliveryId` | Navigation vers le suivi de livraison ([Écran 4](../coordinator/screen-coordinator-04-delivery-tracking.md)) |
 | Tuile « Utilisateurs » | Admin | `/members` | Navigation vers la gestion des membres AMAP |
 | Tuile « Producteurs » | Admin | `/admin/producers` | Navigation vers la gestion des producteurs |
-| Tuile « Templates de livraison » | Admin | `/admin/delivery-templates` | Navigation vers les templates de livraison |
+| Tuile « Modèles de livraison » | Admin | `/admin/delivery-templates` | Navigation vers les modèles de livraison |
 | Tuile « Préférences » | Admin | `/preferences` | Navigation vers les préférences utilisateur |
 | Tuile « Demandes d'adhésion » | Admin | `/admin/membership-requests` | Navigation vers les demandes d'adhésion |
 | `[VOIR PLANNING]` | Amapien | `/planning` | Navigation vers le planning des livraisons |
 | `[MON HISTORIQUE]` | Amapien | `/history` | Navigation vers l'historique personnel |
-| `[ME PORTER COORDINATEUR]` | Coordinateur | reste sur le dashboard | Affiche un sélecteur listant les livraisons-contrats sans coordinateur ; valide l'auto-affectation via mutation sync (cf. [Dashboard coordinateur](../coordinator/screen-coordinator-01-home.md)) |
+| `[ME PORTER COORDINATEUR]` | Coordinateur | reste sur le dashboard | Affiche un sélecteur listant les livraisons-contrats sans coordinateur dont l'utilisateur est coordinateur référent ; valide l'auto-affectation via mutation sync (cf. [Dashboard coordinateur](../coordinator/screen-coordinator-01-home.md)) |
 
 ## Règles métier
 

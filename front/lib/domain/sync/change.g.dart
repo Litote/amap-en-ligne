@@ -46,6 +46,7 @@ const _$EntityTypeEnumMap = {
   EntityType.deviceToken: 'DeviceToken',
   EntityType.attendanceEmailRequest: 'AttendanceEmailRequest',
   EntityType.errorReport: 'ErrorReport',
+  EntityType.producerSchedule: 'ProducerSchedule',
 };
 
 const _$ChangeOpEnumMap = {

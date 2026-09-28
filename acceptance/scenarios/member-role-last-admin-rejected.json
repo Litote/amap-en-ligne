@@ -1,17 +1,47 @@
 {
   "id": "member-role-last-admin-rejected",
   "title": "Removing the last admin role is rejected by the server",
-  "targets": ["flutter"],
+  "targets": [
+    "server",
+    "flutter"
+  ],
   "given": {
-    "backendState": "single admin member",
-    "appState": "member cached in drift"
+    "backendState": "organization org-1",
+    "appState": "fresh",
+    "members": [
+      {
+        "memberId": "m-1",
+        "roles": [
+          "ADMIN"
+        ]
+      }
+    ]
   },
   "when": [
     {
       "actor": "client",
       "action": "sync",
+      "as": "owner",
+      "save": {
+        "cursorRefs": {
+          "instance-owner": "ownerInstanceCursor",
+          "owner:acceptance-owner": "ownerFeedCursor"
+        }
+      },
       "request": {
-        "cursors": { "instance-owner": "c1" },
+        "cursors": {},
+        "mutations": []
+      }
+    },
+    {
+      "actor": "client",
+      "action": "sync",
+      "as": "owner",
+      "request": {
+        "cursors": {
+          "instance-owner": "$ref:ownerInstanceCursor",
+          "owner:acceptance-owner": "$ref:ownerFeedCursor"
+        },
         "mutations": [
           {
             "client_op_id": "op-1",
@@ -22,8 +52,26 @@
                 "member": {
                   "member_id": "m-1",
                   "organization_id": "org-1",
-                  "roles": ["COORDINATOR"],
-                  "contracts": []
+                  "roles": [
+                    "COORDINATOR"
+                  ],
+                  "contracts": [],
+                  "member_preferences": {
+                    "delivery_reminders_enabled": true,
+                    "volunteer_alerts_enabled": true,
+                    "last_updated_instant": "1970-01-01T00:00:00Z"
+                  },
+                  "user_preferences": {
+                    "email_notifications_enabled": true,
+                    "push_notifications_enabled": false,
+                    "last_updated_instant": "1970-01-01T00:00:00Z"
+                  },
+                  "user_settings": {
+                    "language": "fr",
+                    "timezone": "Europe/Paris",
+                    "server_id": "default",
+                    "last_updated_instant": "1970-01-01T00:00:00Z"
+                  }
                 }
               }
             }
@@ -34,8 +82,15 @@
   ],
   "then": {
     "lastResponse": {
+      "statusCode": 200,
       "mutationOutcomes": [
-        { "clientOpId": "op-1", "status": "REJECTED" }
+        {
+          "clientOpId": "op-1",
+          "status": "REJECTED",
+          "error": {
+            "code": "LAST_ADMIN"
+          }
+        }
       ]
     }
   }

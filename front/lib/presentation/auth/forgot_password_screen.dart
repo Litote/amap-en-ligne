@@ -3,6 +3,7 @@ import 'package:amap_en_ligne/domain/auth/auth_service.dart';
 import 'package:amap_en_ligne/domain/auth/password_policy.dart';
 import 'package:amap_en_ligne/domain/auth/remembered_user_context.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/auth/forgot_password_bloc.dart';
 import 'package:amap_en_ligne/presentation/auth/forgot_password_event.dart';
 import 'package:amap_en_ligne/presentation/auth/forgot_password_view_state.dart';
@@ -284,7 +285,7 @@ class _ConfirmForm extends StatelessWidget {
             border: OutlineInputBorder(),
           ),
           validator: (v) =>
-              (v == null || v.trim().isEmpty) ? 'Code requis' : null,
+              (v == null || v.trim().isEmpty) ? kFieldRequiredMessage : null,
           onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
         ),
         const SizedBox(height: 16),

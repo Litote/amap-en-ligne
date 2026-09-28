@@ -7,11 +7,13 @@ import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
 import 'package:amap_en_ligne/domain/auth/auth_state.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/domain/model/delivery_contract_name.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
 import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
+import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_volunteer_summary.dart';
 import 'package:amap_en_ligne/presentation/coordinator/missing_coordinator_listener.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
@@ -131,6 +133,7 @@ class _CoordinatorDashboardSectionState
 
     return MissingCoordinatorListener(
       org: _org,
+      contracts: _contracts,
       child: _SectionBody(
         org: _org!,
         membersById: _membersById,
@@ -213,6 +216,7 @@ class _SectionBody extends StatelessWidget {
                 org: org,
                 me: me,
                 mainContractIds: mainContractIds,
+                contracts: contracts,
               ),
             const SizedBox(height: 16),
           ],
@@ -225,6 +229,7 @@ class _SectionBody extends StatelessWidget {
                 org: org,
                 me: me,
                 mainContractIds: mainContractIds,
+                contracts: contracts,
               ),
           ],
         ],
@@ -252,9 +257,13 @@ class _DeliveryCard extends StatelessWidget {
     required this.org,
     required this.me,
     required this.mainContractIds,
+    required this.contracts,
   });
 
   final Delivery delivery;
+
+  /// Season contracts — resolve each link's display name.
+  final List<Contract> contracts;
 
   /// Ids of the org's main contracts — only those drive the volunteer need.
   final Set<String> mainContractIds;
@@ -282,7 +291,7 @@ class _DeliveryCard extends StatelessWidget {
     // Contracts missing a coordinator — shown in warning banner.
     final missingContracts = delivery.contracts
         .where((c) => c.coordinators.isEmpty)
-        .map((c) => c.deliveryDescription)
+        .map((c) => deliveryContractName(c, contracts))
         .toList();
 
     // Whether [ME PORTER COORDINATEUR] should be shown:
@@ -295,7 +304,7 @@ class _DeliveryCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: InkWell(
-        onTap: () => context.go('/coordinator/tracking/${delivery.deliveryId}'),
+        onTap: () => openDeliveryTracking(context, delivery.deliveryId),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -305,7 +314,7 @@ class _DeliveryCard extends StatelessWidget {
               const SizedBox(height: 4),
               DeliveryStatusChip(status: delivery.status),
               const SizedBox(height: 4),
-              Text('${summary.current}/${summary.required} bénévoles'),
+              Text(volunteerSummaryLabel(summary)),
               if (delivery.contracts.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
@@ -330,15 +339,19 @@ class _DeliveryCard extends StatelessWidget {
               if (showSelfAssign ||
                   (me == null && missingContracts.isNotEmpty)) ...[
                 const SizedBox(height: 8),
-                _SelfAssignButton(delivery: delivery, org: org, me: me),
+                _SelfAssignButton(
+                  delivery: delivery,
+                  org: org,
+                  me: me,
+                  contracts: contracts,
+                ),
               ],
               const SizedBox(height: 4),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
-                  onPressed: () => context.push(
-                    '/coordinator/tracking/${delivery.deliveryId}',
-                  ),
+                  onPressed: () =>
+                      openDeliveryTracking(context, delivery.deliveryId),
                   icon: const Icon(Icons.fact_check_outlined),
                   label: const Text('Suivre'),
                 ),
@@ -358,11 +371,13 @@ class _SelfAssignButton extends StatelessWidget {
     required this.delivery,
     required this.org,
     required this.me,
+    required this.contracts,
   });
 
   final Delivery delivery;
   final Organization org;
   final Member? me;
+  final List<Contract> contracts;
 
   @override
   Widget build(BuildContext context) {
@@ -377,8 +392,19 @@ class _SelfAssignButton extends StatelessWidget {
       );
     }
 
+    // Only the contracts whose coordinator pool lists me: the back rejects
+    // any other assignment (ADR-004), like the delivery form's self-assign.
+    final myId = me!.memberId;
     final emptyContracts = delivery.contracts
-        .where((c) => c.coordinators.isEmpty)
+        .where(
+          (c) =>
+              c.coordinators.isEmpty &&
+              contracts.any(
+                (season) =>
+                    season.contractId == c.contractId &&
+                    season.coordinators.contains(myId),
+              ),
+        )
         .toList();
 
     if (emptyContracts.isEmpty) return const SizedBox.shrink();
@@ -399,6 +425,7 @@ class _SelfAssignButton extends StatelessWidget {
       context: context,
       builder: (sheetContext) => _ContractPickerSheet(
         contracts: emptyContracts,
+        seasonContracts: contracts,
         onSelected: (contractId) {
           Navigator.of(sheetContext).pop();
           _assign(context, contractId);
@@ -425,10 +452,14 @@ class _SelfAssignButton extends StatelessWidget {
 class _ContractPickerSheet extends StatelessWidget {
   const _ContractPickerSheet({
     required this.contracts,
+    required this.seasonContracts,
     required this.onSelected,
   });
 
   final List<DeliveryContract> contracts;
+
+  /// Season contracts — resolve each link's display name.
+  final List<Contract> seasonContracts;
   final ValueChanged<String> onSelected;
 
   @override
@@ -446,7 +477,7 @@ class _ContractPickerSheet extends StatelessWidget {
         ),
         for (final contract in contracts)
           ListTile(
-            title: Text(contract.deliveryDescription),
+            title: Text(deliveryContractName(contract, seasonContracts)),
             onTap: () => onSelected(contract.contractId),
           ),
         const SizedBox(height: 8),

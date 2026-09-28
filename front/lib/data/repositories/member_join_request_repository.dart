@@ -23,6 +23,10 @@ class MemberJoinRequestRepository {
   Stream<List<AdminMemberJoinRequest>> watch(String organizationId) =>
       _db.watchMemberJoinRequests(organizationId);
 
+  /// Every cached join request, across organizations.
+  Stream<List<AdminMemberJoinRequest>> watchAll() =>
+      _db.watchAllMemberJoinRequests();
+
   Future<String> approve(AdminMemberJoinRequest request) {
     _requirePending(request);
     return _enqueueStatusChange(

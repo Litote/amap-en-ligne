@@ -524,7 +524,10 @@ void main() {
         scheduledDate: futureIso,
         status: DeliveryStatus.planned,
         contracts: [
-          buildContract(slots: [buildSlot(registrations: registrations)]),
+          buildContract(
+            coordinators: const ['m-coord'],
+            slots: [buildSlot(registrations: registrations)],
+          ),
         ],
       );
 
@@ -549,6 +552,57 @@ void main() {
       expect(find.text('✅ Confirmé - Préparation paniers'), findsOneWidget);
       // 5 teammates but maxShown = 4 → suffix "… et 1 autres".
       expect(find.textContaining('… et 1 autres'), findsOneWidget);
+    });
+
+    testWidgets('upcoming card names the coordinator role, not the slot', (
+      tester,
+    ) async {
+      final futureDate = DateTime.now().add(const Duration(days: 3));
+      final futureIso =
+          '${futureDate.year}-${futureDate.month.toString().padLeft(2, '0')}-'
+          '${futureDate.day.toString().padLeft(2, '0')}T18:00:00';
+      // Registered on a slot while coordinating the delivery: the planning
+      // reads « inscrit(e) comme coordinateur », the history must agree.
+      final delivery = buildDelivery(
+        deliveryId: 'd-coord',
+        scheduledDate: futureIso,
+        status: DeliveryStatus.planned,
+        contracts: [
+          buildContract(
+            coordinators: const [_kMemberId],
+            slots: [
+              buildSlot(
+                registrations: [
+                  buildRegistration(
+                    memberId: _kMemberId,
+                    displayName: 'Marie D.',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await _pump(
+        tester,
+        orgRepo: orgRepo,
+        memberRepo: memberRepo,
+        authService: authService,
+        contractRepo: contractRepo,
+      );
+      await tester.pump();
+
+      final me = _buildMember();
+      orgStream.add(buildOrg(deliveries: [delivery]));
+      memberStream.add(me);
+      allMembersStream.add([me]);
+      contractsStream.add([]);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(find.text('✅ Confirmé - Coordinateur'), findsOneWidget);
+      expect(find.text('✅ Confirmé - Préparation paniers'), findsNothing);
     });
 
     // --- Completed participations ---
@@ -902,6 +956,52 @@ void main() {
       // Completed is also counted in total participations.
       expect(
         find.textContaining('📈 Total participations : 1'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows no rank before a first participation', (tester) async {
+      const contractId = 'c-season';
+      final seasonYear = DateTime.now().year;
+      final futureDate = DateTime.now().add(const Duration(days: 7));
+      final upcomingDelivery = buildDelivery(
+        deliveryId: 'd-upcoming',
+        scheduledDate:
+            '${futureDate.year}-${futureDate.month.toString().padLeft(2, '0')}-'
+            '${futureDate.day.toString().padLeft(2, '0')}T18:00:00',
+        contracts: [
+          buildContract(
+            contractId: contractId,
+            slots: [
+              buildSlot(
+                registrations: [buildRegistration(memberId: _kMemberId)],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await _pump(
+        tester,
+        orgRepo: orgRepo,
+        memberRepo: memberRepo,
+        authService: authService,
+        contractRepo: contractRepo,
+      );
+      await tester.pump();
+
+      final me = _buildMember();
+      orgStream.add(buildOrg(deliveries: [upcomingDelivery]));
+      memberStream.add(me);
+      allMembersStream.add([me, _buildMember(memberId: 'member-2')]);
+      contractsStream.add([
+        _activeContract(contractId: contractId, seasonYear: seasonYear),
+      ]);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(
+        find.textContaining("🏆 Rang dans l'Amap : — (aucune participation)"),
         findsOneWidget,
       );
     });

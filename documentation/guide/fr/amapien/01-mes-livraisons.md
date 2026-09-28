@@ -27,7 +27,8 @@ besoin de bénévoles :
 ```
 
 - **[S'INSCRIRE]** vous inscrit immédiatement sur le créneau.
-- **[SE DÉSINSCRIRE]** annule votre inscription.
+- **[SE DÉSINSCRIRE]** annule votre inscription. En cas d'erreur, touchez **ANNULER** dans le
+  message « Vous êtes désinscrit(e). » pour vous réinscrire aussitôt.
 - **[VOIR PLANNING COMPLET]** ouvre le planning mensuel détaillé.
 
 ## Le planning des livraisons
@@ -44,7 +45,8 @@ bénévoles et votre éventuelle inscription.
 |------------|---------------|
 | ✅ **Vous êtes inscrit(e)** | Votre participation est confirmée |
 | ✅ **TERMINÉ** | Livraison passée à laquelle vous avez participé |
-| 🔴 **Besoin urgent de bénévoles** | Moins de la moitié des bénévoles nécessaires |
+| 🔴 **Besoin urgent de bénévoles** | Moins de la moitié des bénévoles nécessaires, livraison dans 3 jours ou moins |
+| 🙋 **Bénévoles recherchés** | Moins de la moitié des bénévoles nécessaires, livraison plus lointaine |
 | ⚠️ **Places limitées** | Le créneau se remplit |
 | **COMPLET** | Toutes les places sont prises |
 | ❌ **Créneau annulé** | Le créneau a été annulé par la coordination — l'inscription est impossible |
@@ -103,10 +105,10 @@ ou si c'est une autre famille. Vous retrouvez aussi la liste de vos dates de ret
 l'écran [Mes contrats](02-mes-contrats.md). Le partage est mis en place par votre
 coordinateur.
 
-## Recevoir des rappels
+## Être prévenu quand une livraison manque de bénévoles
 
-Vous pouvez choisir d'être prévenu avant un créneau (24 h, 2 h ou 30 min avant) et
-recevoir les alertes de besoin urgent. Voir
+Vous pouvez être prévenu quand une livraison manque de bénévoles (3 jours avant, puis la
+veille en cas de besoin urgent) ou quand votre créneau est modifié. Voir
 [Mes notifications et préférences](05-notifications-preferences.md).
 
 ## Voir aussi

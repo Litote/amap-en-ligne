@@ -12,6 +12,7 @@ import id.toId
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
@@ -41,6 +42,8 @@ import persistence.model.UserPreferences
 import persistence.model.UserSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -255,6 +258,42 @@ internal class MemberServiceTest {
             assertEquals(MutationStatus.REJECTED, outcome.status)
             assertEquals(MutationErrorCode.LAST_ADMIN, outcome.error?.code)
             coVerify(exactly = 0) { memberSyncDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN a client payload with another or no registration date WHEN upsert THEN the stored date is kept`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val service = buildService(memberSyncDAO)
+            val registeredAt = Instant.fromEpochMilliseconds(1_790_000_000_000L)
+            val existing = buildMember(id = "caller-2").copy(registeredAt = registeredAt)
+            coEvery { memberSyncDAO.getByOrganizationId(any()) } returns listOf(existing)
+            val persisted = mutableListOf<Member>()
+            coEvery { memberSyncDAO.put(capture(persisted), any()) } returns Unit
+
+            listOf(null, Instant.fromEpochMilliseconds(0L)).forEach { forged ->
+                val edited = existing.copy(firstName = "Claude", registeredAt = forged)
+                service.applyUpsert(nonAdminAuth, buildMutation(edited), MemberPayload(edited))
+            }
+
+            assertEquals(listOf(registeredAt, registeredAt), persisted.map { it.registeredAt })
+        }
+
+    @Test
+    fun `GIVEN a member created with a tmp id WHEN upsert THEN the server sets its registration date`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val service = buildService(memberSyncDAO)
+            coEvery { memberSyncDAO.getByOrganizationId(any()) } returns emptyList()
+            val persisted = slot<Member>()
+            coEvery { memberSyncDAO.put(capture(persisted), any()) } returns Unit
+            val created = buildMember(id = "tmp_member").copy(registeredAt = Instant.fromEpochMilliseconds(0L))
+
+            val before = Clock.System.now()
+            service.applyUpsert(adminAuth, buildMutation(created), MemberPayload(created))
+
+            val registeredAt = assertNotNull(persisted.captured.registeredAt)
+            assertTrue(registeredAt >= before)
         }
 
     @Test

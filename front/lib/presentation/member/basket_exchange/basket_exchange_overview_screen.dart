@@ -12,6 +12,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 /// Org-wide overview of all current basket exchanges, visible to every member
@@ -178,6 +179,8 @@ class _BasketExchangeOverviewScreenState
     final rows = _rows;
     return ConnectedScaffold(
       title: 'Vue d\'ensemble des échanges',
+      // Opened with context.go: no page to pop, back to the exchanges screen.
+      onBack: () => context.go('/basket-exchange'),
       actions: [
         IconButton(
           tooltip: 'Exporter en CSV',

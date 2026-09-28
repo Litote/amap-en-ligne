@@ -50,6 +50,12 @@ data class Member(
     // User properties integrated
     @SerialName("user_preferences") val userPreferences: UserPreferences,
     @SerialName("user_settings") val userSettings: UserSettings,
+    /**
+     * When the member joined the instance (account activation, or creation of a member
+     * without account). Server-authoritative: set once, never taken from a client payload.
+     * Null for members created before the field existed.
+     */
+    @SerialName("registered_at") val registeredAt: Instant? = null,
 )
 
 /**
@@ -79,11 +85,7 @@ data class MemberPreferences(
     @SerialName("delivery_reminders_enabled") val deliveryRemindersEnabled: Boolean,
     @SerialName("volunteer_alerts_enabled") val volunteerAlertsEnabled: Boolean,
     @SerialName("last_updated_instant") val lastUpdatedInstant: Instant,
-    // Rappels d'inscription
-    @SerialName("reminder_24h_enabled") val reminder24hEnabled: Boolean = true,
-    @SerialName("reminder_2h_enabled") val reminder2hEnabled: Boolean = true,
-    @SerialName("reminder_30min_enabled") val reminder30minEnabled: Boolean = false,
-    // Alertes d'urgence
+    // Volunteer alerts
     @SerialName("urgent_need_alerts_enabled") val urgentNeedAlertsEnabled: Boolean = true,
     @SerialName("incomplete_slot_reminders_enabled") val incompleteSlotRemindersEnabled: Boolean = false,
     @SerialName("planning_changes_alerts_enabled") val planningChangesAlertsEnabled: Boolean = true,

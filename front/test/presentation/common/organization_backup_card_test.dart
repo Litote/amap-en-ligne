@@ -50,9 +50,6 @@ Member _member() => const Member(
   memberPreferences: MemberPreferences(
     deliveryRemindersEnabled: true,
     volunteerAlertsEnabled: true,
-    reminder24hEnabled: true,
-    reminder2hEnabled: true,
-    reminder30minEnabled: false,
     urgentNeedAlertsEnabled: true,
     incompleteSlotRemindersEnabled: false,
     planningChangesAlertsEnabled: true,

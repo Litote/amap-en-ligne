@@ -2,8 +2,8 @@
 
 ## À quoi ça sert
 
-Choisir quand et comment vous êtes prévenu (rappels avant les créneaux, alertes), et
-tenir à jour vos informations personnelles.
+Choisir quand et comment vous êtes prévenu (alertes de manque de bénévoles,
+modifications de planning), et tenir à jour vos informations personnelles.
 
 ## Y accéder
 
@@ -19,19 +19,19 @@ Votre e-mail est votre identifiant de connexion : il ne peut pas être modifié 
 > Renseigner votre téléphone permet aux coordinateurs de vous joindre le jour de la
 > livraison.
 
-## Vos rappels de bénévolat
-
-Vous pouvez activer ou désactiver chaque type de rappel :
-
-- **Rappel 24 h avant le créneau** (recommandé) ;
-- **Rappel 2 h avant le créneau** (recommandé) ;
-- **Rappel 30 min avant le créneau** (optionnel).
-
 ## Vos alertes
 
-- **Besoin urgent de bénévoles** : être prévenu quand un créneau manque de monde ;
-- **Créneaux non complets** : relances ;
-- **Modifications de planning**.
+Vous pouvez activer ou désactiver chaque alerte :
+
+- **Notifier si besoin urgent de bénévoles** : la veille d'une livraison, si elle manque
+  encore de bénévoles (activé par défaut) ;
+- **Rappels pour manque de bénévole(s) sur la livraison** : 3 jours avant une livraison
+  qui manque de bénévoles (désactivé par défaut) ;
+- **Modifications de planning** : quand un créneau sur lequel vous êtes inscrit est annulé
+  ou change d'horaire (activé par défaut).
+
+Les alertes de manque de bénévoles ne vous sont pas envoyées si vous êtes déjà inscrit
+sur la livraison ou si vous en êtes coordinateur.
 
 ## Vos canaux de notification
 
@@ -49,9 +49,12 @@ Touchez **[ENREGISTRER LES MODIFICATIONS]**. Un message confirme la prise en com
 
 ## Vos notifications dans l'application
 
-En plus des rappels, vous recevez dans l'application des **notifications** liées à la
-vie de l'AMAP (par exemple une demande d'échange de panier, un rappel de livraison).
-Vous pouvez les marquer comme lues ou les archiver.
+En plus de ces alertes, vous recevez dans l'application des **notifications** liées à la
+vie de l'AMAP (par exemple une demande d'échange de panier).
+Ouvrez le **[Menu]**, puis **[Notifications]** : chaque notification indique sa date de
+réception (« Reçue le 29 sept. 2026 à 14h32 »). Touchez-la pour la marquer comme lue
+(et ouvrir l'écran concerné, le cas échéant) ; touchez l'icône **Archiver** à droite
+(ou faites-la glisser vers la gauche) pour la retirer de la liste.
 
 ## Voir aussi
 

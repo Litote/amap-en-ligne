@@ -92,7 +92,7 @@ L'écran permet de :
 | `[VOIR]` | `/coordinator/contracts/:contractId` | Charge le contrat sélectionné dans le panneau de droite |
 | Sélecteur `Producteur` | `/coordinator/contracts/:contractId` | Permet de choisir le producteur concerné par le contrat ; met à jour la section « Prix par produit » avec les produits et tailles de panier du producteur sélectionné |
 | Sélecteur `Statut` | `/coordinator/contracts/:contractId` | Permet de choisir l'état du contrat parmi *En préparation* (`IN_PREPARATION`, défaut à la création), *Actif* (`ACTIVE`) et *Terminé* (`ENDED`). Un contrat *En préparation* n'est pas visible pour les Amapiens — seuls les coordinateurs le voient. |
-| Sélecteur `Modèle de livraison` | `/coordinator/contracts/:contractId` | Sélecteur optionnel permettant de lier un template de livraison (*DELIVERY_TEMPLATE*) au contrat. L'option « Aucun » indique l'absence de template. Si un template est lié, il est utilisé lors de la génération automatique des livraisons hebdomadaires. |
+| Sélecteur `Modèle de livraison` | `/coordinator/contracts/:contractId` | Sélecteur optionnel permettant de lier un modèle de livraison (*DELIVERY_TEMPLATE*) au contrat. L'option « Aucun » indique l'absence de template. Si un template est lié, il est utilisé lors de la génération automatique des livraisons hebdomadaires. |
 | Bascule `Contrat principal` | `/coordinator/contracts/:contractId` | Indique que ce contrat (*IS_MAIN_CONTRACT*) mobilise des bénévoles (ex. légumes). Désactivée par défaut. Seuls les contrats principaux génèrent des créneaux bénévoles et comptent dans le besoin « N/M bénévoles » d'une livraison ; les contrats secondaires (œufs, fruits…) ne mobilisent que le coordinateur. Lorsqu'aucun contrat principal n'est rattaché à une livraison, le besoin est calculé sur tous ses contrats (comportement de repli). |
 | Champ `Date de première livraison` | `/coordinator/contracts/:contractId` | Permet de saisir la date de début du contrat ; l'année de saison est recalculée automatiquement si elle n'a pas été saisie manuellement |
 | Champ `Date de dernière livraison` | `/coordinator/contracts/:contractId` | Permet de saisir la date de fin du contrat ; le nombre de livraisons est recalculé automatiquement si il n'a pas été saisi manuellement |
@@ -110,6 +110,7 @@ L'écran permet de :
 
 - La liste affiche en priorité les contrats correspondant aux filtres actifs.
 - Chaque contrat visible présente au minimum : producteur, année de saison, période, état et nombre d'Amapiens rattachés.
+- Un contrat dont la dernière livraison est passée porte la mention « • Terminé » dans la liste, même si son statut enregistré est encore « Actif ».
 - Le contrat sélectionné reste surligné dans la liste tant que son détail est affiché.
 - Le panneau de droite bascule entre **mode création** et **mode édition** sans changer de page.
 - La section « Amapiens rattachés (N) » liste tous les Amapiens de l'AMAP, triés par nom : cochés = rattachés au contrat. Le compteur N reflète la sélection courante. Chaque Amapien déjà rattaché affiche le statut de son inscription (*MEMBER_CONTRACT*) : Actif, Suspendu, Terminé, Annulé ou Absent.
@@ -140,11 +141,14 @@ Après enregistrement, le nouveau contrat apparaît immédiatement dans la liste
 
 Après la sauvegarde d'un **nouveau** contrat dont les dates `minDeliveryDate` et `maxDeliveryDate` permettent de générer au moins une livraison, une boîte de dialogue s'affiche automatiquement :
 
-> « Créer les N livraisons hebdomadaires correspondantes ? »
+> **Créer les livraisons hebdomadaires ?**
+> « Créer N nouvelles livraisons et lier M livraisons existantes à ce contrat ? »
 > [Non] [Créer]
 
+Chaque partie n'apparaît que si elle concerne au moins une livraison (accord singulier/pluriel). Quand **aucune** livraison n'est à créer (toutes les dates existent déjà), le dialogue ne parle que de lier : titre **Lier les livraisons existantes ?**, texte « Lier M livraisons existantes à ce contrat ? », boutons [Non] [Lier].
+
 - **[Non]** : ferme la boîte de dialogue sans créer de livraisons ; le contrat est déjà enregistré.
-- **[Créer]** : génère une livraison par semaine entre `minDeliveryDate` et `maxDeliveryDate`. Si une livraison existe déjà à la même date dans l'organisation, le contrat est lié à cette livraison existante plutôt qu'une nouvelle livraison n'est créée. Le modèle de livraison (*DELIVERY_TEMPLATE*) lié au contrat est appliqué à chaque livraison créée, s'il en existe un.
+- **[Créer]** / **[Lier]** : génère une livraison par semaine entre `minDeliveryDate` et `maxDeliveryDate`. Si une livraison existe déjà à la même date dans l'organisation, le contrat est lié à cette livraison existante plutôt qu'une nouvelle livraison n'est créée. Le modèle de livraison (*DELIVERY_TEMPLATE*) lié au contrat est appliqué à chaque livraison créée, s'il en existe un.
 
 ### Modification d'un contrat existant
 
@@ -204,7 +208,7 @@ L'enregistrement reste bloqué jusqu'à ce que chaque Amapien coché ait au moin
 | Aucun producteur sélectionné | « Sélectionnez un producteur. » |
 | Aucun produit coché pour le contrat | « Sélectionnez au moins un produit pour ce contrat. » |
 | Année de saison vide | « Renseignez l'année de saison. » |
-| Date de dernière livraison antérieure à la date de première livraison | « La date de fin doit être postérieure ou égale à la date de début. » |
+| Date de dernière livraison antérieure à la date de première livraison | « La date de première livraison doit précéder la date de dernière livraison. », sous le champ « Date de dernière livraison » ; son sélecteur ne propose d'ailleurs aucune date antérieure à la première livraison |
 | Nombre de livraisons vide, nul ou négatif | « Le nombre de livraisons doit être supérieur à 0. » |
 | Un Amapien coché n'a aucune souscription sélectionnée | « Sélectionnez au moins un produit pour {prénom nom}. » |
 | Un Amapien a une souscription qui ne correspond pas aux produits actuels du contrat | « Opération refusée : la souscription ne correspond pas aux produits du contrat. » (serveur) |

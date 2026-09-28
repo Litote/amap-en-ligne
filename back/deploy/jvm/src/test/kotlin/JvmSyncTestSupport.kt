@@ -102,7 +102,7 @@ abstract class JvmSyncTestSupport {
                     .createStatement()
                     .use {
                         it.execute(
-                            "TRUNCATE producer, owner, owner_invitation, member_join_request, member_invitation, activation_token, product_type, changes, member, contract, delivery_template, organization_producer, organization_product, basket_exchange, organization, producer_account, server, organization_request, applied_client_op",
+                            "TRUNCATE producer, owner, owner_invitation, member_join_request, member_invitation, activation_token, product_type, changes, member, contract, delivery_template, organization_producer, organization_product, basket_exchange, organization, producer_account, server, organization_request, applied_client_op, sent_alert",
                         )
                     }
             }
@@ -140,12 +140,17 @@ abstract class JvmSyncTestSupport {
             }
     }
 
-    protected fun postRawSync(body: String): HttpResponse<String> {
+    protected fun postRawSync(body: String): HttpResponse<String> = postRawSyncAs(bearerToken, body)
+
+    protected fun postRawSyncAs(
+        token: String,
+        body: String,
+    ): HttpResponse<String> {
         val request =
             HttpRequest
                 .newBuilder()
                 .uri(URI("http://127.0.0.1:$port/v1/sync"))
-                .header("Authorization", "Bearer $bearerToken")
+                .header("Authorization", "Bearer $token")
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build()
@@ -230,6 +235,29 @@ abstract class JvmSyncTestSupport {
                         """.trimIndent(),
                     ).use { stmt ->
                         stmt.setString(1, organizationId)
+                        stmt.setString(2, name)
+                        stmt.executeUpdate()
+                    }
+            }
+    }
+
+    /** Inserts an active, account-backed `producer_account` row directly into Postgres (not linked to any AMAP). */
+    protected fun insertProducerAccountDirectly(
+        producerAccountId: String,
+        name: String,
+    ) {
+        DriverManager
+            .getConnection(container.jdbcUrl, container.username, container.password)
+            .use { conn ->
+                conn
+                    .prepareStatement(
+                        """
+                        INSERT INTO producer_account (producer_account_id, name, created_instant, last_updated_instant)
+                        VALUES (?, ?, 0, 0)
+                        ON CONFLICT (producer_account_id) DO NOTHING
+                        """.trimIndent(),
+                    ).use { stmt ->
+                        stmt.setString(1, producerAccountId)
                         stmt.setString(2, name)
                         stmt.executeUpdate()
                     }

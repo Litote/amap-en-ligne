@@ -2,13 +2,16 @@ import 'package:amap_en_ligne/data/repositories/contract_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/domain/model/delivery_contract_name.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
+import 'package:amap_en_ligne/domain/validation/delivery_rules.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
 import 'package:amap_en_ligne/presentation/common/open_url_stub.dart'
     if (dart.library.js_interop) 'package:amap_en_ligne/presentation/common/open_url_web.dart'
     if (dart.library.io) 'package:amap_en_ligne/presentation/common/open_url_native.dart';
+import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
@@ -18,7 +21,6 @@ import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 /// Live-tracking screen for a single delivery.
 ///
@@ -169,6 +171,12 @@ class _TrackingBody extends StatelessWidget {
     initialData: const [],
     builder: (context, contractsSnapshot) {
       final contracts = contractsSnapshot.data ?? const [];
+      // Presences and collection are day-of records, like the closing: the
+      // back refuses them before the delivery day.
+      final recordable = isDeliveryClosable(
+        delivery.scheduledDate,
+        now: DateTime.now(),
+      );
 
       return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -182,16 +190,25 @@ class _TrackingBody extends StatelessWidget {
               contracts: contracts,
             ),
             const SizedBox(height: 16),
+            if (!recordable) ...[
+              Text(
+                recordableFromLabel(delivery.scheduledDate),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 8),
+            ],
             _VolunteerSection(
               org: org,
               delivery: delivery,
               membersById: membersById,
+              recordable: recordable,
             ),
             const SizedBox(height: 16),
             _BasketPickupSection(
               org: org,
               delivery: delivery,
               contracts: contracts,
+              recordable: recordable,
             ),
             const SizedBox(height: 16),
             _ProgressionSection(
@@ -199,18 +216,48 @@ class _TrackingBody extends StatelessWidget {
               mainContractIds: mainContractIdsOf(contracts),
             ),
             const SizedBox(height: 16),
-            FilledButton.icon(
-              icon: const Icon(Icons.flag_outlined),
-              label: const Text('CLÔTURER LA DISTRIBUTION'),
-              onPressed: () => context.push(
-                '/coordinator/post-delivery/${delivery.deliveryId}',
-              ),
-            ),
+            _CloseDistributionButton(delivery: delivery),
           ],
         ),
       );
     },
   );
+}
+
+/// "CLÔTURER LA DISTRIBUTION": only enabled from the delivery's day on (the
+/// back refuses completing a future delivery), with the reason shown before.
+class _CloseDistributionButton extends StatelessWidget {
+  const _CloseDistributionButton({required this.delivery});
+
+  final Delivery delivery;
+
+  @override
+  Widget build(BuildContext context) {
+    final closable = isDeliveryClosable(
+      delivery.scheduledDate,
+      now: DateTime.now(),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FilledButton.icon(
+          icon: const Icon(Icons.flag_outlined),
+          label: const Text('CLÔTURER LA DISTRIBUTION'),
+          onPressed: closable
+              ? () => openPostDelivery(context, delivery.deliveryId)
+              : null,
+        ),
+        if (!closable) ...[
+          const SizedBox(height: 4),
+          Text(
+            closableFromLabel(delivery.scheduledDate),
+            style: Theme.of(context).textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ],
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -222,7 +269,7 @@ class _TrackingBody extends StatelessWidget {
 /// For each contract:
 ///   - Each coordinator is shown as "name • 📞 phone" (tel: link) or
 ///     "name • (téléphone non communiqué)" when no phone is available.
-///   - When no coordinator is assigned: "Coordinateur à confirmer".
+///   - When none can be named: [unnamedCoordinatorLabel].
 ///
 // V1: no per-contract emoji yet; spec uses 🥕/🍞 as illustrations.
 class _CoordinatorsSectionTracking extends StatelessWidget {
@@ -263,6 +310,7 @@ class _CoordinatorsSectionTracking extends StatelessWidget {
                 for (final contract in activeContracts)
                   _ContractCoordinatorBlock(
                     contract: contract,
+                    contractName: deliveryContractName(contract, contracts),
                     membersById: membersById,
                   ),
               ],
@@ -277,15 +325,17 @@ class _CoordinatorsSectionTracking extends StatelessWidget {
 class _ContractCoordinatorBlock extends StatelessWidget {
   const _ContractCoordinatorBlock({
     required this.contract,
+    required this.contractName,
     required this.membersById,
   });
 
   final DeliveryContract contract;
+  final String contractName;
   final Map<String, Member> membersById;
 
   @override
   Widget build(BuildContext context) {
-    final description = contract.deliveryDescription;
+    final description = contractName;
     final resolvedCoordinators = contract.coordinators
         .map((id) => membersById[id])
         .whereType<Member>()
@@ -307,7 +357,7 @@ class _ContractCoordinatorBlock extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 8),
               child: Text(
-                'Coordinateur à confirmer',
+                unnamedCoordinatorLabel(contract),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(
                     context,
@@ -381,11 +431,13 @@ class _VolunteerSection extends StatelessWidget {
     required this.org,
     required this.delivery,
     required this.membersById,
+    required this.recordable,
   });
 
   final Organization org;
   final Delivery delivery;
   final Map<String, Member> membersById;
+  final bool recordable;
 
   @override
   Widget build(BuildContext context) {
@@ -432,6 +484,7 @@ class _VolunteerSection extends StatelessWidget {
                     deliveryId: delivery.deliveryId,
                     entry: items[index],
                     member: membersById[items[index].registration.memberId],
+                    recordable: recordable,
                   ),
                 ),
         ),
@@ -456,12 +509,16 @@ class _RegistrationTile extends StatefulWidget {
     required this.deliveryId,
     required this.entry,
     required this.member,
+    required this.recordable,
   });
 
   final Organization org;
   final String deliveryId;
   final _RegistrationEntry entry;
   final Member? member;
+
+  /// False before the delivery day: presence can't be recorded yet.
+  final bool recordable;
 
   @override
   State<_RegistrationTile> createState() => _RegistrationTileState();
@@ -529,7 +586,7 @@ class _RegistrationTileState extends State<_RegistrationTile> {
   @override
   Widget build(BuildContext context) {
     final registration = widget.entry.registration;
-    final isPresent = _isPresentStatus(registration.status);
+    final isPresent = isPresentRegistrationStatus(registration.status);
     final isAbsent = registration.status == RegistrationStatus.cancelled;
     final icon = switch (registration.status) {
       RegistrationStatus.cancelled => Icons.cancel,
@@ -565,13 +622,13 @@ class _RegistrationTileState extends State<_RegistrationTile> {
               _StatusToggleButton(
                 label: 'PRÉSENT',
                 selected: isPresent,
-                enabled: !_saving,
+                enabled: !_saving && widget.recordable,
                 onPressed: () => _updateStatus(RegistrationStatus.confirmed),
               ),
               _StatusToggleButton(
                 label: 'ABSENT',
                 selected: isAbsent,
-                enabled: !_saving,
+                enabled: !_saving && widget.recordable,
                 onPressed: () => _updateStatus(RegistrationStatus.cancelled),
               ),
             ],
@@ -653,11 +710,13 @@ class _BasketPickupSection extends StatelessWidget {
     required this.org,
     required this.delivery,
     required this.contracts,
+    required this.recordable,
   });
 
   final Organization org;
   final Delivery delivery;
   final List<Contract> contracts;
+  final bool recordable;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -668,15 +727,17 @@ class _BasketPickupSection extends StatelessWidget {
         style: Theme.of(context).textTheme.titleMedium,
       ),
       const SizedBox(height: 8),
-      for (final contract in delivery.contracts)
+      for (final contract in deliveryContractsToCollect(delivery))
         _ContractBasketCard(
           org: org,
           deliveryId: delivery.deliveryId,
           contract: contract,
+          contractName: deliveryContractName(contract, contracts),
           productNames: org.productNamesForDeliveryContract(
             contract,
             contracts: contracts,
           ),
+          recordable: recordable,
         ),
     ],
   );
@@ -687,12 +748,20 @@ class _ContractBasketCard extends StatefulWidget {
     required this.org,
     required this.deliveryId,
     required this.contract,
+    required this.contractName,
     required this.productNames,
+    required this.recordable,
   });
 
   final Organization org;
   final String deliveryId;
   final DeliveryContract contract;
+
+  /// Display name of [contract] (see [deliveryContractName]).
+  final String contractName;
+
+  /// False before the delivery day: the collection can't be recorded yet.
+  final bool recordable;
 
   /// Product names attached to this contract, shown under the title so the
   /// coordinator sees which product each basket block concerns.
@@ -744,7 +813,7 @@ class _ContractBasketCardState extends State<_ContractBasketCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '📦 ${widget.contract.deliveryDescription}',
+              '📦 ${widget.contractName}',
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -777,7 +846,7 @@ class _ContractBasketCardState extends State<_ContractBasketCard> {
                   _StatusToggleButton(
                     label: isCollected ? 'NON COLLECTÉ' : 'COLLECTÉ',
                     selected: isCollected,
-                    enabled: true,
+                    enabled: widget.recordable,
                     onPressed: _toggleCollected,
                   ),
               ],
@@ -806,7 +875,7 @@ class _ProgressionSection extends StatelessWidget {
     var count = 0;
     for (final reg in slot.registrations) {
       if (coordinatorIds.contains(reg.memberId)) continue;
-      if (_isPresentStatus(reg.status)) count++;
+      if (isPresentRegistrationStatus(reg.status)) count++;
     }
     return count;
   }
@@ -840,8 +909,9 @@ class _ProgressionSection extends StatelessWidget {
         ? presentVolunteers / requiredVolunteers
         : 0.0;
 
-    final totalContracts = delivery.contracts.length;
-    final collectedContracts = delivery.contracts
+    final contractsToCollect = deliveryContractsToCollect(delivery);
+    final totalContracts = contractsToCollect.length;
+    final collectedContracts = contractsToCollect
         .where(
           (contract) => contract.status == DeliveryContractStatus.distributed,
         )
@@ -886,7 +956,3 @@ class _ProgressionSection extends StatelessWidget {
     );
   }
 }
-
-bool _isPresentStatus(RegistrationStatus status) =>
-    status == RegistrationStatus.confirmed ||
-    status == RegistrationStatus.completed;

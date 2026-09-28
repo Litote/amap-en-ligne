@@ -157,11 +157,22 @@ abstract class BasketDeliveryDescription with _$BasketDeliveryDescription {
     @JsonKey(name: 'product_type_id') required String productTypeId,
     @JsonKey(name: 'basket_size_name') required String basketSizeName,
     @Default(<DeliveryItem>[]) List<DeliveryItem> items,
+
+    /// ISO instant of the last edit of [items] in a composition editor
+    /// (coordinator or producer). The back keeps the stored items when a write
+    /// carries an older (or no) timestamp — a stale cached copy.
+    @JsonKey(name: 'items_updated_at') String? itemsUpdatedAt,
   }) = _BasketDeliveryDescription;
 
   factory BasketDeliveryDescription.fromJson(Map<String, Object?> json) =>
       _$BasketDeliveryDescriptionFromJson(json);
 }
+
+/// Final id of a new [Delivery] built from a locally-unique [suffix]. A
+/// delivery id is nested in the `Organization` aggregate and never remapped by
+/// the server, so it must not carry the `tmp_` prefix reserved for ids the
+/// server allocates.
+String newDeliveryId(String suffix) => 'delivery_$suffix';
 
 @freezed
 abstract class Delivery with _$Delivery {
@@ -260,36 +271,6 @@ abstract class Organization with _$Organization {
       _$OrganizationFromJson(json);
 }
 
-extension ProducerDeliveriesX on Organization {
-  /// Returns deliveries relevant to [producerAccountId]: deliveries where at
-  /// least one linked delivery-contract maps to a [Contract] belonging to this
-  /// producer. Sorted newest-first by [Delivery.scheduledDate].
-  ///
-  /// The [contracts] list is used to resolve which contracts belong to this
-  /// producer. When [contracts] is empty the result is always empty (there is no
-  /// fallback because the producer ID cannot be derived from the org aggregate
-  /// alone).
-  List<Delivery> deliveriesForProducer(
-    String producerAccountId, {
-    List<Contract> contracts = const [],
-  }) {
-    final producerContractIds = contracts
-        .where((c) => c.producerAccountId == producerAccountId)
-        .map((c) => c.contractId)
-        .toSet();
-    final result =
-        deliveries
-            .where(
-              (d) => d.contracts.any(
-                (dc) => producerContractIds.contains(dc.contractId),
-              ),
-            )
-            .toList()
-          ..sort((a, b) => b.scheduledDate.compareTo(a.scheduledDate));
-    return result;
-  }
-}
-
 extension OrganizationDeliveryProductsX on Organization {
   /// Returns [Contract]s that are active (date-wise) for the given [Delivery].
   /// If [contracts] is empty or doesn't contain the contract, returns the
@@ -308,11 +289,19 @@ extension OrganizationDeliveryProductsX on Organization {
       final contract = contractMap[dc.contractId];
       if (contract == null) return true;
 
-      final deliveryDate = DateTime.parse(delivery.scheduledDate);
+      // Compare calendar days only: the contract bounds are dates while the
+      // delivery carries its time of day, so an evening delivery on the
+      // contract's last day must still count as within the contract.
+      final scheduled = DateTime.parse(delivery.scheduledDate);
+      final deliveryDay = DateTime(
+        scheduled.year,
+        scheduled.month,
+        scheduled.day,
+      );
       final minDate = DateTime.parse(contract.minDeliveryDate);
       final maxDate = DateTime.parse(contract.maxDeliveryDate);
 
-      return !deliveryDate.isBefore(minDate) && !deliveryDate.isAfter(maxDate);
+      return !deliveryDay.isBefore(minDate) && !deliveryDay.isAfter(maxDate);
     }).toList();
   }
 

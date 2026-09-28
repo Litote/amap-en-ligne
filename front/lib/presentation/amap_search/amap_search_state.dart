@@ -1,4 +1,4 @@
-import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/public_organization.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'amap_search_state.freezed.dart';
@@ -10,12 +10,12 @@ sealed class AmapSearchState with _$AmapSearchState {
   const factory AmapSearchState.loadingOrgs() = AmapSearchLoadingOrgs;
 
   const factory AmapSearchState.orgsLoaded({
-    required List<Organization> orgs,
-    Organization? selectedOrg,
+    required List<PublicOrganization> orgs,
+    PublicOrganization? selectedOrg,
     @Default('') String searchQuery,
   }) = AmapSearchOrgsLoaded;
 
-  const factory AmapSearchState.submitting({required Organization org}) =
+  const factory AmapSearchState.submitting({required PublicOrganization org}) =
       AmapSearchSubmitting;
 
   const factory AmapSearchState.success({
@@ -25,6 +25,6 @@ sealed class AmapSearchState with _$AmapSearchState {
 
   const factory AmapSearchState.error({
     required String message,
-    Organization? selectedOrg,
+    PublicOrganization? selectedOrg,
   }) = AmapSearchError;
 }

@@ -14,6 +14,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
 import kotlinx.datetime.minus
 import kotlinx.datetime.todayIn
 import notificationpublisher.NotificationPublisher
@@ -24,6 +25,7 @@ import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
 import persistence.changes.OrganizationPayload
 import persistence.changes.ProducerAccountPayload
+import persistence.changes.ProducerSchedulePayload
 import persistence.changes.SyncScope
 import persistence.changes.Upsert
 import persistence.dao.ContractSyncDAO
@@ -43,6 +45,7 @@ import persistence.model.DeliveryStatus
 import persistence.model.DeliveryTemplate
 import persistence.model.EarlySlot
 import persistence.model.EntityType
+import persistence.model.ItemType
 import persistence.model.Member
 import persistence.model.MemberPreferences
 import persistence.model.MemberRegistration
@@ -64,6 +67,7 @@ import persistence.model.UserPreferences
 import persistence.model.UserSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -145,12 +149,13 @@ internal class OrganizationServiceTest {
         contracts: List<DeliveryContract> = emptyList(),
         deliveryTemplateId: String? = templateId,
         earlySlot: EarlySlot? = null,
+        scheduledDate: LocalDateTime = LocalDateTime.parse("2099-01-15T18:30:00"),
     ): Delivery =
         Delivery(
             deliveryId = deliveryId.toId(),
             organizationId = organizationId.toId(),
             deliveryTemplateId = deliveryTemplateId?.toId(),
-            scheduledDate = LocalDateTime.parse("2099-01-15T18:30:00"),
+            scheduledDate = scheduledDate,
             status = status,
             minVolunteersRequired = 2,
             earlySlot = earlySlot,
@@ -689,6 +694,193 @@ internal class OrganizationServiceTest {
             coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
         }
 
+    // ---- Closing guard: a delivery cannot be COMPLETED before its day ----
+
+    @Test
+    fun `GIVEN planned future delivery WHEN coordinator marks it COMPLETED THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val planned = buildDelivery(status = DeliveryStatus.PLANNED, contracts = listOf(buildContract()))
+            val existingOrg = buildOrganization(deliveries = listOf(planned))
+            val updatedOrg = existingOrg.copy(deliveries = listOf(planned.copy(status = DeliveryStatus.COMPLETED)))
+
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN new future delivery WHEN created already COMPLETED THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val existingOrg = buildOrganization()
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries = listOf(buildDelivery(status = DeliveryStatus.COMPLETED, contracts = listOf(buildContract()))),
+                )
+
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+        }
+
+    @Test
+    fun `GIVEN delivery scheduled today WHEN coordinator marks it COMPLETED THEN APPLIED`() =
+        runTest {
+            val today = Clock.System.todayIn(TimeZone.of("Europe/Paris"))
+            val todayDelivery =
+                buildDelivery(
+                    status = DeliveryStatus.IN_PROGRESS,
+                    contracts = listOf(buildContract()),
+                    scheduledDate = today.atTime(23, 59),
+                )
+            val existingOrg = buildOrganization(deliveries = listOf(todayDelivery))
+            val updatedOrg = existingOrg.copy(deliveries = listOf(todayDelivery.copy(status = DeliveryStatus.COMPLETED)))
+
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    @Test
+    fun `GIVEN future delivery already COMPLETED WHEN org is re-upserted THEN APPLIED`() =
+        runTest {
+            val completed = buildDelivery(status = DeliveryStatus.COMPLETED, contracts = listOf(buildContract()))
+            val existingOrg = buildOrganization(deliveries = listOf(completed))
+            val updatedOrg = existingOrg.copy(name = "AMAP renommée")
+
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    // ---- Day-of guard: presences and collection are recorded from the delivery day on ----
+
+    private fun futureDeliveryWithRegistration(
+        registrationStatus: RegistrationStatus = RegistrationStatus.REGISTERED,
+        slotStatus: SlotStatus = SlotStatus.OPEN,
+        contractStatus: DeliveryContractStatus = DeliveryContractStatus.PENDING,
+        scheduledDate: LocalDateTime = LocalDateTime.parse("2099-01-15T18:30:00"),
+    ): Delivery =
+        buildDelivery(
+            status = DeliveryStatus.PLANNED,
+            scheduledDate = scheduledDate,
+            contracts =
+                listOf(
+                    buildContract(
+                        slots =
+                            listOf(
+                                buildStandardSlot(
+                                    status = slotStatus,
+                                    registrations = listOf(buildRegistration("volunteer-1", registrationStatus)),
+                                ),
+                            ),
+                    ).copy(status = contractStatus),
+                ),
+        )
+
+    @Test
+    fun `GIVEN future delivery WHEN coordinator marks a volunteer present THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val existingOrg = buildOrganization(deliveries = listOf(futureDeliveryWithRegistration()))
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries = listOf(futureDeliveryWithRegistration(registrationStatus = RegistrationStatus.CONFIRMED)),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+            coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN future delivery WHEN coordinator marks a volunteer absent THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val existingOrg = buildOrganization(deliveries = listOf(futureDeliveryWithRegistration()))
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries = listOf(futureDeliveryWithRegistration(registrationStatus = RegistrationStatus.CANCELLED)),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+        }
+
+    @Test
+    fun `GIVEN future delivery WHEN coordinator marks a contract collected THEN REJECTED INVALID_PAYLOAD`() =
+        runTest {
+            val existingOrg = buildOrganization(deliveries = listOf(futureDeliveryWithRegistration()))
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries = listOf(futureDeliveryWithRegistration(contractStatus = DeliveryContractStatus.DISTRIBUTED)),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
+        }
+
+    @Test
+    fun `GIVEN future delivery WHEN coordinator cancels the slot with its registrations THEN APPLIED`() =
+        runTest {
+            val existingOrg = buildOrganization(deliveries = listOf(futureDeliveryWithRegistration()))
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries =
+                        listOf(
+                            futureDeliveryWithRegistration(
+                                registrationStatus = RegistrationStatus.CANCELLED,
+                                slotStatus = SlotStatus.CANCELLED,
+                            ),
+                        ),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    @Test
+    fun `GIVEN delivery scheduled today WHEN coordinator records presence and collection THEN APPLIED`() =
+        runTest {
+            val today = Clock.System.todayIn(TimeZone.of("Europe/Paris")).atTime(23, 59)
+            val existingOrg = buildOrganization(deliveries = listOf(futureDeliveryWithRegistration(scheduledDate = today)))
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries =
+                        listOf(
+                            futureDeliveryWithRegistration(
+                                registrationStatus = RegistrationStatus.CONFIRMED,
+                                contractStatus = DeliveryContractStatus.DISTRIBUTED,
+                                scheduledDate = today,
+                            ),
+                        ),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
     @Test
     fun `GIVEN admin caller WHEN payload has PLANNED delivery with empty coordinators THEN APPLIED`() =
         runTest {
@@ -1090,7 +1282,8 @@ internal class OrganizationServiceTest {
                     recipientScope = "member:$otherMemberId",
                     type = any(),
                     category = NotificationCategory.SLOT_CANCELLED,
-                    content = any(),
+                    // French date and times, not the ISO ones.
+                    content = match { it.body == "Le créneau du 15 janvier 2099 (18h00–20h00) a été annulé." },
                     contact = any(),
                     channels = any(),
                 )
@@ -1185,6 +1378,38 @@ internal class OrganizationServiceTest {
                     contact = any(),
                     channels = any(),
                 )
+            }
+        }
+
+    @Test
+    fun `GIVEN registered member opted out of planning changes WHEN slot rescheduled THEN member not notified`() =
+        runTest {
+            val activeReg = buildRegistration(otherMemberId)
+            val existingSlot = buildStandardSlot(registrations = listOf(activeReg))
+            val existingOrg =
+                buildOrganization(deliveries = listOf(buildDelivery(contracts = listOf(buildContract(slots = listOf(existingSlot))))))
+            val updatedSlot =
+                existingSlot.copy(
+                    startTime = LocalDateTime.parse("2099-01-15T19:00:00"),
+                    endTime = LocalDateTime.parse("2099-01-15T21:00:00"),
+                )
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries = listOf(buildDelivery(contracts = listOf(buildContract(slots = listOf(updatedSlot))))),
+                )
+            val optedOut =
+                buildMember(otherMemberId).let {
+                    it.copy(memberPreferences = it.memberPreferences.copy(planningChangesAlertsEnabled = false))
+                }
+
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(optedOut)
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            coVerify(exactly = 0) {
+                notificationPublisher.publish(any(), any(), any(), any(), any(), any())
             }
         }
 
@@ -1493,6 +1718,11 @@ internal class OrganizationServiceTest {
                     persisted.copy(
                         deliveries = listOf(delivery.withItem(DeliveryItem("free-1".toId(), name = "Courge", weight = "x".repeat(201)))),
                     ),
+                    // Component catalog: a name and a small SVG-only icon (the icons are stored
+                    // with the whole organization, in one 400 KB DynamoDB item).
+                    persisted.copy(itemTypes = listOf(ItemType("it-1".toId(), " "))),
+                    persisted.copy(itemTypes = listOf(ItemType("it-1".toId(), "Brie", imageSvg = "https://x/y.png"))),
+                    persisted.copy(itemTypes = listOf(ItemType("it-1".toId(), "Brie", imageSvg = "<svg>${"x".repeat(10_000)}</svg>"))),
                     // Custom alert copy is sent verbatim: a {…} placeholder would reach members as is.
                     persisted.copy(
                         notificationOverrides =
@@ -1503,6 +1733,16 @@ internal class OrganizationServiceTest {
                     persisted.copy(
                         notificationOverrides =
                             mapOf(NotificationCategory.SLOT_CANCELLED to NotificationCopyOverride(title = "Annulation {date}")),
+                    ),
+                    // Only the org alerts actually sent can be customised (DELIVERY_REMINDER is never
+                    // published; owner categories have no owning organization).
+                    persisted.copy(
+                        notificationOverrides =
+                            mapOf(NotificationCategory.DELIVERY_REMINDER to NotificationCopyOverride(title = "Rappel")),
+                    ),
+                    persisted.copy(
+                        notificationOverrides =
+                            mapOf(NotificationCategory.ORGANIZATION_REQUEST_SUBMITTED to NotificationCopyOverride(body = "Nouvelle AMAP")),
                     ),
                 )
 
@@ -1693,6 +1933,66 @@ internal class OrganizationServiceTest {
         }
 
     @Test
+    fun `GIVEN a delivery added for a linked producer's contract WHEN admin upserts THEN its schedule is fanned out`() =
+        runTest {
+            val link = OrganizationProducer("pa-1".toId(), now, OrganizationProducerStatus.ACTIVE)
+            val persisted = buildOrganization().copy(producers = listOf(link))
+            coEvery { organizationSyncDAO.getById(any()) } returns persisted
+            coEvery { contractSyncDAO.getByOrganizationId(organizationId.toId()) } returns
+                listOf(buildContractDefinition(listOf("coordinator-1")))
+            val fanOut = slot<List<Change>>()
+            coEvery { organizationSyncDAO.put(any(), any(), capture(fanOut)) } returns Unit
+            val incoming =
+                persisted.copy(
+                    deliveries = listOf(buildDelivery(status = DeliveryStatus.PLANNED, contracts = listOf(buildContract()))),
+                )
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(incoming), OrganizationPayload(incoming))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            val change = fanOut.captured.single()
+            assertEquals(EntityType.ProducerSchedule, change.entityType)
+            assertEquals(SyncScope.ProducerAccount("pa-1").key, change.scopeKey)
+            assertEquals(
+                listOf(deliveryId),
+                (change.payload as ProducerSchedulePayload).producerSchedule.deliveries.map { it.deliveryId.id },
+            )
+        }
+
+    @Test
+    fun `GIVEN a change the producers' schedules do not depend on WHEN upsert THEN no fan-out and no contract lookup`() =
+        runTest {
+            val link = OrganizationProducer("pa-1".toId(), now, OrganizationProducerStatus.ACTIVE)
+            val delivery = buildDelivery(status = DeliveryStatus.PLANNED)
+            val persisted = buildOrganization(deliveries = listOf(delivery)).copy(producers = listOf(link))
+            coEvery { organizationSyncDAO.getById(any()) } returns persisted
+            val fanOut = slot<List<Change>>()
+            coEvery { organizationSyncDAO.put(any(), any(), capture(fanOut)) } returns Unit
+            val incoming = persisted.copy(deliveries = listOf(delivery.copy(minVolunteersRequired = 3)))
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(incoming), OrganizationPayload(incoming))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            assertTrue(fanOut.captured.isEmpty())
+            coVerify(exactly = 0) { contractSyncDAO.getByOrganizationId(any()) }
+        }
+
+    @Test
+    fun `GIVEN a legacy oversized component icon WHEN an unrelated delivery field changes THEN APPLIED`() =
+        runTest {
+            val persisted =
+                buildOrganization(deliveries = listOf(buildDelivery(status = DeliveryStatus.PLANNED)))
+                    .copy(itemTypes = listOf(ItemType("it-1".toId(), "Brie", imageSvg = "<svg>${"x".repeat(10_000)}</svg>")))
+            coEvery { organizationSyncDAO.getById(any()) } returns persisted
+            val incoming =
+                persisted.copy(deliveries = listOf(persisted.deliveries.single().copy(standardEndTime = "20:30")))
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(incoming), OrganizationPayload(incoming))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    @Test
     fun `GIVEN a legacy blank-named component WHEN another component is added THEN APPLIED`() =
         runTest {
             val legacy = buildDelivery(status = DeliveryStatus.PLANNED).withItem(DeliveryItem("it-legacy".toId()))
@@ -1706,6 +2006,45 @@ internal class OrganizationServiceTest {
             val outcome = service.applyUpsert(adminAuth, buildMutation(incoming), OrganizationPayload(incoming))
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    @Test
+    fun `GIVEN a composition edited after the caller's cached copy WHEN a stale upsert arrives THEN the newer items are kept`() =
+        runTest {
+            val producerEdit =
+                BasketDeliveryDescription(
+                    productTypeId = "pt-1".toId(),
+                    basketSizeName = "small",
+                    items = listOf(DeliveryItem("brie".toId(), name = "Brie")),
+                    itemsUpdatedAt = Instant.parse("2026-10-01T11:00:00Z"),
+                )
+            val delivery = buildDelivery(status = DeliveryStatus.PLANNED)
+            val persisted =
+                buildOrganization(deliveries = listOf(delivery.copy(basketDescriptions = listOf(producerEdit))))
+                    .copy(itemTypes = listOf(ItemType("brie".toId(), "Brie")))
+            coEvery { organizationSyncDAO.getById(any()) } returns persisted
+            val written = slot<Organization>()
+            coEvery { organizationSyncDAO.put(capture(written), any(), any()) } returns Unit
+            // The coordinator's cache predates the producer's edit: no item, no timestamp, no icon.
+            val stale =
+                persisted.copy(
+                    itemTypes = emptyList(),
+                    deliveries =
+                        listOf(
+                            delivery.copy(
+                                minVolunteersRequired = 3,
+                                basketDescriptions = listOf(producerEdit.copy(items = emptyList(), itemsUpdatedAt = null)),
+                            ),
+                        ),
+                )
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(stale), OrganizationPayload(stale))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            val saved = written.captured.deliveries.single()
+            assertEquals(3, saved.minVolunteersRequired)
+            assertEquals(listOf(producerEdit), saved.basketDescriptions)
+            assertEquals(listOf("brie"), written.captured.itemTypes.map { it.id.id })
         }
 
     private fun Delivery.withItem(item: DeliveryItem): Delivery {

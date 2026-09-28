@@ -279,6 +279,12 @@ void main() {
     await tester.pump();
     expect(find.text('Pain'), findsOneWidget);
     expect(find.text('Tomates'), findsNothing);
+
+    // Changing the filter must not re-subscribe the data streams (a fresh
+    // drift stream starts in `waiting`: spinner flash and scroll reset).
+    verify(() => organizationRepository.watch(any())).called(1);
+    verify(() => memberRepository.watchMyMember(any())).called(1);
+    verify(() => contractRepository.watch(any())).called(1);
   });
 
   testWidgets('shows an empty state when the member has no contracts', (

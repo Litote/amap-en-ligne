@@ -324,11 +324,15 @@ class _PlanBody extends StatelessWidget {
     final nextMonth = DateTime(selectedMonth.year, selectedMonth.month + 1);
 
     // Same full month format everywhere; the chevron icons show the direction.
-    String monthLabel(DateTime month) =>
-        _capitalise(DateFormat('MMMM yyyy', 'fr').format(month));
-    final prevLabel = monthLabel(prevMonth);
+    // On a phone the neighbouring months drop the year so every label keeps a
+    // readable size instead of being scaled down.
+    final isNarrow = MediaQuery.sizeOf(context).width < _narrowWidth;
+    String monthLabel(DateTime month, {bool withYear = true}) => _capitalise(
+      DateFormat(withYear ? 'MMMM yyyy' : 'MMMM', 'fr').format(month),
+    );
+    final prevLabel = monthLabel(prevMonth, withYear: !isNarrow);
     final currentLabel = monthLabel(selectedMonth);
-    final nextLabel = monthLabel(nextMonth);
+    final nextLabel = monthLabel(nextMonth, withYear: !isNarrow);
 
     return Column(
       children: [
@@ -336,21 +340,29 @@ class _PlanBody extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // Labels shrink (never wrap) so the three parts and both
+            // chevrons always fit, even on a phone.
             children: [
-              TextButton.icon(
-                onPressed: onPrev,
-                icon: const Icon(Icons.chevron_left),
-                label: Text(prevLabel),
+              Flexible(
+                child: TextButton.icon(
+                  onPressed: onPrev,
+                  icon: const Icon(Icons.chevron_left),
+                  label: _OneLine(prevLabel),
+                ),
               ),
-              Text(
-                currentLabel,
-                style: Theme.of(context).textTheme.titleMedium,
+              Flexible(
+                child: _OneLine(
+                  currentLabel,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
-              TextButton.icon(
-                onPressed: onNext,
-                icon: const Icon(Icons.chevron_right),
-                label: Text(nextLabel),
-                iconAlignment: IconAlignment.end,
+              Flexible(
+                child: TextButton.icon(
+                  onPressed: onNext,
+                  icon: const Icon(Icons.chevron_right),
+                  label: _OneLine(nextLabel),
+                  iconAlignment: IconAlignment.end,
+                ),
               ),
             ],
           ),
@@ -419,34 +431,97 @@ class _PlanFooter extends StatelessWidget {
   const _PlanFooter();
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(12),
-    child: Row(
-      children: [
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () => context.go('/'),
-            icon: const Text('🏠'),
-            label: const Text('ACCUEIL'),
+  Widget build(BuildContext context) {
+    // On a phone the icon sits above a shorter label: three side-by-side
+    // "icon + MON HISTORIQUE" buttons only fit by shrinking the text to an
+    // unreadable size.
+    final isNarrow = MediaQuery.sizeOf(context).width < _narrowWidth;
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Expanded(
+            child: _FooterButton(
+              onPressed: () => context.go('/'),
+              icon: '🏠',
+              label: 'ACCUEIL',
+              stacked: isNarrow,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () => context.go('/history'),
-            icon: const Text('📊'),
-            label: const Text('MON HISTORIQUE'),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _FooterButton(
+              onPressed: () => context.go('/history'),
+              icon: '📊',
+              label: isNarrow ? 'HISTORIQUE' : 'MON HISTORIQUE',
+              stacked: isNarrow,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () => context.go('/help'),
-            icon: const Text('ℹ️'),
-            label: const Text('AIDE'),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _FooterButton(
+              onPressed: () => context.go('/help'),
+              icon: 'ℹ️',
+              label: 'AIDE',
+              stacked: isNarrow,
+            ),
           ),
-        ),
-      ],
-    ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FooterButton extends StatelessWidget {
+  const _FooterButton({
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+    required this.stacked,
+  });
+
+  final VoidCallback onPressed;
+  final String icon;
+  final String label;
+  final bool stacked;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!stacked) {
+      return OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: Text(icon),
+        label: _OneLine(label),
+      );
+    }
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [Text(icon), _OneLine(label)],
+      ),
+    );
+  }
+}
+
+/// Below this width (a phone) the month navigation and the footer switch to
+/// their compact layout.
+const double _narrowWidth = 480;
+
+/// Single-line label that scales down instead of wrapping (a narrow button
+/// would otherwise break the word in the middle, e.g. "ACCUEI L").
+class _OneLine extends StatelessWidget {
+  const _OneLine(this.text, {this.style});
+
+  final String text;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    child: Text(text, style: style, maxLines: 1, softWrap: false),
   );
 }

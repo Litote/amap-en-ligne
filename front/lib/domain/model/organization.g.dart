@@ -141,6 +141,7 @@ _BasketDeliveryDescription _$BasketDeliveryDescriptionFromJson(
           ?.map((e) => DeliveryItem.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const <DeliveryItem>[],
+  itemsUpdatedAt: json['items_updated_at'] as String?,
 );
 
 Map<String, dynamic> _$BasketDeliveryDescriptionToJson(
@@ -149,6 +150,7 @@ Map<String, dynamic> _$BasketDeliveryDescriptionToJson(
   'product_type_id': instance.productTypeId,
   'basket_size_name': instance.basketSizeName,
   'items': instance.items,
+  'items_updated_at': ?instance.itemsUpdatedAt,
 };
 
 _Delivery _$DeliveryFromJson(Map<String, dynamic> json) => _Delivery(
@@ -321,4 +323,6 @@ const _$NotificationCategoryEnumMap = {
   NotificationCategory.producerRequestSubmitted: 'PRODUCER_REQUEST_SUBMITTED',
   NotificationCategory.slotCancelled: 'SLOT_CANCELLED',
   NotificationCategory.slotRescheduled: 'SLOT_RESCHEDULED',
+  NotificationCategory.volunteerShortage: 'VOLUNTEER_SHORTAGE',
+  NotificationCategory.volunteerUrgentNeed: 'VOLUNTEER_URGENT_NEED',
 };

@@ -101,6 +101,20 @@ String _fakeJwt(String sub) {
   return 'header.$payload.signature';
 }
 
+/// A season contract whose coordinator pool is [pool] — self-assignment is
+/// only offered to its pool members (ADR-004).
+Contract _poolContract(String id, String name, List<String> pool) => Contract(
+  contractId: id,
+  name: name,
+  organizationId: 'org-1',
+  producerAccountId: 'pa-$id',
+  minDeliveryDate: '2020-01-01',
+  maxDeliveryDate: '2099-12-31',
+  deliveryCount: 10,
+  seasonYear: 2026,
+  coordinators: pool,
+);
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -532,6 +546,12 @@ void main() {
           ),
         ).thenAnswer((_) async {});
 
+        when(() => contractRepo.watch(any())).thenAnswer(
+          (_) => Stream.value([
+            _poolContract('c-1', 'Légumes', const ['me-1']),
+          ]),
+        );
+
         await _pump(
           tester,
           orgRepo: orgRepo,
@@ -544,6 +564,58 @@ void main() {
         await tester.pump(const Duration(milliseconds: 50));
 
         expect(find.text('ME PORTER COORDINATEUR'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'button is absent when the member is not in the contract coordinator '
+      'pool (the back would reject the assignment)',
+      (tester) async {
+        when(() => memberRepo.watchMyMember(any())).thenAnswer(
+          (_) => Stream.value(
+            _buildMember(memberId: 'me-1', firstName: 'Marie', lastName: 'P'),
+          ),
+        );
+        when(() => authService.currentState).thenReturn(
+          AuthState.authenticated(
+            producerId: 'tenant-1',
+            accessToken: _fakeJwt('me-sub'),
+          ),
+        );
+        final delivery = buildDelivery(
+          status: DeliveryStatus.planned,
+          scheduledDate: tomorrowIso(),
+          contracts: [
+            buildContract(
+              contractId: 'c-1',
+              coordinators: const [],
+              deliveryDescription: 'Légumes',
+            ),
+          ],
+        );
+        when(
+          () => orgRepo.watch(any()),
+        ).thenAnswer((_) => Stream.value(buildOrg(deliveries: [delivery])));
+        when(() => contractRepo.watch(any())).thenAnswer(
+          (_) => Stream.value([
+            _poolContract('c-1', 'Légumes', const ['someone-else']),
+          ]),
+        );
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          contractRepo: contractRepo,
+          syncBloc: syncBloc,
+          authService: authService,
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        expect(find.text('ME PORTER COORDINATEUR'), findsNothing);
+        // The missing coordinator is still flagged.
+        expect(find.textContaining('Coordinateur manquant'), findsOneWidget);
       },
     );
 
@@ -587,6 +659,11 @@ void main() {
             memberId: any(named: 'memberId'),
           ),
         ).thenAnswer((_) async {});
+        when(() => contractRepo.watch(any())).thenAnswer(
+          (_) => Stream.value([
+            _poolContract(cId, 'Légumes', const [myId]),
+          ]),
+        );
 
         await _pump(
           tester,
@@ -660,6 +737,12 @@ void main() {
             memberId: any(named: 'memberId'),
           ),
         ).thenAnswer((_) async {});
+        when(() => contractRepo.watch(any())).thenAnswer(
+          (_) => Stream.value([
+            _poolContract(c1Id, 'Légumes', const [myId]),
+            _poolContract(c2Id, 'Pain', const [myId]),
+          ]),
+        );
 
         await _pump(
           tester,
@@ -774,13 +857,17 @@ void main() {
       },
     );
 
-    testWidgets('MISSING_COORDINATOR sync rejection shows a generic SnackBar', (
-      tester,
-    ) async {
+    testWidgets('MISSING_COORDINATOR sync rejection shows a SnackBar naming the '
+        'contract from the live catalog', (tester) async {
+      // Blank snapshot (imported link): the name comes from the contract.
       final contract = buildContract(
         contractId: 'c-1',
         coordinators: const [],
-        deliveryDescription: 'Légumes',
+        deliveryDescription: '',
+      );
+      when(() => contractRepo.watch(any())).thenAnswer(
+        (_) =>
+            Stream.value([_poolContract('c-1', 'Légumes 2026/2027', const [])]),
       );
       final delivery = buildDelivery(
         status: DeliveryStatus.confirmed,
@@ -824,7 +911,12 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
 
-      expect(find.textContaining('ne peut pas être confirmée'), findsOneWidget);
+      expect(
+        find.textContaining(
+          'aucun coordinateur sur le(s) contrat(s) Légumes 2026/2027.',
+        ),
+        findsOneWidget,
+      );
 
       await syncStateController.close();
     });

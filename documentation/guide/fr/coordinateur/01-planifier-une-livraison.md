@@ -9,7 +9,7 @@ bénévoles. Un **modèle de livraison** peut pré-remplir la plupart des champs
 
 1. Depuis votre tableau de bord, touchez **[➕ NOUVEAU CRÉNEAU]**.
 2. Choisissez la **date de livraison**.
-3. Si votre AMAP a défini des modèles de livraison, sélectionnez-en un dans **Template**.
+3. Si votre AMAP a défini des modèles de livraison, sélectionnez-en un dans **Modèle de livraison**.
    Si un modèle par défaut existe, il est déjà sélectionné. Le modèle pré-remplit les
    horaires, le nombre de bénévoles et l'éventuel créneau anticipé.
 4. Vérifiez ou ajustez les **horaires** (début et fin).
@@ -25,7 +25,7 @@ bénévoles. Un **modèle de livraison** peut pré-remplir la plupart des champs
 ┌──────────────────────────────────────────────┐
 │ ➕ Nouveau créneau                              │
 │   📅 Date : [31/01/2025]                        │
-│   📄 Template : [Livraison standard ▼]          │
+│   📄 Modèle de livraison : [Livraison standard ▼]          │
 │   🕐 Horaires : Début [18:00]  Fin [20:00]      │
 │   👥 Bénévoles : Min [5]  Max [8]               │
 │   🌿 Contrats présents :                         │
@@ -52,7 +52,7 @@ bénévoles. Un **modèle de livraison** peut pré-remplir la plupart des champs
 
 Si le modèle choisi prévoit un **créneau anticipé** (arrivée plus tôt pour réceptionner
 les produits), ses champs s'affichent en lecture seule : heure d'arrivée anticipée,
-explication visible par les amapiens et nombre maximum de volontaires.
+explication visible par les amapiens et nombre maximum de bénévoles.
 
 Le lien **« Modifier pour cette livraison uniquement »** permet d'ajuster ces valeurs
 pour cette livraison **sans modifier le modèle**.
@@ -83,6 +83,11 @@ taille de panier, touchez **[Ajouter]** :
 Vous pouvez ensuite ajuster le poids de chaque composant ou le retirer, puis touchez
 **[Enregistrer]**. Les amapiens voient la composition sur leur planning, dans la
 section repliable **« Composition du panier »** de la livraison.
+
+Un **producteur avec compte** peut aussi composer lui-même le panier de ses produits,
+depuis son application. Si vous modifiez tous les deux le même panier, la dernière
+modification enregistrée l'emporte ; enregistrer la livraison pour une autre raison (un
+créneau, par exemple) n'efface pas une composition saisie entre-temps par le producteur.
 
 ## Voir aussi
 

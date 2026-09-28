@@ -18,6 +18,7 @@ import persistence.changes.MemberPayload
 import persistence.changes.OrganizationExport
 import persistence.changes.OrganizationExportScopes
 import persistence.changes.OrganizationPayload
+import persistence.changes.ProductTypePayload
 import persistence.dao.BasketExchangeSyncDAO
 import persistence.dao.ContractSyncDAO
 import persistence.dao.DeliveryTemplateSyncDAO
@@ -28,12 +29,14 @@ import persistence.dao.OrganizationSyncDAO
 import persistence.dao.OwnerSyncDAO
 import persistence.dao.ProducerAccountSyncDAO
 import persistence.dao.ProductTypeSyncDAO
+import persistence.model.BasketSize
 import persistence.model.Member
 import persistence.model.MemberInvitation
 import persistence.model.MemberInvitationStatus
 import persistence.model.MemberPreferences
 import persistence.model.Organization
 import persistence.model.Owner
+import persistence.model.ProductType
 import persistence.model.UserPreferences
 import persistence.model.UserSettings
 import kotlin.test.Test
@@ -191,6 +194,67 @@ internal class ImportServiceTest {
             assertEquals(targetOrgId, capturedMember.captured.organizationId.id)
             // change scope key targets the destination org
             assertEquals("organization:$targetOrgId", memberChanges.captured.single().scopeKey)
+        }
+
+    @Test
+    fun `GIVEN catalog only in the organization scope WHEN import THEN it is restored once`() =
+        runTest {
+            // The organization scope carries the linked producers' catalogs (read-only projection);
+            // an archive whose product_types section is empty must not lose them.
+            val productType =
+                ProductType(
+                    productTypeId = "pt-1".toId(),
+                    producerAccountId = "pa-1".toId(),
+                    supportedBasketSizes = listOf(BasketSize("small")),
+                    name = "Cheese",
+                )
+            val captured = mutableListOf<ProductType>()
+            val productTypeDAO =
+                mockk<ProductTypeSyncDAO>(relaxed = true) {
+                    coEvery { put(capture(captured), any<Change>()) } returns Unit
+                }
+            val export =
+                archive().let {
+                    it.copy(
+                        scopes =
+                            it.scopes.copy(
+                                organization = it.scopes.organization + ProductTypePayload(productType),
+                                productTypes = listOf(ProductTypePayload(productType)),
+                            ),
+                    )
+                }
+
+            val outcome = buildService(productTypeDAO = productTypeDAO).importIntoOrganization(adminAuth(), targetOrgId, export)
+
+            val success = assertIs<ImportOutcome.Success>(outcome)
+            assertEquals(1, success.result.productTypes)
+            assertEquals(listOf(productType), captured)
+        }
+
+    @Test
+    fun `GIVEN catalog only in the organization scope and none in product_types WHEN import THEN it is restored`() =
+        runTest {
+            val productType =
+                ProductType(
+                    productTypeId = "pt-1".toId(),
+                    producerAccountId = "pa-1".toId(),
+                    supportedBasketSizes = listOf(BasketSize("small")),
+                    name = "Cheese",
+                )
+            val captured = mutableListOf<ProductType>()
+            val productTypeDAO =
+                mockk<ProductTypeSyncDAO>(relaxed = true) {
+                    coEvery { put(capture(captured), any<Change>()) } returns Unit
+                }
+            val export =
+                archive().let {
+                    it.copy(scopes = it.scopes.copy(organization = it.scopes.organization + ProductTypePayload(productType)))
+                }
+
+            val outcome = buildService(productTypeDAO = productTypeDAO).importIntoOrganization(adminAuth(), targetOrgId, export)
+
+            assertEquals(1, assertIs<ImportOutcome.Success>(outcome).result.productTypes)
+            assertEquals(listOf(productType), captured)
         }
 
     @Test

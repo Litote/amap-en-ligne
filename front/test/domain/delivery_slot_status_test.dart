@@ -158,4 +158,29 @@ void main() {
       );
     });
   });
+
+  group('deliverySlotStatus with a reference time', () {
+    Delivery shortStaffedOn(String scheduledDate) => buildDelivery(
+      scheduledDate: scheduledDate,
+      contracts: [
+        buildContract(slots: [buildSlot(requiredVolunteers: 2)]),
+      ],
+    );
+    final now = DateTime(2026, 9, 30, 12);
+
+    test('a short-staffed delivery within 3 days is critical', () {
+      expect(
+        deliverySlotStatus(shortStaffedOn('2026-10-01T18:00:00'), now: now),
+        SlotStatus.critical,
+      );
+    });
+
+    test('a short-staffed delivery further away is only open, like the member '
+        '« Bénévoles recherchés » badge', () {
+      expect(
+        deliverySlotStatus(shortStaffedOn('2026-10-15T18:00:00'), now: now),
+        SlotStatus.open,
+      );
+    });
+  });
 }

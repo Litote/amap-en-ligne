@@ -74,7 +74,7 @@ Interface de consultation du planning mensuel avec possibilité d'inscription di
 - **[S'INSCRIRE]** : Inscription standard pour livraisons disponibles (sans créneau anticipé, ou dont le créneau anticipé est complet)
 - **[S'inscrire • Créneau standard HHhMM-HHhMM]** : Inscription sur le créneau de bénévolat habituel, pour les livraisons qui proposent un créneau anticipé avec des places encore disponibles
 - **[S'inscrire • Créneau anticipé HHhMM-HHhMM]** : Inscription sur le créneau anticipé (*EARLY_SLOT*), visible uniquement si ce créneau est configuré sur la livraison et qu'il reste de la capacité. L'explication fournie par le coordinateur est affichée directement sous le bouton, sans dialog ni modal.
-- **[SE DÉSINSCRIRE]** : Annulation de l'inscription avec confirmation
+- **[SE DÉSINSCRIRE]** : Annulation immédiate de l'inscription, sans boîte de confirmation ; le message « Vous êtes désinscrit(e). » propose **[ANNULER]** pour se réinscrire aussitôt sur le même créneau
 - **[Suivre]** : visible **uniquement pour les coordinateurs** (*COORDINATOR*) — bouton en haut de chaque carte de livraison ouvrant l'écran de suivi de la distribution ([Suivi de distribution](../coordinator/screen-coordinator-04-delivery-tracking.md)). Les amapiens simples et les admins non-coordinateurs ne voient pas ce bouton. L'édition de la livraison reste accessible depuis l'écran coordinateur dédié ([Gestion des livraisons](../coordinator/screen-coordinator-02-time-slots.md)), pas depuis le planning.
 - **[VOIR DÉTAILS]** : Affichage des détails complets du créneau (participants, activités)
 - **[🏠 ACCUEIL]** : Retour au tableau de bord Amapien ([Accueil membre](screen-member-01-home.md))
@@ -84,14 +84,15 @@ Interface de consultation du planning mensuel avec possibilité d'inscription di
 ### Navigation temporelle
 - **[← Déc 2024]** : Navigation vers le mois précédent
 - **[Fév 2025 →]** : Navigation vers le mois suivant
-- Affichage du mois courant : **Janvier 2025**
+- Affichage du mois courant : **Janvier 2025**. À l'ouverture, le planning affiche le mois de la prochaine livraison (le mois en cours tant qu'il lui reste une livraison), jamais un mois vide alors qu'une livraison est à venir.
 
 ### États des livraisons
 - **✅ TERMINÉ** : Livraison passée avec participation confirmée
 - **✅ COMPLET** : Toutes les places bénévoles sont prises. Cet état n'apparaît que lorsque la livraison est effectivement complète (au moins un créneau défini et toutes les places occupées) — une livraison sans créneau bénévole n'affiche ni COMPLET ni bouton d'inscription
-- **🔴 BESOIN URGENT** : Moins de 50% des bénévoles requis
+- **🔴 BESOIN URGENT** : Moins de 50% des bénévoles requis et livraison dans 3 jours ou moins (le bouton devient « S'INSCRIRE MAINTENANT 🚨 »)
+- **🙋 Bénévoles recherchés** : Moins de 50% des bénévoles requis, livraison dans plus de 3 jours
 - **⚠️ Places limitées** : Entre 50% et 80% des places occupées
-- **Vous êtes inscrit(e)** : Participation confirmée du membre connecté
+- **Vous êtes inscrit(e)** : Participation confirmée du membre connecté. Lorsque le membre est lui-même coordinateur (*COORDINATOR*) d'un contrat de cette livraison, le libellé devient « ✅ Vous êtes inscrit(e) comme coordinateur » : un coordinateur n'est jamais compté parmi les bénévoles du compteur « N/M bénévoles » (sur l'accueil : « ✅ Inscrit(e) comme coordinateur »)
 - **⏰ Créneau anticipé disponible** : La livraison dispose d'un créneau anticipé avec au moins une place libre
 - **🚧 Contrat inactif** : Tous les contrats (*CONTRACT*) liés à la livraison sont encore en préparation (`IN_PREPARATION`). Une telle livraison est **masquée pour les amapiens simples** ; seuls les coordinateurs et admins la voient, avec ce badge et **sans action d'inscription**
 
@@ -109,7 +110,7 @@ Lorsque le créneau anticipé est complet ou absent, un unique bouton d'inscript
 - Disponibilité des places bénévoles
 - Actions contextuelles selon l'état du créneau
 - Pour les livraisons avec créneau anticipé disponible : les deux options d'inscription et l'explication du créneau anticipé
-- **Coordinateurs par livraison-contrat** (*DELIVERY_CONTRACT*) : chaque carte de livraison liste, sous la ligne des bénévoles, les coordinateurs (*COORDINATOR*) de chaque contrat (un coordinateur par ligne, regroupé par produit). Lorsque `MEMBER.phone` est renseigné, le numéro est rendu sous forme de lien `tel:<numéro>` — un tap ouvre l'application téléphone du système. En l'absence de numéro, aucun lien n'est affiché. Lorsqu'une livraison-contrat n'a pas encore de coordinateur, la mention `Coordinateur à confirmer` apparaît à la place du nom.
+- **Coordinateurs par livraison-contrat** (*DELIVERY_CONTRACT*) : chaque carte de livraison liste, sous la ligne des bénévoles, les coordinateurs (*COORDINATOR*) de chaque contrat (un coordinateur par ligne, regroupé par produit). Lorsque `MEMBER.phone` est renseigné, le numéro est rendu sous forme de lien `tel:<numéro>` — un tap ouvre l'application téléphone du système. En l'absence de numéro, aucun lien n'est affiché. Lorsqu'une livraison-contrat n'a pas encore de coordinateur, la mention `Coordinateur à confirmer` apparaît à la place du nom. Si la livraison-contrat a un coordinateur dont la fiche n'est pas encore synchronisée (juste après la connexion), la mention est « Coordinateur inscrit ». Les contrats encore en préparation (`IN_PREPARATION`) ne sont pas listés pour un amapien simple (ni leurs produits dans « Produits : … » et la composition du panier) ; coordinateurs et admins les voient.
 - **Panier partagé** (*SHARED_BASKET*) : si l'Amapien partage le panier d'un contrat avec d'autres familles (en alternance) et que ce contrat est lié à la livraison affichée, la carte indique sous les produits si **c'est son tour** de récupérer le panier cette semaine (« 🤝 Panier partagé : c'est votre tour de récupérer le panier. ») ou si c'est une autre famille (« 🤝 Panier partagé : récupéré par {famille} cette semaine. »). Information en lecture seule — le partage est mis en place par le coordinateur.
 
 ## Références
@@ -118,5 +119,5 @@ Lorsque le créneau anticipé est complet ou absent, un unique bouton d'inscript
 - **Spécifications UI** : [`../spec-ui.md`](../spec-ui.md) - Section "Planning mensuel"
 - **Dashboard** : [Accueil membre](screen-member-01-home.md)
 - **Historique** : [Historique des participations](screen-member-03-history.md)
-- **Templates de livraison** : [`../admin/screen-admin-05-delivery-template.md`](../admin/screen-admin-05-delivery-template.md) — configuration du créneau anticipé par l'admin de l'organisation
+- **Modèles de livraison** : [`../admin/screen-admin-05-delivery-template.md`](../admin/screen-admin-05-delivery-template.md) — configuration du créneau anticipé par l'admin de l'organisation
 - **Données** : `../../../../architecture/data-model.md` - Entités DELIVERY, DELIVERY_TEMPLATE, EARLY_SLOT, MEMBER_SLOT, MEMBER

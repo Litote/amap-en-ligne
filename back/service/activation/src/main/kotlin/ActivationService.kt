@@ -4,6 +4,7 @@ package activation
 
 import authentication.Role
 import core.UserProvisioningPort
+import core.memberInvitationChanges
 import id.Id
 import id.toId
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -145,6 +146,7 @@ class ActivationService(
                         lastName = request.adminLastName,
                         email = activationToken.adminEmail,
                         accountStatus = MemberAccountStatus.ACTIVE,
+                        registeredAt = now,
                         memberPreferences =
                             MemberPreferences(
                                 deliveryRemindersEnabled = true,
@@ -322,6 +324,7 @@ class ActivationService(
                         lastName = invitation.lastName,
                         email = invitation.email,
                         accountStatus = MemberAccountStatus.ACTIVE,
+                        registeredAt = now,
                         memberPreferences =
                             MemberPreferences(
                                 deliveryRemindersEnabled = true,
@@ -349,7 +352,7 @@ class ActivationService(
                         status = MemberInvitationStatus.ACTIVATED,
                         activatedAt = now,
                     )
-                memberInvitationDAO.put(updatedInvitation, buildMemberInvitationChange(updatedInvitation))
+                memberInvitationDAO.put(updatedInvitation, memberInvitationChanges(updatedInvitation))
                 activationTokenDAO.markActivated(token, now)
 
                 ActivationOutcome.Success(
@@ -446,17 +449,6 @@ class ActivationService(
                 payload = MemberPayload(member),
                 producedAt = System.currentTimeMillis(),
             ),
-        )
-
-    private fun buildMemberInvitationChange(invitation: MemberInvitation): Change =
-        Change(
-            cursor = Cursor.next(),
-            entityType = persistence.model.EntityType.MemberInvitation,
-            entityId = invitation.invitationId,
-            scopeKey = SyncScope.Organization(invitation.organizationId.id).key,
-            op = ChangeOp.UPSERT,
-            payload = persistence.changes.MemberInvitationPayload(invitation),
-            producedAt = System.currentTimeMillis(),
         )
 
     private companion object {

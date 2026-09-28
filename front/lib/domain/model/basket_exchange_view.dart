@@ -103,17 +103,22 @@ Set<String> committedDeliveryIdsFor(List<BasketExchange> all, String memberId) {
   return committed;
 }
 
-/// For a given delivery, maps each member whose basket is collected by **someone
-/// else** (because of a confirmed exchange) to that collector's member id.
+/// For a given delivery and contract, maps each member whose basket of that
+/// contract is collected by **someone else** (because of a confirmed exchange)
+/// to that collector's member id. An exchange swaps one basket each way: the
+/// members' baskets of their other contracts that day stay theirs.
 ///
 /// Confirmed (ACCEPTED) exchange on delivery D:
-/// - if D is the offered delivery (D1): the offerer's basket is collected by the
-///   accepted requester (`offerer → requester`);
-/// - if D is the accepted counter-delivery (D2): the requester's basket is
-///   collected by the offerer (`requester → offerer`).
+/// - if D is the offered delivery (D1) and [contractId] the offered contract:
+///   the offerer's basket is collected by the accepted requester
+///   (`offerer → requester`);
+/// - if D is the accepted counter-delivery (D2) and [contractId] the proposed
+///   contract (legacy request without one: the offered contract): the
+///   requester's basket is collected by the offerer (`requester → offerer`).
 Map<String, String> basketPickupsForDelivery(
   List<BasketExchange> all,
   String deliveryId,
+  String contractId,
 ) {
   final pickups = <String, String>{};
   for (final e in all) {
@@ -124,10 +129,11 @@ Map<String, String> basketPickupsForDelivery(
         .where((r) => r.requestId == acceptedId)
         .firstOrNull;
     if (accepted == null) continue;
-    if (e.deliveryId == deliveryId) {
+    if (e.deliveryId == deliveryId && e.contractId == contractId) {
       // D1 — offerer absent, requester collects.
       pickups[e.offeringMemberId] = accepted.requesterMemberId;
-    } else if (accepted.proposedDeliveryId == deliveryId) {
+    } else if (accepted.proposedDeliveryId == deliveryId &&
+        (accepted.proposedContractId ?? e.contractId) == contractId) {
       // D2 — requester absent, offerer collects.
       pickups[accepted.requesterMemberId] = e.offeringMemberId;
     }

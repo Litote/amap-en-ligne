@@ -1,3 +1,5 @@
+import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/domain/model/delivery_contract_name.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/sync/mutation_outcome.dart';
 import 'package:amap_en_ligne/presentation/coordinator/coordinator_dashboard_section.dart'
@@ -20,13 +22,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// [TimeSlotFormScreen]; the CONFIRMED transition has no dedicated UI yet —
 /// this listener is a safety net for any future write that triggers the guard.
 class MissingCoordinatorListener extends StatelessWidget {
-  const MissingCoordinatorListener({required this.child, this.org, super.key});
+  const MissingCoordinatorListener({
+    required this.child,
+    this.org,
+    this.contracts = const [],
+    super.key,
+  });
 
   final Widget child;
 
   /// The current [Organization] — used to resolve contract descriptions for
   /// the snackbar message. May be null when the org is not yet loaded.
   final Organization? org;
+
+  /// Season contracts — resolve each link's display name.
+  final List<Contract> contracts;
 
   @override
   Widget build(BuildContext context) => BlocListener<SyncBloc, SyncState>(
@@ -41,7 +51,7 @@ class MissingCoordinatorListener extends StatelessWidget {
       if (missing.isEmpty) return;
 
       // Resolve contract descriptions from the current org if available.
-      final contractNames = _resolveContractNames(org);
+      final contractNames = _resolveContractNames(org, contracts);
       final detail = contractNames.isNotEmpty
           ? ' : aucun coordinateur sur le(s) contrat(s) ${contractNames.join(', ')}.'
           : '.';
@@ -55,16 +65,19 @@ class MissingCoordinatorListener extends StatelessWidget {
     child: child,
   );
 
-  /// Collects delivery-description labels for all contracts missing a
-  /// coordinator on CONFIRMED deliveries in [org].
-  static List<String> _resolveContractNames(Organization? org) {
+  /// Collects the names of all contracts missing a coordinator on CONFIRMED
+  /// deliveries in [org].
+  static List<String> _resolveContractNames(
+    Organization? org,
+    List<Contract> contracts,
+  ) {
     if (org == null) return const [];
     final names = <String>[];
     for (final delivery in org.deliveries) {
       if (delivery.status != DeliveryStatus.confirmed) continue;
       for (final contract in delivery.contracts) {
         if (contract.coordinators.isEmpty) {
-          names.add(contract.deliveryDescription);
+          names.add(deliveryContractName(contract, contracts));
         }
       }
     }

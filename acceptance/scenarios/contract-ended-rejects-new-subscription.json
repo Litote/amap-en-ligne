@@ -1,7 +1,7 @@
 {
   "id": "contract-ended-rejects-new-subscription",
   "title": "Adding a new member subscription to an ended contract is rejected with CONTRACT_ENDED",
-  "targets": ["contract-lifecycle"],
+  "targets": ["contract-lifecycle", "flutter"],
   "given": {
     "backendState": "organization:org-1 with a persisted Contract:contract-1 whose max_delivery_date is 2020-06-30 (past); member:admin-1 authorized on organization:org-1 with role ADMIN; member:member-1 already subscribed to contract-1",
     "appState": "fresh organization cache synchronized from bootstrap"

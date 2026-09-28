@@ -21,6 +21,7 @@ import producer.ProducerModule
 import produceraccount.ProducerAccountModule
 import producerrequest.ProducerRequestModule
 import producttype.ProductTypeModule
+import volunteershortage.VolunteerShortageModule
 
 @Module(
     includes = [
@@ -43,6 +44,7 @@ import producttype.ProductTypeModule
         ExchangeModule::class,
         NotificationModule::class,
         ActivationModule::class,
+        VolunteerShortageModule::class,
     ],
 )
 @ComponentScan

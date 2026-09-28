@@ -7,6 +7,7 @@ import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
 import 'package:amap_en_ligne/domain/auth/auth_state.dart';
+import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/domain/auth/user_role.dart';
 import 'package:amap_en_ligne/domain/model/admin_producer_request.dart';
 import 'package:amap_en_ligne/domain/model/delivery_template.dart';
@@ -61,6 +62,7 @@ import 'package:amap_en_ligne/presentation/owner/owner_dashboard_screen.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_list_screen.dart';
 import 'package:amap_en_ligne/presentation/producer/producer_dashboard_screen.dart';
 import 'package:amap_en_ligne/presentation/producer/producer_deliveries_screen.dart';
+import 'package:amap_en_ligne/presentation/producer/producer_delivery_composition_screen.dart';
 import 'package:amap_en_ligne/presentation/producer_request/producer_request_screen.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_screen.dart';
 import 'package:amap_en_ligne/presentation/product_types/product_type_form_screen.dart';
@@ -90,6 +92,9 @@ const _kLoginRoute = '/login';
 const _kActivateRoute = '/activate';
 const _kResetPasswordRoute = '/reset-password';
 const _kProductTypesRoute = '/product-types';
+const _kOrganizationRequestsRoute = '/admin/organization-requests';
+const _kProducerDashboardRoute = '/producer-dashboard';
+const _kDashboardRoute = '/dashboard';
 
 const _publicRoutes = {
   _kLoginRoute,
@@ -113,6 +118,7 @@ String? computeRouterRedirect(
   String? producerAccountId, {
   bool isAdmin = false,
   UserRole? role,
+  Set<Role> memberRoles = const {},
   bool logoutRequested = false,
   bool initializing = false,
 }) {
@@ -132,7 +138,13 @@ String? computeRouterRedirect(
   if (ownerGuard != null) return ownerGuard;
 
   if (producerAccountId != null) {
-    return _authenticatedRedirect(uri, location, role: role, isAdmin: isAdmin);
+    return _authenticatedRedirect(
+          uri,
+          location,
+          role: role,
+          isAdmin: isAdmin,
+        ) ??
+        _roleGuardRedirect(location, role: role, memberRoles: memberRoles);
   }
 
   // Unauthenticated: force login for any non-public route.
@@ -183,18 +195,82 @@ String? _authenticatedRedirect(
   return null;
 }
 
+/// Who a screen is meant for; mirrors the navigation menu of each role
+/// (spec screen-common-01-menu).
+enum _RouteAudience { member, coordinator, admin, owner, producer }
+
+bool _isUnder(String location, String prefix) =>
+    location == prefix || location.startsWith('$prefix/');
+
+_RouteAudience? _audienceOf(String location) {
+  if (_isUnder(location, '/owner') ||
+      _isUnder(location, _kOrganizationRequestsRoute) ||
+      _isUnder(location, '/admin/producer-requests')) {
+    return _RouteAudience.owner;
+  }
+  if (_isUnder(location, '/admin') || _isUnder(location, '/members')) {
+    return _RouteAudience.admin;
+  }
+  if (_isUnder(location, '/coordinator') || _isUnder(location, '/slots')) {
+    return _RouteAudience.coordinator;
+  }
+  if (_isUnder(location, _kProducerDashboardRoute) ||
+      _isUnder(location, '/producer-deliveries') ||
+      _isUnder(location, '/product-types')) {
+    return _RouteAudience.producer;
+  }
+  if (_isUnder(location, _kDashboardRoute) ||
+      _isUnder(location, '/contracts') ||
+      _isUnder(location, '/planning') ||
+      _isUnder(location, '/history') ||
+      _isUnder(location, '/basket-exchange')) {
+    return _RouteAudience.member;
+  }
+  // Common screens (notifications, preferences, help…) and public routes.
+  return null;
+}
+
+/// Sends an authenticated user back to their landing page when they open a
+/// screen of another role (typed URL, stale link). The back stays the source
+/// of truth for every write; this keeps forms and data of other roles out of
+/// sight. Skipped for the legacy role-less callers.
+String? _roleGuardRedirect(
+  String location, {
+  required UserRole? role,
+  required Set<Role> memberRoles,
+}) {
+  if (role == null) return null;
+  final audience = _audienceOf(location);
+  if (audience == null) return null;
+  final isAdmin = role == UserRole.admin || memberRoles.contains(Role.admin);
+  final allowed = switch (audience) {
+    _RouteAudience.owner => role == UserRole.owner,
+    _RouteAudience.producer => role == UserRole.producer,
+    _RouteAudience.admin => isAdmin,
+    _RouteAudience.coordinator =>
+      isAdmin ||
+          role == UserRole.coordinator ||
+          memberRoles.contains(Role.coordinator),
+    _RouteAudience.member =>
+      memberRoles.isNotEmpty ||
+          (role != UserRole.owner && role != UserRole.producer),
+  };
+  return allowed ? null : _landingRouteFor(role: role, isAdmin: false);
+}
+
 /// Returns the landing route after a successful login, based on [role].
 ///
 /// Falls back to [isAdmin] when [role] is null (backward-compatible path).
 String _landingRouteFor({required UserRole? role, required bool isAdmin}) =>
     switch (role) {
       UserRole.owner => '/owner/dashboard',
-      UserRole.producer => _kProductTypesRoute,
+      // Spec screen-common-01-menu: the producer home is its dashboard.
+      UserRole.producer => _kProducerDashboardRoute,
       UserRole.admin ||
       UserRole.coordinator ||
       UserRole.volunteer ||
-      UserRole.memberNoRole => '/dashboard',
-      null => isAdmin ? '/admin/organization-requests' : _kProductTypesRoute,
+      UserRole.memberNoRole => _kDashboardRoute,
+      null => isAdmin ? _kOrganizationRequestsRoute : _kProductTypesRoute,
     };
 
 /// Builds the app router. The `authBloc` instance drives both the redirect
@@ -210,6 +286,7 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
       authBloc.state.producerId,
       isAdmin: authBloc.state.isAdmin,
       role: authBloc.state.role,
+      memberRoles: authBloc.state.memberRoles,
       logoutRequested: authBloc.state.logoutRequested,
       initializing: authBloc.state.initializing,
     ),
@@ -285,18 +362,16 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
           ),
           GoRoute(
             path: '/product-types/:productTypeId/items',
-            builder: (_, st) =>
-                ItemTypesScreen(productType: st.extra! as ProductType),
-          ),
-          GoRoute(
-            path: '/product-types/deliveries/:deliveryId/description',
-            builder: (_, st) => DeliveryDescriptionScreen(
-              org: st.extra! as Organization,
-              deliveryId: st.pathParameters['deliveryId']!,
+            builder: (_, st) => tenantScoped(
+              (tenantId) => ItemTypesRouteScreen(
+                tenantId: tenantId,
+                productTypeId: st.pathParameters['productTypeId']!,
+                productType: st.extra as ProductType?,
+              ),
             ),
           ),
           GoRoute(
-            path: '/admin/organization-requests',
+            path: _kOrganizationRequestsRoute,
             builder: (_, state) => AdminRequestsScreen(
               initialTab: state.uri.queryParameters['tab'] == 'producers'
                   ? AdminRequestsTab.producers
@@ -364,7 +439,7 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
             builder: (_, _) => const InviteOwnerScreen(),
           ),
           GoRoute(
-            path: '/dashboard',
+            path: _kDashboardRoute,
             builder: (_, _) => tenantScoped(
               (tenantId) => MixedDashboardScreen(tenantId: tenantId),
             ),
@@ -523,7 +598,7 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
             ),
           ),
           GoRoute(
-            path: '/producer-dashboard',
+            path: _kProducerDashboardRoute,
             builder: (_, _) => tenantScoped(
               (tenantId) => ProducerDashboardScreen(tenantId: tenantId),
             ),
@@ -531,10 +606,19 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
           GoRoute(
             path: '/producer-deliveries',
             builder: (_, _) => tenantScoped(
-              (tenantId) => ProducerDeliveriesScreen(
-                tenantId: tenantId,
-                // A producer's tenant is its account id.
+              // A producer's tenant is its account id.
+              (tenantId) =>
+                  ProducerDeliveriesScreen(producerAccountId: tenantId),
+            ),
+          ),
+          GoRoute(
+            path:
+                '/producer-deliveries/:organizationId/:deliveryId/composition',
+            builder: (_, st) => tenantScoped(
+              (tenantId) => ProducerDeliveryCompositionScreen(
                 producerAccountId: tenantId,
+                organizationId: st.pathParameters['organizationId']!,
+                deliveryId: st.pathParameters['deliveryId']!,
               ),
             ),
           ),

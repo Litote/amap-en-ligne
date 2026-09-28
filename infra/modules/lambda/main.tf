@@ -234,3 +234,55 @@ resource "aws_lambda_permission" "api_gateway" {
   qualifier     = aws_lambda_alias.live.name
   principal     = "apigateway.amazonaws.com"
 }
+
+# ─── Volunteer shortage alerts (scheduled) ───────────────────────────────────
+# Same native binary and role as the data Lambda, dispatched on its handler
+# (deploy.lambda.Main). Triggered every 15 minutes by an EventBridge rule; the
+# job itself is idempotent (sent alerts are recorded in DynamoDB).
+
+resource "aws_cloudwatch_log_group" "volunteer_shortage" {
+  name              = "/aws/lambda/${var.name}-volunteer-shortage"
+  retention_in_days = var.log_retention_days
+}
+
+resource "aws_lambda_function" "volunteer_shortage" {
+  function_name = "${var.name}-volunteer-shortage"
+  role          = aws_iam_role.lambda.arn
+
+  s3_bucket         = var.jar_s3_bucket
+  s3_key            = var.jar_s3_key
+  s3_object_version = var.jar_s3_object_version
+
+  handler     = "deploy.lambda.VolunteerShortageMainKt"
+  runtime     = var.runtime
+  memory_size = var.memory_mb
+  timeout     = 300
+
+  environment {
+    variables = aws_lambda_function.data.environment[0].variables
+  }
+
+  depends_on = [
+    aws_cloudwatch_log_group.volunteer_shortage,
+    aws_iam_role_policy_attachment.basic_execution,
+  ]
+}
+
+resource "aws_cloudwatch_event_rule" "volunteer_shortage" {
+  name                = "${var.name}-volunteer-shortage"
+  description         = "Sends the volunteer shortage alerts"
+  schedule_expression = "rate(15 minutes)"
+}
+
+resource "aws_cloudwatch_event_target" "volunteer_shortage" {
+  rule = aws_cloudwatch_event_rule.volunteer_shortage.name
+  arn  = aws_lambda_function.volunteer_shortage.arn
+}
+
+resource "aws_lambda_permission" "volunteer_shortage_schedule" {
+  statement_id  = "AllowEventBridgeInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.volunteer_shortage.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.volunteer_shortage.arn
+}

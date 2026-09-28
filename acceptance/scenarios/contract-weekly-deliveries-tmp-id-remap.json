@@ -2,7 +2,8 @@
   "id": "contract-weekly-deliveries-tmp-id-remap",
   "title": "Batch with tmp_ Contract upsert + Organization upsert linking the same tmp_ contract id: back allocates a real id for the contract and rewrites the delivery link atomically",
   "targets": [
-    "contract-lifecycle"
+    "contract-lifecycle",
+    "flutter"
   ],
   "given": {
     "backendState": "organization:org-1 with an ended contract:contract-1 (season 2020); member:admin-1 with role ADMIN",

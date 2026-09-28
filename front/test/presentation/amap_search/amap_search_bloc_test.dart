@@ -1,6 +1,6 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
 import 'package:amap_en_ligne/domain/model/member_join_request.dart';
-import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/public_organization.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_bloc.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_event.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_state.dart';
@@ -12,17 +12,12 @@ class _MockPublicApi extends Mock implements PublicApi {}
 
 class _FakeMemberJoinRequest extends Fake implements MemberJoinRequest {}
 
-const _org1 = Organization(
+const _org1 = PublicOrganization(
   organizationId: 'org-1',
   name: 'AMAP des Collines',
-  contactEmail: 'contact@collines.fr',
 );
 
-const _org2 = Organization(
-  organizationId: 'org-2',
-  name: 'AMAP du Val',
-  contactEmail: 'contact@val.fr',
-);
+const _org2 = PublicOrganization(organizationId: 'org-2', name: 'AMAP du Val');
 
 const _validJoinEvent = AmapSearchEvent.joinFormSubmitted(
   firstName: 'Jean',
@@ -155,6 +150,28 @@ void main() {
     );
 
     blocTest<AmapSearchBloc, AmapSearchState>(
+      'WHEN the form is resubmitted after an error THEN the request is sent again',
+      setUp: () => when(() => api.createMemberJoinRequest(any())).thenAnswer(
+        (_) async => const MemberJoinRequestResponse(
+          requestId: 'req-2',
+          status: 'PENDING',
+        ),
+      ),
+      build: () => AmapSearchBloc(publicApi: api),
+      seed: () =>
+          const AmapSearchState.error(message: 'conflit', selectedOrg: _org1),
+      act: (bloc) => bloc.add(_validJoinEvent),
+      expect: () => [
+        isA<AmapSearchSubmitting>().having((s) => s.org, 'org', _org1),
+        isA<AmapSearchSuccess>().having(
+          (s) => s.requestId,
+          'requestId',
+          'req-2',
+        ),
+      ],
+    );
+
+    blocTest<AmapSearchBloc, AmapSearchState>(
       'emits error with selectedOrg preserved on email conflict',
       setUp: () => when(() => api.createMemberJoinRequest(any())).thenThrow(
         const MemberJoinConflictException(MemberJoinConflictField.email),
@@ -187,7 +204,10 @@ void main() {
             .having(
               (s) => s.message,
               'message',
-              'Cette adresse email est déjà utilisée par un membre d\'une autre AMAP.',
+              // The back rejects any active member's email, this AMAP's
+              // included: never claim it is "another" AMAP.
+              'Un compte membre existe déjà avec cette adresse email : '
+                  'connectez-vous avec elle, ou contactez votre AMAP.',
             ),
       ],
     );

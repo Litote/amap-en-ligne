@@ -15,6 +15,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../support/organization_fixtures.dart';
@@ -72,7 +73,8 @@ Future<void> _pumpWith(
 }
 
 void main() {
-  setUpAll(() {
+  setUpAll(() async {
+    await initializeDateFormatting('fr');
     registerFallbackValue(
       const Organization(
         organizationId: 'fallback',
@@ -304,6 +306,35 @@ void main() {
       expect(find.text('Non collecté'), findsOneWidget);
     });
 
+    testWidgets(
+      'basket pickup block leaves out a contract link without any basket',
+      (tester) async {
+        final delivery = buildDelivery(
+          status: DeliveryStatus.inProgress,
+          contracts: [
+            buildContract(basketQuantity: 5),
+            buildContract(contractId: 'c-empty', basketQuantity: 0),
+          ],
+        );
+
+        await _pumpWith(
+          tester,
+          organizationRepository: organizationRepository,
+          memberRepository: memberRepository,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        organizationStream.add(buildOrg(deliveries: [delivery]));
+        await tester.pump();
+
+        // Same rule as the progression and the finalisation: nothing to
+        // collect, so no "COLLECTÉ" action.
+        expect(find.text('Non collecté'), findsOneWidget);
+        expect(find.text('COLLECTÉ'), findsOneWidget);
+      },
+    );
+
     testWidgets('basket pickup block shows the product of each contract', (
       tester,
     ) async {
@@ -362,6 +393,53 @@ void main() {
 
       expect(find.text('Produits : Légumes'), findsOneWidget);
     });
+
+    testWidgets(
+      'basket pickup and coordinator blocks name the contract from the live '
+      'catalog when the link snapshot is blank (imported data)',
+      (tester) async {
+        final contract = buildContract(
+          contractId: 'c-1',
+          deliveryDescription: '',
+          basketQuantity: 5,
+        );
+        final delivery = buildDelivery(
+          status: DeliveryStatus.inProgress,
+          contracts: [contract],
+        );
+        final org = buildOrg(deliveries: [delivery]);
+        final contractRepository = _MockContractRepository();
+        when(() => contractRepository.watch(any())).thenAnswer(
+          (_) => Stream.value(const [
+            Contract(
+              contractId: 'c-1',
+              name: 'Légumes 2026/2027',
+              organizationId: 'org-1',
+              producerAccountId: 'pa-1',
+              minDeliveryDate: '2020-01-01',
+              maxDeliveryDate: '2030-12-31',
+              deliveryCount: 1,
+              seasonYear: 2030,
+            ),
+          ]),
+        );
+
+        await _pumpWith(
+          tester,
+          organizationRepository: organizationRepository,
+          memberRepository: memberRepository,
+          syncBloc: syncBloc,
+          contractRepository: contractRepository,
+        );
+        await tester.pump();
+        organizationStream.add(org);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 10));
+
+        expect(find.text('📦 Légumes 2026/2027'), findsOneWidget);
+        expect(find.text('📦 '), findsNothing);
+      },
+    );
 
     testWidgets('shows progression section', (tester) async {
       final delivery = buildDelivery(status: DeliveryStatus.inProgress);
@@ -548,6 +626,35 @@ void main() {
         expect(find.text('Coordinateur à confirmer'), findsOneWidget);
       },
     );
+
+    testWidgets(
+      'shows "Coordinateur inscrit" when the coordinator is not resolved yet',
+      (tester) async {
+        final contract = buildContract(
+          contractId: 'c-1',
+          coordinators: const ['not-loaded-yet'],
+          deliveryDescription: 'Légumes',
+        );
+        final delivery = buildDelivery(
+          status: DeliveryStatus.inProgress,
+          contracts: [contract],
+        );
+
+        await _pumpWith(
+          tester,
+          organizationRepository: organizationRepository,
+          memberRepository: memberRepository,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        organizationStream.add(buildOrg(deliveries: [delivery]));
+        await tester.pump();
+
+        expect(find.text('Coordinateur inscrit'), findsOneWidget);
+        expect(find.text('Coordinateur à confirmer'), findsNothing);
+      },
+    );
   });
 
   group('CoordinatorDeliveryTrackingScreen — mutations', () {
@@ -607,6 +714,8 @@ void main() {
       );
       final contract = buildContract(slots: [slot]);
       final delivery = buildDelivery(
+        // In progress = today: presences and collection are open.
+        scheduledDate: daysFromNowIso(0),
         status: DeliveryStatus.inProgress,
         contracts: [contract],
       );
@@ -649,6 +758,8 @@ void main() {
       final slot = buildSlot(registrations: [registration]);
       final contract = buildContract(slots: [slot]);
       final delivery = buildDelivery(
+        // In progress = today: presences and collection are open.
+        scheduledDate: daysFromNowIso(0),
         status: DeliveryStatus.inProgress,
         contracts: [contract],
       );
@@ -688,6 +799,8 @@ void main() {
         status: DeliveryContractStatus.pending,
       );
       final delivery = buildDelivery(
+        // In progress = today: presences and collection are open.
+        scheduledDate: daysFromNowIso(0),
         status: DeliveryStatus.inProgress,
         contracts: [contract],
       );
@@ -742,6 +855,8 @@ void main() {
         );
         final contract = buildContract(slots: [slot]);
         final delivery = buildDelivery(
+          // In progress = today: presences and collection are open.
+          scheduledDate: daysFromNowIso(0),
           status: DeliveryStatus.inProgress,
           contracts: [contract],
         );
@@ -785,6 +900,8 @@ void main() {
           status: DeliveryContractStatus.pending,
         );
         final delivery = buildDelivery(
+          // In progress = today: presences and collection are open.
+          scheduledDate: daysFromNowIso(0),
           status: DeliveryStatus.inProgress,
           contracts: [contract],
         );
@@ -816,6 +933,7 @@ void main() {
       tester,
     ) async {
       final delivery = buildDelivery(
+        scheduledDate: daysFromNowIso(0),
         status: DeliveryStatus.inProgress,
         contracts: [buildContract()],
       );
@@ -840,5 +958,108 @@ void main() {
       );
       expect(button.onPressed, isNotNull);
     });
+
+    testWidgets(
+      'disables presence and collection actions before the delivery day',
+      (tester) async {
+        final delivery = buildDelivery(
+          scheduledDate: daysFromNowIso(7),
+          contracts: [
+            buildContract(
+              slots: [
+                buildSlot(
+                  registrations: [buildRegistration(memberId: 'member-9')],
+                ),
+              ],
+            ),
+          ],
+        );
+
+        await _pumpWith(
+          tester,
+          organizationRepository: organizationRepository,
+          memberRepository: memberRepository,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        organizationStream.add(buildOrg(deliveries: [delivery]));
+        await tester.pump();
+
+        for (final label in ['PRÉSENT', 'ABSENT', 'COLLECTÉ']) {
+          final button = tester.widget<ButtonStyleButton>(
+            find.ancestor(
+              of: find.text(label),
+              matching: find.bySubtype<ButtonStyleButton>(),
+            ),
+          );
+          expect(button.onPressed, isNull, reason: label);
+        }
+        expect(
+          find.textContaining(
+            'Les présences et la collecte pourront être saisies à partir du',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'disables CLÔTURER LA DISTRIBUTION before the delivery day and says why',
+      (tester) async {
+        final delivery = buildDelivery(
+          scheduledDate: daysFromNowIso(7),
+          contracts: [buildContract()],
+        );
+
+        await _pumpWith(
+          tester,
+          organizationRepository: organizationRepository,
+          memberRepository: memberRepository,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        organizationStream.add(buildOrg(deliveries: [delivery]));
+        await tester.pump();
+
+        final button = tester.widget<FilledButton>(
+          find.ancestor(
+            of: find.text('CLÔTURER LA DISTRIBUTION'),
+            matching: find.byType(FilledButton),
+          ),
+        );
+        expect(button.onPressed, isNull);
+        expect(
+          find.textContaining('pourra être clôturée à partir du'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'links without any basket are not counted as contracts to collect',
+      (tester) async {
+        final delivery = buildDelivery(
+          contracts: [
+            buildContract(basketQuantity: 2),
+            buildContract(contractId: 'c-draft', basketQuantity: 0),
+          ],
+        );
+
+        await _pumpWith(
+          tester,
+          organizationRepository: organizationRepository,
+          memberRepository: memberRepository,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        organizationStream.add(buildOrg(deliveries: [delivery]));
+        await tester.pump();
+
+        expect(find.text('0/1 contrats'), findsOneWidget);
+      },
+    );
   });
 }

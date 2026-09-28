@@ -106,6 +106,10 @@ data class BasketDeliveryDescription(
     @SerialName("product_type_id") val productTypeId: Id<ProductType>,
     @SerialName("basket_size_name") val basketSizeName: String,
     val items: List<DeliveryItem> = emptyList(),
+    // When [items] were last edited in a composition editor (coordinator or producer). A write
+    // carrying an older (or no) timestamp than the stored one keeps the stored items: it comes
+    // from a stale cached copy, not from an edit (see `core.BasketComposition`).
+    @SerialName("items_updated_at") val itemsUpdatedAt: Instant? = null,
 )
 
 /**

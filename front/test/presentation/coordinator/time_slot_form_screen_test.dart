@@ -24,6 +24,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockOrganizationRepository extends Mock
@@ -187,6 +189,7 @@ Future<void> _pumpScreen(
   _MockContractRepository? contractRepository,
   _MockProducerAccountRepository? producerAccountRepository,
   String? deliveryId = 'd-1',
+  bool openedByUrl = false,
 }) async {
   when(() => syncBloc.state).thenReturn(const SyncState.idle());
   when(() => syncBloc.stream).thenAnswer((_) => const Stream.empty());
@@ -236,9 +239,33 @@ Future<void> _pumpScreen(
       ],
       child: BlocProvider<SyncBloc>.value(
         value: syncBloc,
-        child: MaterialApp(
-          home: TimeSlotFormScreen(tenantId: 'org-1', deliveryId: deliveryId),
-        ),
+        child: openedByUrl
+            // Opened by its URL (page reload, shared link): nothing to pop.
+            ? MaterialApp.router(
+                routerConfig: GoRouter(
+                  initialLocation: '/coordinator/time-slots/new',
+                  routes: [
+                    GoRoute(
+                      path: '/coordinator/time-slots',
+                      builder: (_, _) =>
+                          const Scaffold(body: Text('Liste des livraisons')),
+                    ),
+                    GoRoute(
+                      path: '/coordinator/time-slots/new',
+                      builder: (_, _) => TimeSlotFormScreen(
+                        tenantId: 'org-1',
+                        deliveryId: deliveryId,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : MaterialApp(
+                home: TimeSlotFormScreen(
+                  tenantId: 'org-1',
+                  deliveryId: deliveryId,
+                ),
+              ),
       ),
     ),
   );
@@ -295,10 +322,110 @@ void main() {
     ).thenAnswer((_) async {});
   });
 
-  setUpAll(() {
+  setUpAll(() async {
+    // The form shows the delivery date in French.
+    await initializeDateFormatting('fr');
     registerFallbackValue(_organization);
     registerFallbackValue(_delivery);
     registerFallbackValue(const SyncEvent.mutationApplied());
+  });
+
+  testWidgets('a new delivery offers no product until a linked contract '
+      'applies (never every product of the AMAP)', (tester) async {
+    // The only contract starts later: before a date is picked, no contract
+    // is active "today", which must not fall back to the whole catalog.
+    when(() => contractRepository.watch('org-1')).thenAnswer(
+      (_) => Stream.value([
+        _contractVegs.copyWith(
+          minDeliveryDate: '2098-01-01',
+          maxDeliveryDate: '2098-12-31',
+        ),
+      ]),
+    );
+    await _pumpScreen(
+      tester,
+      organizationRepository: organizationRepository,
+      deliveryTemplateRepository: deliveryTemplateRepository,
+      syncBloc: syncBloc,
+      contractRepository: contractRepository,
+      producerAccountRepository: producerAccountRepository,
+      deliveryId: null,
+    );
+
+    expect(find.text('Produits présents'), findsNothing);
+  });
+
+  group('Suppression depuis le formulaire', () {
+    final orgWithDelivery = _organization.copyWith(deliveries: [_delivery]);
+
+    setUp(() {
+      when(
+        () => organizationRepository.watch('org-1'),
+      ).thenAnswer((_) => Stream.value(orgWithDelivery));
+      when(
+        () => organizationRepository.deleteDelivery(
+          currentOrg: any(named: 'currentOrg'),
+          deliveryId: any(named: 'deliveryId'),
+        ),
+      ).thenAnswer((_) async {});
+    });
+
+    Future<void> tapDelete(WidgetTester tester) async {
+      final button = find.widgetWithText(
+        OutlinedButton,
+        'Supprimer la livraison',
+      );
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('an existing delivery can be deleted after confirmation', (
+      tester,
+    ) async {
+      await _pumpScreen(
+        tester,
+        organizationRepository: organizationRepository,
+        deliveryTemplateRepository: deliveryTemplateRepository,
+        syncBloc: syncBloc,
+      );
+      await tester.pumpAndSettle();
+
+      await tapDelete(tester);
+      expect(find.text('Supprimer la livraison ?'), findsOneWidget);
+      await tester.tap(find.text('ANNULER'));
+      await tester.pumpAndSettle();
+      verifyNever(
+        () => organizationRepository.deleteDelivery(
+          currentOrg: any(named: 'currentOrg'),
+          deliveryId: any(named: 'deliveryId'),
+        ),
+      );
+
+      await tapDelete(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'SUPPRIMER'));
+      await tester.pumpAndSettle();
+      verify(
+        () => organizationRepository.deleteDelivery(
+          currentOrg: orgWithDelivery,
+          deliveryId: 'd-1',
+        ),
+      ).called(1);
+      verify(() => syncBloc.add(const SyncEvent.mutationApplied())).called(1);
+    });
+
+    testWidgets('a new delivery offers no deletion', (tester) async {
+      await _pumpScreen(
+        tester,
+        organizationRepository: organizationRepository,
+        deliveryTemplateRepository: deliveryTemplateRepository,
+        syncBloc: syncBloc,
+        deliveryId: null,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Supprimer la livraison'), findsNothing);
+    });
   });
 
   testWidgets('the delivery form offers a back button, not the menu', (
@@ -770,7 +897,10 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('Aucun contrat encore défini.'), findsOneWidget);
+        expect(
+          find.text('Aucun contrat lié à cette livraison.'),
+          findsOneWidget,
+        );
       },
     );
 
@@ -866,6 +996,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.close));
         await tester.pumpAndSettle();
 
+        expect(find.text('Coordinateur retiré et enregistré.'), findsOneWidget);
         verify(
           () => organizationRepository.unassignCoordinatorById(
             organizationId: 'org-1',
@@ -1143,6 +1274,8 @@ void main() {
         await tester.tap(find.text('Claire Candidate').last);
         await tester.pumpAndSettle();
 
+        // Saved right away, unlike the rest of the form: say so.
+        expect(find.text('Coordinateur ajouté et enregistré.'), findsOneWidget);
         verify(
           () => organizationRepository.assignCoordinatorById(
             organizationId: 'org-1',
@@ -1640,6 +1773,28 @@ void main() {
     );
 
     testWidgets(
+      'when the AMAP has contracts but none covers the chosen date, the '
+      'section says so instead of disappearing',
+      (tester) async {
+        when(
+          () => contractRepository.watch('org-1'),
+        ).thenAnswer((_) => Stream.value(const [_endedContract]));
+
+        await pumpCreation(tester);
+
+        expect(find.text('🌿 Contrats présents'), findsOneWidget);
+        expect(
+          find.textContaining('Aucun contrat ne couvre cette date'),
+          findsOneWidget,
+        );
+        expect(
+          find.text('Aucun contrat lié à cette livraison.'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
       'no contract section when no active contract exists — flat product list',
       (tester) async {
         // Default setUp: contract stream is empty.
@@ -1671,6 +1826,51 @@ void main() {
       productTypeId: 'pt-2',
       producerAccountId: 'producer-2',
       supportedBasketSizes: [BasketSize(name: 'Petit')],
+    );
+
+    testWidgets(
+      'saving a form opened by its URL (nothing to pop) lands on the delivery '
+      'list instead of reporting an error',
+      (tester) async {
+        when(
+          () => contractRepository.watch('org-1'),
+        ).thenAnswer((_) => Stream.value(const [_contractVegs, _contractEggs]));
+        const org = Organization(
+          organizationId: 'org-1',
+          name: 'AMAP Test',
+          contactEmail: 'test@amap.fr',
+          defaultDeliveryTemplateId: 'dt-1',
+          products: [productTomates, productOeufs],
+        );
+        when(
+          () => organizationRepository.watch('org-1'),
+        ).thenAnswer((_) => Stream.value(org));
+
+        await _pumpScreen(
+          tester,
+          organizationRepository: organizationRepository,
+          deliveryTemplateRepository: deliveryTemplateRepository,
+          syncBloc: syncBloc,
+          contractRepository: contractRepository,
+          producerAccountRepository: producerAccountRepository,
+          deliveryId: null,
+          openedByUrl: true,
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byIcon(Icons.calendar_today));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('15'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('OK'));
+        await tester.pumpAndSettle();
+
+        await _tapSaveButton(tester);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Liste des livraisons'), findsOneWidget);
+        expect(find.textContaining('Une erreur est survenue'), findsNothing);
+      },
     );
 
     testWidgets('creation links the selected active contracts', (tester) async {
@@ -1717,6 +1917,13 @@ void main() {
           delivery: any(
             named: 'delivery',
             that: isA<Delivery>()
+                // Final id: a nested delivery id is never remapped by the
+                // server, so it must not carry the `tmp_` prefix.
+                .having(
+                  (delivery) => delivery.deliveryId,
+                  'deliveryId',
+                  startsWith('delivery_'),
+                )
                 .having(
                   (delivery) => [
                     for (final c in delivery.contracts)
@@ -1830,11 +2037,52 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('Aucun contrat encore défini.'), findsNothing);
+        expect(find.text('Aucun contrat lié à cette livraison.'), findsNothing);
         // Each contract name now appears twice: once in the coordinator preview
         // block and once as the "Produits présents" per-contract group header.
         expect(find.text('Légumes de saison'), findsNWidgets(2));
         expect(find.text('Œufs fermiers'), findsNWidgets(2));
+      },
+    );
+
+    testWidgets(
+      'lists a product shared by two checked contracts only once, under both '
+      'contract names',
+      (tester) async {
+        final vegsBis = _contractVegs.copyWith(
+          contractId: 'c-vegs-bis',
+          name: 'Légumes bis',
+          isMainContract: false,
+        );
+        when(
+          () => contractRepository.watch('org-1'),
+        ).thenAnswer((_) => Stream.value([_contractVegs, vegsBis]));
+        const org = Organization(
+          organizationId: 'org-1',
+          name: 'AMAP Test',
+          contactEmail: 'test@amap.fr',
+          products: [productTomates, productOeufs],
+        );
+        when(
+          () => organizationRepository.watch('org-1'),
+        ).thenAnswer((_) => Stream.value(org));
+
+        await _pumpScreen(
+          tester,
+          organizationRepository: organizationRepository,
+          deliveryTemplateRepository: deliveryTemplateRepository,
+          syncBloc: syncBloc,
+          contractRepository: contractRepository,
+          producerAccountRepository: producerAccountRepository,
+          deliveryId: null,
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.widgetWithText(CheckboxListTile, 'Tomates'),
+          findsOneWidget,
+        );
+        expect(find.text('Légumes de saison · Légumes bis'), findsOneWidget);
       },
     );
 
@@ -1942,6 +2190,49 @@ void main() {
         ).called(1);
       },
     );
+
+    testWidgets('checking a contract on an existing delivery also checks its '
+        'products', (tester) async {
+      final orgDescribed = orgWithLink.copyWith(
+        deliveries: [
+          orgWithLink.deliveries.single.copyWith(
+            basketDescriptions: [
+              BasketDeliveryDescription(
+                productTypeId: productTomates.productTypeId,
+                basketSizeName: 'Petit',
+              ),
+            ],
+          ),
+        ],
+      );
+      when(
+        () => contractRepository.watch('org-1'),
+      ).thenAnswer((_) => Stream.value(const [_contractVegs, _contractEggs]));
+      when(
+        () => organizationRepository.watch('org-1'),
+      ).thenAnswer((_) => Stream.value(orgDescribed));
+      await _pumpScreen(
+        tester,
+        organizationRepository: organizationRepository,
+        deliveryTemplateRepository: deliveryTemplateRepository,
+        syncBloc: syncBloc,
+        contractRepository: contractRepository,
+        producerAccountRepository: producerAccountRepository,
+        deliveryId: 'd-link',
+      );
+      await tester.pumpAndSettle();
+
+      final eggsTile = find.widgetWithText(
+        CheckboxListTile,
+        'Œufs fermiers — Œufs Fermiers',
+      );
+      await tester.ensureVisible(eggsTile);
+      await tester.tap(eggsTile);
+      await tester.pump();
+
+      final oeufsTile = find.widgetWithText(CheckboxListTile, 'Oeufs');
+      expect(tester.widget<CheckboxListTile>(oeufsTile).value, isTrue);
+    });
 
     testWidgets('editing drops a dangling tmp_ link instead of duplicating the '
         're-identified contract', (tester) async {

@@ -1,6 +1,7 @@
 import 'package:amap_en_ligne/data/repositories/product_type_repository.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
+import 'package:amap_en_ligne/presentation/nav/back_navigation.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ import 'package:go_router/go_router.dart';
 /// Create-or-edit form. When [productTypeId] is null, the form creates a new
 /// row with a `tmp_*` id; otherwise it loads the existing row from the local
 /// cache and updates it on submit.
+const _kProductTypesRoute = '/product-types';
+
 class ProductTypeFormScreen extends StatefulWidget {
   const ProductTypeFormScreen({
     super.key,
@@ -32,6 +35,9 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
   final _basketSizesController = TextEditingController();
   ProductType? _existing;
   bool _loading = true;
+  // The edited product type vanished from the cache (deleted elsewhere, or the
+  // cache was cleared on logout while this screen was still mounted).
+  bool _notFound = false;
 
   @override
   void initState() {
@@ -46,12 +52,17 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
     }
     final repo = context.read<ProductTypeRepository>();
     final list = await repo.watch(widget.tenantId).first;
-    final pt = list.firstWhere(
-      (e) => e.productTypeId == widget.productTypeId,
-      orElse: () => throw StateError(
-        'ProductType ${widget.productTypeId} not found in local cache',
-      ),
-    );
+    if (!mounted) return;
+    final pt = list
+        .where((e) => e.productTypeId == widget.productTypeId)
+        .firstOrNull;
+    if (pt == null) {
+      setState(() {
+        _notFound = true;
+        _loading = false;
+      });
+      return;
+    }
     setState(() {
       _existing = pt;
       _nameController.text = pt.name;
@@ -77,6 +88,7 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
       useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         title: const Text('Supprimer ce type de produit ?'),
+        semanticLabel: 'Supprimer ce type de produit ?',
         content: const Text('Cette action est irréversible.'),
         actions: [
           TextButton(
@@ -99,7 +111,7 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
     );
     if (!mounted) return;
     context.read<SyncBloc>().add(const SyncEvent.mutationApplied());
-    context.pop();
+    popOrGo(context, _kProductTypesRoute);
   }
 
   Future<ProductType> _latestExisting(ProductTypeRepository repo) async {
@@ -144,7 +156,7 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
     }
     if (!mounted) return;
     context.read<SyncBloc>().add(const SyncEvent.mutationApplied());
-    context.pop();
+    popOrGo(context, _kProductTypesRoute);
   }
 
   @override
@@ -152,8 +164,22 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+    if (_notFound) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: BackButton(
+            onPressed: () => popOrGo(context, _kProductTypesRoute),
+          ),
+          title: const Text('Modifier le type de produit'),
+        ),
+        body: const Center(child: Text('Type de produit introuvable.')),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(
+          onPressed: () => popOrGo(context, _kProductTypesRoute),
+        ),
         title: Text(
           _existing == null
               ? 'Nouveau type de produit'
@@ -219,16 +245,12 @@ class _ProductTypeFormScreenState extends State<ProductTypeFormScreen> {
                       '${_existing!.itemTypes.length > 1 ? 's' : ''}',
                     ),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () async {
-                      final repo = context.read<ProductTypeRepository>();
-                      await context.push(
-                        '/product-types/${_existing!.productTypeId}/items',
-                        extra: _existing,
-                      );
-                      // Refresh the component count after catalog edits.
-                      final latest = await _latestExisting(repo);
-                      if (mounted) setState(() => _existing = latest);
-                    },
+                    // A real URL (reload, shared link); coming back rebuilds
+                    // this form, so the component count is fresh.
+                    onTap: () => context.go(
+                      '/product-types/${_existing!.productTypeId}/items',
+                      extra: _existing,
+                    ),
                   ),
                 ),
               ],

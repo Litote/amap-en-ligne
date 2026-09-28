@@ -1,15 +1,18 @@
 import 'package:amap_en_ligne/data/repositories/attendance_email_request_repository.dart';
+import 'package:amap_en_ligne/data/repositories/contract_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/domain/model/delivery_contract_name.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
-import 'package:amap_en_ligne/domain/model/organization_member_view.dart'
-    show deliveryCoordinatorIds;
+import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
+import 'package:amap_en_ligne/domain/validation/delivery_rules.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
@@ -61,15 +64,23 @@ class CoordinatorPostDeliverySyncScreen extends StatelessWidget {
           );
         }
 
-        final dateStr = DateFormat(
+        final dateStr = frenchDateFormat(
           'd MMM',
-          'fr',
         ).format(DateTime.parse(delivery.scheduledDate));
 
         return ConnectedScaffold(
           title: 'Finalisation livraison $dateStr',
-          onBack: () => backToDeliveryList(context),
-          body: _PostDeliveryBody(org: org, delivery: delivery),
+          onBack: () => backToDeliveryTracking(context, delivery.deliveryId),
+          // Season contracts only name the links: render without them first.
+          body: StreamBuilder<List<Contract>>(
+            stream: context.read<ContractRepository>().watch(tenantId),
+            initialData: const [],
+            builder: (context, contractsSnapshot) => _PostDeliveryBody(
+              org: org,
+              delivery: delivery,
+              contracts: contractsSnapshot.data ?? const [],
+            ),
+          ),
         );
       },
     );
@@ -77,10 +88,15 @@ class CoordinatorPostDeliverySyncScreen extends StatelessWidget {
 }
 
 class _PostDeliveryBody extends StatelessWidget {
-  const _PostDeliveryBody({required this.org, required this.delivery});
+  const _PostDeliveryBody({
+    required this.org,
+    required this.delivery,
+    required this.contracts,
+  });
 
   final Organization org;
   final Delivery delivery;
+  final List<Contract> contracts;
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
@@ -90,11 +106,15 @@ class _PostDeliveryBody extends StatelessWidget {
       children: [
         _VolunteerSyncSection(delivery: delivery),
         const SizedBox(height: 16),
-        _BasketSummarySection(delivery: delivery),
+        _BasketSummarySection(delivery: delivery, contracts: contracts),
         const SizedBox(height: 16),
         _FinalStatsSection(delivery: delivery),
         const SizedBox(height: 16),
-        _CloseActionsSection(org: org, delivery: delivery),
+        _CloseActionsSection(
+          org: org,
+          delivery: delivery,
+          contracts: contracts,
+        ),
       ],
     ),
   );
@@ -122,6 +142,14 @@ List<MemberRegistration> _volunteerRegistrations(Delivery delivery) {
   ];
 }
 
+/// "Taux présence bénévoles" value: "50% (1/2)", or an explicit mention when
+/// nobody registered (a bare "0% (0/0)" reads like an absence rate).
+String presenceRateLabel(PostDeliveryStats stats) {
+  if (stats.totalRegistrations == 0) return '— (aucun bénévole inscrit)';
+  final pct = stats.presentCount * 100 ~/ stats.totalRegistrations;
+  return '$pct% (${stats.presentCount}/${stats.totalRegistrations})';
+}
+
 PostDeliveryStats postDeliveryStats(Delivery delivery) {
   final registrations = _volunteerRegistrations(delivery);
   var totalBaskets = 0;
@@ -136,11 +164,7 @@ PostDeliveryStats postDeliveryStats(Delivery delivery) {
   return (
     totalRegistrations: registrations.length,
     presentCount: registrations
-        .where(
-          (reg) =>
-              reg.status == RegistrationStatus.confirmed ||
-              reg.status == RegistrationStatus.completed,
-        )
+        .where((reg) => isPresentRegistrationStatus(reg.status))
         .length,
     totalBaskets: totalBaskets,
     collectedBaskets: collectedBaskets,
@@ -214,9 +238,13 @@ class _RegistrationRow extends StatelessWidget {
 }
 
 class _BasketSummarySection extends StatelessWidget {
-  const _BasketSummarySection({required this.delivery});
+  const _BasketSummarySection({
+    required this.delivery,
+    required this.contracts,
+  });
 
   final Delivery delivery;
+  final List<Contract> contracts;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -227,16 +255,23 @@ class _BasketSummarySection extends StatelessWidget {
         style: Theme.of(context).textTheme.titleMedium,
       ),
       const SizedBox(height: 8),
-      for (final contract in delivery.contracts)
-        _ContractSummaryCard(contract: contract),
+      for (final contract in deliveryContractsToCollect(delivery))
+        _ContractSummaryCard(
+          contract: contract,
+          contractName: deliveryContractName(contract, contracts),
+        ),
     ],
   );
 }
 
 class _ContractSummaryCard extends StatelessWidget {
-  const _ContractSummaryCard({required this.contract});
+  const _ContractSummaryCard({
+    required this.contract,
+    required this.contractName,
+  });
 
   final DeliveryContract contract;
+  final String contractName;
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +291,7 @@ class _ContractSummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              contract.deliveryDescription,
+              contractName,
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -294,9 +329,6 @@ class _FinalStatsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final stats = postDeliveryStats(delivery);
 
-    final presencePct = stats.totalRegistrations > 0
-        ? (stats.presentCount * 100 ~/ stats.totalRegistrations)
-        : 0;
     final collectPct = stats.totalBaskets > 0
         ? (stats.collectedBaskets * 100 ~/ stats.totalBaskets)
         : 0;
@@ -316,9 +348,7 @@ class _FinalStatsSection extends StatelessWidget {
               children: [
                 _StatRow(
                   label: 'Taux présence bénévoles',
-                  value:
-                      '$presencePct% '
-                      '(${stats.presentCount}/${stats.totalRegistrations})',
+                  value: presenceRateLabel(stats),
                 ),
                 const SizedBox(height: 8),
                 _StatRow(
@@ -353,10 +383,15 @@ class _StatRow extends StatelessWidget {
 }
 
 class _CloseActionsSection extends StatefulWidget {
-  const _CloseActionsSection({required this.org, required this.delivery});
+  const _CloseActionsSection({
+    required this.org,
+    required this.delivery,
+    required this.contracts,
+  });
 
   final Organization org;
   final Delivery delivery;
+  final List<Contract> contracts;
 
   @override
   State<_CloseActionsSection> createState() => _CloseActionsSectionState();
@@ -375,15 +410,22 @@ List<List<String>> _volunteerPresenceRows(Delivery delivery) => [
     ],
 ];
 
-List<List<String>> _basketRecoveryRows(Delivery delivery) =>
-    delivery.contracts.map((contract) {
-      final total = contract.basketQuantity;
-      final collected = contract.status == DeliveryContractStatus.distributed
-          ? total
-          : 0;
-      final pct = total > 0 ? (collected * 100 ~/ total) : 0;
-      return [contract.deliveryDescription, '$collected', '$total', '$pct%'];
-    }).toList();
+List<List<String>> _basketRecoveryRows(
+  Delivery delivery,
+  List<Contract> contracts,
+) => deliveryContractsToCollect(delivery).map((contract) {
+  final total = contract.basketQuantity;
+  final collected = contract.status == DeliveryContractStatus.distributed
+      ? total
+      : 0;
+  final pct = total > 0 ? (collected * 100 ~/ total) : 0;
+  return [
+    deliveryContractName(contract, contracts),
+    '$collected',
+    '$total',
+    '$pct%',
+  ];
+}).toList();
 
 class _CloseActionsSectionState extends State<_CloseActionsSection> {
   bool _busy = false;
@@ -394,20 +436,16 @@ class _CloseActionsSectionState extends State<_CloseActionsSection> {
     setState(() => _busy = true);
     try {
       final delivery = widget.delivery;
-      final dateLabel = DateFormat(
+      final dateLabel = frenchDateFormat(
         'd MMMM yyyy',
-        'fr',
       ).format(DateTime.parse(delivery.scheduledDate));
       final stats = postDeliveryStats(delivery);
-      final presencePct = stats.totalRegistrations > 0
-          ? (stats.presentCount * 100 ~/ stats.totalRegistrations)
-          : 0;
       final collectPct = stats.totalBaskets > 0
           ? (stats.collectedBaskets * 100 ~/ stats.totalBaskets)
           : 0;
 
       final volunteerRows = _volunteerPresenceRows(delivery);
-      final basketRows = _basketRecoveryRows(delivery);
+      final basketRows = _basketRecoveryRows(delivery, widget.contracts);
 
       final doc = pw.Document()
         ..addPage(
@@ -438,10 +476,7 @@ class _CloseActionsSectionState extends State<_CloseActionsSection> {
               ),
               pw.SizedBox(height: 16),
               pw.Header(level: 1, text: 'Statistiques finales'),
-              pw.Text(
-                'Taux présence bénévoles : $presencePct% '
-                '(${stats.presentCount}/${stats.totalRegistrations})',
-              ),
+              pw.Text('Taux présence bénévoles : ${presenceRateLabel(stats)}'),
               pw.Text(
                 'Taux récupération paniers : $collectPct% '
                 '(${stats.collectedBaskets}/${stats.totalBaskets})',
@@ -469,6 +504,7 @@ class _CloseActionsSectionState extends State<_CloseActionsSection> {
       useRootNavigator: true,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Envoyer par email'),
+        semanticLabel: 'Envoyer par email',
         content: TextField(
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
@@ -523,6 +559,7 @@ class _CloseActionsSectionState extends State<_CloseActionsSection> {
       useRootNavigator: true,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Archiver la distribution ?'),
+        semanticLabel: 'Archiver la distribution ?',
         content: const Text('La livraison sera marquée comme terminée.'),
         actions: [
           TextButton(
@@ -584,10 +621,21 @@ class _CloseActionsSectionState extends State<_CloseActionsSection> {
           FilledButton.icon(
             icon: const Icon(Icons.archive_outlined),
             label: const Text('ARCHIVER'),
-            onPressed: _busy ? null : _archive,
+            onPressed: _busy || !_closable ? null : _archive,
           ),
         ],
       ),
+      if (!_closable) ...[
+        const SizedBox(height: 4),
+        Text(
+          closableFromLabel(widget.delivery.scheduledDate),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
     ],
   );
+
+  /// The back refuses completing a delivery before its scheduled day.
+  bool get _closable =>
+      isDeliveryClosable(widget.delivery.scheduledDate, now: DateTime.now());
 }

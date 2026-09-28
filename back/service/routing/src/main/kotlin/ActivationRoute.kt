@@ -20,7 +20,7 @@ internal fun Route.activationRoute(
     get("/v1/activate") {
         val token = call.request.queryParameters["token"]
         if (token.isNullOrBlank()) {
-            call.respond(HttpStatusCode.NotFound, httpService.notFoundError(call.request.path()))
+            call.respond(HttpStatusCode.BadRequest, httpService.invalidPayloadError(call.request.path(), "token is required"))
             return@get
         }
         respondActivationOutcome(call, activationService.describe(token), httpService)

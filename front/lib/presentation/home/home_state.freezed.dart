@@ -126,7 +126,7 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Organization> organizations)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<PublicOrganization> organizations)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case HomeInitial() when initial != null:
 return initial();case HomeLoading() when loading != null:
@@ -150,7 +150,7 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Organization> organizations)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<PublicOrganization> organizations)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case HomeInitial():
 return initial();case HomeLoading():
@@ -170,7 +170,7 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Organization> organizations)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<PublicOrganization> organizations)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case HomeInitial() when initial != null:
 return initial();case HomeLoading() when loading != null:
@@ -252,11 +252,11 @@ String toString() {
 
 
 class HomeLoaded implements HomeState {
-  const HomeLoaded({required  List<Organization> organizations}): _organizations = organizations;
+  const HomeLoaded({required  List<PublicOrganization> organizations}): _organizations = organizations;
   
 
- final  List<Organization> _organizations;
- List<Organization> get organizations {
+ final  List<PublicOrganization> _organizations;
+ List<PublicOrganization> get organizations {
   if (_organizations is EqualUnmodifiableListView) return _organizations;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_organizations);
@@ -295,7 +295,7 @@ abstract mixin class $HomeLoadedCopyWith<$Res> implements $HomeStateCopyWith<$Re
   factory $HomeLoadedCopyWith(HomeLoaded value, $Res Function(HomeLoaded) _then) = _$HomeLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<Organization> organizations
+ List<PublicOrganization> organizations
 });
 
 
@@ -315,7 +315,7 @@ class _$HomeLoadedCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? organizations = null,}) {
   return _then(HomeLoaded(
 organizations: null == organizations ? _self._organizations : organizations // ignore: cast_nullable_to_non_nullable
-as List<Organization>,
+as List<PublicOrganization>,
   ));
 }
 

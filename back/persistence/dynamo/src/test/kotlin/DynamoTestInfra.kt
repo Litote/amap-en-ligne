@@ -23,8 +23,9 @@ internal object DynamoTestInfra {
         synchronized(DynamoTestInfra) {
             if (!isDynamoRunning()) {
                 startDynamo()
-                waitForDynamo()
             }
+            // Always probe: a container reported "running" may still be booting DynamoDB-Local.
+            waitForDynamo()
         }
     }
 
@@ -179,23 +180,29 @@ internal object DynamoTestInfra {
     }
 
     private fun waitForDynamo() {
-        repeat(30) {
+        repeat(READY_TIMEOUT_SECONDS) {
             try {
                 val connection =
                     java.net
-                        .URI("http://localhost:8001")
+                        .URI("http://127.0.0.1:8001")
                         .toURL()
                         .openConnection() as java.net.HttpURLConnection
                 connection.connectTimeout = 1000
                 connection.readTimeout = 1000
                 connection.requestMethod = "GET"
-                connection.connect()
+                // A bare connect() is not enough: Docker's port proxy accepts TCP connections as
+                // soon as the container starts, long before DynamoDB-Local's JVM serves requests.
+                // Reading the status forces a full HTTP exchange — any status (DynamoDB-Local
+                // answers 400 to GET /) means the API is up.
+                connection.responseCode
                 connection.disconnect()
                 return
             } catch (_: Exception) {
                 Thread.sleep(1000)
             }
         }
-        error("DynamoDB local did not start within 30 seconds")
+        error("DynamoDB local did not start within $READY_TIMEOUT_SECONDS seconds")
     }
+
+    private const val READY_TIMEOUT_SECONDS = 60
 }

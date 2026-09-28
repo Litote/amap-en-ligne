@@ -1,8 +1,11 @@
+import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
+import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/owner/users/dialogs/user_detail_dialog.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_list_bloc.dart';
@@ -25,6 +28,8 @@ class UserListScreen extends StatelessWidget {
       memberRepository: context.read<MemberRepository>(),
       organizationRepository: context.read<OrganizationRepository>(),
       producerAccountRepository: context.read<ProducerAccountRepository>(),
+      ownerInvitationRepository: context.read<OwnerInvitationRepository>(),
+      memberInvitationRepository: context.read<MemberInvitationRepository>(),
     )..add(const UserListEvent.loaded()),
     child: const _UserListView(),
   );
@@ -325,7 +330,7 @@ class _FiltersSection extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             _StatusChip(
-              label: 'Invitation en attente',
+              label: 'Invité',
               selected:
                   state.statusFilter == UserDisplayStatus.pendingInvitation,
               onSelected: () => bloc.add(
@@ -441,10 +446,9 @@ class _StatusBadge extends StatelessWidget {
   final UserDisplayStatus status;
 
   @override
-  Widget build(BuildContext context) => Chip(
-    label: Text(_statusLabel(status), style: const TextStyle(fontSize: 11)),
-    padding: EdgeInsets.zero,
-    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  Widget build(BuildContext context) => StatusBadge(
+    _statusLabel(status),
+    labelStyle: const TextStyle(fontSize: 11),
   );
 }
 
@@ -454,14 +458,10 @@ class _RoleBadge extends StatelessWidget {
   final Role role;
 
   @override
-  Widget build(BuildContext context) => Chip(
-    label: Text(
-      _roleLabel(role),
-      style: const TextStyle(fontSize: 11, color: Colors.white),
-    ),
+  Widget build(BuildContext context) => StatusBadge(
+    _roleLabel(role),
+    labelStyle: const TextStyle(fontSize: 11, color: Colors.white),
     backgroundColor: _roleColor(role),
-    padding: EdgeInsets.zero,
-    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
   );
 }
 
@@ -553,7 +553,7 @@ String _roleLabel(Role role) => switch (role) {
 
 String _statusLabel(UserDisplayStatus status) => switch (status) {
   UserDisplayStatus.active => 'Actif',
-  UserDisplayStatus.pendingInvitation => 'Invitation en attente',
+  UserDisplayStatus.pendingInvitation => 'Invité',
   UserDisplayStatus.suspended => 'Suspendu',
 };
 

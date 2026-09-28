@@ -131,7 +131,7 @@ internal class ActivationRouteTest {
         }
 
     @Test
-    fun `GIVEN no token WHEN GET activate THEN 404`() =
+    fun `GIVEN no token WHEN GET activate THEN 400 INVALID_PAYLOAD`() =
         runTest {
             val koin = startActivationKoin()
 
@@ -140,8 +140,8 @@ internal class ActivationRouteTest {
 
                 val response = client.get("/v1/activate")
 
-                assertEquals(HttpStatusCode.NotFound, response.status)
-                assertTrue(response.bodyAsText().contains("NOT_FOUND"))
+                assertEquals(HttpStatusCode.BadRequest, response.status)
+                assertTrue(response.bodyAsText().contains("INVALID_PAYLOAD"))
             }
         }
 

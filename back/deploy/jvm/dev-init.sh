@@ -112,10 +112,12 @@ seed_user() {
   local email="$1"
   local metadata="$2"
 
-  # Create (idempotent — ignore 422 if already exists)
-  curl -sf -X POST "${GOTRUE_URL}/signup" \
+  # Create through the admin API (public sign-up is disabled —
+  # GOTRUE_DISABLE_SIGNUP=true). Idempotent: ignore 422 if it already exists.
+  curl -sf -X POST "${GOTRUE_URL}/admin/users" \
     -H 'Content-Type: application/json' \
-    -d "{\"email\":\"${email}\",\"password\":\"${DEV_PASSWORD}\"}" \
+    -H "Authorization: Bearer ${ADMIN_TOKEN}" \
+    -d "{\"email\":\"${email}\",\"password\":\"${DEV_PASSWORD}\",\"email_confirm\":true}" \
     > /dev/null || true
 
   # Resolve id
@@ -125,14 +127,14 @@ seed_user() {
     | jq -r --arg e "$email" '.users[] | select(.email == $e) | .id')
 
   if [ -z "$user_id" ]; then
-    echo "Error: user ${email} not found after signup." >&2
+    echo "Error: user ${email} not found after creation." >&2
     exit 1
   fi
 
   # Set password + app_metadata + mark email as confirmed (idempotent).
-  # email_confirm is required because docker-compose sets
-  # GOTRUE_MAILER_AUTOCONFIRM=false, so /signup leaves users in an unconfirmed
-  # state and the password grant returns 400 until email is confirmed.
+  # email_confirm is re-sent so a user created before sign-up was disabled
+  # (via /signup, unconfirmed since GOTRUE_MAILER_AUTOCONFIRM=false) gets
+  # confirmed too; otherwise the password grant returns 400.
   curl -sf -X PUT "${GOTRUE_URL}/admin/users/${user_id}" \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer ${ADMIN_TOKEN}" \

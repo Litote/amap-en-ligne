@@ -1,6 +1,8 @@
+import 'package:amap_en_ligne/data/repositories/member_join_request_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
+import 'package:amap_en_ligne/domain/model/admin_member_join_request.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:flutter/material.dart';
@@ -21,54 +23,61 @@ class AdminDashboardSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final memberRepository = context.read<MemberRepository>();
     final organizationRepository = context.read<OrganizationRepository>();
+    final joinRequestRepository = context.read<MemberJoinRequestRepository>();
 
-    return StreamBuilder<List<Member>>(
-      stream: memberRepository.watch(organizationId),
-      initialData: const <Member>[],
-      builder: (context, memberSnapshot) => StreamBuilder<Organization?>(
-        stream: organizationRepository.watch(organizationId),
-        builder: (context, orgSnapshot) {
-          final stats = _DashboardStats.from(
-            members: memberSnapshot.data ?? const <Member>[],
-            organization: orgSnapshot.data,
-          );
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const _SectionLabel(label: 'Accès rapides'),
-              const SizedBox(height: 8),
-              const _DashboardTile(
-                icon: Icons.people,
-                label: 'Utilisateurs',
-                route: '/members',
-              ),
-              const _DashboardTile(
-                icon: Icons.agriculture,
-                label: 'Producteurs',
-                route: '/admin/producers',
-              ),
-              const _DashboardTile(
-                icon: Icons.event_repeat,
-                label: 'Templates de livraison',
-                route: '/admin/delivery-templates',
-              ),
-              const _DashboardTile(
-                icon: Icons.tune,
-                label: 'Préférences',
-                route: '/preferences',
-              ),
-              const _DashboardTile(
-                icon: Icons.person_add,
-                label: "Demandes d'adhésion",
-                route: '/admin/membership-requests',
-              ),
-              const SizedBox(height: 24),
-              _AlertsCard(stats: stats),
-              const SizedBox(height: 16),
-              _SyntheseCard(stats: stats),
-            ],
-          );
-        },
+    return StreamBuilder<List<AdminMemberJoinRequest>>(
+      stream: joinRequestRepository.watch(organizationId),
+      initialData: const <AdminMemberJoinRequest>[],
+      builder: (context, joinRequestSnapshot) => StreamBuilder<List<Member>>(
+        stream: memberRepository.watch(organizationId),
+        initialData: const <Member>[],
+        builder: (context, memberSnapshot) => StreamBuilder<Organization?>(
+          stream: organizationRepository.watch(organizationId),
+          builder: (context, orgSnapshot) {
+            final stats = _DashboardStats.from(
+              members: memberSnapshot.data ?? const <Member>[],
+              organization: orgSnapshot.data,
+              joinRequests:
+                  joinRequestSnapshot.data ?? const <AdminMemberJoinRequest>[],
+            );
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const _SectionLabel(label: 'Accès rapides'),
+                const SizedBox(height: 8),
+                const _DashboardTile(
+                  icon: Icons.people,
+                  label: 'Utilisateurs',
+                  route: '/members',
+                ),
+                const _DashboardTile(
+                  icon: Icons.agriculture,
+                  label: 'Producteurs',
+                  route: '/admin/producers',
+                ),
+                const _DashboardTile(
+                  icon: Icons.event_repeat,
+                  label: 'Modèles de livraison',
+                  route: '/admin/delivery-templates',
+                ),
+                const _DashboardTile(
+                  icon: Icons.tune,
+                  label: 'Préférences',
+                  route: '/preferences',
+                ),
+                const _DashboardTile(
+                  icon: Icons.person_add,
+                  label: "Demandes d'adhésion",
+                  route: '/admin/membership-requests',
+                ),
+                const SizedBox(height: 24),
+                _AlertsCard(stats: stats),
+                const SizedBox(height: 16),
+                _SyntheseCard(stats: stats),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -118,6 +127,17 @@ class _AlertsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final lines = <Widget>[];
+    if (stats.pendingJoinRequests > 0) {
+      lines.add(
+        _BulletLine(
+          text:
+              '${stats.pendingJoinRequests} '
+              "demande${stats.pendingJoinRequests == 1 ? '' : 's'} "
+              "d'adhésion en attente",
+          route: '/admin/membership-requests',
+        ),
+      );
+    }
     if (stats.suspendedProducers > 0) {
       lines.add(
         _BulletLine(
@@ -125,6 +145,7 @@ class _AlertsCard extends StatelessWidget {
               '${stats.suspendedProducers} '
               'producteur${stats.suspendedProducers == 1 ? '' : 's'} '
               'suspendu${stats.suspendedProducers == 1 ? '' : 's'}',
+          route: '/admin/producers',
         ),
       );
     }
@@ -201,22 +222,40 @@ class _StatLine extends StatelessWidget {
   }
 }
 
+/// One alert line; tapping it opens the screen where the alert is handled.
 class _BulletLine extends StatelessWidget {
-  const _BulletLine({required this.text});
+  const _BulletLine({required this.text, required this.route});
 
   final String text;
+  final String route;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('• '),
-          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
-        ],
+    return InkWell(
+      onTap: () => context.go(route),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('• '),
+            Expanded(
+              child: Text(
+                text,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: theme.colorScheme.primary,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -228,16 +267,17 @@ class _DashboardStats {
     required this.coordinators,
     required this.activeProducers,
     required this.suspendedProducers,
+    required this.pendingJoinRequests,
   });
 
   factory _DashboardStats.from({
     required List<Member> members,
     required Organization? organization,
+    required List<AdminMemberJoinRequest> joinRequests,
   }) {
-    final activeMembers =
-        members
-            .where((m) => m.accountStatus == MemberAccountStatus.active)
-            .toList();
+    final activeMembers = members
+        .where((m) => m.accountStatus == MemberAccountStatus.active)
+        .toList();
     final coordinators = activeMembers
         .where((m) => m.roles.contains(Role.coordinator))
         .length;
@@ -253,11 +293,15 @@ class _DashboardStats {
       coordinators: coordinators,
       activeProducers: activeProducers,
       suspendedProducers: suspendedProducers,
+      pendingJoinRequests: joinRequests
+          .where((r) => r.status == MemberJoinRequestStatus.pending)
+          .length,
     );
   }
 
   final int activeMembers;
   final int coordinators;
   final int activeProducers;
+  final int pendingJoinRequests;
   final int suspendedProducers;
 }

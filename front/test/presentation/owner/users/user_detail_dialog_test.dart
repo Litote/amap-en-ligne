@@ -1,11 +1,16 @@
+import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/data/sync/sync_outcome.dart';
 import 'package:amap_en_ligne/data/sync/sync_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
+import 'package:amap_en_ligne/domain/model/invitation_status.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
+import 'package:amap_en_ligne/domain/model/member_invitation.dart';
+import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_bloc.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_view_state.dart';
@@ -27,6 +32,12 @@ class _MockOrganizationRepository extends Mock
 
 class _MockProducerAccountRepository extends Mock
     implements ProducerAccountRepository {}
+
+class _MockOwnerInvitationRepository extends Mock
+    implements OwnerInvitationRepository {}
+
+class _MockMemberInvitationRepository extends Mock
+    implements MemberInvitationRepository {}
 
 class _MockSyncRepository extends Mock implements SyncRepository {}
 
@@ -77,6 +88,7 @@ Future<void> _pump(
   required _MockProducerAccountRepository producerRepo,
   String? callerProducerAccountId,
   bool isAdmin = false,
+  List<MemberInvitation> memberInvitations = const [],
 }) async {
   final authBloc = MockAuthBloc();
   when(() => authBloc.state).thenReturn(
@@ -97,6 +109,12 @@ Future<void> _pump(
         RepositoryProvider<OwnerRepository>.value(value: ownerRepo),
         RepositoryProvider<MemberRepository>.value(value: memberRepo),
         RepositoryProvider<OrganizationRepository>.value(value: orgRepo),
+        RepositoryProvider<OwnerInvitationRepository>.value(
+          value: _emptyOwnerInvitations(),
+        ),
+        RepositoryProvider<MemberInvitationRepository>.value(
+          value: _memberInvitations(memberInvitations),
+        ),
         RepositoryProvider<ProducerAccountRepository>.value(
           value: producerRepo,
         ),
@@ -144,6 +162,111 @@ void main() {
     producerRepo = _MockProducerAccountRepository();
     when(() => orgRepo.watchAll()).thenAnswer((_) => Stream.value([]));
     when(() => producerRepo.watchAll()).thenAnswer((_) => Stream.value([]));
+  });
+
+  testWidgets('shows the registration date of a member', (tester) async {
+    when(() => ownerRepo.watchAll()).thenAnswer((_) => Stream.value([]));
+    when(() => memberRepo.watchAll()).thenAnswer(
+      (_) => Stream.value([
+        _member(
+          id: 'm-1',
+          firstName: 'Alice',
+        ).copyWith(registeredAt: '2026-09-25T10:19:55.842Z'),
+      ]),
+    );
+    await _pump(
+      tester,
+      userId: 'm-1',
+      ownerRepo: ownerRepo,
+      memberRepo: memberRepo,
+      orgRepo: orgRepo,
+      producerRepo: producerRepo,
+    );
+
+    expect(find.text('Actif · Inscrit le 25/09/2026'), findsOneWidget);
+  });
+
+  testWidgets('the × button has an accessible label', (tester) async {
+    when(() => ownerRepo.watchAll()).thenAnswer((_) => Stream.value([]));
+    when(
+      () => memberRepo.watchAll(),
+    ).thenAnswer((_) => Stream.value([_member(id: 'm-1', firstName: 'Alice')]));
+    await _pump(
+      tester,
+      userId: 'm-1',
+      ownerRepo: ownerRepo,
+      memberRepo: memberRepo,
+      orgRepo: orgRepo,
+      producerRepo: producerRepo,
+    );
+
+    expect(find.byTooltip('Fermer'), findsOneWidget);
+  });
+
+  testWidgets('FERMER closes the dialog', (tester) async {
+    when(() => ownerRepo.watchAll()).thenAnswer((_) => Stream.value([]));
+    when(
+      () => memberRepo.watchAll(),
+    ).thenAnswer((_) => Stream.value([_member(id: 'm-1', firstName: 'Alice')]));
+    await _pump(
+      tester,
+      userId: 'm-1',
+      ownerRepo: ownerRepo,
+      memberRepo: memberRepo,
+      orgRepo: orgRepo,
+      producerRepo: producerRepo,
+    );
+
+    await tester.ensureVisible(find.text('FERMER'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('FERMER'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('COMPTE'), findsNothing);
+  });
+
+  testWidgets('a pending member invitation shows its AMAP but no account '
+      'action (no account exists yet)', (tester) async {
+    when(() => ownerRepo.watchAll()).thenAnswer((_) => Stream.value([]));
+    when(() => memberRepo.watchAll()).thenAnswer((_) => Stream.value([]));
+    when(() => orgRepo.watchAll()).thenAnswer(
+      (_) => Stream.value([
+        const Organization(
+          organizationId: 'org-1',
+          name: 'AMAP des Pins',
+          contactEmail: 'contact@org.fr',
+        ),
+      ]),
+    );
+    await _pump(
+      tester,
+      userId: 'mi-1',
+      ownerRepo: ownerRepo,
+      memberRepo: memberRepo,
+      orgRepo: orgRepo,
+      producerRepo: producerRepo,
+      memberInvitations: const [
+        MemberInvitation(
+          invitationId: 'mi-1',
+          organizationId: 'org-1',
+          email: 'julie@exemple.fr',
+          firstName: 'Julie',
+          lastName: 'Legrand',
+          roles: {Role.volunteer},
+          status: InvitationStatus.pendingActivation,
+          createdAt: '2026-09-25T10:00:00Z',
+          expiresAt: '2026-10-02T10:00:00Z',
+        ),
+      ],
+    );
+
+    expect(find.text('Julie Legrand'), findsOneWidget);
+    expect(find.text('Invité'), findsOneWidget);
+    expect(find.text('AMAP des Pins'), findsOneWidget);
+    expect(find.text('Modifier'), findsNothing);
+    expect(find.text('SUSPENDRE LE COMPTE'), findsNothing);
+    expect(find.text("SUPPRIMER DE L'INSTANCE"), findsNothing);
+    expect(find.text('FERMER'), findsOneWidget);
   });
 
   group('UserDetailDialog — AMAP variant', () {
@@ -522,4 +645,18 @@ void main() {
       expect(delete.onPressed, isNull);
     });
   });
+}
+
+OwnerInvitationRepository _emptyOwnerInvitations() {
+  final repository = _MockOwnerInvitationRepository();
+  when(repository.watchAll).thenAnswer((_) => Stream.value(const []));
+  return repository;
+}
+
+MemberInvitationRepository _memberInvitations(
+  List<MemberInvitation> invitations,
+) {
+  final repository = _MockMemberInvitationRepository();
+  when(repository.watchAll).thenAnswer((_) => Stream.value(invitations));
+  return repository;
 }

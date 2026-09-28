@@ -127,6 +127,9 @@ String scopeKeyForPayload(EntityPayload payload) => switch (payload) {
   ErrorReportPayload() => throw UnsupportedError(
     'ErrorReport scope must be resolved from sync cursors at enqueue time.',
   ),
+  ProducerSchedulePayload(:final producerSchedule) => producerAccountScopeKey(
+    producerSchedule.producerAccountId,
+  ),
 };
 
 String? scopeKeyForDelete({
@@ -153,7 +156,9 @@ String? scopeKeyForDelete({
   EntityType.notification ||
   EntityType.deviceToken ||
   // ErrorReport scope is resolved at enqueue time from the available cursors.
-  EntityType.errorReport => null,
+  EntityType.errorReport ||
+  // Read-only projection: never deleted by the client.
+  EntityType.producerSchedule => null,
 };
 
 String? scopeKeyForMutation(ClientMutation mutation) => switch (mutation.op) {

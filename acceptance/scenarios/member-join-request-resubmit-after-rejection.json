@@ -1,10 +1,10 @@
 {
   "id": "member-join-request-resubmit-after-rejection",
   "title": "A person can re-submit a member join request after their previous one was rejected (or their invitation was cancelled)",
-  "targets": ["back"],
+  "targets": ["organization-flow"],
   "description": "The public endpoint POST /v1/public/member-join-requests must allow re-submission for the same (email, organization_id) pair once the previous request is no longer PENDING (e.g. REJECTED). Only PENDING requests block re-submission; APPROVED or REJECTED ones do not.",
   "given": {
-    "backendState": "organization exists with a REJECTED member join request for resubmit@example.com"
+    "backendState": "organization test-org"
   },
   "when": [
     {
@@ -15,11 +15,18 @@
         "email": "resubmit@example.com",
         "first_name": "Alice",
         "last_name": "Resubmit"
+      },
+      "save": {
+        "requestIdRef": "firstRequestId"
       }
     },
     {
       "actor": "admin",
-      "action": "reject_member_join_request"
+      "action": "review_member_join_request",
+      "params": {
+        "requestId": "$ref:firstRequestId",
+        "status": "REJECTED"
+      }
     },
     {
       "actor": "requester",

@@ -2,6 +2,7 @@ import 'package:amap_en_ligne/data/repositories/delivery_template_repository.dar
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/model/delivery_template.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/admin/delivery_templates/delivery_template_time_utils.dart';
 import 'package:amap_en_ligne/presentation/common/app_time_picker.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
@@ -14,7 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 const _defaultEarlySlotMaxVolunteers = 2;
-const _kFieldRequired = 'Champ requis.';
+const _kFieldRequired = kFieldRequiredMessage;
 
 /// Form screen for creating and editing [DeliveryTemplate] entries.
 ///
@@ -68,7 +69,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
   bool _saving = false;
 
   /// Set on the first save attempt: from then on the form revalidates live so
-  /// "Champ requis." disappears as soon as a field gets a value.
+  /// The required message disappears as soon as a field gets a value.
   bool _submitAttempted = false;
 
   @override
@@ -178,7 +179,8 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
       );
 
       syncBloc.add(const SyncEvent.mutationApplied());
-      if (mounted) context.pop();
+      // Opened by its URL (reload, shared link), the form has nothing to pop.
+      if (mounted) _goBack();
     } on Object catch (error, stackTrace) {
       if (!mounted) return;
       showUnexpectedErrorSnackBar(context, error, stackTrace);
@@ -249,7 +251,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
   String? _validateDesiredCount(String? v) {
     if (v == null || v.trim().isEmpty) return _kFieldRequired;
     final n = int.tryParse(v.trim());
-    if (n == null || n < 1) return 'Entier positif requis.';
+    if (n == null || n < 1) return kPositiveCountMessage;
     return null;
   }
 
@@ -257,7 +259,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
     if (!_hasEarlySlot) return null;
     if (v == null || v.trim().isEmpty) return _kFieldRequired;
     final n = int.tryParse(v.trim());
-    if (n == null || n < 1) return 'Entier positif requis.';
+    if (n == null || n < 1) return kPositiveCountMessage;
     return null;
   }
 
@@ -330,7 +332,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
   Widget build(BuildContext context) {
     final isEdit = widget.template != null;
     return ConnectedScaffold(
-      title: isEdit ? 'Modifier le template' : 'Nouveau template',
+      title: isEdit ? 'Modifier le modèle' : 'Nouveau modèle',
       onBack: _goBack,
       body: StreamBuilder<Organization?>(
         stream: context.read<OrganizationRepository>().watch(
@@ -353,7 +355,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Nom du template',
+                    labelText: 'Nom du modèle',
                     hintText: 'Ex. Livraison standard',
                   ),
                   validator: _validateRequired,
@@ -398,7 +400,7 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
                 ),
                 const SizedBox(height: 24),
                 SwitchListTile(
-                  title: const Text('Définir comme template par défaut'),
+                  title: const Text('Définir comme modèle par défaut'),
                   value: _isDefaultTemplate,
                   onChanged: (value) =>
                       setState(() => _isDefaultTemplate = value),

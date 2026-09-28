@@ -62,6 +62,7 @@ _Member _$MemberFromJson(Map<String, dynamic> json) => _Member(
           json['user_preferences'] as Map<String, dynamic>,
         ),
   userSettings: json['user_settings'] as Map<String, dynamic>?,
+  registeredAt: json['registered_at'] as String?,
 );
 
 Map<String, dynamic> _$MemberToJson(_Member instance) => <String, dynamic>{
@@ -77,6 +78,7 @@ Map<String, dynamic> _$MemberToJson(_Member instance) => <String, dynamic>{
   'member_preferences': ?instance.memberPreferences,
   'user_preferences': ?instance.userPreferences,
   'user_settings': ?instance.userSettings,
+  'registered_at': ?instance.registeredAt,
 };
 
 const _$RoleEnumMap = {

@@ -383,6 +383,51 @@ void main() {
     );
 
     testWidgets(
+      'the next participation is not repeated in "Prochaines livraisons"',
+      (tester) async {
+        final reg = buildRegistration(
+          memberId: _kMemberId,
+          status: RegistrationStatus.registered,
+        );
+        final registered = buildDelivery(
+          deliveryId: 'd-1',
+          scheduledDate: _futureDate(),
+          contracts: [
+            buildContract(
+              contractId: 'c-1',
+              slots: [
+                buildSlot(
+                  requiredVolunteers: 3,
+                  currentRegistrations: 1,
+                  registrations: [reg],
+                ),
+              ],
+            ),
+          ],
+        );
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          templateRepo: templateRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        orgStream.add(buildOrg(deliveries: [registered]));
+        memberStream.add(_buildMember());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        expect(find.text('🎯 Ma prochaine participation'), findsOneWidget);
+        expect(find.text('SE DÉSINSCRIRE'), findsOneWidget);
+        expect(find.text('Aucune autre livraison à venir.'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
       '"Ma prochaine participation" shows aggregate volunteer count across all slots',
       (tester) async {
         final reg = buildRegistration(

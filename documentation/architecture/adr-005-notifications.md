@@ -146,6 +146,35 @@ email path remains a log stub. Each push sender disables itself cleanly when its
 / platform-application ARNs are not configured. Adding a transport later is adding one
 `NotificationChannelSender` plus its dependency — no structural change.
 
+### 4. Time-driven alerts: a scheduled, idempotent job
+
+Most notifications are side-effects of a mutation. The volunteer shortage alerts are
+driven by time instead, so they are produced by a scheduled job,
+`VolunteerShortageService` (`service:volunteer-shortage`), run every 15 minutes: an
+in-process poll loop on `deploy:jvm` (`VOLUNTEER_SHORTAGE_INTERVAL_MS`) and a dedicated
+Lambda (`deploy.lambda.VolunteerShortageMainKt`, same native binary) triggered by an
+EventBridge rule on `deploy:lambda`.
+
+- **Rules** — a delivery is short when its active non-coordinator registrations are below
+  the `requiredVolunteers` of its non-cancelled main-contract slots (every contract when
+  none is main — same rule as the front "N/M bénévoles" counter). Its organization's
+  active members who are neither registered on it nor coordinating it get
+  `VOLUNTEER_SHORTAGE` 3 days before it (`MemberPreferences.incompleteSlotRemindersEnabled`)
+  and `VOLUNTEER_URGENT_NEED` the day before (`urgentNeedAlertsEnabled`). Deliveries whose
+  contracts are all `IN_PREPARATION`, inactive organizations, suspended members and members
+  still pending activation are skipped.
+- **Idempotency** — each `(organization, delivery, member, kind)` alert is recorded in
+  `SentAlertDAO` (Postgres `sent_alert`, Dynamo `pk=SENT_ALERT` with a 30-day TTL)
+  *before* it is published: repeated or overlapping runs never send it twice (an alert
+  whose publish fails is lost — best-effort, like every transport).
+- **Lookback** — an alert is sent when its due time falls within the last two intervals,
+  so one delayed tick is tolerated; an alert missed for longer (job down) is dropped rather
+  than sent late.
+
+The per-slot reminders (24 h / 2 h / 30 min before a registered volunteer's slot) that
+`MemberPreferences` used to carry were dropped instead of implemented.
+`planningChangesAlertsEnabled` gates the `SLOT_CANCELLED` / `SLOT_RESCHEDULED` alerts.
+
 ## Consequences
 
 - **Coordinated wire change** — adding `EntityType.Notification` follows the standard

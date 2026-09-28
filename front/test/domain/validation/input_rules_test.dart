@@ -55,4 +55,39 @@ void main() {
       'La taille « petit » est présente deux fois.',
     );
   });
+
+  test('component icons: only small inline SVG markup (same as the back)', () {
+    expect(optionalSvgImageError(''), isNull);
+    expect(optionalSvgImageError('<svg></svg>'), isNull);
+    expect(optionalSvgImageError('  <?xml version="1.0"?><svg/>'), isNull);
+    expect(
+      optionalSvgImageError('https://x/y.png'),
+      'Seules les images au format SVG sont acceptées.',
+    );
+    final atLimit = '<svg>${'x' * (kMaxSvgLength - 11)}</svg>';
+    expect(optionalSvgImageError(atLimit), isNull);
+    expect(optionalSvgImageError('${atLimit}x'), contains('Image trop lourde'));
+  });
+
+  test('optionalSvgImageError rejects active content', () {
+    const active = [
+      '<svg><script>alert(1)</script></svg>',
+      '<svg><SCRIPT src=x /></svg>',
+      '<svg onload="alert(1)"></svg>',
+      "<svg><rect ONCLICK = 'x'/></svg>",
+      '<svg><a href="javascript:alert(1)"/></svg>',
+      '<svg><foreignObject><div/></foreignObject></svg>',
+    ];
+    for (final svg in active) {
+      expect(
+        optionalSvgImageError(svg),
+        "L'image ne doit contenir ni script ni gestionnaire d'événement.",
+        reason: svg,
+      );
+    }
+    expect(
+      optionalSvgImageError('<svg><rect fill="gold" class="onion"/></svg>'),
+      isNull,
+    );
+  });
 }

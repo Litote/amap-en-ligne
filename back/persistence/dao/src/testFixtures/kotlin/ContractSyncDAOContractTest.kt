@@ -13,6 +13,7 @@ import persistence.changes.Change
 import persistence.changes.ChangeOp
 import persistence.changes.ContractPayload
 import persistence.changes.Cursor
+import persistence.changes.ProducerSchedulePayload
 import persistence.changes.SyncScope
 import persistence.model.BasketSize
 import persistence.model.Contract
@@ -21,6 +22,7 @@ import persistence.model.DeliveryTemplate
 import persistence.model.EntityType
 import persistence.model.MemberSubscription
 import persistence.model.Organization
+import persistence.model.ProducerSchedule
 import persistence.model.ProductPrice
 import persistence.model.SharedBasket
 import java.util.UUID
@@ -170,6 +172,46 @@ abstract class ContractSyncDAOContractTest {
 
             val changes = changeDAO.since(SyncScope.Organization(orgId).key, null)
             assertNotNull(changes.find { it.entityId == contract.contractId.id })
+        }
+
+    @Test
+    fun `GIVEN fan-out changes WHEN put or delete THEN they are recorded on their own scopes`() =
+        runTest {
+            val orgId = newOrganizationId()
+            insertOrganization(orgId)
+            val contract = buildContract(organizationId = orgId)
+            val producerAccountId = UUID.randomUUID().toString()
+            val fanOut =
+                Change(
+                    cursor = Cursor.next(),
+                    entityType = EntityType.ProducerSchedule,
+                    entityId = orgId,
+                    scopeKey = SyncScope.ProducerAccount(producerAccountId).key,
+                    op = ChangeOp.UPSERT,
+                    payload =
+                        ProducerSchedulePayload(
+                            ProducerSchedule(
+                                organizationId = orgId.toId(),
+                                producerAccountId = producerAccountId.toId(),
+                                organizationName = "AMAP",
+                            ),
+                        ),
+                    producedAt = System.currentTimeMillis(),
+                )
+
+            contractSyncDAO.put(contract, buildUpsertChange(contract, orgId), listOf(fanOut))
+            val afterPut = changeDAO.since(SyncScope.ProducerAccount(producerAccountId).key, null)
+            assertEquals(listOf(fanOut.payload), afterPut.map { it.payload })
+
+            val deleteFanOut = fanOut.copy(cursor = Cursor.next(), op = ChangeOp.DELETE, payload = null)
+            contractSyncDAO.delete(
+                contract.contractId,
+                orgId.toId(),
+                buildDeleteChange(contract.contractId.id, orgId),
+                listOf(deleteFanOut),
+            )
+            val afterDelete = changeDAO.since(SyncScope.ProducerAccount(producerAccountId).key, null)
+            assertEquals(ChangeOp.DELETE, afterDelete.single().op)
         }
 
     @Test

@@ -34,6 +34,13 @@ mixin _SyncStateQueries on _$AppDatabase {
     syncCursors,
   ).write(const SyncCursorsCompanion(cursor: Value(null)));
 
+  Future<String?> readCacheOwner() async =>
+      (await select(cacheOwners).getSingleOrNull())?.userId;
+
+  Future<void> writeCacheOwner(String userId) => into(
+    cacheOwners,
+  ).insertOnConflictUpdate(CacheOwnersCompanion.insert(userId: userId));
+
   Future<void> enqueuePendingMutation(
     ClientMutation mutation, {
     required String scopeKey,
@@ -88,7 +95,6 @@ mixin _SyncStateQueries on _$AppDatabase {
       createdAt: entry.createdAt,
     ),
   );
-
 }
 
 PendingClientMutation _pendingMutationFromRow(PendingMutation row) {

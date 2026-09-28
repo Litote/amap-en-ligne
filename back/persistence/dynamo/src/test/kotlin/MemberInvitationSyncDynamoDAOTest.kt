@@ -3,6 +3,7 @@ package persistence.dynamo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
+import persistence.dao.ChangeDAO
 import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberInvitationSyncDAOContractTest
 
@@ -10,6 +11,7 @@ import persistence.dao.MemberInvitationSyncDAOContractTest
 class MemberInvitationSyncDynamoDAOTest : MemberInvitationSyncDAOContractTest() {
     private val dynamoClient = DynamoTestInfra.newClient()
     override val dao: MemberInvitationSyncDAO = MemberInvitationSyncDynamoDAO(dynamoClient)
+    override val changeDAO: ChangeDAO = ChangeDynamoDAO(dynamoClient)
 
     @BeforeAll
     fun setUp() {

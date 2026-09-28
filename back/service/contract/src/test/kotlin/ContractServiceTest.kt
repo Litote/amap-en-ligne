@@ -13,14 +13,18 @@ import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.todayIn
+import persistence.changes.Change
 import persistence.changes.ClientMutation
 import persistence.changes.ContractPayload
 import persistence.changes.Delete
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
+import persistence.changes.ProducerSchedulePayload
+import persistence.changes.SyncScope
 import persistence.changes.Upsert
 import persistence.dao.ContractSyncDAO
 import persistence.dao.OrganizationSyncDAO
@@ -29,10 +33,15 @@ import persistence.model.Contract
 import persistence.model.ContractMember
 import persistence.model.ContractStatus
 import persistence.model.Delivery
+import persistence.model.DeliveryContract
+import persistence.model.DeliveryContractStatus
+import persistence.model.DeliveryStatus
 import persistence.model.EntityType
 import persistence.model.MemberContractStatus
 import persistence.model.MemberSubscription
 import persistence.model.Organization
+import persistence.model.OrganizationProducer
+import persistence.model.OrganizationProducerStatus
 import persistence.model.Product
 import persistence.model.ProductPrice
 import persistence.model.SharedBasket
@@ -41,6 +50,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -170,6 +180,85 @@ internal class ContractServiceTest {
             assertEquals(MutationStatus.APPLIED, outcome.status)
             assertEquals(contractId, outcome.serverEntityId)
             coVerify(exactly = 1) { dao.delete(any(), any(), any()) }
+        }
+
+    private fun organizationDeliveringContract(): OrganizationSyncDAO {
+        val epoch = Instant.fromEpochMilliseconds(0)
+        val organization =
+            Organization(
+                organizationId = organizationId.toId(),
+                name = "AMAP",
+                contactEmail = "amap@example.com",
+                activeStatus = true,
+                timezone = TimeZone.of("Europe/Paris"),
+                defaultLanguage = "fr",
+                createdInstant = epoch,
+                lastUpdatedInstant = epoch,
+                producers = listOf(OrganizationProducer("producer-1".toId(), epoch, OrganizationProducerStatus.ACTIVE)),
+                deliveries =
+                    listOf(
+                        Delivery(
+                            deliveryId = "d-1".toId(),
+                            organizationId = organizationId.toId(),
+                            scheduledDate = LocalDateTime.parse("2025-06-05T18:00:00"),
+                            status = DeliveryStatus.PLANNED,
+                            minVolunteersRequired = 2,
+                            contracts =
+                                listOf(
+                                    DeliveryContract(
+                                        contractId = contractId.toId(),
+                                        basketQuantity = 10,
+                                        deliveryDescription = "",
+                                        status = DeliveryContractStatus.PENDING,
+                                    ),
+                                ),
+                        ),
+                    ),
+            )
+        return mockk(relaxed = true) { coEvery { getById(any()) } returns organization }
+    }
+
+    @Test
+    fun `GIVEN a delivered contract renamed WHEN upsert THEN its producer's schedule is fanned out atomically`() =
+        runTest {
+            val dao = mockk<ContractSyncDAO>()
+            val service = buildService(dao, organizationDeliveringContract())
+            val existing = buildContract()
+            coEvery { dao.getByOrganizationId(any()) } returns listOf(existing)
+            val fanOut = slot<List<Change>>()
+            coEvery { dao.put(any(), any(), capture(fanOut)) } returns Unit
+            val renamed = existing.copy(name = "Oeufs bio 2025")
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(renamed), ContractPayload(renamed))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            val schedule = (fanOut.captured.single().payload as ProducerSchedulePayload).producerSchedule
+            assertEquals(
+                "Oeufs bio 2025",
+                schedule.deliveries
+                    .single()
+                    .contracts
+                    .single()
+                    .contractName,
+            )
+            assertEquals(SyncScope.ProducerAccount("producer-1").key, fanOut.captured.single().scopeKey)
+        }
+
+    @Test
+    fun `GIVEN a delivered contract deleted WHEN delete THEN its producer's schedule drops the delivery`() =
+        runTest {
+            val dao = mockk<ContractSyncDAO>()
+            val service = buildService(dao, organizationDeliveringContract())
+            coEvery { dao.getByOrganizationId(any()) } returns listOf(buildContract())
+            val fanOut = slot<List<Change>>()
+            coEvery { dao.delete(any(), any(), any(), capture(fanOut)) } returns Unit
+            val op = Delete(EntityType.Contract, contractId)
+
+            val outcome = service.applyDelete(adminAuth, ClientMutation(clientOpId = "op-del", op = op), op)
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            val schedule = (fanOut.captured.single().payload as ProducerSchedulePayload).producerSchedule
+            assertTrue(schedule.deliveries.isEmpty())
         }
 
     @Test

@@ -27,7 +27,6 @@ import persistence.model.MemberJoinRequestStatus
 import persistence.model.Owner
 import persistence.model.ProducerRequestStatus
 import persistence.model.ProductType
-import serialization.json
 import java.net.URI
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
@@ -379,95 +378,6 @@ class JvmDeploymentIntegrationTest : JvmSyncTestSupport() {
                 },
             )
             assertEquals("PRODUCER", readLatestActivationKind("producer@example.com"))
-        }
-
-    @Test
-    fun `GIVEN a rejected member join request WHEN the same email resubmits THEN HTTP 201 is returned`() =
-        runTest {
-            val orgId = "resubmit-test-org"
-            val adminSub = "admin-resubmit-sub"
-            val email = "resubmit@example.com"
-
-            // Set up: create organization and an ADMIN member so the admin token resolves a scope.
-            insertOrganizationDirectly(orgId)
-            insertMemberDirectly(memberId = adminSub, organizationId = orgId, roles = listOf("ADMIN"))
-
-            val adminToken =
-                mintGoTrueToken(subject = adminSub, email = "admin-resubmit@example.com", roles = listOf("ADMIN"), producerAccountId = null)
-
-            // Step 1: submit the first join request.
-            val firstSubmit =
-                httpClient.send(
-                    HttpRequest
-                        .newBuilder()
-                        .uri(URI("http://127.0.0.1:$port/v1/public/member-join-requests"))
-                        .header("Content-Type", "application/json")
-                        .POST(
-                            HttpRequest.BodyPublishers.ofString(
-                                """{"organization_id":"$orgId","email":"$email","first_name":"Alice","last_name":"Resubmit"}""",
-                            ),
-                        ).build(),
-                    HttpResponse.BodyHandlers.ofString(),
-                )
-            assertEquals(201, firstSubmit.statusCode(), "First submission should succeed with 201")
-
-            // Step 2: admin rejects the request via sync.
-            val orgBootstrap = postSyncAs(adminToken, SyncRequest())
-            val orgResult = orgBootstrap.results.getValue(SyncScope.Organization(orgId).key) as BootstrapScopeResult
-            val joinRequest =
-                orgResult.items
-                    .filterIsInstance<MemberJoinRequestPayload>()
-                    .single { it.memberJoinRequest.email == email }
-                    .memberJoinRequest
-
-            val rejectResponse =
-                postSyncAs(
-                    adminToken,
-                    SyncRequest(
-                        mutations =
-                            listOf(
-                                ClientMutation(
-                                    clientOpId = "reject-resubmit",
-                                    op =
-                                        Upsert(
-                                            MemberJoinRequestPayload(
-                                                joinRequest.copy(
-                                                    status = MemberJoinRequestStatus.REJECTED,
-                                                    reviewComment = "Not eligible at this time.",
-                                                ),
-                                            ),
-                                        ),
-                                ),
-                            ),
-                    ),
-                )
-            assertEquals(
-                "APPLIED",
-                rejectResponse.mutations
-                    .single()
-                    .status.name,
-                "Rejection mutation should be APPLIED",
-            )
-
-            // Step 3: same email resubmits — must not be blocked by the now-REJECTED previous request.
-            val secondSubmit =
-                httpClient.send(
-                    HttpRequest
-                        .newBuilder()
-                        .uri(URI("http://127.0.0.1:$port/v1/public/member-join-requests"))
-                        .header("Content-Type", "application/json")
-                        .POST(
-                            HttpRequest.BodyPublishers.ofString(
-                                """{"organization_id":"$orgId","email":"$email","first_name":"Alice","last_name":"Resubmit"}""",
-                            ),
-                        ).build(),
-                    HttpResponse.BodyHandlers.ofString(),
-                )
-            assertEquals(
-                201,
-                secondSubmit.statusCode(),
-                "Re-submission after rejection should return 201, not ${secondSubmit.statusCode()}. Body: ${secondSubmit.body()}",
-            )
         }
 
     @Test

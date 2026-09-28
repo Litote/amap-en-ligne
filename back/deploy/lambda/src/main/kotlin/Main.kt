@@ -12,6 +12,11 @@ fun main() {
             activationEmailMain()
         }
 
+        "deploy.lambda.VolunteerShortageMainKt" -> {
+            logger.info { "Start Volunteer Shortage Lambda ${BuildInfo.VERSION} (${BuildInfo.COMMIT ?: "local"})" }
+            volunteerShortageMain()
+        }
+
         else -> {
             logger.info { "Start Data Lambda ${BuildInfo.VERSION} (${BuildInfo.COMMIT ?: "local"})" }
             val lambda = DataLambda()

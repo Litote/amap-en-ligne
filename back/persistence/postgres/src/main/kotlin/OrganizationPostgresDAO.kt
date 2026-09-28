@@ -15,7 +15,7 @@ internal class OrganizationPostgresDAO(
             conn
                 .prepareStatement(
                     """
-                    SELECT organization_id, name, contact_email, active_status
+                    SELECT organization_id, name, active_status
                     FROM organization
                     WHERE active_status = true
                     """.trimIndent(),
@@ -27,7 +27,6 @@ internal class OrganizationPostgresDAO(
                                     PublicOrganizationSummary(
                                         organizationId = rs.getString("organization_id").toId(),
                                         name = rs.getString("name"),
-                                        contactEmail = rs.getString("contact_email"),
                                         activeStatus = rs.getBoolean("active_status"),
                                     ),
                                 )

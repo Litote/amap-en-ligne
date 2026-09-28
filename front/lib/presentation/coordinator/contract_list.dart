@@ -14,6 +14,7 @@ class ContractList extends StatelessWidget {
     required this.selectedContractId,
     required this.onCreateRequested,
     required this.onSelected,
+    this.shrinkWrap = false,
   });
 
   final List<Contract> contracts;
@@ -23,11 +24,16 @@ class ContractList extends StatelessWidget {
   final VoidCallback onCreateRequested;
   final ValueChanged<Contract> onSelected;
 
+  /// Phone layout: the list takes the height of its contracts and scrolls
+  /// with the page, instead of filling (and scrolling inside) its parent.
+  final bool shrinkWrap;
+
   @override
   Widget build(BuildContext context) => Card(
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
+        mainAxisSize: shrinkWrap ? MainAxisSize.min : MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
@@ -45,8 +51,8 @@ class ContractList extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Expanded(
-            child: contracts.isEmpty
+          _fill(
+            contracts.isEmpty
                 ? const Center(
                     child: Text(
                       'Aucun contrat de saison n\'est encore défini. Créez votre premier contrat.',
@@ -54,6 +60,10 @@ class ContractList extends StatelessWidget {
                     ),
                   )
                 : ListView.separated(
+                    shrinkWrap: shrinkWrap,
+                    physics: shrinkWrap
+                        ? const NeverScrollableScrollPhysics()
+                        : null,
                     itemCount: contracts.length,
                     separatorBuilder: (_, _) => const Divider(),
                     itemBuilder: (context, index) {
@@ -69,7 +79,11 @@ class ContractList extends StatelessWidget {
                         selected: selected,
                         title: Text(contract.name),
                         subtitle: Text(
-                          '$producerName • ${contract.seasonYear} • ${contract.members.length} amapiens',
+                          '$producerName • ${contract.seasonYear} • '
+                          '${contract.members.length} amapiens'
+                          // Its status may still say ACTIVE after the last
+                          // delivery: flag it so it is not mistaken for open.
+                          '${isContractEffectivelyEnded(contract) ? ' • Terminé' : ''}',
                         ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => onSelected(contract),
@@ -81,4 +95,6 @@ class ContractList extends StatelessWidget {
       ),
     ),
   );
+
+  Widget _fill(Widget child) => shrinkWrap ? child : Expanded(child: child);
 }

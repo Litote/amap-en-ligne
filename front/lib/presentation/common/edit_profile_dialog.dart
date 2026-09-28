@@ -149,6 +149,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Modifier mes informations'),
+    semanticLabel: 'Modifier mes informations',
     content: SingleChildScrollView(
       child: Form(
         key: _formKey,

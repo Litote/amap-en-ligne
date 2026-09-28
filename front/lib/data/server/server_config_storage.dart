@@ -17,9 +17,7 @@ class ServerConfigStorage {
     final encoded = prefs.getString(_configStorageKey);
     if (encoded == null) return null;
     try {
-      return ServerConfig.fromJson(
-        jsonDecode(encoded) as Map<String, dynamic>,
-      );
+      return ServerConfig.fromJson(jsonDecode(encoded) as Map<String, dynamic>);
     } on FormatException {
       return null;
     }

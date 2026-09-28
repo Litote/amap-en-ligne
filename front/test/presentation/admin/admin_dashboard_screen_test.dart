@@ -1,6 +1,8 @@
+import 'package:amap_en_ligne/data/repositories/member_join_request_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
+import 'package:amap_en_ligne/domain/model/admin_member_join_request.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/admin/admin_dashboard_screen.dart';
@@ -11,12 +13,29 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockMemberRepository extends Mock implements MemberRepository {}
 
 class _MockOrganizationRepository extends Mock
     implements OrganizationRepository {}
+
+class _MockMemberJoinRequestRepository extends Mock
+    implements MemberJoinRequestRepository {}
+
+AdminMemberJoinRequest _joinRequest({
+  String id = 'r-1',
+  MemberJoinRequestStatus status = MemberJoinRequestStatus.pending,
+}) => AdminMemberJoinRequest(
+  requestId: id,
+  organizationId: 'org-1',
+  email: '$id@test.fr',
+  firstName: 'Claude',
+  lastName: 'Six',
+  status: status,
+  submittedAt: '2026-09-27T10:00:00Z',
+);
 
 class _MockSyncBloc extends MockBloc<SyncEvent, SyncState>
     implements SyncBloc {}
@@ -61,18 +80,31 @@ Future<void> _pump(
   WidgetTester tester, {
   required _MockMemberRepository memberRepo,
   required _MockOrganizationRepository orgRepo,
+  _MockMemberJoinRequestRepository? joinRequestRepo,
+  GoRouter? router,
 }) async {
+  final joinRequests = joinRequestRepo ?? _MockMemberJoinRequestRepository();
+  if (joinRequestRepo == null) {
+    when(
+      () => joinRequests.watch(any()),
+    ).thenAnswer((_) => Stream.value(const <AdminMemberJoinRequest>[]));
+  }
   await tester.pumpWidget(
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider<MemberRepository>.value(value: memberRepo),
         RepositoryProvider<OrganizationRepository>.value(value: orgRepo),
+        RepositoryProvider<MemberJoinRequestRepository>.value(
+          value: joinRequests,
+        ),
       ],
       child: BlocProvider<SyncBloc>.value(
         value: _makeSyncBloc(),
-        child: const MaterialApp(
-          home: AdminDashboardScreen(organizationId: 'org-1'),
-        ),
+        child: router == null
+            ? const MaterialApp(
+                home: AdminDashboardScreen(organizationId: 'org-1'),
+              )
+            : MaterialApp.router(routerConfig: router),
       ),
     ),
   );
@@ -98,7 +130,7 @@ void main() {
 
       expect(find.text('Utilisateurs'), findsOneWidget);
       expect(find.text('Producteurs'), findsOneWidget);
-      expect(find.text('Templates de livraison'), findsOneWidget);
+      expect(find.text('Modèles de livraison'), findsOneWidget);
       expect(find.text('Préférences'), findsOneWidget);
       expect(find.text("Demandes d'adhésion"), findsOneWidget);
     });
@@ -170,6 +202,64 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('1 producteur suspendu'), findsOneWidget);
+    });
+
+    testWidgets('alerts on pending member join requests', (tester) async {
+      final joinRequestRepo = _MockMemberJoinRequestRepository();
+      when(() => joinRequestRepo.watch('org-1')).thenAnswer(
+        (_) => Stream.value([
+          _joinRequest(id: 'r-1'),
+          _joinRequest(id: 'r-2', status: MemberJoinRequestStatus.approved),
+        ]),
+      );
+
+      await _pump(
+        tester,
+        memberRepo: memberRepo,
+        orgRepo: orgRepo,
+        joinRequestRepo: joinRequestRepo,
+      );
+      await tester.pump();
+
+      expect(find.text("1 demande d'adhésion en attente"), findsOneWidget);
+      expect(find.text('Aucune alerte en cours.'), findsNothing);
+    });
+
+    testWidgets('tapping the pending join requests alert opens them', (
+      tester,
+    ) async {
+      final joinRequestRepo = _MockMemberJoinRequestRepository();
+      when(
+        () => joinRequestRepo.watch('org-1'),
+      ).thenAnswer((_) => Stream.value([_joinRequest(id: 'r-1')]));
+      final router = GoRouter(
+        initialLocation: '/dashboard',
+        routes: [
+          GoRoute(
+            path: '/dashboard',
+            builder: (_, _) =>
+                const AdminDashboardScreen(organizationId: 'org-1'),
+          ),
+          GoRoute(
+            path: '/admin/membership-requests',
+            builder: (_, _) => const Text('membership-requests'),
+          ),
+        ],
+      );
+
+      await _pump(
+        tester,
+        memberRepo: memberRepo,
+        orgRepo: orgRepo,
+        joinRequestRepo: joinRequestRepo,
+        router: router,
+      );
+      await tester.pump();
+
+      await tester.tap(find.text("1 demande d'adhésion en attente"));
+      await tester.pumpAndSettle();
+
+      expect(find.text('membership-requests'), findsOneWidget);
     });
   });
 }

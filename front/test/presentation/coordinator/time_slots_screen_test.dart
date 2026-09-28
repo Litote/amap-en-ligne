@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:amap_en_ligne/data/repositories/contract_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slots_screen.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
@@ -51,7 +52,7 @@ Future<void> _pump(
 
 /// Pumps the screen behind a [GoRouter] so navigation pushes can be asserted.
 /// The destination routes render a marker text echoing the resolved path.
-Future<void> _pumpRouter(
+Future<GoRouter> _pumpRouter(
   WidgetTester tester, {
   required OrganizationRepository repo,
   required ContractRepository contractRepo,
@@ -91,6 +92,7 @@ Future<void> _pumpRouter(
       ),
     ),
   );
+  return router;
 }
 
 void main() {
@@ -139,6 +141,51 @@ void main() {
       await tester.pump();
 
       expect(find.text('0/4 bénévoles'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'shows no volunteer need when only secondary contracts are linked',
+    (tester) async {
+      Contract contract(String id, {required bool main}) => Contract(
+        contractId: id,
+        name: id,
+        organizationId: 'org-1',
+        producerAccountId: 'producer-1',
+        minDeliveryDate: '2026-01-01',
+        maxDeliveryDate: '2099-12-31',
+        deliveryCount: 1,
+        seasonYear: 2026,
+        status: ContractStatus.active,
+        isMainContract: main,
+      );
+      when(() => contractRepo.watch(any())).thenAnswer(
+        (_) => Stream.value([
+          contract('c-main', main: true),
+          contract('c-cheese', main: false),
+        ]),
+      );
+      final delivery = buildDelivery(
+        scheduledDate: tomorrowIso(),
+        minVolunteersRequired: 2,
+        contracts: [buildContract(contractId: 'c-cheese', coordinators: [])],
+      );
+
+      await _pump(
+        tester,
+        repo: repo,
+        contractRepo: contractRepo,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+
+      orgStream.add(buildOrg(deliveries: [delivery]));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('0/2 bénévoles'), findsNothing);
+      expect(find.text('Aucun bénévole requis'), findsOneWidget);
+      expect(find.text('Ouvert'), findsNothing);
     },
   );
 
@@ -265,7 +312,7 @@ void main() {
   });
 
   testWidgets('SUIVRE navigates to the live tracking screen', (tester) async {
-    await _pumpRouter(
+    final router = await _pumpRouter(
       tester,
       repo: repo,
       contractRepo: contractRepo,
@@ -286,6 +333,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('track:d-9'), findsOneWidget);
+    // The browser URL reflects the tracking screen, so a reload or a shared
+    // link reopens it.
+    expect(
+      router.routeInformationParser
+          .restoreRouteInformation(router.routerDelegate.currentConfiguration)
+          ?.uri
+          .path,
+      '/coordinator/tracking/d-9',
+    );
   });
   group('swipe to delete', () {
     Future<void> swipeDelivery(WidgetTester tester) async {

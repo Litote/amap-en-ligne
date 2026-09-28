@@ -154,6 +154,7 @@ internal class OrganizationSyncPostgresDAO(
     override suspend fun put(
         organization: Organization,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
         client.dataSource.tx { conn ->
             conn
@@ -267,6 +268,7 @@ internal class OrganizationSyncPostgresDAO(
                     }
             }
             upsertChange(conn, change)
+            fanOutChanges.forEach { upsertChange(conn, it) }
         }
     }
 

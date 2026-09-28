@@ -75,7 +75,7 @@ class ProductTypesScreen extends StatelessWidget {
                           '${pt.supportedBasketSizes.length > 1 ? 's' : ''}',
                         ),
                         onTap: () =>
-                            context.push('/product-types/${pt.productTypeId}'),
+                            context.go('/product-types/${pt.productTypeId}'),
                       ),
                     );
                   },
@@ -86,7 +86,7 @@ class ProductTypesScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/product-types/new'),
+        onPressed: () => context.go('/product-types/new'),
         tooltip: 'Ajouter un type de produit',
         child: const Icon(Icons.add),
       ),

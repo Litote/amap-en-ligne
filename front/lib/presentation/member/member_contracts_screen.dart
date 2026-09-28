@@ -11,6 +11,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/shared_basket_view.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
+import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,31 @@ class MemberContractsScreen extends StatefulWidget {
 class _MemberContractsScreenState extends State<MemberContractsScreen> {
   ContractFilter _filter = ContractFilter.all;
 
+  /// Data streams, created once per (tenant, member): re-creating them on a
+  /// filter change re-subscribes the StreamBuilders, which flash their
+  /// spinner and lose the scroll position.
+  String? _streamsKey;
+  late Stream<Organization?> _organizationStream;
+  late Stream<Member?> _memberStream;
+  late Stream<List<Contract>> _contractsStream;
+  late Stream<List<ProducerAccount>> _producerAccountsStream;
+
+  void _ensureStreams(BuildContext context, String sub) {
+    final key = '${widget.tenantId}|$sub';
+    if (_streamsKey == key) return;
+    _streamsKey = key;
+    _organizationStream = context.read<OrganizationRepository>().watch(
+      widget.tenantId,
+    );
+    _memberStream = context.read<MemberRepository>().watchMyMember(sub);
+    _contractsStream = context.read<ContractRepository>().watch(
+      widget.tenantId,
+    );
+    _producerAccountsStream = context
+        .read<ProducerAccountRepository>()
+        .watchAll();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.tenantId.isEmpty) {
@@ -46,10 +72,11 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
         body: Center(child: Text('Impossible de charger votre profil.')),
       );
     }
+    _ensureStreams(context, sub);
     return ConnectedScaffold(
       title: _kMyContractsTitle,
       body: StreamBuilder<Organization?>(
-        stream: context.read<OrganizationRepository>().watch(widget.tenantId),
+        stream: _organizationStream,
         builder: (context, organizationSnapshot) {
           if (organizationSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -65,7 +92,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
     Organization? organization,
     String sub,
   ) => StreamBuilder<Member?>(
-    stream: context.read<MemberRepository>().watchMyMember(sub),
+    stream: _memberStream,
     builder: (context, memberSnapshot) {
       if (memberSnapshot.connectionState == ConnectionState.waiting) {
         return const Center(child: CircularProgressIndicator());
@@ -85,7 +112,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
     Organization? organization,
     Member member,
   ) => StreamBuilder<List<Contract>>(
-    stream: context.read<ContractRepository>().watch(widget.tenantId),
+    stream: _contractsStream,
     builder: (context, contractSnapshot) {
       if (!contractSnapshot.hasData) {
         return const Center(child: CircularProgressIndicator());
@@ -93,7 +120,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
       final contracts = contractSnapshot.data ?? const <Contract>[];
       // Producer accounts give the contract subtitle its producer name.
       return StreamBuilder<List<ProducerAccount>>(
-        stream: context.read<ProducerAccountRepository>().watchAll(),
+        stream: _producerAccountsStream,
         builder: (context, producerSnapshot) => _buildContractsList(
           context,
           organization,
@@ -313,7 +340,7 @@ class _ContractCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Chip(label: Text(contractStatusLabel(status))),
+                StatusBadge(contractStatusLabel(status), compact: false),
               ],
             ),
             const SizedBox(height: 8),

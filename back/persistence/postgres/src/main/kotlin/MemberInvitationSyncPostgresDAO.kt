@@ -24,7 +24,7 @@ internal class MemberInvitationSyncPostgresDAO(
 ) : MemberInvitationSyncDAO {
     override suspend fun put(
         invitation: MemberInvitation,
-        change: Change,
+        changes: List<Change>,
     ) {
         try {
             client.dataSource.tx { conn ->
@@ -68,7 +68,7 @@ internal class MemberInvitationSyncPostgresDAO(
                         stmt.setString(13, invitation.customEmailBody)
                         stmt.executeUpdate()
                     }
-                upsertChange(conn, change)
+                changes.forEach { upsertChange(conn, it) }
             }
         } catch (e: SQLException) {
             // SQLState 23505 = unique_violation — thrown by the partial unique index
@@ -120,6 +120,28 @@ internal class MemberInvitationSyncPostgresDAO(
                 }
         }
 
+    override suspend fun listPending(): List<MemberInvitation> =
+        client.dataSource.query { conn ->
+            conn
+                .prepareStatement(
+                    """
+                    SELECT invitation_id, organization_id, email, first_name, last_name, roles,
+                           status, created_at, expires_at, resend_requested_at, activated_at,
+                           custom_email_subject, custom_email_body
+                    FROM member_invitation
+                    WHERE status = 'PENDING_ACTIVATION'
+                    """.trimIndent(),
+                ).use { stmt ->
+                    stmt.executeQuery().use { rs ->
+                        buildList {
+                            while (rs.next()) {
+                                add(rs.toMemberInvitation())
+                            }
+                        }
+                    }
+                }
+        }
+
     override suspend fun findPendingByEmail(email: String): MemberInvitation? =
         client.dataSource.query { conn ->
             conn
@@ -129,7 +151,7 @@ internal class MemberInvitationSyncPostgresDAO(
                            status, created_at, expires_at, resend_requested_at, activated_at,
                            custom_email_subject, custom_email_body
                     FROM member_invitation
-                    WHERE email = ? AND status = 'PENDING_ACTIVATION'
+                    WHERE lower(email) = lower(?) AND status = 'PENDING_ACTIVATION'
                     LIMIT 1
                     """.trimIndent(),
                 ).use { stmt ->

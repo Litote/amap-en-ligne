@@ -3,6 +3,7 @@ import 'package:amap_en_ligne/data/network/public_api.dart';
 import 'package:amap_en_ligne/domain/auth/password_policy.dart';
 import 'package:amap_en_ligne/domain/auth/remembered_user_context.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
+import 'package:amap_en_ligne/presentation/auth/password_visibility_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -259,6 +260,18 @@ class _FormCard extends StatelessWidget {
     return null;
   }
 
+  /// The link itself can no longer activate anything: typing a password is
+  /// pointless, so the form is disabled (a weak password or a server error
+  /// stays retryable).
+  bool get _linkUnusable => switch (error) {
+    ActivationError.invalidToken ||
+    ActivationError.expired ||
+    ActivationError.alreadyActivated => true,
+    ActivationError.weakPassword ||
+    ActivationError.serverError ||
+    null => false,
+  };
+
   String? get _errorMessage {
     if (error == null) return null;
     return switch (error!) {
@@ -308,6 +321,7 @@ class _FormCard extends StatelessWidget {
             TextFormField(
               key: const Key('password'),
               controller: passwordController,
+              enabled: !_linkUnusable,
               obscureText: obscurePassword,
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.newPassword],
@@ -316,10 +330,8 @@ class _FormCard extends StatelessWidget {
                 helperText: kPasswordPolicyHint,
                 helperMaxLines: 2,
                 border: const OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    obscurePassword ? Icons.visibility : Icons.visibility_off,
-                  ),
+                suffixIcon: PasswordVisibilityButton(
+                  obscured: obscurePassword,
                   onPressed: onTogglePassword,
                 ),
               ),
@@ -330,16 +342,15 @@ class _FormCard extends StatelessWidget {
             TextFormField(
               key: const Key('confirm_password'),
               controller: confirmController,
+              enabled: !_linkUnusable,
               obscureText: obscureConfirm,
               textInputAction: TextInputAction.done,
               autofillHints: const [AutofillHints.newPassword],
               decoration: InputDecoration(
                 labelText: 'Confirmer le mot de passe *',
                 border: const OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    obscureConfirm ? Icons.visibility : Icons.visibility_off,
-                  ),
+                suffixIcon: PasswordVisibilityButton(
+                  obscured: obscureConfirm,
                   onPressed: onToggleConfirm,
                 ),
               ),
@@ -357,7 +368,7 @@ class _FormCard extends StatelessWidget {
             const SizedBox(height: 24),
             FilledButton(
               key: const Key('submit'),
-              onPressed: loading ? null : onSubmit,
+              onPressed: loading || _linkUnusable ? null : onSubmit,
               child: loading
                   ? const SizedBox(
                       width: 18,

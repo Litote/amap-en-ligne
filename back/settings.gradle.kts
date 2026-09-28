@@ -67,6 +67,7 @@ include(
     ":service:provisioning-gotrue",
     ":service:provisioning-cognito",
     ":service:notification-publisher",
+    ":service:volunteer-shortage",
     ":service:sync",
     ":service:core",
     ":service:onboarding",

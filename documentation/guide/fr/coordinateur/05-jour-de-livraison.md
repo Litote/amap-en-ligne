@@ -47,17 +47,25 @@ Pendant la livraison vous pouvez :
 - **suivre la récupération des paniers**, produit par produit ;
 - consulter les **barres de progression** (bénévoles présents, paniers récupérés).
 
+Le pointage des bénévoles et la récupération des paniers ne s'ouvrent que **le jour de la
+livraison** : avant, les boutons sont grisés et l'écran indique à partir de quand ils seront
+disponibles.
+
 Les coordinateurs sont regroupés par produit ; touchez un numéro de téléphone pour
 appeler directement.
 
 ## 3. Finaliser la livraison
 
 Depuis l'écran de suivi en direct, le bouton **[CLÔTURER LA DISTRIBUTION]** (en bas
-de l'écran) ouvre l'écran de **finalisation**, qui récapitule :
+de l'écran) ouvre l'écran de **finalisation**. Il n'est actif qu'à partir du **jour de
+la livraison** : avant, il est grisé et un message indique la date à partir de laquelle
+la distribution pourra être clôturée. L'écran de finalisation récapitule :
 
 - les **présences** des bénévoles (présent / absent / non confirmé) ;
-- le **récapitulatif des récupérations** par produit ;
-- les **statistiques finales** (taux de présence, taux de récupération).
+- le **récapitulatif des récupérations** par produit (un contrat sans aucun panier ce
+  jour-là, par exemple un contrat encore en préparation, n'y figure pas) ;
+- les **statistiques finales** (taux de présence, taux de récupération). Sans aucun
+  bénévole inscrit, le taux de présence affiche « — (aucun bénévole inscrit) ».
 
 Trois actions de clôture sont disponibles :
 
@@ -67,7 +75,8 @@ Trois actions de clôture sont disponibles :
 - **[RÉSUMÉ EMAIL]** : envoie par e-mail la feuille de synthèse de la livraison à
   l'adresse que vous saisissez dans la boîte de dialogue ;
 - **[ARCHIVER]** : après confirmation, marque la livraison comme **Terminée** et
-  vous ramène à l'écran de suivi.
+  vous ramène à l'écran de suivi. Une livraison ne peut pas être archivée avant son
+  jour.
 
 ## Voir aussi
 

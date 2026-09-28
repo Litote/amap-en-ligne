@@ -105,6 +105,10 @@ public val _KSP_PersistenceDaoProducerSyncDAO : Unit get() = Unit
 public class _KSP_PersistencePostgresProducerRequestPostgresDAO
 @MetaDefinition("persistence.postgres.ProducerRequestPostgresDAO",moduleTagId="g128ff:PersistencePostgresPostgresModule", dependencies=["client:persistence.postgres.PostgresClient"], binds=["persistence.dao.ProducerRequestDAO"])
 public val _KSP_PersistenceDaoProducerRequestDAO : Unit get() = Unit
+@MetaDefinition("persistence.postgres.SentAlertPostgresDAO",moduleTagId="g128ff:PersistencePostgresPostgresModule", dependencies=["client:persistence.postgres.PostgresClient"], binds=["persistence.dao.SentAlertDAO"])
+public class _KSP_PersistencePostgresSentAlertPostgresDAO
+@MetaDefinition("persistence.postgres.SentAlertPostgresDAO",moduleTagId="g128ff:PersistencePostgresPostgresModule", dependencies=["client:persistence.postgres.PostgresClient"], binds=["persistence.dao.SentAlertDAO"])
+public val _KSP_PersistenceDaoSentAlertDAO : Unit get() = Unit
 @MetaDefinition("persistence.postgres.ActivationTokenPostgresDAO",moduleTagId="g128ff:PersistencePostgresPostgresModule", dependencies=["client:persistence.postgres.PostgresClient"], binds=["persistence.dao.ActivationTokenDAO"])
 public class _KSP_PersistencePostgresActivationTokenPostgresDAO
 @MetaDefinition("persistence.postgres.ActivationTokenPostgresDAO",moduleTagId="g128ff:PersistencePostgresPostgresModule", dependencies=["client:persistence.postgres.PostgresClient"], binds=["persistence.dao.ActivationTokenDAO"])

@@ -46,6 +46,18 @@ class PendingMutations extends Table {
   Set<Column<Object>> get primaryKey => {clientOpId};
 }
 
+/// Auth `sub` of the user the whole local cache belongs to (single row). The
+/// sync repository wipes the cache before syncing as anyone else, so a session
+/// that replaces another one without a logout (e.g. activating an account in a
+/// new browser tab) never resends the previous user's pending mutations.
+class CacheOwners extends Table {
+  IntColumn get id => integer().withDefault(const Constant(0))();
+  TextColumn get userId => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 /// Local cache of `Organization` rows stored as a JSON blob.
 @DataClassName('OrganizationRow')
 class Organizations extends Table {
@@ -264,6 +276,18 @@ class ErrorReports extends Table {
 
   @override
   Set<Column<Object>> get primaryKey => {errorReportId};
+}
+
+/// Local cache of the read-only [ProducerSchedule] projections of the
+/// producer's feed: one row per (producer, linked AMAP), full JSON blob.
+@DataClassName('ProducerScheduleRow')
+class ProducerSchedules extends Table {
+  TextColumn get producerAccountId => text()();
+  TextColumn get organizationId => text()();
+  TextColumn get dataJson => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {producerAccountId, organizationId};
 }
 
 class _BasketSizesConverter extends TypeConverter<List<BasketSize>, String> {

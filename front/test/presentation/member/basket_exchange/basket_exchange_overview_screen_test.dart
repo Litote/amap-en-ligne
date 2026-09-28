@@ -10,6 +10,7 @@ import 'package:amap_en_ligne/presentation/member/basket_exchange/basket_exchang
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -212,4 +213,45 @@ void main() {
       expect(find.text('be-cancelled'), findsNothing);
     },
   );
+
+  testWidgets('the back button returns to the exchanges screen', (
+    tester,
+  ) async {
+    when(
+      () => exchangeRepo.watch(_orgId),
+    ).thenAnswer((_) => Stream.value(const []));
+    final router = GoRouter(
+      initialLocation: '/basket-exchange/overview',
+      routes: [
+        GoRoute(
+          path: '/basket-exchange',
+          builder: (_, _) => const Text('Échanges'),
+        ),
+        GoRoute(
+          path: '/basket-exchange/overview',
+          builder: (_, _) => const BasketExchangeOverviewScreen(orgId: _orgId),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      MultiRepositoryProvider(
+        providers: [
+          RepositoryProvider<BasketExchangeRepository>.value(
+            value: exchangeRepo,
+          ),
+          RepositoryProvider<MemberRepository>.value(value: memberRepo),
+          RepositoryProvider<OrganizationRepository>.value(value: orgRepo),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Échanges'), findsOneWidget);
+  });
 }

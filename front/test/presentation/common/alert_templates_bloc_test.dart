@@ -35,6 +35,21 @@ void main() {
   AlertTemplatesBloc buildBloc() =>
       AlertTemplatesBloc(organizationRepository: repo, tenantId: _tenantId);
 
+  test('only offers alerts the back actually sends with the org copy', () {
+    // Mirrors the back CUSTOMISABLE_ALERT_CATEGORIES (OrganizationValidation):
+    // DELIVERY_REMINDER is never published, owner categories have no org.
+    expect(kCustomisableAlertCategories, [
+      NotificationCategory.slotCancelled,
+      NotificationCategory.slotRescheduled,
+      NotificationCategory.volunteerShortage,
+      NotificationCategory.volunteerUrgentNeed,
+      NotificationCategory.basketExchangeRequestReceived,
+      NotificationCategory.basketExchangeAccepted,
+      NotificationCategory.basketExchangeRejected,
+      NotificationCategory.memberJoinRequestSubmitted,
+    ]);
+  });
+
   blocTest<AlertTemplatesBloc, AlertTemplatesState>(
     'emits ready when the organization stream resolves',
     setUp: () {

@@ -23,6 +23,9 @@ class MemberInvitationRepository {
   Stream<List<MemberInvitation>> watch(String organizationId) =>
       _db.watchMemberInvitations(organizationId);
 
+  /// Every cached invitation across all organisations (OWNER instance view).
+  Stream<List<MemberInvitation>> watchAll() => _db.watchAllMemberInvitations();
+
   Future<String> create({
     required String organizationId,
     required String email,

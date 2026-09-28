@@ -60,6 +60,8 @@ enum class NotificationCategory {
     DELIVERY_REMINDER,
     SLOT_CANCELLED,
     SLOT_RESCHEDULED,
+    VOLUNTEER_SHORTAGE,
+    VOLUNTEER_URGENT_NEED,
 }
 
 /**

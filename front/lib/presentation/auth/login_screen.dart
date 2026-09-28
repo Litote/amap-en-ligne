@@ -5,6 +5,7 @@ import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_bloc.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_event.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_view_state.dart';
+import 'package:amap_en_ligne/presentation/auth/password_visibility_button.dart';
 import 'package:amap_en_ligne/presentation/server/server_selection_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -134,12 +135,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: InputDecoration(
                               labelText: 'Mot de passe',
                               border: const OutlineInputBorder(),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                ),
+                              suffixIcon: PasswordVisibilityButton(
+                                obscured: _obscurePassword,
                                 onPressed: () => setState(
                                   () => _obscurePassword = !_obscurePassword,
                                 ),

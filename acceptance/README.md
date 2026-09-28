@@ -23,16 +23,42 @@ The repository exercises acceptance coverage in three complementary layers:
 
 Each scenario file documents:
 
-- `id` — stable story identifier reused by the test suites
+- `id` — stable story identifier reused by the test suites (must match the file name)
 - `title` — human-readable story name
-- `targets` — any of `server`, `flutter`
-- `given` — supported fixture labels (`backendState`, `appState`)
-- `when` — ordered sync steps
-- `then.lastResponse` — server expectations for the final HTTP response
+- `targets` — the runners that play the story (see below)
+- `given` — supported fixture labels (`backendState`: `empty` or `organization {id}`; `appState`); the `server` runner also
+  seeds `given.members` (`memberId` + `roles`) in that AMAP and `given.producerAccounts` (account-backed, unlinked)
+- `when` — ordered steps, each optionally played `as` `producer` (default), `owner` or `admin:{organizationId}`
+- `then.lastResponse` — server expectations for the final HTTP response (a REJECTED outcome's `error.code` is checked too);
+  a step may also carry its own `expect` (same shape), checked right after it — for multi-actor stories such as a
+  fan-out observed on several feeds. `containsChanges` entries may pin the `scopeKey` they come from and a `payload`
+  field subset of the changed entity
 
-The server runner executes only scenarios tagged with `server`.
+Values written `$ref:{name}` are replaced by a value an earlier step saved: `save.cursorRefs` (scope key → name) saves a
+cursor, `save.entityIdRefs` (client op id → name) saves the `serverEntityId` of an outcome (e.g. the real id of a
+`tmp_*` creation, to resend it in a later step). `organization-flow` steps save the created `request_id` with
+`save.requestIdRef`.
 
-Flutter acceptance tests currently reuse the same story ids and titles, but keep their richer local-state assertions in Dart code because they validate database state, pending mutations, and tmp-id remapping rather than raw HTTP output alone.
+### Targets and runners
+
+| Target | Runner |
+|--------|--------|
+| `server` | `back/deploy/jvm/.../AcceptanceScenariosTest.kt` — generic `POST /v1/sync` steps |
+| `volunteer-flow` / `coordinator-flow` / `time-slot-flow` / `contract-lifecycle` | the matching `*ScenariosTest.kt` in `back/deploy/jvm` |
+| `organization-flow` | `OrganizationFlowScenariosTest.kt` — public onboarding submissions (`submit_organization_request`, `submit_producer_request`, `submit_member_join_request`), reviews (`approve_organization_request`, `review_producer_request`, `review_member_join_request`) and `owner_sync` / `admin_sync`, with `then.lastResponse.snapshotContains` field-subset checks |
+| `basket-exchange-flow` | `BasketExchangeFlowScenariosTest.kt` — members play `create_offer` / `submit_request` / `accept_request`, each reading the exchange from their own bootstrap first (the back diffs the whole aggregate); `then.exchange` pins the final status and per-requester request statuses |
+| `flutter` | a test of `front/test/acceptance/` that loads the story by id |
+| `web-ui` | a cross-component web UI test that loads the story by id |
+
+The back test tasks declare `acceptance/scenarios` as a Gradle input, so editing a scenario re-runs them (no stale
+up-to-date result). Some stories stay one-sided on purpose: a member role change needs the auth provider (GoTrue) to
+propagate the roles, which only the cross-component e2e stack runs; a forced `INTERNAL_ERROR` cannot be injected
+black-box and is pinned by the back `DataServiceTest`.
+
+Two guards keep the catalog honest: the back `AcceptanceCatalogTest` fails on a target no runner executes, and
+`front/test/acceptance/scenario_catalog_acceptance_test.dart` fails on a `flutter` story no Flutter test loads.
+
+Flutter acceptance tests reuse the same story ids and titles, but keep their richer local-state assertions in Dart code because they validate database state, pending mutations, and tmp-id remapping rather than raw HTTP output alone.
 
 ## Commands
 

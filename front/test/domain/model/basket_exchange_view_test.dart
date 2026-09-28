@@ -26,12 +26,14 @@ BasketExchangeRequest _req({
   required String requester,
   BasketExchangeRequestStatus status = BasketExchangeRequestStatus.pending,
   String? proposedDeliveryId,
+  String? proposedContractId,
 }) => BasketExchangeRequest(
   requestId: id,
   requesterMemberId: requester,
   createdAt: '2026-06-02T10:00:00Z',
   status: status,
   proposedDeliveryId: proposedDeliveryId,
+  proposedContractId: proposedContractId,
 );
 
 void main() {
@@ -219,19 +221,44 @@ void main() {
           requester: 'B',
           status: BasketExchangeRequestStatus.accepted,
           proposedDeliveryId: 'D2',
+          proposedContractId: 'c-2',
         ),
       ],
     );
 
     test('on D1 the offerer basket is collected by the requester', () {
-      final pickups = basketPickupsForDelivery([confirmed], 'D1');
+      final pickups = basketPickupsForDelivery([confirmed], 'D1', 'c-1');
       expect(pickups, {'A': 'B'});
     });
 
     test('on D2 the requester basket is collected by the offerer', () {
-      final pickups = basketPickupsForDelivery([confirmed], 'D2');
+      final pickups = basketPickupsForDelivery([confirmed], 'D2', 'c-2');
       expect(pickups, {'B': 'A'});
     });
+
+    test('only the exchanged contract basket changes hands', () {
+      // The exchange swaps the c-1 basket on D1 and the c-2 basket on D2: the
+      // members' other baskets that day stay theirs.
+      expect(basketPickupsForDelivery([confirmed], 'D1', 'c-2'), isEmpty);
+      expect(basketPickupsForDelivery([confirmed], 'D2', 'c-1'), isEmpty);
+    });
+
+    test(
+      'a counter-proposal without contract falls back to the offered one',
+      () {
+        final legacy = confirmed.copyWith(
+          requests: [
+            _req(
+              id: 'r1',
+              requester: 'B',
+              status: BasketExchangeRequestStatus.accepted,
+              proposedDeliveryId: 'D2',
+            ),
+          ],
+        );
+        expect(basketPickupsForDelivery([legacy], 'D2', 'c-1'), {'B': 'A'});
+      },
+    );
 
     test('ignores non-accepted exchanges', () {
       final open = _open(
@@ -240,11 +267,11 @@ void main() {
         deliveryId: 'D1',
         requests: [_req(id: 'r9', requester: 'B', proposedDeliveryId: 'D2')],
       );
-      expect(basketPickupsForDelivery([open], 'D1'), isEmpty);
+      expect(basketPickupsForDelivery([open], 'D1', 'c-1'), isEmpty);
     });
 
     test('no pickups for an unrelated delivery', () {
-      expect(basketPickupsForDelivery([confirmed], 'D3'), isEmpty);
+      expect(basketPickupsForDelivery([confirmed], 'D3', 'c-1'), isEmpty);
     });
   });
 

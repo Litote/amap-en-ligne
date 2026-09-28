@@ -10,10 +10,23 @@ En tant que producteur, vous gérez votre **catalogue de produits** et vous déc
 
 ## Votre tableau de bord
 
-Après connexion, votre tableau de bord présente une vue d'ensemble de votre saison
-(contrats actifs, volumes), les **livraisons urgentes** à préparer et vos **prochaines
-livraisons**. Touchez **[DÉTAILS]** sur une livraison pour en consulter le contenu, et
-**[MARQUER PRÊT]** lorsque votre production est prête.
+Après connexion (et depuis le menu **Accueil producteur**), votre tableau de bord vous
+salue par le nom de votre ferme et résume votre activité :
+
+- **Vue d'ensemble** : le nombre d'AMAP partenaires, le nombre de contrats en cours et
+  votre prochaine livraison ;
+- **Prochaines livraisons** : vos trois prochaines livraisons (date, AMAP, contrat et
+  nombre de paniers), avec le bouton **Voir toutes mes livraisons** ;
+- **Mes contrats actifs** : chaque contrat qui a encore des livraisons à venir, avec le
+  nombre de paniers de sa prochaine livraison.
+
+En bas de l'écran, les **accès rapides** mènent à votre **catalogue de produits**, à
+**Mes livraisons** et à vos **préférences**.
+
+**Mes livraisons** liste vos prochaines livraisons, de la plus proche à la plus lointaine,
+toutes AMAP confondues : pour chacune, la date, l'AMAP, le contrat concerné et le nombre
+de paniers à préparer. Seules les livraisons de vos propres contrats y figurent ; aucune
+information personnelle sur les membres de l'AMAP n'y est affichée.
 
 ## Voir aussi
 

@@ -13,6 +13,7 @@ import persistence.changes.Change
 import persistence.changes.ChangeOp
 import persistence.changes.Cursor
 import persistence.changes.OrganizationPayload
+import persistence.changes.ProducerSchedulePayload
 import persistence.changes.SyncScope
 import persistence.model.Delivery
 import persistence.model.DeliveryStatus
@@ -25,6 +26,7 @@ import persistence.model.Organization
 import persistence.model.OrganizationProducer
 import persistence.model.OrganizationProducerStatus
 import persistence.model.ProducerAccount
+import persistence.model.ProducerSchedule
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -246,6 +248,36 @@ abstract class OrganizationSyncDAOContractTest {
             val changes = changeDAO.since(SyncScope.Organization(org.organizationId.id).key, null)
             assertEquals(1, changes.size)
             assertEquals(org.organizationId.id, changes.single().entityId)
+        }
+
+    @Test
+    fun `GIVEN fan-out changes WHEN put THEN they are recorded on their own scopes with the organization`() =
+        runTest {
+            val org = buildOrganization()
+            val producerAccountId = UUID.randomUUID().toString()
+            val fanOut =
+                Change(
+                    cursor = Cursor.next(),
+                    entityType = EntityType.ProducerSchedule,
+                    entityId = org.organizationId.id,
+                    scopeKey = SyncScope.ProducerAccount(producerAccountId).key,
+                    op = ChangeOp.UPSERT,
+                    payload =
+                        ProducerSchedulePayload(
+                            ProducerSchedule(
+                                organizationId = org.organizationId.id.toId(),
+                                producerAccountId = producerAccountId.toId(),
+                                organizationName = "AMAP",
+                            ),
+                        ),
+                    producedAt = System.currentTimeMillis(),
+                )
+
+            organizationSyncDAO.put(org, buildUpsertChange(org), listOf(fanOut))
+
+            val change = changeDAO.since(SyncScope.ProducerAccount(producerAccountId).key, null).single()
+            assertEquals(EntityType.ProducerSchedule, change.entityType)
+            assertEquals(fanOut.payload, change.payload)
         }
 
     @Test

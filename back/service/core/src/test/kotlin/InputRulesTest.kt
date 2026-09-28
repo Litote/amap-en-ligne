@@ -70,4 +70,33 @@ internal class InputRulesTest {
             InputRules.basketSizesError("sizes", listOf("Petit", " petit")),
         )
     }
+
+    @Test
+    fun `GIVEN component icons WHEN checked THEN only small inline SVG markup is valid`() {
+        assertNull(InputRules.optionalSvg("svg", null))
+        assertNull(InputRules.optionalSvg("svg", ""))
+        assertNull(InputRules.optionalSvg("svg", "<svg></svg>"))
+        assertNull(InputRules.optionalSvg("svg", "  <?xml version=\"1.0\"?><svg/>"))
+        assertEquals("svg must be inline SVG markup", InputRules.optionalSvg("svg", "https://x/y.png"))
+        val atLimit = "<svg>" + "x".repeat(InputRules.MAX_SVG_LENGTH - 11) + "</svg>"
+        assertNull(InputRules.optionalSvg("svg", atLimit))
+        assertEquals("svg must not exceed 10000 characters", InputRules.optionalSvg("svg", atLimit + "x"))
+    }
+
+    @Test
+    fun `optionalSvg rejects active content`() {
+        val active =
+            listOf(
+                "<svg><script>alert(1)</script></svg>",
+                "<svg><SCRIPT src=x /></svg>",
+                "<svg onload=\"alert(1)\"></svg>",
+                "<svg><rect ONCLICK = 'x'/></svg>",
+                "<svg><a href=\"javascript:alert(1)\"/></svg>",
+                "<svg><foreignObject><div/></foreignObject></svg>",
+            )
+        active.forEach {
+            assertEquals("svg must not contain scripts or event handlers", InputRules.optionalSvg("svg", it), it)
+        }
+        assertNull(InputRules.optionalSvg("svg", "<svg><rect fill=\"gold\" class=\"onion\"/></svg>"))
+    }
 }

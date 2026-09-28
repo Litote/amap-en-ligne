@@ -3,27 +3,43 @@ import 'package:amap_en_ligne/data/repositories/product_type_repository.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_bloc.dart';
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_event.dart';
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_state.dart';
+import 'package:amap_en_ligne/presentation/nav/back_navigation.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 /// Screen to edit the [BasketDeliveryDescription] list for a given delivery.
 ///
 /// Requires [OrganizationRepository] and [ProductTypeRepository] provided
 /// above in the widget tree.
+/// Below this window width the AppBar title wraps on two lines.
+const double _kNarrowWidth = 600;
+
 class DeliveryDescriptionScreen extends StatelessWidget {
   const DeliveryDescriptionScreen({
     super.key,
     required this.org,
     required this.deliveryId,
+    this.save,
+    this.backRoute,
   });
 
   final Organization org;
   final String deliveryId;
+
+  /// Screen to return to when this one was opened by its URL (nothing to
+  /// pop); null ⇒ always pops (the coordinator opens it on top of the
+  /// delivery form).
+  final String? backRoute;
+
+  /// How the composition is saved; null ⇒ the coordinator path (the
+  /// organization). The producer passes its own (see
+  /// `ProducerDeliveryCompositionScreen`).
+  final DeliveryCompositionSave? save;
 
   @override
   Widget build(BuildContext context) => BlocProvider<DeliveryDescriptionBloc>(
@@ -31,15 +47,27 @@ class DeliveryDescriptionScreen extends StatelessWidget {
         DeliveryDescriptionBloc(
           organizationRepository: context.read<OrganizationRepository>(),
           productTypeRepository: context.read<ProductTypeRepository>(),
+          save: save,
         )..add(
           DeliveryDescriptionEvent.requested(org: org, deliveryId: deliveryId),
         ),
-    child: const _DeliveryDescriptionView(),
+    child: _DeliveryDescriptionView(backRoute: backRoute),
   );
 }
 
 class _DeliveryDescriptionView extends StatelessWidget {
-  const _DeliveryDescriptionView();
+  const _DeliveryDescriptionView({required this.backRoute});
+
+  final String? backRoute;
+
+  void _close(BuildContext context) {
+    final route = backRoute;
+    if (route == null) {
+      Navigator.of(context).pop();
+    } else {
+      popOrGo(context, route);
+    }
+  }
 
   @override
   Widget build(BuildContext context) =>
@@ -49,12 +77,23 @@ class _DeliveryDescriptionView extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Description enregistrée')),
             );
-            Navigator.of(context).pop();
+            _close(context);
           }
         },
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(_appBarTitle(state)),
+            leading: backRoute == null
+                ? null
+                : BackButton(onPressed: () => _close(context)),
+            // On a phone the full date does not fit on one line: wrap it on
+            // two smaller lines rather than truncating the date away.
+            title: MediaQuery.sizeOf(context).width < _kNarrowWidth
+                ? Text(
+                    _appBarTitle(state),
+                    maxLines: 2,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  )
+                : Text(_appBarTitle(state)),
             actions: [
               if (state is DeliveryDescriptionLoaded)
                 TextButton(
@@ -93,7 +132,7 @@ class _DeliveryDescriptionView extends StatelessWidget {
     if (state is DeliveryDescriptionLoaded) {
       final date = DateTime.tryParse(state.delivery.scheduledDate);
       if (date != null) {
-        return "Composition du ${DateFormat('EEEE d MMMM', 'fr').format(date)}";
+        return "Composition du ${frenchDateFormat('EEEE d MMMM').format(date)}";
       }
     }
     return 'Description de livraison';
@@ -167,6 +206,13 @@ class _BasketSizeSection extends StatelessWidget {
   final ProductType? productType;
   final List<BasketDeliveryDescription> localDescriptions;
 
+  String _sizeLabel() {
+    final productName = productType?.name;
+    return productName == null
+        ? basketSizeName
+        : '$productName — $basketSizeName';
+  }
+
   @override
   Widget build(BuildContext context) {
     final desc = localDescriptions
@@ -193,18 +239,23 @@ class _BasketSizeSection extends StatelessWidget {
               basketSizeName: basketSizeName,
             ),
           ),
-          TextButton.icon(
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter'),
-            // Producer catalog when there is one, otherwise free entry (e.g. a
-            // producer without an account has no component catalog).
-            onPressed: availableItemTypes.isEmpty
-                ? () => _showFreeItemForm(context)
-                : () => _showItemPicker(
-                    context,
-                    selectedItems,
-                    availableItemTypes,
-                  ),
+          // Every size has its own "Ajouter": the tooltip (also read by
+          // screen readers) says which one.
+          Tooltip(
+            message: 'Ajouter un composant (${_sizeLabel()})',
+            child: TextButton.icon(
+              icon: const Icon(Icons.add),
+              label: const Text('Ajouter'),
+              // Producer catalog when there is one, otherwise free entry (e.g. a
+              // producer without an account has no component catalog).
+              onPressed: availableItemTypes.isEmpty
+                  ? () => _showFreeItemForm(context)
+                  : () => _showItemPicker(
+                      context,
+                      selectedItems,
+                      availableItemTypes,
+                    ),
+            ),
           ),
         ],
       ),
@@ -316,6 +367,7 @@ class _SelectedItemTile extends StatelessWidget {
         ),
         IconButton(
           icon: const Icon(Icons.remove_circle_outline),
+          tooltip: 'Retirer ${_itemLabel(itemType)}',
           onPressed: () => context.read<DeliveryDescriptionBloc>().add(
             DeliveryDescriptionEvent.itemToggled(
               productTypeId: productTypeId,
@@ -361,6 +413,7 @@ class _FreeItemDialogState extends State<_FreeItemDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Ajouter un composant'),
+    semanticLabel: 'Ajouter un composant',
     content: Form(
       key: _formKey,
       child: Column(

@@ -1,7 +1,10 @@
 {
   "id": "offline-reconnect-create-product-type",
   "title": "A product type created offline stays queued until reconnect, then converges to the server id",
-  "targets": ["flutter"],
+  "targets": [
+    "server",
+    "flutter"
+  ],
   "given": {
     "backendState": "empty",
     "appState": "fresh"
@@ -10,6 +13,11 @@
     {
       "actor": "client",
       "action": "sync",
+      "save": {
+        "cursorRefs": {
+          "producer-account:producerAccountId": "bootstrapCursor"
+        }
+      },
       "request": {
         "cursors": {},
         "mutations": []
@@ -20,7 +28,7 @@
       "action": "sync",
       "request": {
         "cursors": {
-          "producer-account:producerAccountId": "previous-bootstrap-cursor"
+          "producer-account:producerAccountId": "$ref:bootstrapCursor"
         },
         "mutations": [
           {
@@ -31,7 +39,7 @@
                 "type": "ProductType",
                 "productType": {
                   "product_type_id": "tmp_entity-1",
-                  "producer_account_id": "producer-1",
+                  "producer_account_id": "producerAccountId",
                   "name": "Vegetables",
                   "supported_basket_sizes": [
                     {
@@ -46,5 +54,22 @@
       }
     }
   ],
-  "then": {}
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "mutationOutcomes": [
+        {
+          "clientOpId": "op-1",
+          "status": "APPLIED",
+          "serverEntityId": {
+            "kind": "present-and-not-equal",
+            "value": "tmp_entity-1"
+          }
+        }
+      ],
+      "changesByEntityType": {
+        "ProductType": 1
+      }
+    }
+  }
 }

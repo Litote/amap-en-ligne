@@ -215,13 +215,17 @@ Les rôles plateforme (`Role.OWNER`) et les perspectives producteur (`ProducerAc
 - [Notifications], [Préférences], [Aide] et [Déconnexion] sont toujours affichés une seule fois en bas du menu, séparés par un séparateur horizontal, quel que soit le nombre de rôles.
 - Les rôles plateforme (`OWNER`) et les perspectives producteur (`ProducerAccount`) ne se fusionnent pas avec les `MemberRole` — ils disposent de menus distincts.
 
+### Accès aux écrans
+- Un écran n'est accessible qu'aux rôles dont le menu le propose, même en saisissant son adresse ou en suivant un ancien lien : écrans owner (y compris « Demandes d'organisation » et « Demandes producteurs ») → OWNER ; autres écrans admin et « Utilisateurs » → ADMIN ; écrans coordinateur → COORDINATOR ou ADMIN ; espace producteur (catalogue, livraisons) → producteur ; écrans amapien (accueil, contrats, planning, historique, échanges) → tout membre de l'AMAP. Sinon l'utilisateur est renvoyé vers sa page d'accueil.
+- [Notifications], [Préférences] et [Aide] restent accessibles à tous.
+
 ### Entrées par rôle
 - **VOLUNTEER** : [Accueil](../member/screen-member-01-home.md), [Mes contrats](../member/screen-member-04-contracts.md), [Mon historique](../member/screen-member-03-history.md)
 - **COORDINATOR** : [Accueil](../member/screen-member-01-home.md), [Mes contrats](../member/screen-member-04-contracts.md), [Mon historique](../member/screen-member-03-history.md), [Planning des livraisons](../member/screen-member-02-delivery-plan.md), [Gestion des livraisons](../coordinator/screen-coordinator-02-time-slots.md), [Contrats de saison](../coordinator/screen-coordinator-09-contract-definition.md), [Contrat par Amapien](../coordinator/screen-coordinator-08-member-contracts.md)
-- **ADMIN** : [Tableau de bord](../admin/screen-admin-01-home.md), [Utilisateurs](../admin/screen-admin-03-user-management.md), [Producteurs](../admin/screen-admin-04-producer-management.md), [Templates de livraison](../admin/screen-admin-05-delivery-template.md), [Demandes d'adhésion](../admin/screen-admin-06-membership-requests.md), [Configuration de l'organisation](../admin/screen-admin-02-organization-config.md)
+- **ADMIN** : [Tableau de bord](../admin/screen-admin-01-home.md), [Utilisateurs](../admin/screen-admin-03-user-management.md), [Producteurs](../admin/screen-admin-04-producer-management.md), [Modèles de livraison](../admin/screen-admin-05-delivery-template.md), [Demandes d'adhésion](../admin/screen-admin-06-membership-requests.md), [Configuration de l'organisation](../admin/screen-admin-02-organization-config.md)
 - **OWNER** : [Accueil](../owner/screen-owner-01-home.md), [Demandes d'organisation](../owner/screen-owner-02-organization-requests.md), [Utilisateurs](../owner/screen-owner-03-user-management.md), [Nouvel Administrateur](../owner/screen-owner-04-invite-owner.md)
 - **PRODUCER** : [Accueil producteur](../producer/screen-producer-01-home.md)
-- (tous) : [Notifications] (boîte de réception `/notifications`), [Préférences](screen-common-02-user-preferences.md), [Aide](screen-common-05-help.md), [Déconnexion]
+- (tous) : [Notifications] (boîte de réception `/notifications` : titre, texte et date de réception « Reçue le … » de chaque notification, les plus récentes en premier ; une notification de demande d'adhésion indique en plus l'état actuel de la demande — « Demande en attente », « Demande approuvée » ou « Demande rejetée » — et un tap ouvre les demandes d'adhésion ; un tap la marque lue et suit son lien, le bouton « Archiver » ou un glissement vers la gauche l'archive), [Préférences](screen-common-02-user-preferences.md), [Aide](screen-common-05-help.md), [Déconnexion]
 
 ## Références
 

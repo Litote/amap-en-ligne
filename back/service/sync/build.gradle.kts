@@ -25,6 +25,7 @@ dependencies {
     api(project(":service:exchange"))
     api(project(":service:notification"))
     api(project(":service:activation"))
+    api(project(":service:volunteer-shortage"))
 
     api(project(":lib:http"))
     api(project(":lib:authentication"))

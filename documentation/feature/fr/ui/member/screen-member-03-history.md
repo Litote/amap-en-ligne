@@ -80,7 +80,7 @@ Vue personnelle de l'historique des participations bénévoles avec statistiques
 
 ### Données affichées - Engagements à venir
 - **Date et horaires** : Informations complètes du créneau
-- **Statut confirmation** : ✅ Confirmé avec détails de l'activité
+- **Statut confirmation** : ✅ Confirmé avec détails de l'activité ; « ✅ Confirmé - Coordinateur » lorsque l'amapien coordonne la livraison (même libellé que le planning)
 - **Co-équipiers** : Liste des autres bénévoles inscrits
 
 ### Données affichées - Participations réalisées
@@ -128,7 +128,7 @@ Le libellé affiché dans le bandeau en-tête est dérivé de la plage de dates 
 - Le classement utilise un **classement standard** : les membres ayant le même nombre de participations partagent le même rang.
 - Affichage sans ex-aequo : « 3ème / 7 membres »
 - Affichage avec ex-aequo : « 3ème ex-aequo / 7 membres »
-- Cas particulier où personne n'a participé : tout le monde est affiché « 1er ex-aequo ».
+- Tant que l'amapien n'a aucune participation sur la saison, aucun rang n'est affiché : « — (aucune participation) ».
 
 ### Statut d'activité
 - **Actif** : ≥ 5 participations sur la saison courante

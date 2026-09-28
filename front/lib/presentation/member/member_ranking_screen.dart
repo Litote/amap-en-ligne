@@ -260,9 +260,13 @@ class _MyPositionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Build position label.
+    // A rank means nothing before a first participation (everyone would be
+    // "1er ex-aequo" at the start of the season).
     final String positionLabel;
     if (rankResult == null) {
       positionLabel = '—';
+    } else if (myCount == 0) {
+      positionLabel = 'Pas encore de participation cette saison';
     } else if (rankResult!.tied) {
       positionLabel =
           'Vous êtes ${_ordinal(rankResult!.rank)} ex-aequo / ${rankResult!.total} membres actifs';

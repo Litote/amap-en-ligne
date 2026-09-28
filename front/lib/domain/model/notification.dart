@@ -62,4 +62,8 @@ enum NotificationCategory {
   slotCancelled,
   @JsonValue('SLOT_RESCHEDULED')
   slotRescheduled,
+  @JsonValue('VOLUNTEER_SHORTAGE')
+  volunteerShortage,
+  @JsonValue('VOLUNTEER_URGENT_NEED')
+  volunteerUrgentNeed,
 }

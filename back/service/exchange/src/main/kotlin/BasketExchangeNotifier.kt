@@ -3,12 +3,12 @@ package exchange
 import notificationpublisher.NotificationContact
 import notificationpublisher.NotificationContent
 import notificationpublisher.NotificationPublisher
+import notificationpublisher.optedNotificationChannels
 import notificationpublisher.resolveCopy
 import org.koin.core.annotation.Single
 import persistence.changes.SyncScope
 import persistence.model.Member
 import persistence.model.NotificationCategory
-import persistence.model.NotificationChannel
 import persistence.model.NotificationCopyOverride
 import persistence.model.NotificationType
 
@@ -46,14 +46,7 @@ class BasketExchangeNotifier(
             category = category,
             content = defaultContent.copy(title = copy.title, body = copy.body),
             contact = NotificationContact(email = member.email, organizationName = organizationName),
-            channels = member.optedChannels(),
+            channels = member.optedNotificationChannels(),
         )
     }
-
-    /** Outbound channels the member opted into, derived from their synced preferences. */
-    private fun Member.optedChannels(): Set<NotificationChannel> =
-        buildSet {
-            if (userPreferences.emailNotificationsEnabled) add(NotificationChannel.EMAIL)
-            if (userPreferences.pushNotificationsEnabled) add(NotificationChannel.PUSH)
-        }
 }

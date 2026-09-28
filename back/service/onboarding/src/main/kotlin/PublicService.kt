@@ -226,7 +226,9 @@ class PublicService(
                 organizationId = request.organizationId,
                 category = NotificationCategory.MEMBER_JOIN_REQUEST_SUBMITTED,
                 defaultTitle = "Nouvelle demande d'adhésion",
-                defaultBody = "Une demande d'adhésion de ${request.firstName} ${request.lastName} est en attente.",
+                // No status in the text: it is frozen at send time, the request is later
+                // approved or rejected (the inbox shows its current state).
+                defaultBody = "${request.firstName} ${request.lastName} demande à rejoindre votre AMAP.",
                 relatedEntityId = request.requestId.id,
             )
         } catch (e: Exception) {

@@ -4,6 +4,7 @@ import 'package:amap_en_ligne/data/web_initial_fragment.dart';
 import 'package:amap_en_ligne/domain/auth/auth_error.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
 import 'package:amap_en_ligne/domain/auth/password_policy.dart';
+import 'package:amap_en_ligne/presentation/auth/password_visibility_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -195,12 +196,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       helperText: kPasswordPolicyHint,
                       helperMaxLines: 2,
                       border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
+                      suffixIcon: PasswordVisibilityButton(
+                        obscured: _obscurePassword,
                         onPressed: () => setState(
                           () => _obscurePassword = !_obscurePassword,
                         ),
@@ -217,12 +214,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     decoration: InputDecoration(
                       labelText: 'Confirmer le mot de passe *',
                       border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirm
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
+                      suffixIcon: PasswordVisibilityButton(
+                        obscured: _obscureConfirm,
                         onPressed: () =>
                             setState(() => _obscureConfirm = !_obscureConfirm),
                       ),

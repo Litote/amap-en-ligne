@@ -215,9 +215,9 @@ internal class CrossComponentWebUiPasswordResetTest : E2eTestSupport() {
 
                         // After a successful reset the ForgotPasswordBloc BlocListener calls
                         // context.go('/login'); the GoRouter redirect then sends the authenticated
-                        // user to /product-types.
+                        // producer to /producer-dashboard.
                         page.waitForURL(
-                            "**/product-types**",
+                            "**/producer-dashboard**",
                             com.microsoft.playwright.Page
                                 .WaitForURLOptions()
                                 .setTimeout(30_000.0),

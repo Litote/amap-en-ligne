@@ -13,6 +13,7 @@ import persistence.model.BasketExchangeStatus
 import persistence.model.Delivery
 import persistence.model.DeliveryContract
 import persistence.model.Member
+import persistence.model.MemberContractStatus
 import persistence.model.Organization
 import persistence.model.holdsBasketOn
 import persistence.model.orderedDeliveryIdsForContract
@@ -20,8 +21,9 @@ import persistence.model.orderedDeliveryIdsForContract
 /**
  * Guards basket-commitment invariants for [BasketExchange]:
  *  - [isBasketCommitted] detects whether a (member, delivery) basket is already engaged.
- *  - [rejectIfNotBasketHolder] enforces the shared-basket alternation rule so only the
- *    family whose turn it is may offer or counter-offer a given delivery.
+ *  - [rejectIfNotBasketHolder] only lets a subscriber of the contract offer or counter-offer
+ *    its basket, and enforces the shared-basket alternation rule (only the family whose turn
+ *    it is).
  */
 @Single
 class BasketExchangeCommitmentValidator(
@@ -29,10 +31,10 @@ class BasketExchangeCommitmentValidator(
 ) {
     /**
      * Rejects (FORBIDDEN) when [memberId] does not hold the basket of the contract identified by
-     * [contractId] on [deliveryId] this week — i.e. when the contract uses an alternating shared
-     * basket and it is another family's turn. No-op when [contractId] is null, the contract is
-     * unknown, or it has no shared baskets (the non-shared case is unchanged). [role] is "offer" or
-     * "counter-delivery" for the message.
+     * [contractId] on [deliveryId] this week — i.e. when the member has no (non-cancelled)
+     * subscription to the contract, or when the contract uses an alternating shared basket and it
+     * is another family's turn. No-op when [contractId] is null or the contract is unknown. [role]
+     * is "offer" or "counter-delivery" for the message.
      */
     suspend fun rejectIfNotBasketHolder(
         mutation: ClientMutation,
@@ -47,21 +49,29 @@ class BasketExchangeCommitmentValidator(
             contractSyncDAO
                 .getByOrganizationId(organization.organizationId)
                 .find { it.contractId.id == contractId.id } ?: return null
+        val subscribed = contract.members.any { it.memberId == memberId && it.status != MemberContractStatus.CANCELLED }
+        if (!subscribed) {
+            return forbidden(mutation, "member ${memberId.id} is not subscribed to contract ${contract.contractId.id} ($role)")
+        }
         if (contract.sharedBaskets.isEmpty()) return null
         val ordered = organization.orderedDeliveryIdsForContract(contract.contractId)
         if (contract.holdsBasketOn(memberId, ordered, deliveryId)) return null
-        return MutationOutcome(
-            clientOpId = mutation.clientOpId,
-            status = MutationStatus.REJECTED,
-            error =
-                MutationError(
-                    code = MutationErrorCode.FORBIDDEN,
-                    message =
-                        "member ${memberId.id} does not hold the shared basket of contract ${contract.contractId.id} " +
-                            "on delivery ${deliveryId.id} this week ($role)",
-                ),
+        return forbidden(
+            mutation,
+            "member ${memberId.id} does not hold the shared basket of contract ${contract.contractId.id} " +
+                "on delivery ${deliveryId.id} this week ($role)",
         )
     }
+
+    private fun forbidden(
+        mutation: ClientMutation,
+        message: String,
+    ): MutationOutcome =
+        MutationOutcome(
+            clientOpId = mutation.clientOpId,
+            status = MutationStatus.REJECTED,
+            error = MutationError(code = MutationErrorCode.FORBIDDEN, message = message),
+        )
 }
 
 /**

@@ -23,7 +23,9 @@ flowchart TD
 
 1. Ouvrez l'écran des **échanges de paniers**.
 2. Touchez **[PROPOSER UN ÉCHANGE]**.
-3. Sélectionnez la **livraison** que vous souhaitez échanger.
+3. Sélectionnez la **livraison** que vous souhaitez échanger. Seuls les paniers des
+   **contrats auxquels vous êtes inscrit(e)** sont proposés, et chaque livraison indique le
+   ou les contrats concernés.
 4. Indiquez vos **disponibilités** dans le motif (par exemple « absent le 31 ; dispo les 14 et
    21 février »). C'est utile pour que les autres membres vous proposent une date qui convient.
 5. Touchez **[PROPOSER]**.

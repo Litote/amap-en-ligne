@@ -1,5 +1,5 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
-import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/public_organization.dart';
 import 'package:amap_en_ligne/presentation/home/home_bloc.dart';
 import 'package:amap_en_ligne/presentation/home/home_state.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -17,11 +17,7 @@ void main() {
     'auto-dispatches loadRequested on construction — success path',
     setUp: () => when(() => api.listOrganizations()).thenAnswer(
       (_) async => [
-        const Organization(
-          organizationId: 'org-1',
-          name: 'AMAP test',
-          contactEmail: 'test@amap.fr',
-        ),
+        const PublicOrganization(organizationId: 'org-1', name: 'AMAP test'),
       ],
     ),
     build: () => HomeBloc(publicApi: api),

@@ -113,6 +113,16 @@ jwt_issuer_url = "https://..."
 jwt_audience   = "..."
 ```
 
+### Scheduled volunteer shortage alerts (ADR-005 §4)
+
+`modules/lambda` also deploys `<name>-volunteer-shortage`: the same native binary as the
+data Lambda (handler `deploy.lambda.VolunteerShortageMainKt`, same role and environment),
+invoked every 15 minutes by an EventBridge rule. The deployer needs `events:*Rule*` /
+`*Targets*` on `rule/${project}-*`, granted by the separate
+`${project}-deployer-scheduling-policy` (`bootstrap/deployer_scheduling.tf` — the main
+deployer policy is at the 6144-byte limit): **re-apply the bootstrap once** before the
+first deploy that creates the rule.
+
 ### Push notifications (SNS Mobile Push — ADR-005)
 
 Mobile push for the Lambda deployment uses SNS Platform Applications, created by the

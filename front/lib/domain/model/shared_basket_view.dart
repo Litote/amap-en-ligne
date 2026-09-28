@@ -117,6 +117,23 @@ bool memberHoldsBasketOn(
       memberId;
 }
 
+/// Whether [memberId] may put [contract]'s basket of [deliveryId] into a basket exchange (as an
+/// offer or a counter-delivery): they must hold a non-cancelled subscription to [contract] and,
+/// for a shared basket, hold it that week ([memberHoldsBasketOn]). Mirrors the back
+/// `BasketExchangeCommitmentValidator.rejectIfNotBasketHolder`.
+bool memberMayOfferBasketOn(
+  Contract contract,
+  List<Delivery> orderedDeliveries,
+  String deliveryId,
+  String memberId,
+) {
+  final subscribed = contract.members.any(
+    (m) => m.memberId == memberId && m.status != ContractMemberStatus.cancelled,
+  );
+  return subscribed &&
+      memberHoldsBasketOn(contract, orderedDeliveries, deliveryId, memberId);
+}
+
 /// The co-sharers of [memberId] inside their shared basket on [contract] (excludes [memberId]).
 List<String> coSharersFor(Contract contract, String memberId) {
   final basket = sharedBasketForMember(contract, memberId);

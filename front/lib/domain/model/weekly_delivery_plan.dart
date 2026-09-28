@@ -15,7 +15,7 @@ class WeeklyDeliveryPlan {
   /// The full deliveries list for the organization (existing + new/linked).
   final List<Delivery> deliveries;
 
-  /// Number of new [Delivery] objects that will be created (tmp_* ids).
+  /// Number of new [Delivery] objects that will be created.
   final int newCount;
 
   /// Number of existing deliveries that will be linked to the contract.
@@ -31,17 +31,17 @@ class WeeklyDeliveryPlan {
 /// [Contract.maxDeliveryDate] (step = 7 days), the algorithm:
 /// - If a non-cancelled delivery already exists on that exact date:
 ///   links [contract] to it (unless already linked).
-/// - Otherwise creates a new [Delivery] with a `tmp_*` id.
+/// - Otherwise creates a new [Delivery] (final id, see [newDeliveryId]).
 ///
 /// The [template] parameter must be pre-resolved by the caller (null if none
 /// is available). When [template] is provided, its [DeliveryTemplate.standardStartTime]
 /// (format `HH:MM`) sets the time component of new deliveries; otherwise
 /// defaults to 18:00.
 ///
-/// [nextTmpId] is called once per new delivery and must return a suffix
+/// [nextId] is called once per new delivery and must return a suffix
 /// unique across the whole organization (not just this plan — deliveries
 /// generated for other contracts live in the same list) used to build the
-/// `tmp_delivery_<suffix>` id.
+/// final [newDeliveryId].
 ///
 /// Returns the original [org.deliveries] list when [Contract.minDeliveryDate]
 /// or [Contract.maxDeliveryDate] cannot be parsed.
@@ -49,7 +49,7 @@ WeeklyDeliveryPlan planWeeklyDeliveries({
   required Contract contract,
   required Organization org,
   DeliveryTemplate? template,
-  required String Function() nextTmpId,
+  required String Function() nextId,
 }) {
   final min = DateTime.tryParse(contract.minDeliveryDate);
   final max = DateTime.tryParse(contract.maxDeliveryDate);
@@ -88,6 +88,7 @@ WeeklyDeliveryPlan planWeeklyDeliveries({
         existing,
         deliveryContract,
         contract.contractId,
+        basketDescriptions: basketDescriptions,
         isMainContract: contract.isMainContract,
         template: template,
       );
@@ -103,7 +104,7 @@ WeeklyDeliveryPlan planWeeklyDeliveries({
         basketDescriptions: basketDescriptions,
         template: template,
         isMainContract: contract.isMainContract,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
       newCount++;
     }
@@ -142,10 +143,15 @@ Map<String, Delivery> _indexByDate(List<Delivery> deliveries) {
 /// and the existing delivery carries no slot yet (e.g. it was created by a
 /// secondary contract first), the default volunteer slots are attached to this
 /// main link so the volunteer need is materialised exactly once.
+///
+/// The contract's products join the delivery's [basketDescriptions] (see
+/// [_mergeBasketDescriptions]) so the linked delivery offers them like a
+/// generated one would.
 Delivery? _linkContractToDelivery(
   Delivery existing,
   DeliveryContract deliveryContract,
   String contractId, {
+  required List<BasketDeliveryDescription> basketDescriptions,
   required bool isMainContract,
   required DeliveryTemplate? template,
 }) {
@@ -166,7 +172,36 @@ Delivery? _linkContractToDelivery(
           ),
         )
       : deliveryContract;
-  return existing.copyWith(contracts: [...existing.contracts, link]);
+  return existing.copyWith(
+    contracts: [...existing.contracts, link],
+    basketDescriptions: _mergeBasketDescriptions(
+      existing.basketDescriptions,
+      basketDescriptions,
+    ),
+  );
+}
+
+/// Appends the [added] descriptions missing from [existing] (keyed by product
+/// type + basket size), leaving existing entries — and their composed items —
+/// untouched. An empty [existing] list is a legacy delivery that falls back to
+/// every org product, so it is kept empty rather than narrowed to [added].
+List<BasketDeliveryDescription> _mergeBasketDescriptions(
+  List<BasketDeliveryDescription> existing,
+  List<BasketDeliveryDescription> added,
+) {
+  if (existing.isEmpty) return existing;
+  final keys = {
+    for (final description in existing)
+      '${description.productTypeId}::${description.basketSizeName}',
+  };
+  return [
+    ...existing,
+    for (final description in added)
+      if (keys.add(
+        '${description.productTypeId}::${description.basketSizeName}',
+      ))
+        description,
+  ];
 }
 
 /// Builds a brand-new weekly [Delivery] on [date] for [deliveryContract].
@@ -177,7 +212,7 @@ Delivery _buildWeeklyDelivery({
   required List<BasketDeliveryDescription> basketDescriptions,
   required DeliveryTemplate? template,
   required bool isMainContract,
-  required String Function() nextTmpId,
+  required String Function() nextId,
 }) {
   final hour = _resolveStartHour(template);
   final minute = _resolveStartMinute(template);
@@ -198,7 +233,7 @@ Delivery _buildWeeklyDelivery({
         )
       : deliveryContract;
   return Delivery(
-    deliveryId: 'tmp_delivery_${nextTmpId()}',
+    deliveryId: newDeliveryId(nextId()),
     organizationId: org.organizationId,
     scheduledDate: scheduledDate.toIso8601String().split('.').first,
     status: DeliveryStatus.planned,

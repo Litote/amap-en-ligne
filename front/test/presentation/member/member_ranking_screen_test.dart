@@ -249,11 +249,11 @@ void main() {
       );
     });
 
-    testWidgets('renders ex-aequo in position label when tied', (tester) async {
+    testWidgets('shows no rank before a first participation', (tester) async {
       const contractId = 'c-season';
       final seasonYear = DateTime.now().year;
 
-      // Both members have 0 completions → tied at rank 1.
+      // Both members have 0 completions: a "1er ex-aequo" would mean nothing.
       await _pump(
         tester,
         orgRepo: orgRepo,
@@ -274,11 +274,11 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
 
-      // Everyone at 0 → tied.
       expect(
-        find.textContaining('Vous êtes 1er ex-aequo / 2 membres actifs'),
+        find.text('Pas encore de participation cette saison'),
         findsOneWidget,
       );
+      expect(find.textContaining('ex-aequo'), findsNothing);
     });
 
     // --- Distribution section ---

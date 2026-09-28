@@ -42,7 +42,9 @@ class _CoordinatorContractsScreenState
     extends State<CoordinatorContractsScreen> {
   static const _desktopBreakpoint = 800.0;
   final _formKey = GlobalKey<FormState>();
-  final _coordinatorSelectorKey = GlobalKey<CoordinatorSelectorState>();
+  // Replaced on every form (re)load so the selector starts from the loaded
+  // contract: a blank form after a save must not keep the previous choice.
+  var _coordinatorSelectorKey = GlobalKey<CoordinatorSelectorState>();
   final _nameController = TextEditingController();
   final _seasonYearController = TextEditingController();
   final _minDateController = TextEditingController();
@@ -432,7 +434,9 @@ class _CoordinatorContractsScreenState
           ? null
           : () => _deleteContract(context, contract: selectedContract),
     );
+    final isDesktop = constraints.maxWidth >= _desktopBreakpoint;
     final list = ContractList(
+      shrinkWrap: !isDesktop,
       contracts: contracts,
       organization: organization,
       producerAccounts: data.producerAccounts,
@@ -441,7 +445,7 @@ class _CoordinatorContractsScreenState
       onSelected: (contract) =>
           setState(() => _selectedContractId = contract.contractId),
     );
-    if (constraints.maxWidth >= _desktopBreakpoint) {
+    if (isDesktop) {
       return Row(
         children: [
           SizedBox(width: 360, child: list),
@@ -452,11 +456,7 @@ class _CoordinatorContractsScreenState
     }
     return ListView(
       padding: const EdgeInsets.all(16),
-      children: [
-        SizedBox(height: 320, child: list),
-        const SizedBox(height: 16),
-        form,
-      ],
+      children: [list, const SizedBox(height: 16), form],
     );
   }
 
@@ -476,6 +476,7 @@ class _CoordinatorContractsScreenState
         '${organization.organizationId}:${contract?.contractId ?? 'new'}';
     if (_loadedFormKey == key) return;
     _loadedFormKey = key;
+    _coordinatorSelectorKey = GlobalKey<CoordinatorSelectorState>();
     _submitAttempted = false;
     _selectedProducerAccountId = contract?.producerAccountId;
     // A product is part of the contract iff it has at least one entry in
@@ -546,8 +547,8 @@ class _CoordinatorContractsScreenState
       _seasonYearController.text = minDate.year.toString();
     }
     if (minDate != null && maxDate != null && !_deliveryCountUserEdited) {
-      final weeks = (maxDate.difference(minDate).inDays / 7).round();
-      _deliveryCountController.text = weeks < 1 ? '1' : '$weeks';
+      _deliveryCountController.text =
+          '${weeklyDeliveryCount(minDate, maxDate)}';
     }
   }
 
@@ -577,6 +578,7 @@ class _CoordinatorContractsScreenState
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Retirer cet amapien du contrat ?'),
+          semanticLabel: 'Retirer cet amapien du contrat ?',
           content: Text(
             '${memberDisplayName(member)} : son inscription (date, statut, '
             'souscriptions) sera définitivement supprimée à l\'enregistrement.',
@@ -621,6 +623,7 @@ class _CoordinatorContractsScreenState
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Supprimer le contrat ?'),
+        semanticLabel: 'Supprimer le contrat ?',
         content: const Text(
           'Cette action est irréversible. Le contrat sera définitivement supprimé.',
         ),
@@ -749,7 +752,7 @@ class _CoordinatorContractsScreenState
     ).showSnackBar(SnackBar(content: Text(message)));
 
     if (trimmedName.isEmpty) {
-      showError('Le nom du contrat est obligatoire.');
+      showError('Le nom du contrat est requis.');
       return null;
     }
     final duplicate = contracts.any(
@@ -899,11 +902,11 @@ class _CoordinatorContractsScreenState
       if (!mounted) return;
 
       // After creating a new contract, offer to plan weekly deliveries.
-      // The sync trigger is deferred until after this flow so the contract
-      // upsert and the generated deliveries ride the same sync batch — the
-      // back only remaps a tmp_* contract id within a single batch, so
-      // syncing the contract alone first would leave the delivery links
-      // pointing at a tmp id nothing can resolve any more.
+      // Enqueuing the contract upsert already triggers a sync
+      // (onMutationEnqueued), so its tmp_* id is usually remapped while the
+      // dialog is open: the plan is recomputed from the re-read contract on
+      // confirmation (resolveSavedContract), and a delivery upsert still
+      // queued with the tmp id is rewritten by the contract remap.
       if (selectedContract == null && mounted) {
         await _maybeOfferWeeklyDeliveries(
           saved,
@@ -960,7 +963,7 @@ class _CoordinatorContractsScreenState
       contract: saved,
       org: organization,
       template: resolvedTemplate,
-      nextTmpId: _idGenerator.next,
+      nextId: _idGenerator.next,
     );
     if (plan.totalAffected > 0 && mounted) {
       await _offerWeeklyDeliveries(
@@ -990,20 +993,16 @@ class _CoordinatorContractsScreenState
     required OrganizationRepository orgRepo,
     required ContractRepository contractRepo,
   }) async {
-    final newPlural = plan.newCount > 1 ? 's' : '';
-    final newLabel = plan.newCount > 0
-        ? '${plan.newCount} nouvelle$newPlural livraison$newPlural'
-        : null;
-    final linkedPlural = plan.linkedCount > 1 ? 's' : '';
-    final linkedLabel = plan.linkedCount > 0
-        ? '${plan.linkedCount} livraison$linkedPlural existante$linkedPlural'
-        : null;
-    final parts = [?newLabel, if (linkedLabel != null) 'lier $linkedLabel'];
+    final prompt = weeklyDeliveriesPrompt(
+      newCount: plan.newCount,
+      linkedCount: plan.linkedCount,
+    );
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Créer les livraisons hebdomadaires ?'),
-        content: Text('${parts.join(' et ')} à ce contrat ?'),
+        title: Text(prompt.title),
+        semanticLabel: prompt.title,
+        content: Text(prompt.body),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -1011,7 +1010,7 @@ class _CoordinatorContractsScreenState
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Créer'),
+            child: Text(prompt.action),
           ),
         ],
       ),
@@ -1028,7 +1027,7 @@ class _CoordinatorContractsScreenState
         contract: resolvedContract,
         org: freshOrg,
         template: template,
-        nextTmpId: _idGenerator.next,
+        nextId: _idGenerator.next,
       );
       if (freshPlan.totalAffected == 0) return;
       await orgRepo.updateDeliveries(
@@ -1216,17 +1215,17 @@ class _ContractEditor extends StatelessWidget {
   }
 
   String? _validateName(String? value) => value == null || value.trim().isEmpty
-      ? 'Nom requis'
+      ? kFieldRequiredMessage
       : requiredName(value);
 
   String? _validateProducer(String? value) =>
-      value == null || value.isEmpty ? 'Producteur requis' : null;
+      value == null || value.isEmpty ? kFieldRequiredMessage : null;
 
   String? _validateSeasonYear(String? value) => seasonYearError(value);
 
   String? _validateDeliveryCount(String? value) {
     final parsed = int.tryParse(value?.trim() ?? '');
-    return parsed == null || parsed <= 0 ? 'Valeur invalide' : null;
+    return parsed == null || parsed <= 0 ? kPositiveCountMessage : null;
   }
 
   Widget _buildProducerDropdown(List<OrganizationProducer> activeProducers) {
@@ -1329,6 +1328,14 @@ class _ContractEditor extends StatelessWidget {
       labelText: 'Date de dernière livraison *',
       enabled: !saving,
       onChanged: onDateChanged,
+      // Open on the first delivery date rather than today, and never offer
+      // an earlier one.
+      initialDateFallback: () => DateTime.tryParse(minDateController.text),
+      firstDate: () => DateTime.tryParse(minDateController.text),
+      extraValidator: () => contractDateRangeError(
+        minDateController.text,
+        maxDateController.text,
+      ),
     ),
     const SizedBox(height: 12),
     TextFormField(
@@ -1563,4 +1570,34 @@ class _ContractEditor extends StatelessWidget {
     ContractStatus.active => 'Actif',
     ContractStatus.ended => 'Terminé',
   };
+}
+
+/// Copy of the dialog offered after saving a contract: create [newCount]
+/// weekly deliveries and/or link [linkedCount] existing ones. When nothing is
+/// created, the dialog only speaks of linking.
+@visibleForTesting
+({String title, String body, String action}) weeklyDeliveriesPrompt({
+  required int newCount,
+  required int linkedCount,
+}) {
+  String plural(int n) => n > 1 ? 's' : '';
+  final create = newCount > 0
+      ? 'créer $newCount nouvelle${plural(newCount)} '
+            'livraison${plural(newCount)}'
+      : null;
+  final link = linkedCount > 0
+      ? 'lier $linkedCount livraison${plural(linkedCount)} '
+            'existante${plural(linkedCount)}'
+      : null;
+  final sentence = [?create, ?link].join(' et ');
+  final body = sentence.isEmpty
+      ? ''
+      : '${sentence[0].toUpperCase()}${sentence.substring(1)} à ce contrat ?';
+  return create != null
+      ? (
+          title: 'Créer les livraisons hebdomadaires ?',
+          body: body,
+          action: 'Créer',
+        )
+      : (title: 'Lier les livraisons existantes ?', body: body, action: 'Lier');
 }

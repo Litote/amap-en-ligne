@@ -249,7 +249,8 @@ void main() {
     );
 
     testWidgets(
-      'invitation tile shows sent date from createdAt when never resent',
+      'invitation tile shows the creation date when never resent, without '
+      'claiming an email was sent (imported invitations are not emailed)',
       (tester) async {
         when(
           () => invitationRepo.watch(_orgId),
@@ -263,10 +264,11 @@ void main() {
         await tester.pump();
 
         expect(
-          find.textContaining('Envoyée le'),
+          find.textContaining('Invitation créée le'),
           findsOneWidget,
-          reason: 'invitation tile should show when the invitation was sent',
+          reason: 'invitation tile should show when the invitation was created',
         );
+        expect(find.textContaining('Envoyée le'), findsNothing);
       },
     );
 
@@ -362,6 +364,8 @@ void main() {
         // The pending-invitation representation is kept (offers resend), the
         // duplicate member row is suppressed while the invitation is pending.
         expect(find.text('Relancer'), findsOneWidget);
+        // Same status label as the owner user list.
+        expect(find.text('Invité'), findsOneWidget);
         expect(find.byTooltip('Modifier les rôles'), findsNothing);
       },
     );
@@ -424,6 +428,53 @@ void main() {
 
       expect(find.text('Claire Bernard'), findsOneWidget);
       expect(find.byTooltip('Modifier les rôles'), findsOneWidget);
+    });
+
+    testWidgets('an empty invitation marks each missing field', (tester) async {
+      when(
+        () => memberRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value([member]));
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const []));
+
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+
+      // The shell hosts the FAB outside the test surface: trigger it.
+      tester
+          .widget<FloatingActionButton>(
+            find.byKey(const Key('invite_member_fab')),
+          )
+          .onPressed!();
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      // Screen readers announce the dialog by its title, not the generic
+      // "Alerte" Flutter falls back to outside iOS.
+      expect(
+        tester.widget<AlertDialog>(find.byType(AlertDialog)).semanticLabel,
+        'Inviter un membre',
+      );
+      // No error before a submit attempt.
+      expect(find.text('Ce champ est requis.'), findsNothing);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Inviter'));
+      await tester.pumpAndSettle();
+
+      // First name, last name and email, plus the roles.
+      expect(find.text('Ce champ est requis.'), findsNWidgets(3));
+      expect(find.text('Choisissez au moins un rôle.'), findsOneWidget);
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Prénom *'),
+        'Alice',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Ce champ est requis.'), findsNWidgets(2));
     });
 
     testWidgets('tapping the action opens the edit-roles dialog', (

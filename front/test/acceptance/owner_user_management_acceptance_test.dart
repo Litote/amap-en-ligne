@@ -1,19 +1,28 @@
 @Tags(['acceptance'])
 library;
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:amap_en_ligne/data/id_generator.dart';
 import 'package:amap_en_ligne/data/local/database.dart';
 import 'package:amap_en_ligne/data/network/sync_api.dart';
+import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/data/sync/sync_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
+import 'package:amap_en_ligne/domain/model/invitation_status.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
+import 'package:amap_en_ligne/domain/model/member_invitation.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
+import 'package:amap_en_ligne/domain/sync/change.dart';
 import 'package:amap_en_ligne/domain/sync/entity_payload.dart';
+import 'package:amap_en_ligne/domain/sync/entity_type.dart';
 import 'package:amap_en_ligne/domain/sync/scope_sync_result.dart';
 import 'package:amap_en_ligne/domain/sync/sync_request.dart';
 import 'package:amap_en_ligne/domain/sync/sync_response.dart';
@@ -186,6 +195,8 @@ void main() {
       memberRepository: memberRepo,
       organizationRepository: orgRepo,
       producerAccountRepository: producerRepo,
+      ownerInvitationRepository: OwnerInvitationRepository(db: db),
+      memberInvitationRepository: MemberInvitationRepository(db: db),
     )..add(const UserListEvent.loaded());
 
     // Wait for the first loaded state, then drain the event loop so that
@@ -223,6 +234,8 @@ void main() {
         memberRepository: memberRepo,
         organizationRepository: orgRepo,
         producerAccountRepository: producerRepo,
+        ownerInvitationRepository: OwnerInvitationRepository(db: db),
+        memberInvitationRepository: MemberInvitationRepository(db: db),
       )..add(const UserListEvent.loaded());
 
       // Wait for initial loaded state with all rows.
@@ -269,6 +282,8 @@ void main() {
         memberRepository: memberRepo,
         organizationRepository: orgRepo,
         producerAccountRepository: producerRepo,
+        ownerInvitationRepository: OwnerInvitationRepository(db: db),
+        memberInvitationRepository: MemberInvitationRepository(db: db),
       )..add(const UserListEvent.loaded());
 
       // Wait for the first loaded state then drain so all sub-streams settle.
@@ -290,5 +305,135 @@ void main() {
 
       await bloc.close();
     },
+  );
+
+  // -------------------------------------------------------------------------
+  // Pending member invitations reach the OWNER through instance-owner and are
+  // listed as « Invité » rows (server side: the same catalog stories).
+  // -------------------------------------------------------------------------
+  final bootstrapInvitationStory = _loadStory(
+    'owner-bootstrap-lists-pending-member-invitation',
+  );
+  final incrementalInvitationStory = _loadStory(
+    'owner-incremental-receives-member-invitation',
+  );
+  const pendingInvitation = MemberInvitation(
+    invitationId: 'inv-1',
+    organizationId: 'org-1',
+    email: 'alice@example.org',
+    firstName: 'Alice',
+    lastName: 'Martin',
+    roles: {Role.volunteer},
+    status: InvitationStatus.pendingActivation,
+    createdAt: '2026-01-01T00:00:00Z',
+    expiresAt: '2026-01-08T00:00:00Z',
+  );
+
+  Future<List<UserRow>> invitedRows() async {
+    final bloc = UserListBloc(
+      ownerRepository: ownerRepo,
+      memberRepository: memberRepo,
+      organizationRepository: orgRepo,
+      producerAccountRepository: producerRepo,
+      ownerInvitationRepository: OwnerInvitationRepository(db: db),
+      memberInvitationRepository: MemberInvitationRepository(db: db),
+    )..add(const UserListEvent.loaded());
+    await bloc.stream
+        .where((s) => s is UserListLoaded)
+        .first
+        .timeout(const Duration(seconds: 5));
+    for (var i = 0; i < 10; i++) {
+      await Future<void>.value();
+    }
+    final rows = (bloc.state as UserListLoaded).visibleRows
+        .where((r) => r.isInvitation)
+        .toList();
+    await bloc.close();
+    return rows;
+  }
+
+  test(
+    '${bootstrapInvitationStory.title} [${bootstrapInvitationStory.id}]',
+    () async {
+      final api = _ScriptedSyncApi([
+        SyncResponse(
+          authorizedScopes: const ['instance-owner'],
+          results: {
+            'instance-owner': BootstrapScopeSyncResult(
+              items: [
+                OrganizationPayload(organization: bootstrapOrgs[0]),
+                const MemberInvitationPayload(
+                  memberInvitation: pendingInvitation,
+                ),
+              ],
+              nextCursor: 'c-owner-1',
+            ),
+          },
+        ),
+      ]);
+      await SyncRepository(db: db, api: api).sync(tenantId: 'owner-tenant');
+      api.assertDrained();
+
+      final rows = await invitedRows();
+      expect(rows.single.email, 'alice@example.org');
+    },
+  );
+
+  test(
+    '${incrementalInvitationStory.title} [${incrementalInvitationStory.id}]',
+    () async {
+      await db.writeCursor('instance-owner', 'c-owner-1');
+      await db.upsertOrganization(bootstrapOrgs[0]);
+      expect(await invitedRows(), isEmpty);
+
+      final api = _ScriptedSyncApi([
+        const SyncResponse(
+          authorizedScopes: ['instance-owner'],
+          results: {
+            'instance-owner': IncrementalScopeSyncResult(
+              changes: [
+                Change(
+                  entityType: EntityType.memberInvitation,
+                  entityId: 'inv-1',
+                  op: ChangeOp.upsert,
+                  payload: MemberInvitationPayload(
+                    memberInvitation: pendingInvitation,
+                  ),
+                  producedAt: 1,
+                ),
+              ],
+              nextCursor: 'c-owner-2',
+            ),
+          },
+        ),
+      ]);
+      await SyncRepository(db: db, api: api).sync(tenantId: 'owner-tenant');
+      api.assertDrained();
+
+      final rows = await invitedRows();
+      expect(rows.single.email, 'alice@example.org');
+      expect(await db.readCursor('instance-owner'), 'c-owner-2');
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Scenario story loader
+// ---------------------------------------------------------------------------
+
+class _AcceptanceStory {
+  const _AcceptanceStory({required this.id, required this.title});
+
+  final String id;
+  final String title;
+}
+
+_AcceptanceStory _loadStory(String id) {
+  final uri = Directory.current.uri.resolve('../acceptance/scenarios/$id.json');
+  final content = File.fromUri(uri).readAsStringSync();
+  final json = jsonDecode(content) as Map<String, Object?>;
+  return _AcceptanceStory(
+    id: json['id']! as String,
+    title: json['title']! as String,
   );
 }

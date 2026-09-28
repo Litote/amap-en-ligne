@@ -111,6 +111,23 @@ void main() {
     ).thenAnswer((_) => Stream.value(_organization));
   });
 
+  testWidgets('the default template of the organization is flagged', (
+    tester,
+  ) async {
+    when(() => organizationRepository.watch('org-1')).thenAnswer(
+      (_) => Stream.value(
+        _organization.copyWith(defaultDeliveryTemplateId: 'dt-1'),
+      ),
+    );
+    await _pumpScreen(
+      tester,
+      deliveryTemplateRepository: deliveryTemplateRepository,
+      organizationRepository: organizationRepository,
+    );
+
+    expect(find.text("⭐ Modèle par défaut de l'organisation"), findsOneWidget);
+  });
+
   testWidgets('list shows association count and associated deliveries dialog', (
     tester,
   ) async {
@@ -139,7 +156,8 @@ void main() {
       organizationRepository: organizationRepository,
     );
 
-    await tester.tap(find.byIcon(Icons.more_horiz));
+    // The menu button names the template it acts on (screen readers).
+    await tester.tap(find.byTooltip('Actions du modèle « Marché du soir »'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Supprimer'));
     await tester.pumpAndSettle();

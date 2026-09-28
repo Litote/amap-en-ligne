@@ -24,6 +24,7 @@ import persistence.dao.OrganizationSyncDAO
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
+import kotlin.time.Clock
 
 @Single(createdAtStart = true, binds = [EntityTypeService::class])
 class MemberService(
@@ -189,11 +190,13 @@ class MemberService(
         existingMember: Member?,
         isTmpId: Boolean,
     ): MutationOutcome {
+        // registered_at is server-authoritative: kept from the stored row, set on creation,
+        // never taken from the client payload.
         val resolvedMember =
             if (isTmpId) {
-                payload.member.copy(memberId = generateId())
+                payload.member.copy(memberId = generateId(), registeredAt = Clock.System.now())
             } else {
-                payload.member
+                payload.member.copy(registeredAt = existingMember?.registeredAt)
             }
         memberSyncDAO.put(resolvedMember, buildUpsertChanges(organizationId, resolvedMember))
         val rolesChanged = existingMember == null || existingMember.roles != resolvedMember.roles

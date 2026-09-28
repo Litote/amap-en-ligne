@@ -2,7 +2,11 @@ package organization
 
 import authentication.AuthenticatedInfo
 import authentication.Role
+import core.BasketComposition
 import core.EntityTypeService
+import core.ProducerScheduleProjection
+import core.toFrenchLongDate
+import core.toFrenchTime
 import id.toId
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.datetime.TimeZone
@@ -10,6 +14,7 @@ import kotlinx.datetime.todayIn
 import notificationpublisher.NotificationContact
 import notificationpublisher.NotificationContent
 import notificationpublisher.NotificationPublisher
+import notificationpublisher.optedNotificationChannels
 import notificationpublisher.resolveCopy
 import org.koin.core.annotation.Single
 import persistence.changes.Change
@@ -27,16 +32,21 @@ import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationSyncDAO
 import persistence.dao.ProducerAccountSyncDAO
 import persistence.model.Contract
+import persistence.model.Delivery
+import persistence.model.DeliveryContract
+import persistence.model.DeliveryContractStatus
 import persistence.model.DeliveryStatus
 import persistence.model.EntityType
 import persistence.model.Member
+import persistence.model.MemberSlot
 import persistence.model.NotificationCategory
-import persistence.model.NotificationChannel
 import persistence.model.NotificationCopyOverride
 import persistence.model.NotificationType
 import persistence.model.Organization
 import persistence.model.OrganizationProducerStatus
 import persistence.model.ProducerManagementMode
+import persistence.model.RegistrationStatus
+import persistence.model.SlotStatus
 import kotlin.time.Clock
 
 @Single(createdAtStart = true, binds = [EntityTypeService::class])
@@ -98,6 +108,9 @@ class OrganizationService(
         val missingCoordinatorOutcome = checkConfirmedDeliveriesHaveCoordinators(payload.organization, mutation)
         if (missingCoordinatorOutcome != null) return missingCoordinatorOutcome
 
+        checkNoFutureDeliveryCompleted(persistedOrg, payload.organization, mutation)?.let { return it }
+        checkNoFutureDayOfRecords(persistedOrg, payload.organization, mutation)?.let { return it }
+
         if (isPrivilegedCaller) {
             when (val step = normalizePrivilegedWrite(organizationId, persistedOrg, payload.organization, mutation)) {
                 is SlotLifecycleNormalizer.Result.Rejected -> {
@@ -111,8 +124,15 @@ class OrganizationService(
             }
         }
 
-        val finalOrg = mergeNoAccountProducts(organizationId, persistedOrg, normalizedOrg)
-        organizationSyncDAO.put(finalOrg, buildUpsertChange(organizationId, finalOrg))
+        // A stale cached copy must not write older basket compositions back (e.g. over a
+        // producer's edit): keep the newest items per delivery, product and basket size.
+        val finalOrg =
+            BasketComposition.keepNewestItems(persistedOrg, mergeNoAccountProducts(organizationId, persistedOrg, normalizedOrg))
+        organizationSyncDAO.put(
+            finalOrg,
+            buildUpsertChange(organizationId, finalOrg),
+            producerScheduleChanges(organizationId, persistedOrg, finalOrg),
+        )
         producerLinker.syncLinks(persistedOrg, finalOrg)
         notifySlotEvents(organizationId, slotEvents, finalOrg.notificationOverrides, finalOrg.name)
         return applied(mutation, finalOrg.organizationId.id)
@@ -235,7 +255,8 @@ class OrganizationService(
         organizationName: String,
     ) {
         val slot = event.slot
-        val slotLabel = "${slot.startTime.date} (${slot.startTime.time}–${slot.endTime.time})"
+        val slotLabel =
+            "${slot.startTime.date.toFrenchLongDate()} (${slot.startTime.time.toFrenchTime()}–${slot.endTime.time.toFrenchTime()})"
         val (category, defaultTitle, defaultBody) =
             when (event.kind) {
                 SlotLifecycleNormalizer.SlotEventKind.CANCELLED -> {
@@ -257,6 +278,7 @@ class OrganizationService(
         val copy = notificationOverrides.resolveCopy(category, defaultTitle, defaultBody)
         for (memberId in event.affectedMemberIds) {
             val member = members.find { it.memberId == memberId } ?: continue
+            if (!member.memberPreferences.planningChangesAlertsEnabled) continue
             notificationPublisher.publish(
                 recipientScope = SyncScope.Member(member.memberId.id).key,
                 type = NotificationType.ALERT,
@@ -268,16 +290,10 @@ class OrganizationService(
                         relatedEntityId = event.deliveryId.id,
                     ),
                 contact = NotificationContact(email = member.email, organizationName = organizationName),
-                channels = notificationChannelsFor(member),
+                channels = member.optedNotificationChannels(),
             )
         }
     }
-
-    private fun notificationChannelsFor(member: Member): Set<NotificationChannel> =
-        buildSet {
-            if (member.userPreferences.emailNotificationsEnabled) add(NotificationChannel.EMAIL)
-            if (member.userPreferences.pushNotificationsEnabled) add(NotificationChannel.PUSH)
-        }
 
     override suspend fun applyDelete(
         auth: AuthenticatedInfo,
@@ -441,6 +457,93 @@ class OrganizationService(
     }
 
     /**
+     * Rejects closing (COMPLETED) a delivery before its scheduled day: a distribution cannot be
+     * archived before it took place. Only deliveries newly marked COMPLETED are checked, so an
+     * already-completed delivery stays editable. "Today" follows the organization's timezone.
+     */
+    private fun checkNoFutureDeliveryCompleted(
+        persistedOrg: Organization?,
+        incoming: Organization,
+        mutation: ClientMutation,
+    ): MutationOutcome? {
+        val persistedStatuses = persistedOrg?.deliveries.orEmpty().associate { it.deliveryId to it.status }
+        val today = Clock.System.todayIn(persistedOrg?.timezone ?: incoming.timezone)
+        val closedTooEarly =
+            incoming.deliveries.firstOrNull {
+                it.status == DeliveryStatus.COMPLETED &&
+                    persistedStatuses[it.deliveryId] != DeliveryStatus.COMPLETED &&
+                    it.scheduledDate.date > today
+            } ?: return null
+        return rejected(
+            mutation,
+            MutationErrorCode.INVALID_PAYLOAD,
+            "delivery ${closedTooEarly.deliveryId.id} cannot be completed before its scheduled day",
+        )
+    }
+
+    /**
+     * Day-of records — volunteer presence (present / absent) and basket collection — can only
+     * be taken from the delivery's scheduled day on, like the closing itself. Rejects a
+     * registration newly set to CONFIRMED / COMPLETED, or to CANCELLED while its slot stays
+     * open (cancelling a slot cascades CANCELLED legitimately), and a contract link newly
+     * DISTRIBUTED, on a delivery whose day has not come yet (organization timezone).
+     */
+    private fun checkNoFutureDayOfRecords(
+        persistedOrg: Organization?,
+        incoming: Organization,
+        mutation: ClientMutation,
+    ): MutationOutcome? {
+        val today = Clock.System.todayIn(persistedOrg?.timezone ?: incoming.timezone)
+        val persistedDeliveries = persistedOrg?.deliveries.orEmpty().associateBy { it.deliveryId }
+        val offending =
+            incoming.deliveries
+                .filter { it.scheduledDate.date > today }
+                .firstOrNull { delivery -> hasNewDayOfRecord(persistedDeliveries[delivery.deliveryId], delivery) }
+                ?: return null
+        return rejected(
+            mutation,
+            MutationErrorCode.INVALID_PAYLOAD,
+            "presences and collection of delivery ${offending.deliveryId.id} can only be recorded from its scheduled day",
+        )
+    }
+
+    private fun hasNewDayOfRecord(
+        persisted: Delivery?,
+        incoming: Delivery,
+    ): Boolean {
+        val persistedLinks = persisted?.contracts.orEmpty().associateBy { it.contractId }
+        return incoming.contracts.any { link ->
+            val persistedLink = persistedLinks[link.contractId]
+            val newlyCollected =
+                link.status == DeliveryContractStatus.DISTRIBUTED &&
+                    persistedLink?.status != DeliveryContractStatus.DISTRIBUTED
+            newlyCollected || link.slots.any { slot -> hasNewPresence(persistedLink, slot) }
+        }
+    }
+
+    private fun hasNewPresence(
+        persistedLink: DeliveryContract?,
+        slot: MemberSlot,
+    ): Boolean {
+        val persistedStatuses =
+            persistedLink
+                ?.slots
+                .orEmpty()
+                .filter { it.slotKind == slot.slotKind }
+                .flatMap { it.registrations }
+                .associate { it.memberId to it.status }
+        return slot.registrations.any { registration ->
+            val before = persistedStatuses[registration.memberId]
+            registration.status != before &&
+                when (registration.status) {
+                    RegistrationStatus.CONFIRMED, RegistrationStatus.COMPLETED -> true
+                    RegistrationStatus.CANCELLED -> slot.status != SlotStatus.CANCELLED
+                    RegistrationStatus.REGISTERED -> false
+                }
+        }
+    }
+
+    /**
      * Rejects an upsert if any newly-added delivery-contract links reference a [Contract] whose
      * [Contract.maxDeliveryDate] is in the past.
      *
@@ -579,6 +682,23 @@ class OrganizationService(
                 "which is not part of the delivery's contracts"
         }
         return null
+    }
+
+    /**
+     * Producers' read-only schedules (`producer-account:{id}` feeds) affected by this write.
+     * Skipped — without loading contracts — when the write leaves every schedule input
+     * untouched (e.g. volunteer registrations).
+     */
+    private suspend fun producerScheduleChanges(
+        organizationId: String,
+        persistedOrg: Organization?,
+        finalOrg: Organization,
+    ): List<Change> {
+        if (ProducerScheduleProjection.relevantPart(persistedOrg) == ProducerScheduleProjection.relevantPart(finalOrg)) {
+            return emptyList()
+        }
+        val contracts = contractSyncDAO.getByOrganizationId(organizationId.toId())
+        return ProducerScheduleProjection.changes(persistedOrg, contracts, finalOrg, contracts)
     }
 
     private companion object {

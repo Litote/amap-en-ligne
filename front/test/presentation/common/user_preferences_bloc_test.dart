@@ -33,9 +33,6 @@ const _kInstant = '2025-01-01T00:00:00.000Z';
 const _memberPrefs = MemberPreferences(
   deliveryRemindersEnabled: true,
   volunteerAlertsEnabled: true,
-  reminder24hEnabled: true,
-  reminder2hEnabled: true,
-  reminder30minEnabled: false,
   urgentNeedAlertsEnabled: true,
   incompleteSlotRemindersEnabled: false,
   planningChangesAlertsEnabled: true,
@@ -174,9 +171,9 @@ void main() {
       final state = await _awaitReady(bloc);
       expect(state, isA<UserPreferencesReady>());
       final ready = state as UserPreferencesReady;
-      // Freezed defaults: reminder24h=true, reminder30min=false, push=true
-      expect(ready.memberPreferences.reminder24hEnabled, isTrue);
-      expect(ready.memberPreferences.reminder30minEnabled, isFalse);
+      // Freezed defaults: urgentNeed=true, incompleteSlot=false, push=true
+      expect(ready.memberPreferences.urgentNeedAlertsEnabled, isTrue);
+      expect(ready.memberPreferences.incompleteSlotRemindersEnabled, isFalse);
       expect(ready.userPreferences.pushNotificationsEnabled, isTrue);
 
       await bloc.close();
@@ -186,30 +183,6 @@ void main() {
   // --------------------------------------------------------------------------
   // Toggles
   // --------------------------------------------------------------------------
-
-  test('reminderToggled updates preference and sets dirty=true', () async {
-    final member = _member();
-    when(
-      () => memberRepo.watchMyMember(any()),
-    ).thenAnswer((_) => Stream.value(member));
-
-    final bloc = buildBloc();
-    await _awaitReady(bloc);
-
-    bloc.add(
-      const UserPreferencesEvent.reminderToggled(
-        ReminderField.reminder30min,
-        value: true,
-      ),
-    );
-    await Future<void>.value();
-
-    final state = bloc.state as UserPreferencesReady;
-    expect(state.memberPreferences.reminder30minEnabled, isTrue);
-    expect(state.dirty, isTrue);
-
-    await bloc.close();
-  });
 
   test('alertToggled updates preference and sets dirty=true', () async {
     final member = _member();
@@ -270,8 +243,8 @@ void main() {
 
     // Toggle on then back off — net change is zero.
     bloc.add(
-      const UserPreferencesEvent.reminderToggled(
-        ReminderField.reminder30min,
+      const UserPreferencesEvent.alertToggled(
+        AlertField.incompleteSlot,
         value: true,
       ),
     );
@@ -279,8 +252,8 @@ void main() {
     expect((bloc.state as UserPreferencesReady).dirty, isTrue);
 
     bloc.add(
-      const UserPreferencesEvent.reminderToggled(
-        ReminderField.reminder30min,
+      const UserPreferencesEvent.alertToggled(
+        AlertField.incompleteSlot,
         value: false,
       ),
     );
@@ -552,8 +525,8 @@ void main() {
 
     // Dirty the state.
     bloc.add(
-      const UserPreferencesEvent.reminderToggled(
-        ReminderField.reminder30min,
+      const UserPreferencesEvent.alertToggled(
+        AlertField.incompleteSlot,
         value: true,
       ),
     );
@@ -570,7 +543,7 @@ void main() {
     // State must still have the user's edit and dirty=true.
     final state = bloc.state as UserPreferencesReady;
     expect(state.dirty, isTrue);
-    expect(state.memberPreferences.reminder30minEnabled, isTrue);
+    expect(state.memberPreferences.incompleteSlotRemindersEnabled, isTrue);
 
     await controller.close();
     await bloc.close();

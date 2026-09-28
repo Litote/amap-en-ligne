@@ -9,15 +9,33 @@ import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_event.dart';
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_state.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+
+/// Persists an edited composition of [delivery]: its [descriptions] (edited
+/// ones already stamped) and [itemTypes], the component catalog of [org]
+/// updated with the components used.
+typedef DeliveryCompositionSave =
+    Future<void> Function({
+      required Organization org,
+      required Delivery delivery,
+      required List<BasketDeliveryDescription> descriptions,
+      required List<ItemType> itemTypes,
+    });
 
 class DeliveryDescriptionBloc
     extends Bloc<DeliveryDescriptionEvent, DeliveryDescriptionState> {
+  /// [save] defaults to the coordinator path (an `Organization` upsert); the
+  /// producer passes its own (its `ProducerSchedule`).
   DeliveryDescriptionBloc({
     required OrganizationRepository organizationRepository,
     required ProductTypeRepository productTypeRepository,
+    DeliveryCompositionSave? save,
+    DateTime Function() now = DateTime.now,
   }) : _orgRepository = organizationRepository,
        _productTypeRepository = productTypeRepository,
+       _save = save,
+       _now = now,
        super(const DeliveryDescriptionState.initial()) {
     on<DeliveryDescriptionRequested>(_onRequested);
     on<ItemToggled>(_onItemToggled);
@@ -28,6 +46,8 @@ class DeliveryDescriptionBloc
 
   final OrganizationRepository _orgRepository;
   final ProductTypeRepository _productTypeRepository;
+  final DeliveryCompositionSave? _save;
+  final DateTime Function() _now;
   final _idGenerator = IdGenerator();
 
   Future<void> _onRequested(
@@ -166,6 +186,29 @@ class DeliveryDescriptionBloc
     return byId.values.toList();
   }
 
+  /// The edited compositions get the current time as
+  /// [BasketDeliveryDescription.itemsUpdatedAt]: the back then prefers them
+  /// over any stored copy, and keeps them against later stale writes.
+  List<BasketDeliveryDescription> _stamped(DeliveryDescriptionLoaded current) {
+    final original = {
+      for (final d in current.delivery.basketDescriptions)
+        (d.productTypeId, d.basketSizeName): d,
+    };
+    final now = _now().toUtc().toIso8601String();
+    return [
+      for (final d in current.localDescriptions)
+        if (_sameItems(original[(d.productTypeId, d.basketSizeName)], d))
+          d
+        else
+          d.copyWith(itemsUpdatedAt: now),
+    ];
+  }
+
+  bool _sameItems(
+    BasketDeliveryDescription? original,
+    BasketDeliveryDescription edited,
+  ) => original != null && listEquals(original.items, edited.items);
+
   void _onWeightChanged(
     WeightChanged event,
     Emitter<DeliveryDescriptionState> emit,
@@ -234,12 +277,24 @@ class DeliveryDescriptionBloc
     if (current is! DeliveryDescriptionLoaded) return;
     emit(const DeliveryDescriptionState.saving());
     try {
-      await _orgRepository.updateDeliveryDescription(
-        currentOrg: current.org,
-        deliveryId: current.delivery.deliveryId,
-        basketDescriptions: current.localDescriptions,
-        itemTypes: _mergedCatalog(current),
-      );
+      final descriptions = _stamped(current);
+      final itemTypes = _mergedCatalog(current);
+      final save = _save;
+      if (save != null) {
+        await save(
+          org: current.org,
+          delivery: current.delivery,
+          descriptions: descriptions,
+          itemTypes: itemTypes,
+        );
+      } else {
+        await _orgRepository.updateDeliveryDescription(
+          currentOrg: current.org,
+          deliveryId: current.delivery.deliveryId,
+          basketDescriptions: descriptions,
+          itemTypes: itemTypes,
+        );
+      }
       emit(const DeliveryDescriptionState.saved());
     } on Exception catch (e, stackTrace) {
       unawaited(Sentry.captureException(e, stackTrace: stackTrace));

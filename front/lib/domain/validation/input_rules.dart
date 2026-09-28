@@ -19,7 +19,16 @@ const int kMaxPhoneLength = 30;
 
 const int _kMinPhoneDigits = 6;
 
+/// Maximum length of a component icon (inline SVG markup). Icons are copied
+/// into the organization, stored in a single 400 KB DynamoDB item.
+const int kMaxSvgLength = 10000;
+
 const String kFieldRequiredMessage = 'Ce champ est requis.';
+
+/// Message of a count field that needs a whole number of at least 1
+/// (volunteers, deliveries…).
+const String kPositiveCountMessage =
+    'Saisissez un nombre entier supérieur ou égal à 1.';
 const String kInvalidEmailMessage = 'Adresse email invalide.';
 const String kInvalidUrlMessage = "L'URL n'est pas valide (ex. https://…).";
 
@@ -132,3 +141,30 @@ String? requiredLanguageCode(String? value) =>
     _languageCodeRegExp.hasMatch(value?.trim() ?? '')
     ? null
     : 'Code de langue à deux lettres attendu (ex. fr).';
+
+// Active SVG content: scripts, event handler attributes, javascript: URLs,
+// embedded HTML (same pattern as the back `InputRules.optionalSvg`).
+final RegExp _svgActiveContent = RegExp(
+  r'<script|\son[a-z]+\s*=|javascript:|<foreignobject',
+  caseSensitive: false,
+);
+
+/// Optional component icon: inline SVG markup (no raster, no URL) of at most
+/// [kMaxSvgLength] characters, without active content (scripts, event
+/// handlers) — same rule as the back `optionalSvg`.
+/// Returns a French error message, or `null` when valid or empty.
+String? optionalSvgImageError(String value) {
+  final svg = value.trimLeft();
+  if (svg.isEmpty) return null;
+  if (!svg.startsWith('<svg') && !svg.startsWith('<?xml')) {
+    return 'Seules les images au format SVG sont acceptées.';
+  }
+  if (svg.length > kMaxSvgLength) {
+    return 'Image trop lourde : $kMaxSvgLength caractères maximum '
+        '(${svg.length} actuellement).';
+  }
+  if (_svgActiveContent.hasMatch(svg)) {
+    return "L'image ne doit contenir ni script ni gestionnaire d'événement.";
+  }
+  return null;
+}

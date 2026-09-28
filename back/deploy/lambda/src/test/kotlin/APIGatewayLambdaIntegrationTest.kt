@@ -293,7 +293,7 @@ internal class APIGatewayLambdaIntegrationTest {
                                 object : MemberInvitationSyncDAO {
                                     override suspend fun put(
                                         invitation: MemberInvitation,
-                                        change: persistence.changes.Change,
+                                        changes: List<persistence.changes.Change>,
                                     ) = Unit
 
                                     override suspend fun findById(invitationId: String): MemberInvitation? = null
@@ -302,6 +302,8 @@ internal class APIGatewayLambdaIntegrationTest {
                                         emptyList()
 
                                     override suspend fun findPendingByEmail(email: String): MemberInvitation? = null
+
+                                    override suspend fun listPending(): List<MemberInvitation> = emptyList()
                                 },
                                 mockk<MemberSyncDAO>(relaxed = true),
                                 mockk<ActivationTokenDAO>(relaxed = true),

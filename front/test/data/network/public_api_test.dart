@@ -35,7 +35,6 @@ void main() {
             {
               'organization_id': 'org-1',
               'name': 'AMAP des Collines',
-              'contact_email': 'contact@collines.fr',
               'active_status': true,
             },
           ],
@@ -45,6 +44,26 @@ void main() {
       final orgs = await api.listOrganizations();
       expect(orgs, hasLength(1));
       expect(orgs.first.organizationId, 'org-1');
+    });
+
+    test('decodes entries without any contact email', () async {
+      when(() => dio.get<List<dynamic>>(any())).thenAnswer(
+        (_) async => Response(
+          requestOptions: RequestOptions(path: '/v1/public/organizations'),
+          statusCode: 200,
+          data: [
+            {
+              'organization_id': 'org-1',
+              'name': 'AMAP des Collines',
+              'active_status': true,
+            },
+          ],
+        ),
+      );
+
+      final orgs = await api.listOrganizations();
+      expect(orgs.single.name, 'AMAP des Collines');
+      expect(orgs.single.activeStatus, isTrue);
     });
 
     test('returns empty list when body is null', () async {

@@ -41,6 +41,10 @@ class _CoordinatorMemberContractsScreenState
     extends State<CoordinatorMemberContractsScreen> {
   static const _desktopBreakpoint = 800.0;
   String? _selectedMemberId;
+
+  /// Phone layout only: the detail is stacked below the (long) member list,
+  /// so selecting a member scrolls to it.
+  final _stackedDetailKey = GlobalKey();
   final Set<String> _selectedContractIds = <String>{};
   final Map<String, Set<String>> _subscriptionKeysByContract =
       <String, Set<String>>{};
@@ -52,6 +56,30 @@ class _CoordinatorMemberContractsScreenState
   /// Producer accounts of the organization, so contracts show their producer
   /// name (not a product name or a technical id).
   List<ProducerAccount> _producerAccounts = const [];
+
+  /// Data streams, created once per tenant: re-creating them on every
+  /// `setState` (selection, checkbox…) re-subscribes the StreamBuilders,
+  /// which flash their spinner and rebuild the whole subtree — losing the
+  /// scroll position on the phone layout.
+  String? _streamsTenantId;
+  late Stream<Organization?> _organizationStream;
+  late Stream<List<ProducerAccount>> _producerAccountsStream;
+  late Stream<List<Member>> _membersStream;
+  late Stream<List<Contract>> _contractsStream;
+
+  void _ensureStreams(BuildContext context) {
+    final tenantId = widget.tenantId;
+    if (_streamsTenantId == tenantId) return;
+    _streamsTenantId = tenantId;
+    _organizationStream = context.read<OrganizationRepository>().watch(
+      tenantId,
+    );
+    _producerAccountsStream = context
+        .read<ProducerAccountRepository>()
+        .watchAll();
+    _membersStream = context.read<MemberRepository>().watch(tenantId);
+    _contractsStream = context.read<ContractRepository>().watch(tenantId);
+  }
 
   @override
   void dispose() {
@@ -67,11 +95,12 @@ class _CoordinatorMemberContractsScreenState
         body: Center(child: CircularProgressIndicator()),
       );
     }
+    _ensureStreams(context);
     return ConnectedScaffold(
       title: 'Contrats par Amapien',
       actions: const [SyncButton()],
       body: StreamBuilder<Organization?>(
-        stream: context.read<OrganizationRepository>().watch(widget.tenantId),
+        stream: _organizationStream,
         builder: (context, organizationSnapshot) {
           if (organizationSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -81,7 +110,7 @@ class _CoordinatorMemberContractsScreenState
             return const Center(child: Text('Synchronisation en cours...'));
           }
           return StreamBuilder<List<ProducerAccount>>(
-            stream: context.read<ProducerAccountRepository>().watchAll(),
+            stream: _producerAccountsStream,
             builder: (context, producerSnapshot) {
               _producerAccounts =
                   producerSnapshot.data ?? const <ProducerAccount>[];
@@ -95,7 +124,7 @@ class _CoordinatorMemberContractsScreenState
 
   Widget _buildMemberStream(BuildContext context, Organization organization) =>
       StreamBuilder<List<Member>>(
-        stream: context.read<MemberRepository>().watch(widget.tenantId),
+        stream: _membersStream,
         builder: (context, memberSnapshot) {
           if (!memberSnapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -113,7 +142,7 @@ class _CoordinatorMemberContractsScreenState
     Organization organization,
     List<Member> rawMembers,
   ) => StreamBuilder<List<Contract>>(
-    stream: context.read<ContractRepository>().watch(widget.tenantId),
+    stream: _contractsStream,
     builder: (context, contractSnapshot) {
       if (!contractSnapshot.hasData) {
         return const Center(child: CircularProgressIndicator());
@@ -203,7 +232,10 @@ class _CoordinatorMemberContractsScreenState
         children: [
           _buildMemberListPanel(data, shrinkWrap: true),
           const SizedBox(height: 16),
-          _buildMemberDetail(context, data, shrinkWrap: true),
+          KeyedSubtree(
+            key: _stackedDetailKey,
+            child: _buildMemberDetail(context, data, shrinkWrap: true),
+          ),
         ],
       ),
     );
@@ -288,6 +320,15 @@ class _CoordinatorMemberContractsScreenState
     setState(() {
       _selectedMemberId = member.memberId;
       _selectedContractIds.clear();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Null on the wide layout (detail beside the list, always visible).
+      final detail = _stackedDetailKey.currentContext;
+      if (detail == null || !detail.mounted) return;
+      Scrollable.ensureVisible(
+        detail,
+        duration: const Duration(milliseconds: 300),
+      );
     });
   }
 
@@ -429,6 +470,7 @@ class _CoordinatorMemberContractsScreenState
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Retirer le contrat ?'),
+        semanticLabel: 'Retirer le contrat ?',
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -682,6 +724,9 @@ class _MemberList extends StatelessWidget {
   );
 }
 
+/// Below this card width, contract actions move under the title.
+const double _narrowCardWidth = 480;
+
 class _MemberContractDetail extends StatelessWidget {
   const _MemberContractDetail({
     required this.producerAccounts,
@@ -814,7 +859,9 @@ class _MemberContractDetail extends StatelessWidget {
     ),
     const SizedBox(height: 4),
     Text(
-      '🟢 $activeAssignments contrats actifs • 🔵 $upcomingAssignments à venir',
+      '🟢 $activeAssignments '
+      '${activeAssignments > 1 ? 'contrats actifs' : 'contrat actif'} • '
+      '🔵 $upcomingAssignments à venir',
     ),
     if (member.email != null && member.email!.trim().isNotEmpty)
       Padding(
@@ -839,27 +886,45 @@ class _MemberContractDetail extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ListTile(
-              title: Text(contract.name),
-              subtitle: Text(
-                '${contractProductLabel(contract, organization, producerAccounts)} • '
-                '${contractStatusLabel(contractStatusView(contract))} • ${contract.seasonYear}',
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextButton(
-                    onPressed: saving
-                        ? null
-                        : () => onStartEdit(contract, memberEntry),
-                    child: const Text('MODIFIER'),
-                  ),
-                  TextButton(
-                    onPressed: saving ? null : () => onRemove(contract),
-                    child: const Text('RETIRER'),
-                  ),
-                ],
-              ),
+            // On a narrow card the actions go below the title instead of
+            // squeezing it into a one-word-per-line column.
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final actions = Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: saving
+                          ? null
+                          : () => onStartEdit(contract, memberEntry),
+                      child: const Text('MODIFIER'),
+                    ),
+                    TextButton(
+                      onPressed: saving ? null : () => onRemove(contract),
+                      child: const Text('RETIRER'),
+                    ),
+                  ],
+                );
+                final narrow = constraints.maxWidth < _narrowCardWidth;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    ListTile(
+                      title: Text(contract.name),
+                      subtitle: Text(
+                        '${contractProductLabel(contract, organization, producerAccounts)} • '
+                        '${contractStatusLabel(contractStatusView(contract))} • ${contract.seasonYear}',
+                      ),
+                      trailing: narrow ? null : actions,
+                    ),
+                    if (narrow)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: actions,
+                      ),
+                  ],
+                );
+              },
             ),
             _SharedBasketRow(
               contract: contract,
@@ -875,6 +940,8 @@ class _MemberContractDetail extends StatelessWidget {
                 subscriptions: memberEntry.subscriptions,
                 organization: organization,
               ),
+            // Keeps the last line clear of the card's rounded bottom edge.
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -1176,6 +1243,9 @@ class _SharedBasketDialogState extends State<_SharedBasketDialog> {
 
     return AlertDialog(
       title: const Text('Panier partagé'),
+      semanticLabel: 'Panier partagé',
+      // Scrollable: an AMAP easily has dozens of candidate families.
+      scrollable: true,
       content: SizedBox(
         width: 360,
         child: Column(

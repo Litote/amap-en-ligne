@@ -48,6 +48,15 @@ tasks.test {
     systemProperty("junit.jupiter.execution.parallel.enabled", "false")
 }
 
+// The scenario runners read the repo-level `acceptance/scenarios/*.json` catalog at runtime: declare it
+// as an input so editing a scenario re-runs the tests instead of reporting a stale up-to-date result.
+tasks.withType<Test>().configureEach {
+    inputs
+        .dir(rootProject.layout.projectDirectory.dir("../acceptance/scenarios"))
+        .withPropertyName("acceptanceScenarios")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
 val generateServiceRoleToken by tasks.registering(JavaExec::class) {
     group = "dev"
     description = "Prints a service-role JWT signed with GOTRUE_JWT_SECRET for use in GOTRUE_SERVICE_ROLE_KEY."

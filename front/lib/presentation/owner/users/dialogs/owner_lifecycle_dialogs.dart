@@ -5,6 +5,9 @@ const _kDeletionHeader = 'La suppression :\n';
 const _kSessionsInvalidated = '(sessions invalidées) ;\n';
 const _kDeleteButtonLabel = 'SUPPRIMER DÉFINITIVEMENT';
 const _kReactivateButtonLabel = 'RÉACTIVER';
+const _kSuspendAccountTitle = 'Suspendre le compte';
+const _kReactivateAccountTitle = 'Réactiver le compte';
+const _kDeleteFromInstanceTitle = "Supprimer de l'instance";
 
 /// Confirm dialog for "Suspendre le compte" on an Owner row.
 class ConfirmSuspendOwnerDialog extends StatelessWidget {
@@ -14,7 +17,8 @@ class ConfirmSuspendOwnerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Suspendre le compte'),
+    title: const Text(_kSuspendAccountTitle),
+    semanticLabel: _kSuspendAccountTitle,
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -53,7 +57,8 @@ class ConfirmReactivateOwnerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Réactiver le compte'),
+    title: const Text(_kReactivateAccountTitle),
+    semanticLabel: _kReactivateAccountTitle,
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -91,6 +96,7 @@ class ConfirmSuspendProducerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Suspendre le producteur'),
+    semanticLabel: 'Suspendre le producteur',
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -136,6 +142,7 @@ class ConfirmReactivateProducerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Réactiver le producteur'),
+    semanticLabel: 'Réactiver le producteur',
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -176,7 +183,8 @@ class ConfirmDeleteOwnerDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AlertDialog(
-      title: const Text("Supprimer de l'instance"),
+      title: const Text(_kDeleteFromInstanceTitle),
+      semanticLabel: _kDeleteFromInstanceTitle,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -233,6 +241,7 @@ class ConfirmDeleteProducerDialog extends StatelessWidget {
     final theme = Theme.of(context);
     return AlertDialog(
       title: const Text('Supprimer le producteur'),
+      semanticLabel: 'Supprimer le producteur',
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -286,7 +295,8 @@ class ConfirmSuspendMemberDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Suspendre le compte'),
+    title: const Text(_kSuspendAccountTitle),
+    semanticLabel: _kSuspendAccountTitle,
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -331,7 +341,8 @@ class ConfirmReactivateMemberDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Réactiver le compte'),
+    title: const Text(_kReactivateAccountTitle),
+    semanticLabel: _kReactivateAccountTitle,
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -369,7 +380,8 @@ class ConfirmDeleteMemberDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AlertDialog(
-      title: const Text("Supprimer de l'instance"),
+      title: const Text(_kDeleteFromInstanceTitle),
+      semanticLabel: _kDeleteFromInstanceTitle,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

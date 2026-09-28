@@ -69,6 +69,25 @@ List<MemberSlot> defaultVolunteerSlots({
   return slots;
 }
 
+/// End of [delivery]'s volunteer distribution window, as an ISO-8601 local
+/// datetime: the end of its first non-cancelled STANDARD slot (full or not),
+/// else its [Delivery.standardEndTime] override on the delivery day, else null
+/// (callers then fall back to their own default).
+String? deliveryStandardEndTime(Delivery delivery) {
+  for (final contract in delivery.contracts) {
+    for (final slot in contract.slots) {
+      if (slot.slotKind == SlotKind.standard &&
+          slot.status != SlotStatus.cancelled) {
+        return slot.endTime;
+      }
+    }
+  }
+  final scheduled = DateTime.tryParse(delivery.scheduledDate);
+  if (scheduled == null) return null;
+  final end = _timeOnDay(scheduled, delivery.standardEndTime);
+  return end == null ? null : _iso(end);
+}
+
 DateTime? _timeOnDay(DateTime day, String? hhmm) {
   if (hhmm == null) return null;
   final parts = hhmm.split(':');

@@ -47,7 +47,7 @@ void main() {
         const Duration(seconds: 30),
       );
 
-      expect(find.text('Types de produits'), findsOneWidget);
+      expect(find.text('Mon tableau de bord'), findsOneWidget);
     },
   );
 }

@@ -4,11 +4,13 @@ import 'dart:convert';
 import 'package:amap_en_ligne/data/repositories/basket_exchange_repository.dart';
 import 'package:amap_en_ligne/data/repositories/contract_repository.dart';
 import 'package:amap_en_ligne/data/repositories/delivery_template_repository.dart';
+import 'package:amap_en_ligne/data/repositories/member_join_request_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
 import 'package:amap_en_ligne/domain/auth/auth_state.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
+import 'package:amap_en_ligne/domain/model/admin_member_join_request.dart';
 import 'package:amap_en_ligne/domain/model/basket_exchange.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/delivery_template.dart';
@@ -33,6 +35,9 @@ class _MockMemberRepository extends Mock implements MemberRepository {}
 
 class _MockOrganizationRepository extends Mock
     implements OrganizationRepository {}
+
+class _MockMemberJoinRequestRepository extends Mock
+    implements MemberJoinRequestRepository {}
 
 class _MockDeliveryTemplateRepository extends Mock
     implements DeliveryTemplateRepository {}
@@ -86,6 +91,11 @@ Future<void> _pump(
     () => contractRepo.watch(any()),
   ).thenAnswer((_) => Stream.value(const <Contract>[]));
 
+  final joinRequestRepo = _MockMemberJoinRequestRepository();
+  when(
+    () => joinRequestRepo.watch(any()),
+  ).thenAnswer((_) => Stream.value(const <AdminMemberJoinRequest>[]));
+
   await tester.pumpWidget(
     MultiRepositoryProvider(
       providers: [
@@ -98,6 +108,9 @@ Future<void> _pump(
           value: basketExchangeRepo,
         ),
         RepositoryProvider<ContractRepository>.value(value: contractRepo),
+        RepositoryProvider<MemberJoinRequestRepository>.value(
+          value: joinRequestRepo,
+        ),
         RepositoryProvider<AuthService>.value(value: authService),
       ],
       child: MultiBlocProvider(

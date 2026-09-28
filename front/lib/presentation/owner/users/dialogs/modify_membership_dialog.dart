@@ -104,6 +104,8 @@ class _ModifyMembershipDialogState extends State<ModifyMembershipDialog> {
     title: Text(
       'Modifier l\'utilisateur — ${widget.membership.organizationName}',
     ),
+    semanticLabel:
+        'Modifier l\'utilisateur — ${widget.membership.organizationName}',
     content: SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -182,7 +184,7 @@ class _ModifyMembershipDialogState extends State<ModifyMembershipDialog> {
                 if (!_canEditStatus)
                   const DropdownMenuItem(
                     value: UserDisplayStatus.pendingInvitation,
-                    child: Text('Invitation en attente'),
+                    child: Text('Invité'),
                   ),
               ],
               onChanged: _canEditStatus

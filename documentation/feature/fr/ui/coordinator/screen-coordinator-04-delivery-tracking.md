@@ -64,12 +64,13 @@ Cet écran n'a plus d'entrée de menu dédiée : il est désormais atteint depui
 - Les coordinateurs (*COORDINATOR*) sont regroupés par livraison-contrat (*DELIVERY_CONTRACT*), pour rendre la spécialisation par produit visible (légumes, pain, fruits, etc.).
 - Lorsqu'un coordinateur a un numéro de téléphone (*MEMBER.phone*), il est rendu comme lien `tel:<numéro>` — un tap sur mobile ouvre directement l'appli téléphone.
 - En l'absence de numéro, l'écran affiche `(téléphone non communiqué)` sans lien.
-- Si la livraison-contrat n'a aucun coordinateur, la ligne `Coordinateur à confirmer` est affichée à la place des noms.
+- Si la livraison-contrat n'a aucun coordinateur, la ligne `Coordinateur à confirmer` est affichée à la place des noms. Si la livraison-contrat a un coordinateur dont la fiche n'est pas encore synchronisée (juste après la connexion), la mention est « Coordinateur inscrit ».
 
 ### Actions en temps réel - Bénévoles
 - **[MARQUER ABSENT]** : Bascule un bénévole présent en absent
 - **[MARQUER PRÉSENT]** : Bascule un bénévole absent en présent
 - **[CONTACTER]** : Ouvre l'action de contact du membre à partir de son téléphone ou de son email
+- Les présences (**PRÉSENT** / **ABSENT**) et la collecte (**COLLECTÉ**) ne se saisissent qu'à partir du jour de la livraison (fuseau de l'AMAP) : avant, les boutons sont grisés et l'écran affiche « Les présences et la collecte pourront être saisies à partir du {jour date}. » (le serveur refuse aussi ces saisies).
 
 ### Actions en temps réel - Paniers
 - **[VOIR TOUT ▼]** : Expansion de la liste complète des récupérations
@@ -102,6 +103,9 @@ Cet écran n'a plus d'entrée de menu dédiée : il est désormais atteint depui
 - Le coordinateur voit, pour chaque bénévole, s'il est présent ou absent.
 - Le coordinateur voit, pour chaque contrat, si le panier est récupéré ou encore en attente. Chaque bloc « Récupération des paniers » indique le ou les produits (*PRODUCT_TYPE*) concernés par le contrat (référencés par ses tarifs, ou à défaut tous les produits de son producteur), sous le nom du contrat.
 - Les actions de contact s'appuient sur les coordonnées déjà disponibles pour le membre.
+- Le compteur « Contrats collectés » et les blocs « Récupération des paniers » ne portent que sur les livraisons-contrats ayant au moins un panier : un contrat sans panier ce jour-là (ex. encore en préparation) n'est pas listé et n'empêche pas d'atteindre 100 %.
+- L'écran a sa propre adresse (`/coordinator/tracking/{livraison}`, et `/coordinator/post-delivery/{livraison}` pour la finalisation) : un rechargement de la page le rouvre et le lien peut être partagé. Le retour mène à la liste des livraisons (depuis la finalisation : au suivi de la même livraison).
+- **[CLÔTURER LA DISTRIBUTION]** (bas de l'écran) ouvre la [finalisation](screen-coordinator-05-post-delivery-sync.md). Le bouton n'est actif qu'à partir du jour de la livraison ; avant, il est grisé et suivi du message « La distribution pourra être clôturée à partir du {jour date}. » (le serveur refuse de terminer une livraison future).
 
 ## Références
 

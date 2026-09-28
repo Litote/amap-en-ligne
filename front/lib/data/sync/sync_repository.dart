@@ -29,13 +29,18 @@ class SyncRepository {
     required AppDatabase db,
     required SyncApi api,
     Map<EntityType, EntitySyncHandler>? handlers,
+    String? Function()? currentUserId,
   }) : _db = db,
        _api = api,
+       _currentUserId = currentUserId,
        _handlers = handlers ?? buildEntitySyncHandlers();
 
   final AppDatabase _db;
   final SyncApi _api;
   final Map<EntityType, EntitySyncHandler> _handlers;
+
+  /// Auth `sub` of the signed-in user, or `null` when unknown.
+  final String? Function()? _currentUserId;
 
   // Deduplicates concurrent sync() calls: if a sync is already in progress,
   // subsequent callers join it instead of starting a second HTTP request.
@@ -62,6 +67,7 @@ class SyncRepository {
 
   Future<SyncOutcome> _doSync({required String tenantId}) async {
     try {
+      await _claimCacheForCurrentUser();
       final first = await _roundTrip();
       var rejected = first.rejected;
       var memberOrOwnerUpdated = first.memberOrOwnerUpdated;
@@ -119,6 +125,20 @@ class SyncRepository {
       await Sentry.captureException(e, stackTrace: s);
       return SyncOutcome.failure('$e');
     }
+  }
+
+  /// The local cache (pending mutations included) belongs to one user: a
+  /// different signed-in user first wipes it, so it never resends mutations
+  /// nor cursors of the previous session under its own token.
+  Future<void> _claimCacheForCurrentUser() async {
+    final userId = _currentUserId?.call();
+    if (userId == null) return;
+    await _db.transaction(() async {
+      final owner = await _db.readCacheOwner();
+      if (owner == userId) return;
+      if (owner != null) await _db.clearAll();
+      await _db.writeCacheOwner(userId);
+    });
   }
 
   /// Whether [e] means the server could not be reached at all, as opposed to
@@ -388,6 +408,8 @@ class SyncRepository {
     AttendanceEmailRequestPayload(:final attendanceEmailRequest) =>
       attendanceEmailRequest.attendanceEmailRequestId,
     ErrorReportPayload(:final errorReport) => errorReport.errorReportId,
+    ProducerSchedulePayload(:final producerSchedule) =>
+      producerSchedule.organizationId,
   };
 }
 

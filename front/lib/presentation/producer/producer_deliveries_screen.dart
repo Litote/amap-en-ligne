@@ -1,87 +1,120 @@
-import 'package:amap_en_ligne/data/repositories/contract_repository.dart';
-import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
-import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/data/repositories/producer_schedule_repository.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/producer_schedule.dart';
+import 'package:amap_en_ligne/domain/model/producer_schedule_view.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_status_chip.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
+import 'package:amap_en_ligne/presentation/producer/producer_composition_button.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// MVP screen listing deliveries relevant to the current producer.
+/// Upcoming deliveries of the producer's contracts, across every linked AMAP.
 ///
-/// A delivery is "relevant" when at least one of its linked delivery-contracts
-/// maps to a [Contract] whose [Contract.producerAccountId] equals
-/// [producerAccountId]. Deliveries are sorted newest-first.
-///
-/// Read-only: no mutations are performed, no dedicated BLoC is needed. The
-/// screen uses nested [StreamBuilder]s: the outer one resolves the
-/// [Organization] from [tenantId] (which equals the producer's sub), and the
-/// inner one resolves the [Contract] list from the org's real [Organization.organizationId].
+/// Read-only, fed by the [ProducerSchedule] projections of the producer's own
+/// `producer-account:{id}` feed (a producer never receives the AMAPs' own
+/// scopes, which carry members' personal data). Soonest first.
 class ProducerDeliveriesScreen extends StatelessWidget {
-  const ProducerDeliveriesScreen({
-    super.key,
-    required this.tenantId,
-    required this.producerAccountId,
-  });
+  const ProducerDeliveriesScreen({super.key, required this.producerAccountId});
 
-  final String tenantId;
   final String producerAccountId;
 
   @override
   Widget build(BuildContext context) => ConnectedScaffold(
     title: 'Mes livraisons',
     actions: const [SyncButton()],
-    body: StreamBuilder<Organization?>(
-      stream: context.read<OrganizationRepository>().watch(tenantId),
-      builder: (context, orgSnapshot) {
-        final org = orgSnapshot.data;
-        if (org == null) {
+    body: StreamBuilder<List<ProducerSchedule>>(
+      stream: context.read<ProducerScheduleRepository>().watch(
+        producerAccountId,
+      ),
+      builder: (context, snapshot) {
+        final schedules = snapshot.data;
+        if (schedules == null) {
           return const Center(child: CircularProgressIndicator());
         }
-        return StreamBuilder<List<Contract>>(
-          stream: context.read<ContractRepository>().watch(org.organizationId),
-          initialData: const <Contract>[],
-          builder: (context, contractsSnapshot) {
-            final contracts = contractsSnapshot.data ?? const <Contract>[];
-            final deliveries = org.deliveriesForProducer(
-              producerAccountId,
-              contracts: contracts,
-            );
-            if (deliveries.isEmpty) {
-              return const Center(
-                child: Text('Aucune livraison pour vos produits.'),
-              );
-            }
-            return ListView.builder(
-              itemCount: deliveries.length,
-              itemBuilder: (context, i) =>
-                  _DeliveryTile(delivery: deliveries[i]),
-            );
-          },
+        final upcoming = _upcomingDeliveries(schedules, DateTime.now());
+        if (upcoming.isEmpty) {
+          return const Center(
+            child: Text('Aucune livraison à venir pour vos produits.'),
+          );
+        }
+        return ListView.builder(
+          itemCount: upcoming.length,
+          itemBuilder: (context, i) => _DeliveryTile(
+            organizationId: upcoming[i].organizationId,
+            organizationName: upcoming[i].organizationName,
+            delivery: upcoming[i].delivery,
+          ),
         );
       },
     ),
   );
 }
 
-class _DeliveryTile extends StatelessWidget {
-  const _DeliveryTile({required this.delivery});
+/// Deliveries from today on (the whole day of today stays listed), soonest
+/// first, each with the name of its AMAP.
+List<
+  ({
+    String organizationId,
+    String organizationName,
+    ProducerScheduleDelivery delivery,
+  })
+>
+_upcomingDeliveries(List<ProducerSchedule> schedules, DateTime now) {
+  final today = DateTime(now.year, now.month, now.day);
+  return [
+    for (final schedule in schedules)
+      for (final delivery in schedule.deliveries)
+        if (!(DateTime.tryParse(delivery.scheduledDate) ?? today).isBefore(
+          today,
+        ))
+          (
+            organizationId: schedule.organizationId,
+            organizationName: schedule.organizationName,
+            delivery: delivery,
+          ),
+  ]..sort(
+    (a, b) => a.delivery.scheduledDate.compareTo(b.delivery.scheduledDate),
+  );
+}
 
-  final Delivery delivery;
+class _DeliveryTile extends StatelessWidget {
+  const _DeliveryTile({
+    required this.organizationId,
+    required this.organizationName,
+    required this.delivery,
+  });
+
+  final String organizationId;
+  final String organizationName;
+  final ProducerScheduleDelivery delivery;
 
   @override
   Widget build(BuildContext context) => ListTile(
     leading: const Icon(Icons.local_shipping),
     title: Text(formatDeliveryDateLine(delivery.scheduledDate)),
-    subtitle: Text(_basketSummary(delivery)),
+    subtitle: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(organizationName),
+        for (final contract in delivery.contracts)
+          Text(
+            '${contract.contractName} — ${contract.basketQuantity} '
+            'panier${contract.basketQuantity > 1 ? 's' : ''}'
+            '${scheduleContractStatusSuffix(contract)}',
+          ),
+        // A completed or cancelled delivery's composition is frozen.
+        if (delivery.status.isActive)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ProducerCompositionButton(
+              organizationId: organizationId,
+              deliveryId: delivery.deliveryId,
+            ),
+          ),
+      ],
+    ),
     trailing: DeliveryStatusChip(status: delivery.status),
   );
-
-  String _basketSummary(Delivery delivery) {
-    final count = delivery.contracts.length;
-    if (count == 0) return '';
-    return count == 1 ? '1 contrat lié' : '$count contrats liés';
-  }
 }

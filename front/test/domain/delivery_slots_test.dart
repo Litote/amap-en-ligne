@@ -199,4 +199,81 @@ void main() {
       expect(slots.single.slotKind, SlotKind.standard);
     });
   });
+
+  group('deliveryStandardEndTime', () {
+    MemberSlot slot({
+      required SlotKind kind,
+      required String end,
+      SlotStatus status = SlotStatus.full,
+    }) => MemberSlot(
+      startTime: '2026-10-14T19:00:00',
+      endTime: end,
+      activityType: ActivityType.distribution,
+      requiredVolunteers: 4,
+      currentRegistrations: 4,
+      status: status,
+      slotKind: kind,
+    );
+
+    Delivery delivery({
+      List<MemberSlot> slots = const [],
+      String? standardEndTime,
+    }) => Delivery(
+      deliveryId: 'd-1',
+      organizationId: 'org-1',
+      scheduledDate: '2026-10-14T19:00:00',
+      status: DeliveryStatus.planned,
+      minVolunteersRequired: 4,
+      standardEndTime: standardEndTime,
+      contracts: [
+        DeliveryContract(
+          contractId: 'c-1',
+          basketQuantity: 10,
+          deliveryDescription: 'Légumes',
+          status: DeliveryContractStatus.pending,
+          slots: slots,
+        ),
+      ],
+    );
+
+    test('reads the end of the standard slot, even when it is full', () {
+      expect(
+        deliveryStandardEndTime(
+          delivery(
+            slots: [
+              slot(kind: SlotKind.early, end: '2026-10-14T21:00:00'),
+              slot(kind: SlotKind.standard, end: '2026-10-14T20:30:00'),
+            ],
+          ),
+        ),
+        '2026-10-14T20:30:00',
+      );
+    });
+
+    test('ignores cancelled slots', () {
+      expect(
+        deliveryStandardEndTime(
+          delivery(
+            slots: [
+              slot(
+                kind: SlotKind.standard,
+                end: '2026-10-14T22:00:00',
+                status: SlotStatus.cancelled,
+              ),
+            ],
+            standardEndTime: '20:15',
+          ),
+        ),
+        '2026-10-14T20:15:00',
+      );
+    });
+
+    test('falls back to the delivery override, then to null', () {
+      expect(
+        deliveryStandardEndTime(delivery(standardEndTime: '20:30')),
+        '2026-10-14T20:30:00',
+      );
+      expect(deliveryStandardEndTime(delivery()), isNull);
+    });
+  });
 }

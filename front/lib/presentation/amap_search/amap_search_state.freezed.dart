@@ -132,7 +132,7 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loadingOrgs,TResult Function( List<Organization> orgs,  Organization? selectedOrg,  String searchQuery)?  orgsLoaded,TResult Function( Organization org)?  submitting,TResult Function( String requestId,  String organizationName)?  success,TResult Function( String message,  Organization? selectedOrg)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loadingOrgs,TResult Function( List<PublicOrganization> orgs,  PublicOrganization? selectedOrg,  String searchQuery)?  orgsLoaded,TResult Function( PublicOrganization org)?  submitting,TResult Function( String requestId,  String organizationName)?  success,TResult Function( String message,  PublicOrganization? selectedOrg)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AmapSearchInitial() when initial != null:
 return initial();case AmapSearchLoadingOrgs() when loadingOrgs != null:
@@ -158,7 +158,7 @@ return error(_that.message,_that.selectedOrg);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loadingOrgs,required TResult Function( List<Organization> orgs,  Organization? selectedOrg,  String searchQuery)  orgsLoaded,required TResult Function( Organization org)  submitting,required TResult Function( String requestId,  String organizationName)  success,required TResult Function( String message,  Organization? selectedOrg)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loadingOrgs,required TResult Function( List<PublicOrganization> orgs,  PublicOrganization? selectedOrg,  String searchQuery)  orgsLoaded,required TResult Function( PublicOrganization org)  submitting,required TResult Function( String requestId,  String organizationName)  success,required TResult Function( String message,  PublicOrganization? selectedOrg)  error,}) {final _that = this;
 switch (_that) {
 case AmapSearchInitial():
 return initial();case AmapSearchLoadingOrgs():
@@ -180,7 +180,7 @@ return error(_that.message,_that.selectedOrg);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loadingOrgs,TResult? Function( List<Organization> orgs,  Organization? selectedOrg,  String searchQuery)?  orgsLoaded,TResult? Function( Organization org)?  submitting,TResult? Function( String requestId,  String organizationName)?  success,TResult? Function( String message,  Organization? selectedOrg)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loadingOrgs,TResult? Function( List<PublicOrganization> orgs,  PublicOrganization? selectedOrg,  String searchQuery)?  orgsLoaded,TResult? Function( PublicOrganization org)?  submitting,TResult? Function( String requestId,  String organizationName)?  success,TResult? Function( String message,  PublicOrganization? selectedOrg)?  error,}) {final _that = this;
 switch (_that) {
 case AmapSearchInitial() when initial != null:
 return initial();case AmapSearchLoadingOrgs() when loadingOrgs != null:
@@ -264,17 +264,17 @@ String toString() {
 
 
 class AmapSearchOrgsLoaded implements AmapSearchState {
-  const AmapSearchOrgsLoaded({required  List<Organization> orgs, this.selectedOrg, this.searchQuery = ''}): _orgs = orgs;
+  const AmapSearchOrgsLoaded({required  List<PublicOrganization> orgs, this.selectedOrg, this.searchQuery = ''}): _orgs = orgs;
   
 
- final  List<Organization> _orgs;
- List<Organization> get orgs {
+ final  List<PublicOrganization> _orgs;
+ List<PublicOrganization> get orgs {
   if (_orgs is EqualUnmodifiableListView) return _orgs;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_orgs);
 }
 
- final  Organization? selectedOrg;
+ final  PublicOrganization? selectedOrg;
 @JsonKey() final  String searchQuery;
 
 /// Create a copy of AmapSearchState
@@ -309,11 +309,11 @@ abstract mixin class $AmapSearchOrgsLoadedCopyWith<$Res> implements $AmapSearchS
   factory $AmapSearchOrgsLoadedCopyWith(AmapSearchOrgsLoaded value, $Res Function(AmapSearchOrgsLoaded) _then) = _$AmapSearchOrgsLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<Organization> orgs, Organization? selectedOrg, String searchQuery
+ List<PublicOrganization> orgs, PublicOrganization? selectedOrg, String searchQuery
 });
 
 
-$OrganizationCopyWith<$Res>? get selectedOrg;
+$PublicOrganizationCopyWith<$Res>? get selectedOrg;
 
 }
 /// @nodoc
@@ -329,8 +329,8 @@ class _$AmapSearchOrgsLoadedCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? orgs = null,Object? selectedOrg = freezed,Object? searchQuery = null,}) {
   return _then(AmapSearchOrgsLoaded(
 orgs: null == orgs ? _self._orgs : orgs // ignore: cast_nullable_to_non_nullable
-as List<Organization>,selectedOrg: freezed == selectedOrg ? _self.selectedOrg : selectedOrg // ignore: cast_nullable_to_non_nullable
-as Organization?,searchQuery: null == searchQuery ? _self.searchQuery : searchQuery // ignore: cast_nullable_to_non_nullable
+as List<PublicOrganization>,selectedOrg: freezed == selectedOrg ? _self.selectedOrg : selectedOrg // ignore: cast_nullable_to_non_nullable
+as PublicOrganization?,searchQuery: null == searchQuery ? _self.searchQuery : searchQuery // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -339,12 +339,12 @@ as String,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$OrganizationCopyWith<$Res>? get selectedOrg {
+$PublicOrganizationCopyWith<$Res>? get selectedOrg {
     if (_self.selectedOrg == null) {
     return null;
   }
 
-  return $OrganizationCopyWith<$Res>(_self.selectedOrg!, (value) {
+  return $PublicOrganizationCopyWith<$Res>(_self.selectedOrg!, (value) {
     return _then(_self.copyWith(selectedOrg: value));
   });
 }
@@ -357,7 +357,7 @@ class AmapSearchSubmitting implements AmapSearchState {
   const AmapSearchSubmitting({required this.org});
   
 
- final  Organization org;
+ final  PublicOrganization org;
 
 /// Create a copy of AmapSearchState
 /// with the given fields replaced by the non-null parameter values.
@@ -391,11 +391,11 @@ abstract mixin class $AmapSearchSubmittingCopyWith<$Res> implements $AmapSearchS
   factory $AmapSearchSubmittingCopyWith(AmapSearchSubmitting value, $Res Function(AmapSearchSubmitting) _then) = _$AmapSearchSubmittingCopyWithImpl;
 @useResult
 $Res call({
- Organization org
+ PublicOrganization org
 });
 
 
-$OrganizationCopyWith<$Res> get org;
+$PublicOrganizationCopyWith<$Res> get org;
 
 }
 /// @nodoc
@@ -411,7 +411,7 @@ class _$AmapSearchSubmittingCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? org = null,}) {
   return _then(AmapSearchSubmitting(
 org: null == org ? _self.org : org // ignore: cast_nullable_to_non_nullable
-as Organization,
+as PublicOrganization,
   ));
 }
 
@@ -419,9 +419,9 @@ as Organization,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$OrganizationCopyWith<$Res> get org {
+$PublicOrganizationCopyWith<$Res> get org {
   
-  return $OrganizationCopyWith<$Res>(_self.org, (value) {
+  return $PublicOrganizationCopyWith<$Res>(_self.org, (value) {
     return _then(_self.copyWith(org: value));
   });
 }
@@ -505,7 +505,7 @@ class AmapSearchError implements AmapSearchState {
   
 
  final  String message;
- final  Organization? selectedOrg;
+ final  PublicOrganization? selectedOrg;
 
 /// Create a copy of AmapSearchState
 /// with the given fields replaced by the non-null parameter values.
@@ -539,11 +539,11 @@ abstract mixin class $AmapSearchErrorCopyWith<$Res> implements $AmapSearchStateC
   factory $AmapSearchErrorCopyWith(AmapSearchError value, $Res Function(AmapSearchError) _then) = _$AmapSearchErrorCopyWithImpl;
 @useResult
 $Res call({
- String message, Organization? selectedOrg
+ String message, PublicOrganization? selectedOrg
 });
 
 
-$OrganizationCopyWith<$Res>? get selectedOrg;
+$PublicOrganizationCopyWith<$Res>? get selectedOrg;
 
 }
 /// @nodoc
@@ -560,7 +560,7 @@ class _$AmapSearchErrorCopyWithImpl<$Res>
   return _then(AmapSearchError(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,selectedOrg: freezed == selectedOrg ? _self.selectedOrg : selectedOrg // ignore: cast_nullable_to_non_nullable
-as Organization?,
+as PublicOrganization?,
   ));
 }
 
@@ -568,12 +568,12 @@ as Organization?,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$OrganizationCopyWith<$Res>? get selectedOrg {
+$PublicOrganizationCopyWith<$Res>? get selectedOrg {
     if (_self.selectedOrg == null) {
     return null;
   }
 
-  return $OrganizationCopyWith<$Res>(_self.selectedOrg!, (value) {
+  return $PublicOrganizationCopyWith<$Res>(_self.selectedOrg!, (value) {
     return _then(_self.copyWith(selectedOrg: value));
   });
 }

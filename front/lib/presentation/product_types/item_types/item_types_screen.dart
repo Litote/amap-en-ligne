@@ -2,12 +2,58 @@ import 'package:amap_en_ligne/data/id_generator.dart';
 import 'package:amap_en_ligne/data/repositories/product_type_repository.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
+import 'package:amap_en_ligne/presentation/nav/back_navigation.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_bloc.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_event.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+/// Route entry of the component catalog: uses the product type handed over by
+/// the product type form, or — opened by its URL (reload, shared link) —
+/// reads it from the local cache.
+class ItemTypesRouteScreen extends StatelessWidget {
+  const ItemTypesRouteScreen({
+    super.key,
+    required this.tenantId,
+    required this.productTypeId,
+    this.productType,
+  });
+
+  final String tenantId;
+  final String productTypeId;
+  final ProductType? productType;
+
+  @override
+  Widget build(BuildContext context) {
+    final handedOver = productType;
+    if (handedOver != null) return ItemTypesScreen(productType: handedOver);
+    return StreamBuilder<List<ProductType>>(
+      stream: context.read<ProductTypeRepository>().watch(tenantId),
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        final cached = data
+            ?.where((p) => p.productTypeId == productTypeId)
+            .firstOrNull;
+        if (cached != null) return ItemTypesScreen(productType: cached);
+        return Scaffold(
+          appBar: AppBar(
+            leading: BackButton(
+              onPressed: () => popOrGo(context, '/product-types'),
+            ),
+            title: const Text('Catalogue de composants'),
+          ),
+          body: Center(
+            child: data == null
+                ? const CircularProgressIndicator()
+                : const Text('Type de produit introuvable.'),
+          ),
+        );
+      },
+    );
+  }
+}
 
 class ItemTypesScreen extends StatelessWidget {
   const ItemTypesScreen({super.key, required this.productType});
@@ -32,6 +78,10 @@ class _ItemTypesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
+      leading: BackButton(
+        onPressed: () =>
+            popOrGo(context, '/product-types/${productType.productTypeId}'),
+      ),
       title: Text('Catalogue de composants — ${productType.name}'),
     ),
     body: BlocBuilder<ItemTypesBloc, ItemTypesState>(
@@ -131,16 +181,12 @@ class _AddItemSheetState extends State<_AddItemSheet> {
     super.dispose();
   }
 
-  /// Accepts only inline SVG markup (no raster, no URL).
-  bool _looksLikeSvg(String value) {
-    final trimmed = value.trimLeft();
-    return trimmed.startsWith('<svg') || trimmed.startsWith('<?xml');
-  }
-
   @override
   Widget build(BuildContext context) {
     final svg = _svgController.text.trim();
-    final hasValidSvg = svg.isNotEmpty && _looksLikeSvg(svg);
+    // Same rule as the back (ProductType item_types.image_svg).
+    final svgError = optionalSvgImageError(svg);
+    final hasValidSvg = svg.isNotEmpty && svgError == null;
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
@@ -173,18 +219,17 @@ class _AddItemSheetState extends State<_AddItemSheet> {
             controller: _svgController,
             minLines: 3,
             maxLines: 6,
-            maxLength: 50000,
             decoration: const InputDecoration(
               labelText: 'Image SVG (optionnel)',
               hintText: 'Collez le code SVG (<svg …>)',
               alignLabelWithHint: true,
             ),
           ),
-          if (svg.isNotEmpty && !hasValidSvg)
+          if (svgError != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                'Seules les images au format SVG sont acceptées.',
+                svgError,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.error,
                 ),
@@ -223,8 +268,9 @@ class _AddItemSheetState extends State<_AddItemSheet> {
       setState(() => _submitAttempted = true);
       return;
     }
-    // Reject anything that is not inline SVG markup.
-    final imageSvg = (svg.isNotEmpty && _looksLikeSvg(svg)) ? svg : null;
+    // The error is already shown under the field: the back would refuse it.
+    if (optionalSvgImageError(svg) != null) return;
+    final imageSvg = svg.isNotEmpty ? svg : null;
     widget.bloc.add(ItemTypesEvent.added(name: name, imageSvg: imageSvg));
     Navigator.of(context).pop();
   }
@@ -242,7 +288,13 @@ class ItemTypeSvgIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final value = svg;
     if (value == null || value.trim().isEmpty) {
-      return Icon(Icons.image_not_supported, size: size);
+      // No icon (e.g. a free-entry component): a neutral produce glyph rather
+      // than a "broken image" one.
+      return Icon(
+        Icons.eco_outlined,
+        size: size,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      );
     }
     return SvgPicture.string(
       value,

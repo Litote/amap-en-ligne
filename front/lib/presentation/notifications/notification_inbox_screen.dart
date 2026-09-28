@@ -1,5 +1,8 @@
+import 'package:amap_en_ligne/data/repositories/member_join_request_repository.dart';
 import 'package:amap_en_ligne/data/repositories/notification_repository.dart';
+import 'package:amap_en_ligne/domain/model/admin_member_join_request.dart';
 import 'package:amap_en_ligne/domain/model/notification.dart';
+import 'package:amap_en_ligne/presentation/common/instant_format.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
@@ -10,7 +13,7 @@ import 'package:go_router/go_router.dart';
 
 /// Member notification inbox (ADR-005). Reads the offline-first feed from
 /// [NotificationRepository.watch] and lets the member mark notifications read
-/// (tap) or archive them (swipe). Both are optimistic writes flushed on sync.
+/// (tap) or archive them (swipe or the Archiver button). Both are optimistic writes flushed on sync.
 class NotificationInboxScreen extends StatefulWidget {
   const NotificationInboxScreen({super.key, required this.memberId});
 
@@ -24,6 +27,14 @@ class NotificationInboxScreen extends StatefulWidget {
 class _NotificationInboxScreenState extends State<NotificationInboxScreen> {
   late final NotificationRepository _repo = context
       .read<NotificationRepository>();
+  // Join request states, keyed by request id: a join request notification
+  // keeps its "en attente" text once handled, the state line tells them apart.
+  late final Stream<Map<String, MemberJoinRequestStatus>> _joinRequestStates =
+      context.read<MemberJoinRequestRepository>().watchAll().map(
+        (requests) => {
+          for (final request in requests) request.requestId: request.status,
+        },
+      );
 
   Future<void> _markRead(AppNotification n) async {
     if (n.readAt != null) return;
@@ -43,6 +54,8 @@ class _NotificationInboxScreenState extends State<NotificationInboxScreen> {
     final link = n.deepLink;
     if (link != null && link.isNotEmpty) {
       context.go(link);
+    } else if (n.category == NotificationCategory.memberJoinRequestSubmitted) {
+      context.go('/admin/membership-requests');
     }
   }
 
@@ -69,19 +82,42 @@ class _NotificationInboxScreenState extends State<NotificationInboxScreen> {
         }
         final sorted = [...notifications]
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        return ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: sorted.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 8),
-          itemBuilder: (context, index) => _NotificationCard(
-            notification: sorted[index],
-            onTap: () => _onTap(sorted[index]),
-            onArchive: () => _archive(sorted[index]),
+        return StreamBuilder<Map<String, MemberJoinRequestStatus>>(
+          stream: _joinRequestStates,
+          builder: (context, states) => ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: sorted.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
+            itemBuilder: (context, index) => _NotificationCard(
+              notification: sorted[index],
+              stateLabel: _stateLabel(sorted[index], states.data),
+              onTap: () => _onTap(sorted[index]),
+              onArchive: () => _archive(sorted[index]),
+            ),
           ),
         );
       },
     ),
   );
+}
+
+/// Current state of the entity a notification is about, when the app knows
+/// it: only join requests for now ("Demande approuvée" / "rejetée" / "en
+/// attente").
+String? _stateLabel(
+  AppNotification n,
+  Map<String, MemberJoinRequestStatus>? joinRequestStates,
+) {
+  if (n.category != NotificationCategory.memberJoinRequestSubmitted) {
+    return null;
+  }
+  final status = joinRequestStates?[n.relatedEntityId];
+  return switch (status) {
+    null => null,
+    MemberJoinRequestStatus.pending => 'Demande en attente',
+    MemberJoinRequestStatus.approved => 'Demande approuvée',
+    MemberJoinRequestStatus.rejected => 'Demande rejetée',
+  };
 }
 
 class _EmptyState extends StatelessWidget {
@@ -123,11 +159,13 @@ class _EmptyState extends StatelessWidget {
 class _NotificationCard extends StatelessWidget {
   const _NotificationCard({
     required this.notification,
+    required this.stateLabel,
     required this.onTap,
     required this.onArchive,
   });
 
   final AppNotification notification;
+  final String? stateLabel;
   final VoidCallback onTap;
   final VoidCallback onArchive;
 
@@ -164,10 +202,47 @@ class _NotificationCard extends StatelessWidget {
               fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
             ),
           ),
-          subtitle: Text(notification.body),
-          trailing: isUnread
-              ? Icon(Icons.circle, size: 10, color: theme.colorScheme.primary)
-              : null,
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(notification.body),
+              if (stateLabel != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  stateLabel!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 4),
+              Text(
+                'Reçue le ${formatInstantFr(notification.createdAt)}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isUnread)
+                Icon(
+                  Icons.circle,
+                  size: 10,
+                  color: theme.colorScheme.primary,
+                  semanticLabel: 'Non lue',
+                ),
+              // Swiping is awkward with a mouse and unreachable with a
+              // screen reader: archiving also has an explicit button.
+              IconButton(
+                tooltip: 'Archiver',
+                icon: const Icon(Icons.archive_outlined),
+                onPressed: onArchive,
+              ),
+            ],
+          ),
         ),
       ),
     );

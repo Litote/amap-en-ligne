@@ -97,7 +97,8 @@ internal object ContainerSuite {
             withEnv("GOTRUE_JWT_ISSUER", JWT_ISSUER)
             withEnv("GOTRUE_JWT_AUD", JWT_AUDIENCE)
             withEnv("GOTRUE_JWT_EXP", "3600")
-            withEnv("GOTRUE_DISABLE_SIGNUP", "false")
+            // Same as docker-compose: no public sign-up, users come from the admin API.
+            withEnv("GOTRUE_DISABLE_SIGNUP", "true")
             withEnv("GOTRUE_MAILER_AUTOCONFIRM", "true")
             withEnv("GOTRUE_EXTERNAL_EMAIL_ENABLED", "true")
             withEnv("GOTRUE_EXTERNAL_PHONE_ENABLED", "false")
@@ -174,11 +175,16 @@ internal object ContainerSuite {
         organizationId: String? = null,
         roles: List<String> = emptyList(),
     ): String {
-        // 1. Create user via signup (idempotent — GoTrue returns 422 if exists)
-        postJson("$gotrueUrl/signup", """{"email":"$email","password":"$password"}""")
+        // 1. Create user via the admin API, as the back does (public sign-up is
+        // disabled; idempotent — GoTrue returns 422 if the user exists)
+        val adminToken = mintAdminJwt()
+        postJson(
+            "$gotrueUrl/admin/users",
+            """{"email":"$email","password":"$password","email_confirm":true}""",
+            adminToken,
+        )
 
         // 2. Resolve user id via admin list
-        val adminToken = mintAdminJwt()
         val usersBody = getJson("$gotrueUrl/admin/users", adminToken)
         val userId =
             responseJson

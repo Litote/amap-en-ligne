@@ -124,6 +124,21 @@ void main() {
     );
   });
 
+  testWidgets('the show-password button has an accessible label', (
+    tester,
+  ) async {
+    await _pumpLogin(
+      tester,
+      service,
+      rememberedUserContextStore: rememberedUserContextStore,
+    );
+
+    await tester.tap(find.byTooltip('Afficher le mot de passe'));
+    await tester.pump();
+
+    expect(find.byTooltip('Masquer le mot de passe'), findsOneWidget);
+  });
+
   testWidgets('valid form calls AuthService.signIn', (tester) async {
     when(
       () => service.signIn(

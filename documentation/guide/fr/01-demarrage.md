@@ -140,8 +140,8 @@ Depuis le menu, **[PRÉFÉRENCES]** vous permet de :
 
 - consulter vos **informations personnelles** et modifier votre nom et votre téléphone
   (l'e-mail, votre identifiant de connexion, n'est pas modifiable) ;
-- choisir vos **rappels** avant un créneau de bénévolat (24 h, 2 h, 30 min avant) ;
-- activer ou non les **alertes** (besoin urgent de bénévoles, modifications de planning) ;
+- activer ou non les **alertes** (manque de bénévoles sur une livraison, besoin urgent de
+  bénévoles la veille, modifications de planning) ;
 - choisir vos **canaux de notification** : notifications sur le téléphone et/ou e-mail.
 
 L'e-mail reste toujours disponible : au moins un canal doit rester actif. Le SMS n'est

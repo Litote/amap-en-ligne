@@ -93,10 +93,13 @@ tasks.register("allSonar") {
     val gradlew = File(rootDir, if (System.getProperty("os.name").startsWith("Windows")) "gradlew.bat" else "gradlew").absolutePath
     val workDir = rootDir
     doLast {
+        // inheritIO() would write to the daemon's stdout, never shown on the client
+        // console: relay the nested build's output through the task logger instead.
         val process = ProcessBuilder(gradlew, "sonarScanAndGate", "--no-configuration-cache")
             .directory(workDir)
-            .inheritIO()
+            .redirectErrorStream(true)
             .start()
+        process.inputStream.bufferedReader().useLines { lines -> lines.forEach { logger.lifecycle(it) } }
         check(process.waitFor() == 0) { "SonarCloud scan or quality gate failed (see output above)" }
     }
 }

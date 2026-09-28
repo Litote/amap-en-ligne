@@ -28,6 +28,7 @@ import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_request_repository.dart';
+import 'package:amap_en_ligne/data/repositories/producer_schedule_repository.dart';
 import 'package:amap_en_ligne/data/repositories/product_type_repository.dart';
 import 'package:amap_en_ligne/data/server/server_catalog.dart';
 import 'package:amap_en_ligne/data/server/server_config_storage.dart';
@@ -36,6 +37,7 @@ import 'package:amap_en_ligne/data/server/web_discovery.dart';
 import 'package:amap_en_ligne/data/sync/sync_repository.dart';
 import 'package:amap_en_ligne/data/web_initial_fragment.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
+import 'package:amap_en_ligne/domain/auth/auth_state.dart';
 import 'package:amap_en_ligne/domain/auth/remembered_user_context.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/firebase_options.dart';
@@ -43,6 +45,7 @@ import 'package:amap_en_ligne/presentation/auth/auth_bloc.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_view_state.dart';
 import 'package:amap_en_ligne/presentation/common/app_time_picker.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
+import 'package:amap_en_ligne/presentation/common/inactive_subtree_focus_guard.dart';
 import 'package:amap_en_ligne/presentation/router.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_offline_listener.dart';
@@ -439,6 +442,10 @@ class _AuthenticatedAppShellState extends State<_AuthenticatedAppShell> {
             auth: _authService,
           ),
         ),
+        currentUserId: () => switch (_authService.currentState) {
+          Authenticated(:final producerId) => producerId,
+          _ => null,
+        },
       );
   late final PublicApi _publicApi = PublicApi(
     buildPublicDio(backendUrl: widget.config.backendUrl),
@@ -493,6 +500,12 @@ class _AuthenticatedAppShellState extends State<_AuthenticatedAppShell> {
       ),
       RepositoryProvider<ProductTypeRepository>.value(
         value: widget.productTypeRepo,
+      ),
+      RepositoryProvider<ProducerScheduleRepository>(
+        create: (_) => ProducerScheduleRepository(
+          db: widget.db,
+          idGenerator: IdGenerator(),
+        ),
       ),
       RepositoryProvider<OrganizationRepository>.value(
         value: widget.organizationRepo,
@@ -579,10 +592,14 @@ class _AuthenticatedAppShellState extends State<_AuthenticatedAppShell> {
               mutationStream: widget.db.onMutationEnqueued,
               authService: _authService,
             ),
-            child: _PushRegistrationBinder(
-              child: SyncOfflineListener(
-                messengerKey: _scaffoldMessengerKey,
-                child: app,
+            // The key swaps the whole app on a tenant change; keep the
+            // replaced one out of focus traversal until it is unmounted.
+            child: InactiveSubtreeFocusGuard(
+              child: _PushRegistrationBinder(
+                child: SyncOfflineListener(
+                  messengerKey: _scaffoldMessengerKey,
+                  child: app,
+                ),
               ),
             ),
           );

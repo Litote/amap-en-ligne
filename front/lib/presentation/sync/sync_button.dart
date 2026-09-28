@@ -40,6 +40,7 @@ class SyncButton extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Synchronisation complète'),
+        semanticLabel: 'Synchronisation complète',
         content: const Text(
           'Toutes les données locales seront supprimées et '
           'rechargées depuis le serveur. Continuer ?',

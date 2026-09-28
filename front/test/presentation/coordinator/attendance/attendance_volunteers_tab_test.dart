@@ -138,4 +138,52 @@ void main() {
       expect(find.text('Chef Coordinateur'), findsNothing);
     },
   );
+
+  testWidgets(
+    'Bénévoles tab lists present (CONFIRMED / COMPLETED) volunteers and leaves '
+    'absent (CANCELLED) ones out',
+    (tester) async {
+      final slot = buildSlot(
+        registrations: [
+          buildRegistration(
+            memberId: 'vol-1',
+            displayName: 'Présente Confirmée',
+            status: RegistrationStatus.confirmed,
+          ),
+          buildRegistration(
+            memberId: 'vol-2',
+            displayName: 'Présente Importée',
+            status: RegistrationStatus.completed,
+          ),
+          buildRegistration(
+            memberId: 'vol-3',
+            displayName: 'Bénévole Absente',
+            status: RegistrationStatus.cancelled,
+          ),
+        ],
+        requiredVolunteers: 3,
+        currentRegistrations: 2,
+      );
+      final delivery = buildDelivery(
+        scheduledDate: '2030-01-15T18:00:00',
+        contracts: [
+          buildContract(slots: [slot]),
+        ],
+      );
+      when(
+        () => orgRepo.watch(any()),
+      ).thenAnswer((_) => Stream.value(buildOrg(deliveries: [delivery])));
+
+      await pump(tester);
+
+      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('janvier 2030').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Présente Confirmée'), findsOneWidget);
+      expect(find.text('Présente Importée'), findsOneWidget);
+      expect(find.text('Bénévole Absente'), findsNothing);
+    },
+  );
 }

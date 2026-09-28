@@ -40,30 +40,51 @@ Future<void> _pumpScreen(
   required _MockSyncBloc syncBloc,
   Organization organization = _organization,
   DeliveryTemplate? template,
+  bool flatRoutes = false,
 }) async {
   when(() => syncBloc.state).thenReturn(const SyncState.idle());
   when(() => syncBloc.stream).thenAnswer((_) => const Stream.empty());
   when(
     () => organizationRepository.watch('org-1'),
   ).thenAnswer((_) => Stream.value(organization));
-  final router = GoRouter(
-    initialLocation: '/templates/form',
-    routes: [
-      GoRoute(
-        path: '/templates',
-        builder: (_, _) => const Scaffold(body: SizedBox()),
-        routes: [
-          GoRoute(
-            path: 'form',
-            builder: (_, _) => DeliveryTemplateFormScreen(
-              organizationId: 'org-1',
-              template: template,
+  // Flat routes, as in the app router: opened by its URL the form has no
+  // parent page to pop back to.
+  final router = flatRoutes
+      ? GoRouter(
+          initialLocation: '/templates/form',
+          routes: [
+            GoRoute(
+              path: '/admin/delivery-templates',
+              builder: (_, _) =>
+                  const Scaffold(body: Text('Liste des modèles')),
             ),
-          ),
-        ],
-      ),
-    ],
-  );
+            GoRoute(
+              path: '/templates/form',
+              builder: (_, _) => DeliveryTemplateFormScreen(
+                organizationId: 'org-1',
+                template: template,
+              ),
+            ),
+          ],
+        )
+      : GoRouter(
+          initialLocation: '/templates/form',
+          routes: [
+            GoRoute(
+              path: '/templates',
+              builder: (_, _) => const Scaffold(body: SizedBox()),
+              routes: [
+                GoRoute(
+                  path: 'form',
+                  builder: (_, _) => DeliveryTemplateFormScreen(
+                    organizationId: 'org-1',
+                    template: template,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
   await tester.pumpWidget(
     MultiRepositoryProvider(
       providers: [
@@ -122,6 +143,38 @@ void main() {
       ),
     ).thenAnswer((_) async {});
   });
+
+  testWidgets(
+    'saving a form opened by its URL (nothing to pop) lands on the template '
+    'list instead of reporting an error',
+    (tester) async {
+      const template = DeliveryTemplate(
+        deliveryTemplateId: 'dt-1',
+        organizationId: 'org-1',
+        name: 'Livraison standard',
+        standardStartTime: '18:00',
+        standardEndTime: '20:00',
+        desiredVolunteerCount: 3,
+      );
+
+      await _pumpScreen(
+        tester,
+        deliveryTemplateRepository: deliveryTemplateRepository,
+        organizationRepository: organizationRepository,
+        syncBloc: syncBloc,
+        template: template,
+        flatRoutes: true,
+      );
+
+      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Liste des modèles'), findsOneWidget);
+      expect(find.textContaining('Une erreur est survenue'), findsNothing);
+    },
+  );
 
   testWidgets(
     'editing a template persists desired volunteers and updates org default',
@@ -343,11 +396,11 @@ void main() {
       await tester.tap(find.text('Créer'));
       await tester.pumpAndSettle();
       // Name, start time and end time are required.
-      expect(find.text('Champ requis.'), findsNWidgets(3));
+      expect(find.text('Ce champ est requis.'), findsNWidgets(3));
 
       await tester.enterText(find.byType(TextFormField).first, 'Jeudi soir');
       await tester.pump();
-      expect(find.text('Champ requis.'), findsNWidgets(2));
+      expect(find.text('Ce champ est requis.'), findsNWidgets(2));
 
       // Pick the start time (dialog defaults to 18:00) and confirm.
       await tester.tap(find.text('Sélectionner une heure').first);
@@ -356,7 +409,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('18:00'), findsOneWidget);
-      expect(find.text('Champ requis.'), findsOneWidget);
+      expect(find.text('Ce champ est requis.'), findsOneWidget);
     },
   );
 }

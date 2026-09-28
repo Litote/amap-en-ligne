@@ -40,7 +40,7 @@ void main() {
   );
 
   var counter = 0;
-  String nextTmpId() => '${++counter}';
+  String nextId() => '${++counter}';
 
   setUp(() => counter = 0);
 
@@ -61,7 +61,7 @@ void main() {
         contract: buildContract(),
         org: buildOrg(),
         template: legacyTemplate,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(
@@ -82,7 +82,7 @@ void main() {
         contract: contract,
         org: buildOrg(),
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       final dates = plan.deliveries
@@ -107,7 +107,7 @@ void main() {
         contract: contract,
         org: org,
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.newCount, 4);
@@ -115,9 +115,10 @@ void main() {
       expect(plan.totalAffected, 4);
       expect(plan.deliveries.length, 4);
 
-      // All new deliveries should reference the contract.
+      // All new deliveries should reference the contract. Their id is final:
+      // the server never remaps a nested delivery id, so no `tmp_` prefix.
       for (final d in plan.deliveries) {
-        expect(d.deliveryId, startsWith('tmp_delivery_'));
+        expect(d.deliveryId, startsWith('delivery_'));
         expect(d.contracts.any((dc) => dc.contractId == contractId), isTrue);
         expect(d.status, DeliveryStatus.planned);
       }
@@ -151,7 +152,7 @@ void main() {
         contract: contract,
         org: org,
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.newCount, 0);
@@ -194,7 +195,7 @@ void main() {
         contract: contract,
         org: org,
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.newCount, 0);
@@ -224,7 +225,7 @@ void main() {
         contract: contract,
         org: org,
         template: template,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.newCount, 1);
@@ -244,7 +245,7 @@ void main() {
         contract: contract,
         org: org,
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.newCount, 1);
@@ -273,7 +274,7 @@ void main() {
           contract: contract,
           org: org,
           template: null,
-          nextTmpId: nextTmpId,
+          nextId: nextId,
         );
 
         expect(plan.newCount, 0);
@@ -315,7 +316,7 @@ void main() {
         contract: contract,
         org: org,
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.newCount, 1);
@@ -355,7 +356,7 @@ void main() {
         contract: contract,
         org: org,
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.newCount, 1);
@@ -392,7 +393,7 @@ void main() {
         contract: contract,
         org: buildOrg(),
         template: template,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.newCount, 1);
@@ -418,7 +419,7 @@ void main() {
         contract: contract,
         org: buildOrg(),
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       final slots = plan.deliveries.single.contracts.single.slots;
@@ -440,7 +441,7 @@ void main() {
         contract: contract,
         org: buildOrg(),
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.newCount, 1);
@@ -478,7 +479,7 @@ void main() {
           contract: mainContract,
           org: buildOrg(deliveries: [existingDelivery]),
           template: null,
-          nextTmpId: nextTmpId,
+          nextId: nextId,
         );
 
         expect(plan.linkedCount, 1);
@@ -520,7 +521,7 @@ void main() {
         contract: contract,
         org: org,
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       expect(plan.linkedCount, 1);
@@ -528,6 +529,107 @@ void main() {
         plan.deliveries.single.basketDescriptions,
         existingDelivery.basketDescriptions,
       );
+    });
+
+    test('ajoute les produits du contrat aux livraisons liées en conservant '
+        'les compositions existantes', () {
+      const fromages = OrgProduct(
+        name: 'Fromages',
+        productTypeId: 'pt-1',
+        producerAccountId: 'pa-1',
+        supportedBasketSizes: [
+          BasketSize(name: 'Petit'),
+          BasketSize(name: 'Grand'),
+        ],
+      );
+      const oeufs = OrgProduct(
+        name: 'Oeufs',
+        productTypeId: 'pt-2',
+        producerAccountId: 'pa-2',
+        supportedBasketSizes: [BasketSize(name: 'Boîte de 6')],
+      );
+      const composedEggs = BasketDeliveryDescription(
+        productTypeId: 'pt-2',
+        basketSizeName: 'Boîte de 6',
+        items: [DeliveryItem(itemTypeId: 'free-1', name: 'Oeufs plein air')],
+      );
+      final contract = buildContract(
+        minDate: '2026-01-05',
+        maxDate: '2026-01-05',
+        productPrices: const [
+          ProductPrice(
+            productTypeId: 'pt-1',
+            basketSize: BasketSize(name: 'Petit'),
+          ),
+        ],
+      );
+      const existingDelivery = Delivery(
+        deliveryId: 'del-existing',
+        organizationId: orgId,
+        scheduledDate: '2026-01-05T18:00:00',
+        status: DeliveryStatus.planned,
+        minVolunteersRequired: 2,
+        basketDescriptions: [composedEggs],
+      );
+      final org = buildOrg(
+        deliveries: [existingDelivery],
+        products: const [fromages, oeufs],
+      );
+
+      final plan = planWeeklyDeliveries(
+        contract: contract,
+        org: org,
+        template: null,
+        nextId: nextId,
+      );
+
+      expect(plan.linkedCount, 1);
+      expect(plan.deliveries.single.basketDescriptions, const [
+        composedEggs,
+        BasketDeliveryDescription(
+          productTypeId: 'pt-1',
+          basketSizeName: 'Petit',
+        ),
+        BasketDeliveryDescription(
+          productTypeId: 'pt-1',
+          basketSizeName: 'Grand',
+        ),
+      ]);
+    });
+
+    test('laisse vide la composition d\'une livraison liée sans aucune '
+        'description (repli historique sur tous les produits)', () {
+      const fromages = OrgProduct(
+        name: 'Fromages',
+        productTypeId: 'pt-1',
+        producerAccountId: 'pa-1',
+        supportedBasketSizes: [BasketSize(name: 'Petit')],
+      );
+      final contract = buildContract(
+        minDate: '2026-01-05',
+        maxDate: '2026-01-05',
+      );
+      const existingDelivery = Delivery(
+        deliveryId: 'del-legacy',
+        organizationId: orgId,
+        scheduledDate: '2026-01-05T18:00:00',
+        status: DeliveryStatus.planned,
+        minVolunteersRequired: 2,
+      );
+      final org = buildOrg(
+        deliveries: [existingDelivery],
+        products: const [fromages],
+      );
+
+      final plan = planWeeklyDeliveries(
+        contract: contract,
+        org: org,
+        template: null,
+        nextId: nextId,
+      );
+
+      expect(plan.linkedCount, 1);
+      expect(plan.deliveries.single.basketDescriptions, isEmpty);
     });
 
     test('ignore les livraisons annulées lors du matching de dates', () {
@@ -549,7 +651,7 @@ void main() {
         contract: contract,
         org: org,
         template: null,
-        nextTmpId: nextTmpId,
+        nextId: nextId,
       );
 
       // Cancelled delivery is not matched → new delivery is created.

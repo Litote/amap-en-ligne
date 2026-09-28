@@ -126,6 +126,49 @@ void main() {
     },
   );
 
+  for (final error in [
+    ActivationError.invalidToken,
+    ActivationError.expired,
+    ActivationError.alreadyActivated,
+  ]) {
+    testWidgets('disables the form when the preview reports $error', (
+      tester,
+    ) async {
+      when(
+        () => api.describeActivation(any()),
+      ).thenThrow(ActivationException(error));
+      await _pump(tester, api, 'tok');
+      await tester.pump();
+
+      for (final key in ['password', 'confirm_password']) {
+        final field = tester.widget<TextField>(
+          find.descendant(
+            of: find.byKey(Key(key)),
+            matching: find.byType(TextField),
+          ),
+        );
+        expect(field.enabled, isFalse, reason: key);
+      }
+      expect(
+        tester.widget<FilledButton>(find.byKey(const Key('submit'))).onPressed,
+        isNull,
+      );
+    });
+  }
+
+  testWidgets('keeps the form enabled after a server error', (tester) async {
+    when(
+      () => api.describeActivation(any()),
+    ).thenThrow(const ActivationException(ActivationError.serverError));
+    await _pump(tester, api, 'tok');
+    await tester.pump();
+
+    expect(
+      tester.widget<FilledButton>(find.byKey(const Key('submit'))).onPressed,
+      isNotNull,
+    );
+  });
+
   testWidgets('shows mismatch error when passwords differ', (tester) async {
     await _pump(tester, api, 'tok');
 

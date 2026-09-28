@@ -1,8 +1,10 @@
+import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/delivery_template.dart'
     show DeliveryTemplate;
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/volunteer_need.dart';
 
 /// Pure domain selectors for the volunteer member dashboard view.
 ///
@@ -75,14 +77,17 @@ Delivery? nextRegistrationFor(
 /// "Upcoming" means [Delivery.scheduledDate] is after [now] and the delivery
 /// is active (not COMPLETED / CANCELLED). Only deliveries with at least one
 /// volunteer slot are returned (deliveries without contracts/slots are excluded).
+/// [include], when given, filters the candidates before the [limit] applies.
 List<Delivery> upcomingActiveDeliveries(
   Organization org,
   DateTime now, {
   int limit = 5,
+  bool Function(Delivery)? include,
 }) {
   final result =
       org.deliveries.where((d) {
         if (!d.status.isActive) return false;
+        if (include != null && !include(d)) return false;
         if (!DateTime.parse(d.scheduledDate).isAfter(now)) return false;
         return _deliveryHasVolunteerSlots(d);
       }).toList()..sort(
@@ -120,6 +125,73 @@ bool isDeliveryPendingContractActivation(
   }
   return sawKnownContract;
 }
+
+/// Whether a member holding [roles] may see contracts still IN_PREPARATION:
+/// only coordinators and admins do, plain members never see them.
+bool canSeeContractsInPreparation(Iterable<Role> roles) =>
+    roles.contains(Role.coordinator) || roles.contains(Role.admin);
+
+/// Display-only view of [delivery] for a viewer who may not see IN_PREPARATION
+/// contracts (see [canSeeContractsInPreparation]): drops the links to such
+/// contracts and the basket descriptions of the products only they bring.
+///
+/// A contract's products are the product types of its prices, or every
+/// product of its producer in [org] for a legacy price-less contract. Links
+/// whose contract is unknown in [contracts] are kept.
+///
+/// Rendering only — never enqueue the result: it would delete the hidden
+/// links server-side.
+Delivery deliveryWithoutInPreparationContracts(
+  Delivery delivery,
+  Organization org,
+  List<Contract> contracts,
+) {
+  final contractsById = {for (final c in contracts) c.contractId: c};
+  bool isHidden(DeliveryContract link) =>
+      contractsById[link.contractId]?.status == ContractStatus.inPreparation;
+  if (!delivery.contracts.any(isHidden)) return delivery;
+
+  final visibleLinks = delivery.contracts.where((l) => !isHidden(l)).toList();
+  final hiddenProducts = _productsOfLinks(
+    delivery.contracts.where(isHidden),
+    contractsById,
+    org,
+  );
+  final visibleProducts = _productsOfLinks(visibleLinks, contractsById, org);
+  return delivery.copyWith(
+    contracts: visibleLinks,
+    basketDescriptions: delivery.basketDescriptions
+        .where(
+          (d) =>
+              !hiddenProducts.contains(d.productTypeId) ||
+              visibleProducts.contains(d.productTypeId),
+        )
+        .toList(),
+  );
+}
+
+/// Product types brought by the contracts of [links] (unknown contracts
+/// bring none).
+Set<String> _productsOfLinks(
+  Iterable<DeliveryContract> links,
+  Map<String, Contract> contractsById,
+  Organization org,
+) => {
+  for (final link in links)
+    if (contractsById[link.contractId] case final contract?)
+      ..._contractProducts(contract, org),
+};
+
+/// The product types of [contract]'s prices, or every product of its
+/// producer in [org] for a legacy price-less contract.
+Set<String> _contractProducts(Contract contract, Organization org) =>
+    contract.productPrices.isNotEmpty
+    ? {for (final price in contract.productPrices) price.productTypeId}
+    : {
+        for (final product in org.products)
+          if (product.producerAccountId == contract.producerAccountId)
+            product.productTypeId,
+      };
 
 /// Returns true when [memberId] has at least one active (non-CANCELLED)
 /// registration on any slot of [delivery].
@@ -204,6 +276,14 @@ Set<String> deliveryCoordinatorIds(Delivery delivery) => {
   return (current: current, required: required);
 }
 
+/// The contract links of [delivery] with baskets to collect: a link without
+/// any basket (e.g. a contract still in preparation) has nothing to pick up
+/// and must not hold back the collection progress.
+List<DeliveryContract> deliveryContractsToCollect(Delivery delivery) => [
+  for (final contract in delivery.contracts)
+    if (contract.basketQuantity > 0) contract,
+];
+
 /// Derives a single [SlotStatus] summarising the volunteer staffing of
 /// [delivery], used by the coordinator list chips.
 ///
@@ -211,10 +291,13 @@ Set<String> deliveryCoordinatorIds(Delivery delivery) => {
 /// - No required volunteers → [SlotStatus.open].
 /// - Fully staffed (ratio ≥ 1) → [SlotStatus.full].
 /// - Half staffed or more (ratio ≥ 0.5) → [SlotStatus.open].
-/// - Otherwise → [SlotStatus.critical].
+/// - Otherwise → [SlotStatus.critical], except when [now] is given and the
+///   delivery starts more than [kUrgentNeedWindow] later → [SlotStatus.open]
+///   (same urgency rule as the member badge, `volunteerNeedLevel`).
 SlotStatus deliverySlotStatus(
   Delivery delivery, {
   Set<String> mainContractIds = const {},
+  DateTime? now,
 }) {
   if (!delivery.status.isActive) return SlotStatus.closed;
   final coordinatorIds = deliveryCoordinatorIds(delivery);
@@ -233,6 +316,11 @@ SlotStatus deliverySlotStatus(
   final ratio = filled / total;
   if (ratio >= 1.0) return SlotStatus.full;
   if (ratio >= 0.5) return SlotStatus.open;
+  if (now != null &&
+      DateTime.parse(delivery.scheduledDate).difference(now) >
+          kUrgentNeedWindow) {
+    return SlotStatus.open;
+  }
   return SlotStatus.critical;
 }
 
@@ -315,12 +403,20 @@ bool slotHasCapacity(MemberSlot slot) {
 // History selectors
 // ---------------------------------------------------------------------------
 
+/// Whether a registration with [status] records the volunteer as present.
+///
+/// The delivery-tracking screen marks presence as [RegistrationStatus.confirmed]
+/// and imported or legacy data may carry [RegistrationStatus.completed]: both
+/// are a participation for history, ranking and statistics.
+bool isPresentRegistrationStatus(RegistrationStatus status) =>
+    status == RegistrationStatus.confirmed ||
+    status == RegistrationStatus.completed;
+
 /// Whether [contract] has any completed registration for [memberId].
 bool _hasCompletedRegistration(DeliveryContract contract, String memberId) {
   for (final slot in contract.slots) {
     for (final reg in slot.registrations) {
-      if (reg.memberId == memberId &&
-          reg.status == RegistrationStatus.completed) {
+      if (reg.memberId == memberId && isPresentRegistrationStatus(reg.status)) {
         return true;
       }
     }
@@ -333,8 +429,7 @@ int _completedRegistrationCount(DeliveryContract contract, String memberId) {
   var count = 0;
   for (final slot in contract.slots) {
     for (final reg in slot.registrations) {
-      if (reg.memberId == memberId &&
-          reg.status == RegistrationStatus.completed) {
+      if (reg.memberId == memberId && isPresentRegistrationStatus(reg.status)) {
         count++;
       }
     }
@@ -342,7 +437,7 @@ int _completedRegistrationCount(DeliveryContract contract, String memberId) {
   return count;
 }
 
-/// Counts [MemberRegistration]s with [RegistrationStatus.completed] for
+/// Counts present [MemberRegistration]s ([isPresentRegistrationStatus]) for
 /// [memberId] across all deliveries that are linked to at least one contract
 /// whose id is in [seasonContractIds].
 ///
@@ -366,7 +461,7 @@ int completedRegistrationsInSeason(
   return count;
 }
 
-/// Returns the [Delivery] of the most recent [RegistrationStatus.completed]
+/// Returns the [Delivery] of the most recent present ([isPresentRegistrationStatus])
 /// registration for [memberId] restricted to the given [seasonContractIds],
 /// or null if none exists.
 Delivery? lastCompletedDeliveryInSeason(
@@ -393,7 +488,7 @@ Delivery? lastCompletedDeliveryInSeason(
   return latest;
 }
 
-/// Returns the [Delivery] of the most recent [RegistrationStatus.completed]
+/// Returns the [Delivery] of the most recent present ([isPresentRegistrationStatus])
 /// registration for [memberId], or null if none exists.
 ///
 /// Searches across all deliveries regardless of season.
@@ -479,14 +574,14 @@ personalRegistrations(Organization org, String memberId) {
   return result;
 }
 
-/// Registrations whose status is [RegistrationStatus.completed].
+/// Registrations recording the member as present ([isPresentRegistrationStatus]).
 ///
 /// Sorted descending by [Delivery.scheduledDate] (most recent first).
 List<({Delivery delivery, MemberRegistration registration})>
 personalCompletedRegistrations(Organization org, String memberId) {
   final all =
       personalRegistrations(org, memberId)
-          .where((e) => e.registration.status == RegistrationStatus.completed)
+          .where((e) => isPresentRegistrationStatus(e.registration.status))
           .toList()
         ..sort(
           (a, b) => DateTime.parse(
@@ -682,7 +777,7 @@ String seasonLabel(List<Contract> contracts, int seasonYear, DateTime now) {
 /// The list is ordered chronologically (ascending).
 /// Returns an empty list when no season contracts exist.
 ///
-/// Only registrations with [RegistrationStatus.completed] are counted, and
+/// Only present registrations ([isPresentRegistrationStatus]) are counted, and
 /// only for deliveries linked to a contract whose id is in [seasonContractIds].
 List<({int year, int month, int count})> seasonMonthlyParticipationCounts(
   Organization org,
@@ -932,21 +1027,20 @@ deliveriesMissingCoordinator(Organization org) {
 
 /// Returns the month to display by default on the planning screen.
 ///
-/// Auto-advances to the next month when the current month has at least one
-/// delivery and its last delivery has already passed [now].  Returns the
-/// current month in all other cases (no deliveries this month, or an upcoming
-/// delivery still exists).
+/// The month of the next delivery at or after [now] — the current month while
+/// one remains in it, else a later month instead of an empty one. Without any
+/// upcoming delivery: the next month when the current month's deliveries have
+/// all passed, else the current month.
 DateTime defaultPlanningMonth(Organization org, DateTime now) {
   final currentMonth = DateTime(now.year, now.month);
-  final thisMonthDeliveries = org.deliveries.where((d) {
-    final date = DateTime.parse(d.scheduledDate);
-    return date.year == now.year && date.month == now.month;
-  }).toList();
-  if (thisMonthDeliveries.isEmpty) return currentMonth;
-  final lastDate = thisMonthDeliveries
-      .map((d) => DateTime.parse(d.scheduledDate))
-      .reduce((a, b) => a.isAfter(b) ? a : b);
-  return lastDate.isBefore(now)
-      ? DateTime(now.year, now.month + 1)
-      : currentMonth;
+  final dates = org.deliveries.map((d) => DateTime.parse(d.scheduledDate));
+  final upcoming = dates.where((date) => !date.isBefore(now)).toList();
+  if (upcoming.isNotEmpty) {
+    final next = upcoming.reduce((a, b) => a.isBefore(b) ? a : b);
+    return DateTime(next.year, next.month);
+  }
+  final pastThisMonth = dates.any(
+    (date) => date.year == now.year && date.month == now.month,
+  );
+  return pastThisMonth ? DateTime(now.year, now.month + 1) : currentMonth;
 }

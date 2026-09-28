@@ -1,100 +1,54 @@
-# Description d'une livraison
+# Composition du panier d'une livraison
 
 ## Description
 
-Interface de consultation et de saisie du contenu d'une livraison (*DELIVERY*) pour un type de produit donné. La description précise, pour chaque taille de panier (*BASKET_SIZE*), les items (*ItemType*) inclus et, le cas échéant, leur poids.
+Écran de saisie du contenu d'une livraison (*DELIVERY*) : pour chaque produit présent et chaque taille de panier (*BASKET_SIZE*), les composants (*ItemType*) inclus et, le cas échéant, leur poids. Le contenu est purement informatif : les amapiens le consultent en lecture seule sur leurs cartes de livraison (section « Composition du panier »).
 
-Cet écran est accessible depuis deux perspectives :
+Le coordinateur **et** le producteur peuvent composer le panier :
 
-| Perspective | Route | Acteur |
-|-------------|-------|--------|
-| Producteur | `/product-types/deliveries/:deliveryId/description` | PRODUCER |
-| Coordinateur | `/coordinator/deliveries/:deliveryId/description` | COORDINATOR |
+| Acteur | Accès | Route | Produits proposés |
+|--------|-------|-------|-------------------|
+| Coordinateur (*COORDINATOR*) | Bouton « Composition du panier » du formulaire de livraison (livraison existante) | `/coordinator/deliveries/:deliveryId/description` | Tous les produits présents dans la livraison, de tous les producteurs |
+| Producteur avec compte (*PRODUCER*) | Bouton **[COMPOSITION DU PANIER]** de « Mes livraisons » et des prochaines livraisons de son tableau de bord | `/producer-deliveries/:organizationId/:deliveryId/composition` | Uniquement **ses** produits présents dans la livraison, avec les tailles de panier de la livraison |
 
-L'interface est identique dans les deux cas ; seul l'accès en modification est réservé au producteur.
+L'écran est le même dans les deux cas.
 
 ## Wireframe ASCII
 
 ```
 ┌─────────────────────────────────────────────┐
-│ ← Légumes Bio — Livraison 17 Jan            │
+│ ←  Composition du jeudi 1 octobre  ENREGISTRER│
 ├─────────────────────────────────────────────┤
-│  Panier Petit                               │
-│  ────────────────────────────────────────   │
-│  [img] Carottes          500 g              │
-│  [img] Courgettes        300 g              │
-│        Poireaux          —                  │
-│                                      [  +  ]│
-│                                             │
-│  Panier Moyen                               │
-│  ────────────────────────────────────────   │
-│  [img] Carottes          800 g              │
-│  [img] Courgettes        500 g              │
-│        Poireaux          200 g              │
-│                                      [  +  ]│
-│                                             │
-│  Panier Grand                               │
-│  ────────────────────────────────────────   │
-│  (aucun item défini)                 [  +  ]│
+│  ▼ Fromages                                 │
+│    Petit                                    │
+│    [img] Brie              [ 200 g   ] (−)  │
+│    [+ Ajouter]                              │
+│    Grand                                    │
+│    [+ Ajouter]                              │
+│  ▶ Oeufs                                    │
 └─────────────────────────────────────────────┘
 ```
 
 ## Contenu et comportement
 
-- Titre AppBar : nom du type de produit suivi de la date de livraison.
-- [← Retour] dans l'AppBar : retour vers l'écran précédent.
-- La liste est organisée par taille de panier (*BASKET_SIZE*), dans l'ordre défini sur le type de produit.
-- Pour chaque taille de panier, les items présents dans la description (`BasketDeliveryDescription`) sont listés avec :
-  - l'image miniature de l'item si une URL est renseignée ;
-  - le nom de l'item (*ItemType*) ;
-  - le poids associé, si renseigné, ou "—" si absent.
-- Si aucun item n'est défini pour une taille de panier, la mention "(aucun item défini)" est affichée.
+- Titre AppBar : « Composition du {jour date mois} » (ex. « Composition du jeudi 1 octobre ») ; bouton **Enregistrer** dans l'AppBar.
+- Un bloc repliable par produit présent dans la livraison (les produits cochés dans « Produits présents » du formulaire de livraison) ; une livraison ancienne sans aucun produit renseigné propose tous les produits.
+- Dans chaque bloc, une section par taille de panier, alignée à gauche, avec les composants choisis : icône (si le composant en a une), nom, champ **Poids** (texte libre, optionnel) et bouton de retrait.
+- **[+ Ajouter]** :
+  - si le producteur du produit a un catalogue de composants : liste à cocher des composants de son catalogue ;
+  - sinon (ex. producteur sans compte) : formulaire de saisie libre « Ajouter un composant » (nom obligatoire, poids optionnel).
+- **Enregistrer** : enregistre (hors ligne possible, synchronisation automatique), affiche « Description enregistrée » et revient à l'écran précédent.
 
-### Perspective producteur (modification activée)
+## Règles métier
 
-- FAB [+] sous chaque taille de panier : ajout d'un item à cette taille de panier.
-- Tap sur un item existant : ouverture du formulaire d'édition du poids.
-- Swipe gauche sur un item : suppression de l'item de cette taille de panier.
-
-### Perspective coordinateur (lecture seule)
-
-- Aucune action de modification n'est disponible.
-- Le FAB [+] n'est pas affiché.
-
-## Formulaire d'ajout / édition d'un item de livraison
-
-### Wireframe ASCII
-
-```
-┌─────────────────────────────────────────────┐
-│ ← Ajouter un item — Panier Petit            │
-├─────────────────────────────────────────────┤
-│                                             │
-│  Item *                                     │
-│  ┌─────────────────────────────────────┐    │
-│  │ Carottes                          ▼ │    │
-│  └─────────────────────────────────────┘    │
-│                                             │
-│  ┌─────────────────────────────────────┐    │
-│  │ Poids (g, optionnel)                │    │
-│  └─────────────────────────────────────┘    │
-│                                             │
-│  [Enregistrer]                              │
-│                                             │
-└─────────────────────────────────────────────┘
-```
-
-### Contenu et comportement
-
-- Titre AppBar : "Ajouter un item — [nom de la taille de panier]" (ajout) ou "Modifier l'item — [nom de la taille de panier]" (édition).
-- Sélecteur "Item" : liste déroulante des items (*ItemType*) définis sur le type de produit ; obligatoire. Un item déjà présent dans la description pour cette taille de panier ne peut pas être sélectionné à nouveau.
-- Champ "Poids (g)" : optionnel, valeur entière positive.
-- [Enregistrer] : enregistre la modification.
-- [← Retour] dans l'AppBar : annule et retourne à la description sans enregistrer.
+- **Validation (front et serveur)** : un nouveau composant doit avoir un nom (≤ 200 caractères) ; le poids fait au plus 200 caractères.
+- **Producteur** : il ne peut composer que ses propres produits, sur les livraisons portant l'un de ses contrats, ni terminées ni annulées ; la composition des autres producteurs n'est jamais modifiée. Les icônes de ses composants sont reprises de son catalogue pour que les amapiens les voient.
+- **Coordinateur** : il ne peut ajouter un composant qu'à un produit dont le producteur a un contrat lié à la livraison.
+- **Deux auteurs, la dernière modification l'emporte** : chaque composition (produit × taille de panier) mémorise le moment de sa dernière modification. Un enregistrement fait depuis une copie plus ancienne (par exemple un coordinateur qui modifie un créneau de la livraison sans avoir encore reçu la composition saisie par le producteur) ne l'écrase pas.
 
 ## Références
 
 - [`../spec-ui.md`](../spec-ui.md) — conventions UI globales
-- [`../producer/screen-producer-03-item-catalog.md`](../producer/screen-producer-03-item-catalog.md) — définition du catalogue d'items d'un type de produit
-- [`../producer/screen-producer-02-product-catalog.md`](../producer/screen-producer-02-product-catalog.md) — catalogue de types de produits (perspective producteur)
-- [`../coordinator/screen-coordinator-01-home.md`](../coordinator/screen-coordinator-01-home.md) — tableau de bord coordinateur (perspective coordinateur)
+- [`../producer/screen-producer-03-item-catalog.md`](../producer/screen-producer-03-item-catalog.md) — catalogue de composants d'un type de produit
+- [`../producer/screen-producer-01-home.md`](../producer/screen-producer-01-home.md) — tableau de bord producteur
+- [`../coordinator/screen-coordinator-02-time-slots.md`](../coordinator/screen-coordinator-02-time-slots.md) — gestion des livraisons (formulaire de livraison)

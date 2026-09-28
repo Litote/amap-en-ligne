@@ -53,7 +53,16 @@ class _DesktopLayout extends StatelessWidget {
       children: [
         SizedBox(width: 280, child: NavMenuWidget(items: state.items)),
         const VerticalDivider(width: 1),
-        Expanded(child: child),
+        // Own semantics container: the content is a navigator whose route
+        // barrier (BlockSemantics) would otherwise hide the sidebar, painted
+        // before it, from screen readers.
+        Expanded(
+          child: Semantics(
+            container: true,
+            explicitChildNodes: true,
+            child: child,
+          ),
+        ),
       ],
     ),
   );

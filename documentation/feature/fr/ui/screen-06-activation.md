@@ -40,6 +40,7 @@
 - Champ "Mot de passe *" : au moins 12 caractères, dont une minuscule, une majuscule et un chiffre ; texte d'aide sous le champ : "Au moins 12 caractères, dont une minuscule, une majuscule et un chiffre." ; avec icône d'affichage/masquage.
 - Champ "Confirmer le mot de passe *" : avec icône d'affichage/masquage.
 - Le bouton [ACTIVER MON COMPTE] est désactivé pendant l'envoi.
+- Lien invalide, expiré ou déjà utilisé : les deux champs et le bouton [ACTIVER MON COMPTE] sont désactivés (le lien ne peut plus rien activer). Un mot de passe refusé ou une erreur serveur laisse le formulaire actif pour réessayer.
 - Appelle `POST /v1/activate` (public, non authentifié).
 
 ### Gestion des erreurs

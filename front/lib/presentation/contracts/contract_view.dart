@@ -3,7 +3,7 @@ import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
-import 'package:intl/intl.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 
 enum ContractFilter { all, inPreparation, active, upcoming, ended }
 
@@ -189,5 +189,5 @@ Set<String> keysFromSubscriptions(List<MemberSubscription> subscriptions) => {
 String formatContractDate(String value) {
   final date = DateTime.tryParse(value);
   if (date == null) return value;
-  return DateFormat('d MMM yyyy', 'fr').format(date);
+  return frenchDateFormat('d MMM yyyy').format(date);
 }

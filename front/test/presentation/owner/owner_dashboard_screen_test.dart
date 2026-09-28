@@ -2,6 +2,8 @@ import 'package:amap_en_ligne/data/repositories/organization_request_repository.
 import 'package:amap_en_ligne/data/repositories/producer_request_repository.dart';
 import 'package:amap_en_ligne/domain/model/admin_organization_request.dart';
 import 'package:amap_en_ligne/domain/model/admin_producer_request.dart';
+import 'package:amap_en_ligne/presentation/auth/auth_bloc.dart';
+import 'package:amap_en_ligne/presentation/auth/auth_view_state.dart';
 import 'package:amap_en_ligne/presentation/owner/owner_dashboard_screen.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
@@ -11,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+
+import '../../helpers/mock_auth_bloc.dart';
 
 class _MockOrganizationRequestRepository extends Mock
     implements OrganizationRequestRepository {}
@@ -42,7 +46,14 @@ Future<void> _pump(
   required OrganizationRequestRepository repo,
   required ProducerRequestRepository producerRepo,
   _MockSyncBloc? syncBloc,
+  AuthViewState authState = const AuthViewState(
+    firstName: 'Alice',
+    lastName: 'Martin',
+  ),
 }) async {
+  final authBloc = MockAuthBloc();
+  when(() => authBloc.state).thenReturn(authState);
+  when(() => authBloc.stream).thenAnswer((_) => const Stream.empty());
   final bloc = syncBloc ?? _MockSyncBloc();
   when(() => bloc.state).thenReturn(const SyncState.idle());
   when(() => bloc.stream).thenAnswer((_) => const Stream.empty());
@@ -55,8 +66,11 @@ Future<void> _pump(
             value: producerRepo,
           ),
         ],
-        child: BlocProvider<SyncBloc>.value(
-          value: bloc,
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<SyncBloc>.value(value: bloc),
+            BlocProvider<AuthBloc>.value(value: authBloc),
+          ],
           child: const OwnerDashboardScreen(),
         ),
       ),
@@ -230,5 +244,32 @@ void main() {
         findsOneWidget,
       );
     });
+  });
+
+  testWidgets('shows the connected owner name as in the spec header', (
+    tester,
+  ) async {
+    when(
+      () => repo.watch(),
+    ).thenAnswer((_) => Stream.value(const <AdminOrganizationRequest>[]));
+    await _pump(tester, repo: repo, producerRepo: producerRepo);
+
+    expect(find.text('Alice Martin (Admin Instance)'), findsOneWidget);
+  });
+
+  testWidgets('an owner without a name is shown by its role only', (
+    tester,
+  ) async {
+    when(
+      () => repo.watch(),
+    ).thenAnswer((_) => Stream.value(const <AdminOrganizationRequest>[]));
+    await _pump(
+      tester,
+      repo: repo,
+      producerRepo: producerRepo,
+      authState: const AuthViewState(firstName: '', lastName: ''),
+    );
+
+    expect(find.text('Admin Instance'), findsOneWidget);
   });
 }

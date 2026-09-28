@@ -1,20 +1,20 @@
-# Gestion des templates de livraison (Admin)
+# Gestion des modèles de livraison (Admin)
 
 ## Description
-Interface de création et de gestion des modèles réutilisables de livraison (*DELIVERY_TEMPLATE*). L'admin de l'organisation définit les templates utilisés par les coordinateurs lors de la création de livraisons. Un template définit les paramètres par défaut d'une livraison : horaires standard, nombre de bénévoles souhaité pour la création de la livraison, et optionnellement un créneau anticipé (*EARLY_SLOT*) permettant à certains bénévoles d'arriver plus tôt pour réceptionner les produits avant l'heure habituelle. Un template peut aussi être marqué comme template par défaut de l'organisation : il sera alors sélectionné automatiquement lors de la création d'une nouvelle livraison par un coordinateur. Ces templates peuvent être associés à des livraisons (*DELIVERY*) concrètes pour pré-remplir leurs paramètres, tout en permettant une surcharge ponctuelle au niveau de la livraison.
+Interface de création et de gestion des modèles réutilisables de livraison (*DELIVERY_TEMPLATE*). L'admin de l'organisation définit les templates utilisés par les coordinateurs lors de la création de livraisons. Un template définit les paramètres par défaut d'une livraison : horaires standard, nombre de bénévoles souhaité pour la création de la livraison, et optionnellement un créneau anticipé (*EARLY_SLOT*) permettant à certains bénévoles d'arriver plus tôt pour réceptionner les produits avant l'heure habituelle. Un template peut aussi être marqué comme modèle par défaut de l'organisation : il sera alors sélectionné automatiquement lors de la création d'une nouvelle livraison par un coordinateur. Ces templates peuvent être associés à des livraisons (*DELIVERY*) concrètes pour pré-remplir leurs paramètres, tout en permettant une surcharge ponctuelle au niveau de la livraison.
 
 ## Wireframe ASCII
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              ⚙️ Templates de livraison                      │
+│              ⚙️ Modèles de livraison                      │
 ├─────────────────────────────────────────────────────────────┤
 │  [← Retour Dashboard Admin]               [💾 Sauvegarder]  │
 └─────────────────────────────────────────────────────────────┘
 │                                                             │
-│  ➕ Nouveau template                                         │
+│  ➕ Nouveau modèle                                           │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │  📝 Nom du template:                                    │ │
+│  │  📝 Nom du modèle:                                      │ │
 │  │     [________________________________]                  │ │
 │  │                                                         │ │
 │  │  🕐 Horaires standard:                                  │ │
@@ -23,7 +23,7 @@ Interface de création et de gestion des modèles réutilisables de livraison (*
 │  │  👥 Nombre de bénévoles souhaité:                       │ │
 │  │     [5 ▼]                                               │ │
 │  │                                                         │ │
-│  │  [ ] Définir comme template par défaut                  │ │
+│  │  [ ] Définir comme modèle par défaut                    │ │
 │  │                                                         │ │
 │  │  ┄┄┄┄┄ Créneau anticipé (optionnel) ┄┄┄┄┄┄┄┄┄┄┄┄┄┄   │ │
 │  │  [ ] Activer un créneau anticipé                        │ │
@@ -38,10 +38,10 @@ Interface de création et de gestion des modèles réutilisables de livraison (*
 │  │     │ l'arrivée des membres...                        │ │ │
 │  │     └─────────────────────────────────────────────────┘ │ │
 │  │                                                         │ │
-│  │  👥 Nombre max de volontaires pour ce créneau:          │ │
+│  │  👥 Nombre max de bénévoles pour ce créneau:            │ │
 │  │     [3 ▼]                                               │ │
 │  │                                                         │ │
-│  │     [CRÉER TEMPLATE]                                    │ │
+│  │     [CRÉER]                                             │ │
 │  └─────────────────────────────────────────────────────────┘ │
 │                                                             │
 │  📋 Templates existants                                      │
@@ -49,7 +49,7 @@ Interface de création et de gestion des modèles réutilisables de livraison (*
 │  │  📄 Livraison standard                                  │ │
 │  │     🕐 18h00-20h00 • Pas de créneau anticipé           │ │
 │  │     👥 5 bénévoles souhaités                            │ │
-│  │     ⭐ Template par défaut de l'organisation            │ │
+│  │     ⭐ Modèle par défaut de l'organisation            │ │
 │  │     🔗 Associé à 8 livraisons                          │ │
 │  │     [MODIFIER] [SUPPRIMER] [VOIR LIVRAISONS]            │ │
 │  │                                                         │ │
@@ -57,7 +57,7 @@ Interface de création et de gestion des modèles réutilisables de livraison (*
 │  │     🕐 18h00-20h00 • Créneau anticipé : 17h00          │ │
 │  │     👥 6 bénévoles souhaités                            │ │
 │  │     💬 "Réception des légumes du maraîcher"            │ │
-│  │     👥 Max 2 volontaires anticipés                     │ │
+│  │     👥 Max 2 bénévoles anticipés                       │ │
 │  │     🔗 Associé à 3 livraisons                          │ │
 │  │     [MODIFIER] [SUPPRIMER] [VOIR LIVRAISONS]            │ │
 │  └─────────────────────────────────────────────────────────┘ │
@@ -69,16 +69,16 @@ Interface de création et de gestion des modèles réutilisables de livraison (*
 
 ## Navigation et interactions
 
-### Actions principales — Nouveau template
-- **[Nom du template]** : Saisie libre du nom identifiant le template
+### Actions principales — Nouveau modèle
+- **[Nom du modèle]** : Saisie libre du nom identifiant le template
 - **[Horaires dropdown]** : Configuration des heures de début et de fin du créneau standard
 - **[Nombre de bénévoles souhaité]** : Valeur utilisée pour préremplir le minimum de bénévoles lors de la création d'une livraison à partir de ce template
-- **[Définir comme template par défaut]** : Marque ce template comme sélection par défaut de l'organisation pour les nouvelles livraisons créées par les coordinateurs
+- **[Définir comme modèle par défaut]** : Marque ce template comme sélection par défaut de l'organisation pour les nouvelles livraisons créées par les coordinateurs
 - **[Activer un créneau anticipé]** : Case à cocher qui déploie les champs du créneau anticipé
 - **[Heure d'arrivée anticipée]** : Heure de début du créneau anticipé (antérieure à l'heure standard)
 - **[Zone texte Explication]** : Message visible par les Amapiens expliquant la raison du créneau anticipé
-- **[Nombre max de volontaires]** : Limite supérieure du nombre de bénévoles pouvant s'inscrire sur le créneau anticipé
-- **[CRÉER TEMPLATE]** : Validation et enregistrement du nouveau template
+- **[Nombre max de bénévoles]** : Limite supérieure du nombre de bénévoles pouvant s'inscrire sur le créneau anticipé
+- **[CRÉER]** : Validation et enregistrement du nouveau template
 
 ### Actions principales — Gestion des templates existants
 - **[MODIFIER]** : Édition d'un template existant ; les modifications ne s'appliquent pas rétroactivement aux livraisons déjà créées avec ce template
@@ -93,18 +93,18 @@ Interface de création et de gestion des modèles réutilisables de livraison (*
 Lorsqu'un créneau anticipé est configuré, la ligne du template affiche :
 - L'heure d'arrivée anticipée
 - L'explication (tronquée si trop longue)
-- Le nombre maximum de volontaires autorisés sur ce créneau
+- Le nombre maximum de bénévoles autorisés sur ce créneau
 
 ## Formulaire de création
 
 ### Champs obligatoires
-- **Nom du template** : Identifiant lisible, unique au sein de l'organisation
+- **Nom du modèle** : Identifiant lisible, unique au sein de l'organisation
 - **Heure de début standard** : Heure d'ouverture du créneau de bénévolat habituel
 - **Heure de fin standard** : Heure de fermeture du créneau de bénévolat
 - **Nombre de bénévoles souhaité** : Entier supérieur ou égal à 1, utilisé pour préremplir le minimum de bénévoles d'une nouvelle livraison
 
 ### Comportement du template par défaut
-- Un seul template peut être marqué comme template par défaut pour une organisation à un instant donné
+- Un seul template peut être marqué comme modèle par défaut pour une organisation à un instant donné
 - Le template par défaut est sélectionné automatiquement lors de la création d'une nouvelle livraison par un coordinateur
 - Ce choix ne modifie pas rétroactivement les livraisons déjà créées
 
@@ -113,7 +113,7 @@ Ces champs n'apparaissent que si la case « Activer un créneau anticipé » est
 
 - **Heure d'arrivée anticipée** : Doit être strictement antérieure à l'heure de début standard
 - **Explication** : Texte court affiché aux Amapiens pour justifier le créneau anticipé (ex. : « Réception des produits du maraîcher »)
-- **Nombre max de volontaires pour le créneau anticipé** : Entier supérieur ou égal à 1
+- **Nombre max de bénévoles pour le créneau anticipé** : Entier supérieur ou égal à 1
 
 ### Validation des données
 - **Cohérence horaires** : L'heure de fin standard est postérieure à l'heure de début standard

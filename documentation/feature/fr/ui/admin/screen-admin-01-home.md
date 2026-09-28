@@ -19,7 +19,7 @@ Les données affichées (membres, organisation) proviennent en temps réel des f
 │  ├──────────────────────────────────────────────────────┤   │
 │  │ 🌾 Producteurs                               ›       │   │
 │  ├──────────────────────────────────────────────────────┤   │
-│  │ 🔁 Templates de livraison                    ›       │   │
+│  │ 🔁 Modèles de livraison                    ›       │   │
 │  ├──────────────────────────────────────────────────────┤   │
 │  │ ⚙️  Préférences                               ›       │   │
 │  ├──────────────────────────────────────────────────────┤   │
@@ -48,7 +48,7 @@ Cinq tuiles `ListTile` (icône + libellé + chevron), dans cet ordre :
 |-------|---------|-------|
 | 1 | Utilisateurs | `/members` |
 | 2 | Producteurs | `/admin/producers` |
-| 3 | Templates de livraison | `/admin/delivery-templates` |
+| 3 | Modèles de livraison | `/admin/delivery-templates` |
 | 4 | Préférences | `/preferences` |
 | 5 | Demandes d'adhésion | `/admin/membership-requests` |
 
@@ -74,7 +74,7 @@ Carte affichant trois compteurs issus du cache local :
 |----------|-------------|-------------|
 | Tuile « Utilisateurs » | `/members` | [Gestion des membres](screen-admin-03-user-management.md) |
 | Tuile « Producteurs » | `/admin/producers` | [Gestion des producteurs](screen-admin-04-producer-management.md) |
-| Tuile « Templates de livraison » | `/admin/delivery-templates` | [Templates de livraison](screen-admin-05-delivery-template.md) |
+| Tuile « Modèles de livraison » | `/admin/delivery-templates` | [Modèles de livraison](screen-admin-05-delivery-template.md) |
 | Tuile « Préférences » | `/preferences` | [Préférences utilisateur](../common/screen-common-02-user-preferences.md) |
 | Tuile « Demandes d'adhésion » | `/admin/membership-requests` | [Gestion des demandes d'adhésion](screen-admin-03-user-management.md) |
 

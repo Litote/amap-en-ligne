@@ -7,12 +7,12 @@ import 'package:amap_en_ligne/domain/model/basket_exchange.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 /// Screen showing all PENDING requests received on one of the user's offers.
 ///
@@ -35,6 +35,21 @@ class ReceivedRequestsScreen extends StatefulWidget {
 
   @override
   State<ReceivedRequestsScreen> createState() => _ReceivedRequestsScreenState();
+}
+
+/// Snackbar shown when the offer is no longer open. [closedOnArrival]: it was
+/// already closed when the screen opened (e.g. from a stale notification), so
+/// the wording must not suggest the member just acted on it.
+String _offerClosedMessage({
+  required bool accepted,
+  required bool closedOnArrival,
+}) {
+  if (closedOnArrival) {
+    return accepted
+        ? 'Cet échange est déjà conclu.'
+        : 'Cette proposition a été annulée.';
+  }
+  return accepted ? 'Échange accepté.' : 'Proposition annulée.';
 }
 
 class _ReceivedRequestsScreenState extends State<ReceivedRequestsScreen> {
@@ -84,6 +99,9 @@ class _ReceivedRequestsScreenState extends State<ReceivedRequestsScreen> {
     final offer = exchanges
         .where((e) => e.basketExchangeId == widget.offerId)
         .firstOrNull;
+    // Whether the offer was already closed when first seen (e.g. opened from
+    // an old notification), as opposed to closing while on this screen.
+    final closedOnArrival = _offer == null && _loading;
     setState(() {
       _offer = offer;
       _loading = false;
@@ -91,16 +109,20 @@ class _ReceivedRequestsScreenState extends State<ReceivedRequestsScreen> {
 
     // Auto-navigate back when offer is no longer OPEN.
     if (offer != null && offer.status != BasketExchangeStatus.open) {
-      _scheduleOfferClosedNavigation(offer);
+      _scheduleOfferClosedNavigation(offer, closedOnArrival: closedOnArrival);
     }
   }
 
-  void _scheduleOfferClosedNavigation(BasketExchange offer) {
+  void _scheduleOfferClosedNavigation(
+    BasketExchange offer, {
+    required bool closedOnArrival,
+  }) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final message = offer.status == BasketExchangeStatus.accepted
-          ? 'Échange accepté.'
-          : 'Proposition annulée.';
+      final message = _offerClosedMessage(
+        accepted: offer.status == BasketExchangeStatus.accepted,
+        closedOnArrival: closedOnArrival,
+      );
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(message)));
@@ -133,7 +155,7 @@ class _ReceivedRequestsScreenState extends State<ReceivedRequestsScreen> {
     if (delivery == null) return '?';
     final dt = DateTime.tryParse(delivery.scheduledDate);
     if (dt == null) return '?';
-    return DateFormat('d MMM yyyy', 'fr').format(dt);
+    return frenchDateFormat('d MMM yyyy').format(dt);
   }
 
   String _relativeTime(String createdAt) {
@@ -154,6 +176,7 @@ class _ReceivedRequestsScreenState extends State<ReceivedRequestsScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Confirmer l\'échange'),
+        semanticLabel: 'Confirmer l\'échange',
         content: Text(
           'Vous cédez votre panier du $offeredDate et récupérez celui du '
           '$counterDate. Les autres demandes seront automatiquement refusées.',

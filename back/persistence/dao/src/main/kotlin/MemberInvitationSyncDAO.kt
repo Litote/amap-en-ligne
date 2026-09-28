@@ -16,19 +16,23 @@ class DuplicatePendingInvitationException : Exception("A pending invitation alre
 @OptIn(ExperimentalTime::class)
 interface MemberInvitationSyncDAO {
     /**
-     * Persists an invitation and its associated change atomically.
+     * Persists an invitation and its [changes] atomically — its `organization:{id}` change plus the
+     * `instance-owner` fan-out so an OWNER receives it incrementally.
      *
      * @throws DuplicatePendingInvitationException if a pending invitation for the same
      *   email already exists (enforced at the database level to prevent TOCTOU races).
      */
     suspend fun put(
         invitation: MemberInvitation,
-        change: Change,
+        changes: List<Change>,
     )
 
     suspend fun findById(invitationId: String): MemberInvitation?
 
     suspend fun listByOrganizationId(organizationId: Id<Organization>): List<MemberInvitation>
+
+    /** Every PENDING_ACTIVATION invitation across all organizations: the OWNER `instance-owner` snapshot. */
+    suspend fun listPending(): List<MemberInvitation>
 
     /**
      * Returns the PENDING_ACTIVATION invitation for [email] across all organizations, or null if none.

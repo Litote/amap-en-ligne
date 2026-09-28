@@ -1,5 +1,9 @@
+import 'dart:async';
+
+import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
@@ -22,6 +26,12 @@ class _MockOrganizationRepository extends Mock
 
 class _MockProducerAccountRepository extends Mock
     implements ProducerAccountRepository {}
+
+class _MockOwnerInvitationRepository extends Mock
+    implements OwnerInvitationRepository {}
+
+class _MockMemberInvitationRepository extends Mock
+    implements MemberInvitationRepository {}
 
 class _FakeMember extends Fake implements Member {}
 
@@ -96,14 +106,24 @@ void main() {
   late _MockMemberRepository memberRepo;
   late _MockOrganizationRepository orgRepo;
   late _MockProducerAccountRepository producerRepo;
+  late _MockOwnerInvitationRepository ownerInvitationRepo;
+  late _MockMemberInvitationRepository memberInvitationRepo;
 
   setUp(() {
     ownerRepo = _MockOwnerRepository();
     memberRepo = _MockMemberRepository();
     orgRepo = _MockOrganizationRepository();
     producerRepo = _MockProducerAccountRepository();
+    ownerInvitationRepo = _MockOwnerInvitationRepository();
+    memberInvitationRepo = _MockMemberInvitationRepository();
     when(
       () => producerRepo.watchAll(),
+    ).thenAnswer((_) => Stream.value(const []));
+    when(
+      () => ownerInvitationRepo.watchAll(),
+    ).thenAnswer((_) => Stream.value(const []));
+    when(
+      () => memberInvitationRepo.watchAll(),
     ).thenAnswer((_) => Stream.value(const []));
   });
 
@@ -112,6 +132,8 @@ void main() {
     memberRepository: memberRepo,
     organizationRepository: orgRepo,
     producerAccountRepository: producerRepo,
+    ownerInvitationRepository: ownerInvitationRepo,
+    memberInvitationRepository: memberInvitationRepo,
   );
 
   void mockData({
@@ -237,4 +259,32 @@ void main() {
       await bloc.close();
     },
   );
+
+  test('organizations cached after the members still reach the detail: the '
+      'membership shows the AMAP name, not its id', () async {
+    final orgs = StreamController<List<Organization>>();
+    addTearDown(orgs.close);
+    when(() => ownerRepo.watchAll()).thenAnswer((_) => Stream.value(const []));
+    when(() => memberRepo.watchAll()).thenAnswer(
+      (_) => Stream.value([_member(id: 'm-1', firstName: 'Claude')]),
+    );
+    when(() => orgRepo.watchAll()).thenAnswer((_) => orgs.stream);
+
+    final bloc = buildBloc()..add(const UserDetailEvent.loaded('m-1'));
+    final first = await _awaitFinalState(bloc) as UserDetailLoaded;
+    expect(first.userRow.memberships.single.organizationName, 'org-1');
+
+    orgs.add([_org()]);
+    final updated =
+        await bloc.stream
+                .firstWhere((s) => s is UserDetailLoaded)
+                .timeout(const Duration(seconds: 5))
+            as UserDetailLoaded;
+
+    expect(
+      updated.userRow.memberships.single.organizationName,
+      'AMAP des Pins',
+    );
+    await bloc.close();
+  });
 }

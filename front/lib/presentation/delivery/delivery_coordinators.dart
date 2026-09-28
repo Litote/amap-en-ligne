@@ -1,4 +1,5 @@
 import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/domain/model/delivery_contract_name.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/common/open_url_stub.dart'
@@ -86,8 +87,8 @@ class CompactCoordinatorsLine extends StatelessWidget {
 
 /// Detailed "👥 Coordinateurs :" section: one sub-row per active [DeliveryContract],
 /// showing coordinator name + tel: link (when [Member.phone] is set) or
-/// "(téléphone non communiqué)", or "Coordinateur à confirmer" when no
-/// coordinator is assigned. Contracts are filtered to show only those active
+/// "(téléphone non communiqué)", or [unnamedCoordinatorLabel] when no
+/// coordinator can be named. Contracts are filtered to show only those active
 /// on the delivery date (if [contracts] and [org] are provided).
 class CoordinatorsSection extends StatelessWidget {
   const CoordinatorsSection({
@@ -126,24 +127,12 @@ class CoordinatorsSection extends StatelessWidget {
           for (final contract in activeContracts)
             _ContractCoordinatorRow(
               contract: contract,
-              contractName: _contractName(contract),
+              contractName: deliveryContractName(contract, contracts),
               membersById: membersById,
             ),
         ],
       ),
     );
-  }
-
-  /// Resolves the contract name from the live [contracts] catalog by id, falling
-  /// back to the link's denormalized [DeliveryContract.deliveryDescription]
-  /// snapshot (which can be blank on older or preserved links).
-  String _contractName(DeliveryContract contract) {
-    final resolved = contracts
-        .where((c) => c.contractId == contract.contractId)
-        .map((c) => c.name)
-        .firstWhere((name) => name.trim().isNotEmpty, orElse: () => '');
-    if (resolved.isNotEmpty) return resolved;
-    return contract.deliveryDescription;
   }
 }
 
@@ -179,7 +168,7 @@ class _ContractCoordinatorRow extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 8, top: 2, bottom: 8),
             child: Text(
-              'Coordinateur à confirmer',
+              unnamedCoordinatorLabel(contract),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
@@ -193,7 +182,9 @@ class _ContractCoordinatorRow extends StatelessWidget {
               padding: const EdgeInsets.only(left: 8, top: 2, bottom: 2),
               child: Row(
                 children: [
-                  Expanded(
+                  // Loose fit: the phone follows the name instead of being
+                  // pushed to the card's right edge on wide screens.
+                  Flexible(
                     child: Text(
                       displayMemberName(coordinator),
                       style: Theme.of(context).textTheme.bodySmall,

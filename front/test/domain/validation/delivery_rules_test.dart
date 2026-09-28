@@ -44,4 +44,20 @@ void main() {
       'Le nombre minimum de bénévoles doit être au moins 1.',
     );
   });
+
+  group('isDeliveryClosable', () {
+    final now = DateTime(2026, 10, 1, 9);
+
+    test('allows closing on the scheduled day, even before its start', () {
+      expect(isDeliveryClosable('2026-10-01T18:00:00', now: now), isTrue);
+    });
+
+    test('allows closing a past delivery', () {
+      expect(isDeliveryClosable('2026-09-24T18:00:00', now: now), isTrue);
+    });
+
+    test('refuses closing before the scheduled day, like the back', () {
+      expect(isDeliveryClosable('2026-10-02T08:00:00', now: now), isFalse);
+    });
+  });
 }

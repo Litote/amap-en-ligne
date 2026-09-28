@@ -1,7 +1,10 @@
 package deploy.jvm
 
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -13,13 +16,11 @@ import org.junit.jupiter.api.parallel.ExecutionMode
 import persistence.changes.BootstrapScopeResult
 import persistence.changes.EntityPayload
 import persistence.changes.IncrementalScopeResult
-import persistence.changes.ProductTypePayload
 import persistence.changes.ScopeSyncResult
 import persistence.changes.SyncRequest
 import persistence.changes.SyncResponse
 import persistence.changes.SyncScope
 import persistence.model.EntityType
-import persistence.model.ProductType
 import serialization.json
 import java.nio.file.Files
 import java.nio.file.Path
@@ -42,10 +43,10 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
         }
 
     private fun executeScenario(scenario: AcceptanceScenario) {
-        assertEquals("empty", scenario.given.backendState, "Unsupported backendState in ${scenario.id}")
+        applyBackendState(scenario)
         assertEquals("fresh", scenario.given.appState, "Unsupported appState in ${scenario.id}")
 
-        val savedCursorRefs = mutableMapOf<String, String>()
+        val savedRefs = mutableMapOf<String, String>()
         var lastRawResponse: java.net.http.HttpResponse<String>? = null
         var lastDecodedResponse: SyncResponse? = null
 
@@ -53,8 +54,12 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
             assertEquals("client", step.actor, "Unsupported actor in ${scenario.id}")
             assertEquals("sync", step.action, "Unsupported action in ${scenario.id}")
 
-            val request = resolveRefs(step.request, savedCursorRefs)
-            val rawResponse = postRawSync(request)
+            val request = resolveRefs(step.request, savedRefs)
+            val rawResponse =
+                postRawSyncAs(
+                    token = tokenFor(step.caller, scenario.id),
+                    body = json.encodeToString(SyncRequest.serializer(), request),
+                )
             lastRawResponse = rawResponse
             lastDecodedResponse =
                 if (rawResponse.statusCode() == 200) {
@@ -63,10 +68,28 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
                     null
                 }
 
+            step.expect?.let { stepExpectation ->
+                assertEquals(stepExpectation.statusCode, rawResponse.statusCode(), "Unexpected step status in ${scenario.id}")
+                if (stepExpectation.statusCode == 200) {
+                    assertSyncResponse(
+                        scenarioId = scenario.id,
+                        actual = assertNotNull(lastDecodedResponse),
+                        expected = stepExpectation,
+                        savedRefs = savedRefs,
+                    )
+                }
+            }
+
             step.save?.cursorRefs?.forEach { (scopeKey, refName) ->
                 val cursor = lastDecodedResponse?.cursorFor(scopeKey)
                 assertNotNull(cursor, "Missing cursor for $scopeKey in ${scenario.id}")
-                savedCursorRefs[refName] = cursor
+                savedRefs[refName] = cursor
+            }
+            step.save?.entityIdRefs?.forEach { (clientOpId, refName) ->
+                val outcome = lastDecodedResponse?.mutations?.find { it.clientOpId == clientOpId }
+                val serverEntityId = outcome?.serverEntityId
+                assertNotNull(serverEntityId, "Missing serverEntityId for $clientOpId in ${scenario.id}: $outcome")
+                savedRefs[refName] = serverEntityId
             }
         }
 
@@ -83,33 +106,96 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
                 scenarioId = scenario.id,
                 actual = assertNotNull(lastDecodedResponse),
                 expected = lastResponseExpectation,
+                savedRefs = savedRefs,
             )
         }
     }
 
+    /**
+     * Supported `given.backendState` values: `empty`, or `organization {organizationId}` (the AMAP exists, with the
+     * optional `given.members` seeded in it).
+     */
+    private fun applyBackendState(scenario: AcceptanceScenario) {
+        scenario.given.producerAccounts.forEach { insertProducerAccountDirectly(it.producerAccountId, it.name) }
+        val backendState = scenario.given.backendState
+        when {
+            backendState == "empty" -> {
+                Unit
+            }
+
+            backendState.startsWith(ORGANIZATION_STATE_PREFIX) -> {
+                val organizationId = backendState.removePrefix(ORGANIZATION_STATE_PREFIX)
+                insertOrganizationDirectly(organizationId)
+                scenario.given.members.forEach { member ->
+                    insertMemberDirectly(memberId = member.memberId, organizationId = organizationId, roles = member.roles)
+                }
+            }
+
+            else -> {
+                error("Unsupported backendState `$backendState` in ${scenario.id}")
+            }
+        }
+    }
+
+    /** Mints the token for a step's `as` caller; an admin is backed by an ADMIN member row of its AMAP. */
+    private fun tokenFor(
+        caller: String?,
+        scenarioId: String,
+    ): String =
+        when {
+            caller == null || caller == "producer" -> {
+                bearerToken
+            }
+
+            caller == "owner" -> {
+                mintGoTrueToken(
+                    subject = "acceptance-owner",
+                    email = "acceptance-owner@example.com",
+                    roles = listOf("OWNER"),
+                    producerAccountId = null,
+                )
+            }
+
+            caller.startsWith(ADMIN_CALLER_PREFIX) -> {
+                val organizationId = caller.removePrefix(ADMIN_CALLER_PREFIX)
+                val adminSub = "acceptance-admin-$organizationId"
+                insertMemberDirectly(memberId = adminSub, organizationId = organizationId, roles = listOf("ADMIN"))
+                mintGoTrueToken(
+                    subject = adminSub,
+                    email = "$adminSub@example.com",
+                    roles = listOf("ADMIN"),
+                    organizationId = organizationId,
+                    producerAccountId = null,
+                )
+            }
+
+            else -> {
+                error("Unsupported caller `$caller` in $scenarioId")
+            }
+        }
+
+    /** Replaces every `$ref:{name}` string of the request (cursors, entity ids…) by the value saved by an earlier step. */
     private fun resolveRefs(
         request: SyncRequest,
-        savedCursorRefs: Map<String, String>,
+        savedRefs: Map<String, String>,
     ): SyncRequest =
-        request.copy(
-            cursors =
-                request.cursors.entries.associate { (scopeKey, rawCursor) ->
-                    val cursor =
-                        rawCursor?.let {
-                            if (it.startsWith("\$ref:")) {
-                                savedCursorRefs.getValue(it.removePrefix("\$ref:"))
-                            } else {
-                                it
-                            }
-                        }
-                    scopeKey to cursor
-                },
+        json.decodeFromJsonElement(
+            SyncRequest.serializer(),
+            json.encodeToJsonElement(SyncRequest.serializer(), request).resolveRefs(savedRefs),
         )
+
+    private fun JsonElement.resolveRefs(savedRefs: Map<String, String>): JsonElement =
+        when (this) {
+            is JsonObject -> JsonObject(mapValues { (_, value) -> value.resolveRefs(savedRefs) })
+            is JsonArray -> JsonArray(map { it.resolveRefs(savedRefs) })
+            is JsonPrimitive -> if (isString) JsonPrimitive(savedRefs.resolveRef(content)) else this
+        }
 
     private fun assertSyncResponse(
         scenarioId: String,
         actual: SyncResponse,
         expected: AcceptanceResponseExpectation,
+        savedRefs: Map<String, String>,
     ) {
         assertEquals(
             expected.mutationOutcomes.size,
@@ -122,10 +208,17 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
                     actual.mutations.find { it.clientOpId == expectedOutcome.clientOpId },
                     "Missing mutation outcome ${expectedOutcome.clientOpId} in $scenarioId",
                 )
-            assertEquals(expectedOutcome.status, actualOutcome.status, "Unexpected mutation status in $scenarioId")
+            assertEquals(expectedOutcome.status, actualOutcome.status, "Unexpected mutation status in $scenarioId: $actualOutcome")
+            expectedOutcome.error?.let { expectedError ->
+                assertEquals(
+                    expectedError.code,
+                    actualOutcome.error?.code?.name,
+                    "Unexpected error code for ${expectedOutcome.clientOpId} in $scenarioId",
+                )
+            }
             expectedOutcome.serverEntityId?.let { expectation ->
                 assertStringExpectation(
-                    expectation = expectation,
+                    expectation = expectation.copy(value = expectation.value?.let(savedRefs::resolveRef)),
                     actual = actualOutcome.serverEntityId,
                     label = "serverEntityId for ${expectedOutcome.clientOpId} in $scenarioId",
                 )
@@ -162,13 +255,19 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
             assertEquals(expectedCount, actualCount, "Unexpected change count for $entityType in $scenarioId")
         }
 
-        val allChanges = actual.incrementalChanges()
         expected.containsChanges.forEach { expectedChange ->
+            val scopedChanges =
+                actual.results
+                    .filterKeys { expectedChange.scopeKey == null || it == expectedChange.scopeKey }
+                    .values
+                    .filterIsInstance<IncrementalScopeResult>()
+                    .flatMap { it.changes }
             assertTrue(
-                allChanges.any {
+                scopedChanges.any {
                     it.entityType == expectedChange.entityType &&
-                        it.entityId == expectedChange.entityId &&
-                        it.op.name == expectedChange.op
+                        it.entityId == savedRefs.resolveRef(expectedChange.entityId) &&
+                        it.op.name == expectedChange.op &&
+                        (expectedChange.payload == null || it.payload?.let { p -> payloadMatches(p, expectedChange.payload) } == true)
                 },
                 "Missing change $expectedChange in $scenarioId",
             )
@@ -221,6 +320,7 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
                 EntityType.Owner,
                 EntityType.OwnerInvitation,
                 EntityType.Member,
+                EntityType.MemberInvitation,
                 -> SyncScope.InstanceOwner.key
 
                 else -> null
@@ -242,25 +342,29 @@ class AcceptanceScenariosTest : JvmSyncTestSupport() {
             }
         }
 
+    /** Matches the entity object of [payload] (the object-valued field next to `type`) against [expectedSubset]. */
     private fun payloadMatches(
         payload: EntityPayload,
         expectedSubset: JsonObject,
     ): Boolean {
         val actualObject =
-            when (payload) {
-                is ProductTypePayload -> {
-                    json
-                        .encodeToJsonElement(ProductType.serializer(), payload.productType)
-                        .jsonObject
-                }
-
-                else -> {
-                    error("Unsupported payload type for acceptance scenario matching: ${payload::class.simpleName}")
-                }
-            }
+            json
+                .encodeToJsonElement(EntityPayload.serializer(), payload)
+                .jsonObject
+                .values
+                .filterIsInstance<JsonObject>()
+                .single()
         return expectedSubset.entries.all { (key, expectedValue) -> actualObject[key] == expectedValue }
     }
 }
+
+private const val ORGANIZATION_STATE_PREFIX = "organization "
+private const val REF_PREFIX = "\$ref:"
+
+private fun Map<String, String>.resolveRef(value: String): String =
+    if (value.startsWith(REF_PREFIX)) getValue(value.removePrefix(REF_PREFIX)) else value
+
+private const val ADMIN_CALLER_PREFIX = "admin:"
 
 private fun loadAcceptanceScenarios(): List<AcceptanceScenario> =
     Files

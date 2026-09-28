@@ -3,8 +3,8 @@ import 'package:amap_en_ligne/domain/model/basket_exchange_view.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/shared_basket_view.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 /// Modal dialog for sending a request on an available basket-exchange offer.
 ///
@@ -94,12 +94,18 @@ class _SubmitRequestDialogState extends State<SubmitRequestDialog> {
     return null;
   }
 
-  /// Whether the requester holds [dc]'s basket on [deliveryId] (true for non-shared contracts).
+  /// Whether the requester may exchange [dc]'s basket on [deliveryId]: subscribed to the
+  /// contract and, for a shared basket, holding it that week (unknown contract ⇒ true).
   bool _holdsBasket(DeliveryContract dc, String deliveryId) {
     final contract = _contractById(dc.contractId);
     if (contract == null) return true;
     final ordered = contractDeliveriesOrdered(widget.org, contract.contractId);
-    return memberHoldsBasketOn(contract, ordered, deliveryId, widget.memberId);
+    return memberMayOfferBasketOn(
+      contract,
+      ordered,
+      deliveryId,
+      widget.memberId,
+    );
   }
 
   bool get _canSubmit {
@@ -112,15 +118,23 @@ class _SubmitRequestDialogState extends State<SubmitRequestDialog> {
   String _formatDeliveryLabel(Delivery d) {
     final date = DateTime.tryParse(d.scheduledDate);
     if (date == null) return d.deliveryId;
-    final datePart = DateFormat('EEEE d MMM', 'fr').format(date);
+    final datePart = frenchDateFormat('EEEE d MMM').format(date);
     final capitalised = datePart[0].toUpperCase() + datePart.substring(1);
-    final descriptions = d.contracts
-        .map((c) => c.deliveryDescription)
-        .where((desc) => desc.isNotEmpty)
+    // Only the contracts whose basket the member may exchange that week.
+    final names = d.contracts
+        .where((c) => _holdsBasket(c, d.deliveryId))
+        .map(_contractLabel)
+        .where((name) => name.isNotEmpty)
         .toSet()
         .join(' + ');
-    if (descriptions.isEmpty) return capitalised;
-    return '$capitalised • $descriptions';
+    if (names.isEmpty) return capitalised;
+    return '$capitalised • $names';
+  }
+
+  /// The contract name, falling back to the link's description snapshot.
+  String _contractLabel(DeliveryContract dc) {
+    final name = _contractById(dc.contractId)?.name.trim() ?? '';
+    return name.isNotEmpty ? name : dc.deliveryDescription;
   }
 
   void _submit() {
@@ -144,6 +158,7 @@ class _SubmitRequestDialogState extends State<SubmitRequestDialog> {
 
     return AlertDialog(
       title: const Text('Demander cet échange'),
+      semanticLabel: 'Demander cet échange',
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -218,7 +233,7 @@ class _SubmitRequestDialogState extends State<SubmitRequestDialog> {
                       (c) => DropdownMenuItem(
                         value: c,
                         child: Text(
-                          c.deliveryDescription,
+                          _contractLabel(c),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

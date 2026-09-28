@@ -251,6 +251,27 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('EXCHANGE HOME'), findsOneWidget);
+      // Opened on an already settled offer (e.g. from an old notification):
+      // nothing was just accepted.
+      expect(find.text('Cet échange est déjà conclu.'), findsOneWidget);
+      expect(find.text('Échange accepté.'), findsNothing);
     },
   );
+
+  testWidgets('confirms the acceptance when the offer closes while open', (
+    tester,
+  ) async {
+    final controller = StreamController<List<BasketExchange>>();
+    when(() => exchangeRepo.watch(_orgId)).thenAnswer((_) => controller.stream);
+    addTearDown(controller.close);
+
+    await pump(tester);
+    controller.add([_offer()]);
+    await tester.pumpAndSettle();
+    controller.add([_offer(status: BasketExchangeStatus.accepted)]);
+    await tester.pumpAndSettle();
+
+    expect(find.text('EXCHANGE HOME'), findsOneWidget);
+    expect(find.text('Échange accepté.'), findsOneWidget);
+  });
 }

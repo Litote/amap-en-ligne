@@ -172,7 +172,6 @@ Sous-modal ouvert depuis le bouton `[Modifier]` d'une ligne d'appartenance AMAP 
 │  ║  Au moins un rôle doit être sélectionné.            ║   │
 │  ║  L'AMAP doit conserver au moins un Admin.           ║   │
 │  ║                                                     ║   │
-│  ║  [RETIRER DE L'AMAP]                                ║   │
 │  ║  [ANNULER]                          [SAUVEGARDER]   ║   │
 │  ╚═════════════════════════════════════════════════════╝   │
 │                                                             │
@@ -217,8 +216,9 @@ Sous-modal ouvert depuis le bouton `[Modifier]` d'une ligne d'appartenance AMAP 
 | Action | Comportement |
 |--------|-------------|
 | [SAUVEGARDER] | Persiste la nouvelle liste de rôles AMAP sur le `Member` ; respecte la contrainte « au moins un Admin par AMAP » |
-| [RETIRER DE L'AMAP] | Supprime le `Member` correspondant ; bloqué si cela laisserait l'`Organization` sans Admin |
 | [ANNULER] | Ferme le modal sans action ; retour au dialog Détail |
+
+> Le retrait d'un membre d'une AMAP n'est pas proposé à l'Owner : il relève de l'Admin de l'AMAP (gestion des membres). L'Owner dispose de la suspension et de la suppression de l'instance pour les cas graves.
 
 > L'invitation d'un nouvel `OWNER` n'est pas accessible depuis cet écran : elle est traitée par l'écran dédié [`screen-owner-04-invite-owner.md`](screen-owner-04-invite-owner.md), atteignable depuis l'entrée « Nouvel Administrateur » du tableau de bord.
 
@@ -251,7 +251,7 @@ Un utilisateur peut cumuler plusieurs badges **uniquement** lorsqu'il porte des 
 | Situation | Comportement |
 |-----------|-------------|
 | Aucun résultat correspondant aux filtres | « Aucun utilisateur ne correspond aux critères. » |
-| Retrait du dernier `ADMIN` d'une AMAP via [RETIRER DE L'AMAP] | Action bloquée — message : « Cette AMAP doit conserver au moins un Admin. » |
+| Retrait du rôle Admin du dernier `ADMIN` d'une AMAP via [SAUVEGARDER] | Action bloquée — message : « Cette AMAP doit conserver au moins un Admin. » |
 | Suppression d'un utilisateur `PRODUCER` actif | Confirmation renforcée — l'utilisateur perd l'accès, l'`Organization` productrice est conservée et doit être rattachée à un autre utilisateur |
 | Chargement en cours | Spinner inline sur les boutons d'action ; boutons désactivés |
 

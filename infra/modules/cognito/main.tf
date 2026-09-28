@@ -36,6 +36,15 @@ resource "aws_cognito_user_pool" "main" {
 
   mfa_configuration = "OFF"
 
+  # No public self sign-up: the client_id is published in /.well-known, so an
+  # open SignUp API would let anyone create (role-less) users and trigger code
+  # emails. Accounts are only created by the back through the admin API
+  # (AdminCreateUser + AdminSetUserPassword on activation) and by Terraform for
+  # the initial owner; login, refresh and forgot-password are unaffected.
+  admin_create_user_config {
+    allow_admin_create_user_only = true
+  }
+
   # Code email sent by Cognito for forgot password and email address
   # verification (invitations are suppressed: the back sends its own
   # activation emails). {####} is replaced by the code.

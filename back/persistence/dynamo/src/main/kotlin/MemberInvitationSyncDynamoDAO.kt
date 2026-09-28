@@ -27,6 +27,13 @@ import kotlin.time.Instant
 
 private const val PK = "MINV"
 private const val LOCK_PK_PREFIX = "MINV_LOCK#"
+
+/**
+ * Pending-invitation lock key of [email]. Emails are compared without letter case
+ * (as the member and join-request checks do): "Alice@x.fr" and "alice@x.fr" share one lock.
+ */
+private fun lockPkOf(email: String): String = LOCK_PK_PREFIX + email.trim().lowercase()
+
 private const val LOCK_SK = "LOCK"
 
 @Single(createdAtStart = true, binds = [MemberInvitationSyncDAO::class])
@@ -35,9 +42,9 @@ internal class MemberInvitationSyncDynamoDAO(
 ) : MemberInvitationSyncDAO {
     override suspend fun put(
         invitation: MemberInvitation,
-        change: Change,
+        changes: List<Change>,
     ) {
-        val lockPk = "$LOCK_PK_PREFIX${invitation.email}"
+        val lockPk = lockPkOf(invitation.email)
         val transactItems =
             buildList {
                 add(
@@ -49,15 +56,17 @@ internal class MemberInvitationSyncDynamoDAO(
                             }
                     },
                 )
-                add(
-                    TransactWriteItem {
-                        put =
-                            Put {
-                                tableName = client.table
-                                item = change.toAttributeValueMap()
-                            }
-                    },
-                )
+                changes.forEach { change ->
+                    add(
+                        TransactWriteItem {
+                            put =
+                                Put {
+                                    tableName = client.table
+                                    item = change.toAttributeValueMap()
+                                }
+                        },
+                    )
+                }
                 when (invitation.status) {
                     MemberInvitationStatus.PENDING_ACTIVATION -> {
                         // Acquire or hold the email lock.
@@ -162,9 +171,34 @@ internal class MemberInvitationSyncDynamoDAO(
         return response.items.orEmpty().map { it.toMemberInvitation() }
     }
 
+    override suspend fun listPending(): List<MemberInvitation> {
+        val items = mutableListOf<Map<String, AttributeValue>>()
+        var startKey: Map<String, AttributeValue>? = null
+        do {
+            val response =
+                client.client.query(
+                    QueryRequest {
+                        tableName = client.table
+                        keyConditionExpression = "pk = :pk"
+                        filterExpression = "#status = :pending"
+                        expressionAttributeNames = mapOf("#status" to "status")
+                        expressionAttributeValues =
+                            mapOf(
+                                ":pk" to AttributeValue.S(PK),
+                                ":pending" to AttributeValue.S(MemberInvitationStatus.PENDING_ACTIVATION.name),
+                            )
+                        exclusiveStartKey = startKey
+                    },
+                )
+            items += response.items.orEmpty()
+            startKey = response.lastEvaluatedKey?.takeIf { it.isNotEmpty() }
+        } while (startKey != null)
+        return items.map { it.toMemberInvitation() }
+    }
+
     override suspend fun findPendingByEmail(email: String): MemberInvitation? {
         // Step 1: look up the email lock item to find the invitation id.
-        val lockPk = "$LOCK_PK_PREFIX$email"
+        val lockPk = lockPkOf(email)
         val lockResponse =
             client.client.getItem(
                 GetItemRequest {

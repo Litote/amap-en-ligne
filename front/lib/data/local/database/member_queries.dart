@@ -149,6 +149,25 @@ mixin _MemberQueries on _$AppDatabase, _OrganizationQueries {
     ),
   );
 
+  /// Returns a reactive stream of **all** [MemberInvitation] rows across all
+  /// organisations — the OWNER `instance-owner` feed carries the pending ones.
+  Stream<List<MemberInvitation>> watchAllMemberInvitations() =>
+      select(memberInvitations).watch().map(
+        (rows) => rows
+            .map(
+              (r) => MemberInvitation.fromJson(
+                jsonDecode(r.dataJson) as Map<String, dynamic>,
+              ),
+            )
+            .toList(),
+      );
+
+  /// Deletes the invitation [invitationId] whatever its organization (a
+  /// tombstone received on the `instance-owner` scope carries no org).
+  Future<void> deleteMemberInvitationById(String invitationId) => (delete(
+    memberInvitations,
+  )..where((t) => t.invitationId.equals(invitationId))).go();
+
   Future<void> deleteMemberInvitation(
     String organizationId,
     String invitationId,
@@ -164,6 +183,19 @@ mixin _MemberQueries on _$AppDatabase, _OrganizationQueries {
       (delete(
         memberInvitations,
       )..where((t) => t.organizationId.equals(organizationId))).go();
+
+  /// Every cached join request, whatever its organization (the notification
+  /// inbox is not organization-scoped).
+  Stream<List<AdminMemberJoinRequest>> watchAllMemberJoinRequests() =>
+      select(memberJoinRequests).watch().map(
+        (rows) => rows
+            .map(
+              (r) => AdminMemberJoinRequest.fromJson(
+                jsonDecode(r.dataJson) as Map<String, dynamic>,
+              ),
+            )
+            .toList(),
+      );
 
   Stream<List<AdminMemberJoinRequest>> watchMemberJoinRequests(
     String organizationId,

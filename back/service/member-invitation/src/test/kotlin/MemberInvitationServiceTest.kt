@@ -11,11 +11,13 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
+import persistence.changes.Change
 import persistence.changes.ClientMutation
 import persistence.changes.Delete
 import persistence.changes.MemberInvitationPayload
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
+import persistence.changes.SyncScope
 import persistence.changes.Upsert
 import persistence.dao.ActivationTokenDAO
 import persistence.dao.MemberInvitationSyncDAO
@@ -333,5 +335,37 @@ internal class MemberInvitationServiceTest {
                 assertEquals(MutationErrorCode.INVALID_PAYLOAD, outcome.error?.code)
             }
             coVerify(exactly = 0) { memberInvitationDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN tmp invitation WHEN applyUpsert THEN the change is also fanned out on instance-owner`() =
+        runTest {
+            coEvery { memberSyncDAO.getByOrganizationId(any()) } returns emptyList()
+            coEvery { memberInvitationDAO.findPendingByEmail(any()) } returns null
+            val changesSlot = slot<List<Change>>()
+
+            service.applyUpsert(
+                auth = adminAuth,
+                mutation = ClientMutation("op-1", Upsert(MemberInvitationPayload(buildInvitation()))),
+                payload = MemberInvitationPayload(buildInvitation()),
+            )
+
+            coVerify { memberInvitationDAO.put(any(), capture(changesSlot)) }
+            assertEquals(
+                listOf(SyncScope.Organization("org-123").key, SyncScope.InstanceOwner.key),
+                changesSlot.captured.map { it.scopeKey },
+            )
+        }
+
+    @Test
+    fun `GIVEN pending invitations WHEN snapshot of instance-owner THEN returns them`() =
+        runTest {
+            val pending = buildInvitation("inv-1")
+            coEvery { memberInvitationDAO.listPending() } returns listOf(pending)
+            val ownerAuth = adminAuth.copy(organizationId = null, roles = listOf(Role.OWNER))
+
+            val snapshot = service.snapshot(ownerAuth, SyncScope.InstanceOwner)
+
+            assertEquals(listOf(MemberInvitationPayload(pending)), snapshot)
         }
 }

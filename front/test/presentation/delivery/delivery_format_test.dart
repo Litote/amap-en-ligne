@@ -24,6 +24,16 @@ void main() {
       expect(formatDeliveryDateLine(wednesday), endsWith('• 18h-20h'));
     });
 
+    test('writes the first of the month "1er" in both styles', () {
+      // 2026-10-01 is a Thursday.
+      const firstOfMonth = '2026-10-01T18:00:00';
+      expect(
+        formatDeliveryDateLine(firstOfMonth, longMonth: true),
+        'Jeudi 1er octobre • 18h00-20h00',
+      );
+      expect(formatDeliveryDateLine(firstOfMonth), startsWith('Jeudi 1er oct'));
+    });
+
     test('uses the provided slot end time for the range end', () {
       expect(
         formatDeliveryDateLine(wednesday, slotEndTime: '2026-01-14T19:30:00'),

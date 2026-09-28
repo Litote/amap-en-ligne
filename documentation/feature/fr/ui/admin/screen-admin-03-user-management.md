@@ -11,7 +11,7 @@ L'écran est **entièrement servi par le sync offline-first** : la liste des mem
 
 - **Liste des membres actifs** : lecture du scope `organization:{id}` (entité `Member`, qui porte désormais `firstName`/`lastName`/`email`/`phone` + `accountStatus`).
 - **Invitations en attente** : lecture de la même scope (entité `MemberInvitation`, synchronisée).
-- **Inviter un membre** : `Upsert(MemberInvitationPayload)` avec id `tmp_*` ; le back génère le token et envoie l'email lors de l'application de la mutation, et renvoie le `invitation_id` via `MutationOutcome.serverEntityId`.
+- **Inviter un membre** : `Upsert(MemberInvitationPayload)` avec id `tmp_*` ; le back génère le token et envoie l'email lors de l'application de la mutation, et renvoie le `invitation_id` via `MutationOutcome.serverEntityId`. Après un envoi refusé, chaque champ fautif affiche son erreur (« Ce champ est requis. », « Adresse email invalide. », « Choisissez au moins un rôle. ») en plus du message général ; l'email d'un membre existant ou d'une invitation en attente (casse ignorée) est refusé avant l'envoi (« Une invitation est déjà en attente pour cet email. »).
 - **Relancer une invitation** : nouveau `Upsert(MemberInvitationPayload)` avec `resend_requested_at` fraîchement mis à jour ; le back régénère le token et renvoie l'email.
 - **Modifier les rôles, activer, suspendre, supprimer** : `Upsert/Delete(MemberPayload)` — `MemberService` côté back orchestre les side-effects (`UserProvisioningPort.banUser/unbanUser/deleteUser`, `AccountLifecycleEmailPort`, `AccountDeletionLog`).
 - **Rejets serveur** : `MutationOutcome.error.code` porte `LAST_ADMIN` / `SELF_ACTION_FORBIDDEN` / `FORBIDDEN` ; le front transforme ces codes en SnackBars contextuels.
@@ -121,7 +121,7 @@ Un membre actif peut afficher plusieurs badges de rôle simultanément. Exemples
 - **🟢 Coordinateur** : Membre ayant le rôle Coordinateur
 - **🔵 Amapien** : Membre ayant le rôle Amapien (membre standard)
 - **🟣 Admin • 🟢 Coordinateur** : Membre cumulant les deux rôles
-- **🟡 Invitation envoyée** : En attente d'activation, possibilité de relance
+- **🟡 Invité** : Invitation en attente d'activation (même libellé que la liste des utilisateurs owner), possibilité de relance. La ligne indique « Invitation créée le … », puis « Dernière relance le … » après un renvoi : une invitation créée par l'import d'une AMAP n'est envoyée par email qu'à la demande de l'admin ([DEMANDER LA CONNEXION] ou [Relancer])
 - **🔴 Compte suspendu** : Accès temporairement désactivé
 - **⚫ Compte supprimé** : Membre retiré de l'organisation
 

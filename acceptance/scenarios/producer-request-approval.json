@@ -1,9 +1,61 @@
 {
   "id": "producer-request-approval",
   "title": "A producer request can be submitted publicly, reviewed from the owner sync feed, and provision a producer activation path",
-  "targets": ["flutter"],
+  "targets": [
+    "organization-flow",
+    "flutter"
+  ],
   "given": {
-    "backendState": "owner sync scope is available and producer requests are public",
+    "backendState": "empty",
     "appState": "fresh instance-owner cache"
+  },
+  "when": [
+    {
+      "actor": "requester",
+      "action": "submit_producer_request",
+      "request": {
+        "producer_name": "Ferme des Collines",
+        "admin_first_name": "Alice",
+        "admin_last_name": "Martin",
+        "admin_email": "alice@collines.fr"
+      },
+      "save": {
+        "requestIdRef": "requestId"
+      }
+    },
+    {
+      "actor": "owner",
+      "action": "review_producer_request",
+      "params": {
+        "requestId": "$ref:requestId",
+        "status": "APPROVED"
+      }
+    },
+    {
+      "actor": "owner",
+      "action": "owner_sync"
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "snapshotContains": [
+        {
+          "entityType": "ProducerRequest",
+          "fields": {
+            "admin_email": "alice@collines.fr",
+            "status": "APPROVED"
+          }
+        },
+        {
+          "entityType": "ProducerAccount",
+          "fields": {
+            "name": "Ferme des Collines",
+            "contact_email": "alice@collines.fr",
+            "pending_activation": true
+          }
+        }
+      ]
+    }
   }
 }

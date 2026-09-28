@@ -1,9 +1,9 @@
 import 'package:amap_en_ligne/domain/model/member_join_request.dart';
-import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_creation_request.dart';
 import 'package:amap_en_ligne/domain/model/organization_request_response.dart';
 import 'package:amap_en_ligne/domain/model/producer_creation_request.dart';
 import 'package:amap_en_ligne/domain/model/producer_request_response.dart';
+import 'package:amap_en_ligne/domain/model/public_organization.dart';
 import 'package:dio/dio.dart';
 
 const _emptyBodyError = FormatException('Empty body');
@@ -26,13 +26,13 @@ class PublicApi {
 
   final Dio _dio;
 
-  Future<List<Organization>> listOrganizations() async {
+  Future<List<PublicOrganization>> listOrganizations() async {
     final response = await _dio.get<List<dynamic>>('/v1/public/organizations');
     final body = response.data;
     if (body == null) return [];
     return body
         .cast<Map<String, dynamic>>()
-        .map(Organization.fromJson)
+        .map(PublicOrganization.fromJson)
         .toList();
   }
 

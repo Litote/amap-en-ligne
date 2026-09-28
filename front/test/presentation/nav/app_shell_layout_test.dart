@@ -86,4 +86,64 @@ void main() {
       expect(find.byTooltip('Fermer le menu'), findsNothing);
     },
   );
+
+  testWidgets(
+    'desktop layout just above the breakpoint: no menu button, the sidebar '
+    'is already visible',
+    (tester) async {
+      // 1280 px: the content area (1280 − 281 px) is below 1024, but the
+      // window is not — the sidebar is permanent, so the button is useless.
+      tester.view.physicalSize = const Size(1280, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider<AuthBloc>.value(
+            value: authBloc,
+            child: const AppShellLayout(
+              child: ConnectedScaffold(title: 'Test', body: SizedBox()),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byKey(const Key('nav_menu_button')), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'desktop layout: the sidebar stays in the semantics tree when the '
+    'content is a navigator route',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(1280, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      // The content of the shell is a nested navigator (go_router
+      // ShellRoute): its route's modal barrier blocks the semantics of
+      // everything painted before it in the same semantics container.
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider<AuthBloc>.value(
+            value: authBloc,
+            child: AppShellLayout(
+              child: Navigator(
+                onGenerateRoute: (_) => MaterialPageRoute<void>(
+                  builder: (_) =>
+                      const ConnectedScaffold(title: 'Test', body: SizedBox()),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.bySemanticsLabel('Se déconnecter'), findsOneWidget);
+      semantics.dispose();
+    },
+  );
 }

@@ -1,7 +1,7 @@
 {
   "id": "product-type-component-catalog-persisted",
   "title": "A product type's basket-component catalog (item_types, inline SVG icons) is persisted and served back by the bootstrap snapshot",
-  "targets": ["server"],
+  "targets": ["server", "flutter"],
   "given": {
     "backendState": "empty",
     "appState": "fresh"

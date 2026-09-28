@@ -302,6 +302,69 @@ void main() {
     ).called(1),
   );
 
+  group('save stamps the edited compositions', () {
+    const unchanged = BasketDeliveryDescription(
+      productTypeId: 'pt-1',
+      basketSizeName: 'Small',
+      items: [DeliveryItem(itemTypeId: 'it-2', name: 'courgettes')],
+      itemsUpdatedAt: '2025-01-01T00:00:00.000Z',
+    );
+    const edited = BasketDeliveryDescription(
+      productTypeId: 'pt-1',
+      basketSizeName: 'Medium',
+      items: [DeliveryItem(itemTypeId: 'it-1', name: 'carottes')],
+    );
+    final delivery = _delivery.copyWith(
+      basketDescriptions: [
+        unchanged,
+        edited.copyWith(items: const []),
+      ],
+    );
+    List<BasketDeliveryDescription>? saved;
+
+    blocTest<DeliveryDescriptionBloc, DeliveryDescriptionState>(
+      'GIVEN one composition edited WHEN SaveRequested THEN only it gets the '
+      'current timestamp, through the injected save',
+      build: () => DeliveryDescriptionBloc(
+        organizationRepository: orgRepo,
+        productTypeRepository: productTypeRepo,
+        now: () => DateTime.utc(2026, 10, 1, 11),
+        save:
+            ({
+              required org,
+              required delivery,
+              required descriptions,
+              required itemTypes,
+            }) async => saved = descriptions,
+      ),
+      seed: () => DeliveryDescriptionLoaded(
+        org: _org,
+        delivery: delivery,
+        productTypes: const [_productType],
+        localDescriptions: const [unchanged, edited],
+      ),
+      act: (bloc) => bloc.add(const DeliveryDescriptionEvent.saveRequested()),
+      expect: () => [
+        const DeliveryDescriptionState.saving(),
+        const DeliveryDescriptionState.saved(),
+      ],
+      verify: (_) {
+        expect(saved, [
+          unchanged,
+          edited.copyWith(itemsUpdatedAt: '2026-10-01T11:00:00.000Z'),
+        ]);
+        verifyNever(
+          () => orgRepo.updateDeliveryDescription(
+            currentOrg: any(named: 'currentOrg'),
+            deliveryId: any(named: 'deliveryId'),
+            basketDescriptions: any(named: 'basketDescriptions'),
+            itemTypes: any(named: 'itemTypes'),
+          ),
+        );
+      },
+    );
+  });
+
   // ---------------------------------------------------------------------------
   // Error paths — the raw exception never reaches the displayed message
   // ---------------------------------------------------------------------------

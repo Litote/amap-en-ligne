@@ -1184,7 +1184,10 @@ as String?,
 /// @nodoc
 mixin _$BasketDeliveryDescription {
 
-@JsonKey(name: 'product_type_id') String get productTypeId;@JsonKey(name: 'basket_size_name') String get basketSizeName; List<DeliveryItem> get items;
+@JsonKey(name: 'product_type_id') String get productTypeId;@JsonKey(name: 'basket_size_name') String get basketSizeName; List<DeliveryItem> get items;/// ISO instant of the last edit of [items] in a composition editor
+/// (coordinator or producer). The back keeps the stored items when a write
+/// carries an older (or no) timestamp — a stale cached copy.
+@JsonKey(name: 'items_updated_at') String? get itemsUpdatedAt;
 /// Create a copy of BasketDeliveryDescription
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1198,20 +1201,20 @@ $BasketDeliveryDescriptionCopyWith<BasketDeliveryDescription> get copyWith => _$
 @override
 bool operator ==(Object other) {
   final _this = this as BasketDeliveryDescription;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketDeliveryDescription&&(identical(other.productTypeId, _this.productTypeId) || other.productTypeId == _this.productTypeId)&&(identical(other.basketSizeName, _this.basketSizeName) || other.basketSizeName == _this.basketSizeName)&&const DeepCollectionEquality().equals(other.items, _this.items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BasketDeliveryDescription&&(identical(other.productTypeId, _this.productTypeId) || other.productTypeId == _this.productTypeId)&&(identical(other.basketSizeName, _this.basketSizeName) || other.basketSizeName == _this.basketSizeName)&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.itemsUpdatedAt, _this.itemsUpdatedAt) || other.itemsUpdatedAt == _this.itemsUpdatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as BasketDeliveryDescription;
-  return Object.hash(runtimeType,_this.productTypeId,_this.basketSizeName,const DeepCollectionEquality().hash(_this.items));
+  return Object.hash(runtimeType,_this.productTypeId,_this.basketSizeName,const DeepCollectionEquality().hash(_this.items),_this.itemsUpdatedAt);
 }
 
 @override
 String toString() {
   final _this = this as BasketDeliveryDescription;
-  return 'BasketDeliveryDescription(productTypeId: ${_this.productTypeId}, basketSizeName: ${_this.basketSizeName}, items: ${_this.items})';
+  return 'BasketDeliveryDescription(productTypeId: ${_this.productTypeId}, basketSizeName: ${_this.basketSizeName}, items: ${_this.items}, itemsUpdatedAt: ${_this.itemsUpdatedAt})';
 }
 
 
@@ -1222,7 +1225,7 @@ abstract mixin class $BasketDeliveryDescriptionCopyWith<$Res>  {
   factory $BasketDeliveryDescriptionCopyWith(BasketDeliveryDescription value, $Res Function(BasketDeliveryDescription) _then) = _$BasketDeliveryDescriptionCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'product_type_id') String productTypeId,@JsonKey(name: 'basket_size_name') String basketSizeName, List<DeliveryItem> items
+@JsonKey(name: 'product_type_id') String productTypeId,@JsonKey(name: 'basket_size_name') String basketSizeName, List<DeliveryItem> items,@JsonKey(name: 'items_updated_at') String? itemsUpdatedAt
 });
 
 
@@ -1239,12 +1242,13 @@ class _$BasketDeliveryDescriptionCopyWithImpl<$Res>
 
 /// Create a copy of BasketDeliveryDescription
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? productTypeId = null,Object? basketSizeName = null,Object? items = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? productTypeId = null,Object? basketSizeName = null,Object? items = null,Object? itemsUpdatedAt = freezed,}) {
   return _then(BasketDeliveryDescription(
 productTypeId: null == productTypeId ? _self.productTypeId : productTypeId // ignore: cast_nullable_to_non_nullable
 as String,basketSizeName: null == basketSizeName ? _self.basketSizeName : basketSizeName // ignore: cast_nullable_to_non_nullable
 as String,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
-as List<DeliveryItem>,
+as List<DeliveryItem>,itemsUpdatedAt: freezed == itemsUpdatedAt ? _self.itemsUpdatedAt : itemsUpdatedAt // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -1329,10 +1333,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_type_id')  String productTypeId, @JsonKey(name: 'basket_size_name')  String basketSizeName,  List<DeliveryItem> items)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_type_id')  String productTypeId, @JsonKey(name: 'basket_size_name')  String basketSizeName,  List<DeliveryItem> items, @JsonKey(name: 'items_updated_at')  String? itemsUpdatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BasketDeliveryDescription() when $default != null:
-return $default(_that.productTypeId,_that.basketSizeName,_that.items);case _:
+return $default(_that.productTypeId,_that.basketSizeName,_that.items,_that.itemsUpdatedAt);case _:
   return orElse();
 
 }
@@ -1350,10 +1354,10 @@ return $default(_that.productTypeId,_that.basketSizeName,_that.items);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_type_id')  String productTypeId, @JsonKey(name: 'basket_size_name')  String basketSizeName,  List<DeliveryItem> items)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_type_id')  String productTypeId, @JsonKey(name: 'basket_size_name')  String basketSizeName,  List<DeliveryItem> items, @JsonKey(name: 'items_updated_at')  String? itemsUpdatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _BasketDeliveryDescription():
-return $default(_that.productTypeId,_that.basketSizeName,_that.items);case _:
+return $default(_that.productTypeId,_that.basketSizeName,_that.items,_that.itemsUpdatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1370,10 +1374,10 @@ return $default(_that.productTypeId,_that.basketSizeName,_that.items);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'product_type_id')  String productTypeId, @JsonKey(name: 'basket_size_name')  String basketSizeName,  List<DeliveryItem> items)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'product_type_id')  String productTypeId, @JsonKey(name: 'basket_size_name')  String basketSizeName,  List<DeliveryItem> items, @JsonKey(name: 'items_updated_at')  String? itemsUpdatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _BasketDeliveryDescription() when $default != null:
-return $default(_that.productTypeId,_that.basketSizeName,_that.items);case _:
+return $default(_that.productTypeId,_that.basketSizeName,_that.items,_that.itemsUpdatedAt);case _:
   return null;
 
 }
@@ -1385,7 +1389,7 @@ return $default(_that.productTypeId,_that.basketSizeName,_that.items);case _:
 @JsonSerializable()
 
 class _BasketDeliveryDescription implements BasketDeliveryDescription {
-  const _BasketDeliveryDescription({@JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'basket_size_name') required this.basketSizeName,  List<DeliveryItem> items = const <DeliveryItem>[]}): _items = items;
+  const _BasketDeliveryDescription({@JsonKey(name: 'product_type_id') required this.productTypeId, @JsonKey(name: 'basket_size_name') required this.basketSizeName,  List<DeliveryItem> items = const <DeliveryItem>[], @JsonKey(name: 'items_updated_at') this.itemsUpdatedAt}): _items = items;
   factory _BasketDeliveryDescription.fromJson(Map<String, dynamic> json) => _$BasketDeliveryDescriptionFromJson(json);
 
 @override@JsonKey(name: 'product_type_id') final  String productTypeId;
@@ -1397,6 +1401,10 @@ class _BasketDeliveryDescription implements BasketDeliveryDescription {
   return EqualUnmodifiableListView(_items);
 }
 
+/// ISO instant of the last edit of [items] in a composition editor
+/// (coordinator or producer). The back keeps the stored items when a write
+/// carries an older (or no) timestamp — a stale cached copy.
+@override@JsonKey(name: 'items_updated_at') final  String? itemsUpdatedAt;
 
 /// Create a copy of BasketDeliveryDescription
 /// with the given fields replaced by the non-null parameter values.
@@ -1411,18 +1419,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketDeliveryDescription&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&const DeepCollectionEquality().equals(other.items, _items));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BasketDeliveryDescription&&(identical(other.productTypeId, productTypeId) || other.productTypeId == productTypeId)&&(identical(other.basketSizeName, basketSizeName) || other.basketSizeName == basketSizeName)&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.itemsUpdatedAt, itemsUpdatedAt) || other.itemsUpdatedAt == itemsUpdatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,productTypeId,basketSizeName,const DeepCollectionEquality().hash(_items));
+    return Object.hash(runtimeType,productTypeId,basketSizeName,const DeepCollectionEquality().hash(_items),itemsUpdatedAt);
 }
 
 @override
 String toString() {
-    return 'BasketDeliveryDescription(productTypeId: $productTypeId, basketSizeName: $basketSizeName, items: $items)';
+    return 'BasketDeliveryDescription(productTypeId: $productTypeId, basketSizeName: $basketSizeName, items: $items, itemsUpdatedAt: $itemsUpdatedAt)';
 }
 
 
@@ -1433,7 +1441,7 @@ abstract mixin class _$BasketDeliveryDescriptionCopyWith<$Res> implements $Baske
   factory _$BasketDeliveryDescriptionCopyWith(_BasketDeliveryDescription value, $Res Function(_BasketDeliveryDescription) _then) = __$BasketDeliveryDescriptionCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'product_type_id') String productTypeId,@JsonKey(name: 'basket_size_name') String basketSizeName, List<DeliveryItem> items
+@JsonKey(name: 'product_type_id') String productTypeId,@JsonKey(name: 'basket_size_name') String basketSizeName, List<DeliveryItem> items,@JsonKey(name: 'items_updated_at') String? itemsUpdatedAt
 });
 
 
@@ -1450,12 +1458,13 @@ class __$BasketDeliveryDescriptionCopyWithImpl<$Res>
 
 /// Create a copy of BasketDeliveryDescription
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? productTypeId = null,Object? basketSizeName = null,Object? items = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? productTypeId = null,Object? basketSizeName = null,Object? items = null,Object? itemsUpdatedAt = freezed,}) {
   return _then(_BasketDeliveryDescription(
 productTypeId: null == productTypeId ? _self.productTypeId : productTypeId // ignore: cast_nullable_to_non_nullable
 as String,basketSizeName: null == basketSizeName ? _self.basketSizeName : basketSizeName // ignore: cast_nullable_to_non_nullable
 as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<DeliveryItem>,
+as List<DeliveryItem>,itemsUpdatedAt: freezed == itemsUpdatedAt ? _self.itemsUpdatedAt : itemsUpdatedAt // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

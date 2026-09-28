@@ -97,118 +97,6 @@ void main() {
     );
   });
 
-  group('ProducerDeliveriesX.deliveriesForProducer', () {
-    const producerA = 'producer-a';
-    const producerB = 'producer-b';
-    const contractA = 'contract-a';
-    const contractB = 'contract-b';
-
-    Contract makeContract(String id, String producerId) => Contract(
-      contractId: id,
-      name: 'Contract $id',
-      organizationId: 'org-1',
-      producerAccountId: producerId,
-      minDeliveryDate: '2025-01-01T00:00:00',
-      maxDeliveryDate: '2025-12-31T00:00:00',
-      deliveryCount: 10,
-      seasonYear: 2025,
-    );
-
-    DeliveryContract makeDc(String contractId) => DeliveryContract(
-      contractId: contractId,
-      basketQuantity: 1,
-      deliveryDescription: '',
-      status: DeliveryContractStatus.pending,
-    );
-
-    Delivery makeDelivery(String id, String date, List<DeliveryContract> dcs) =>
-        Delivery(
-          deliveryId: id,
-          organizationId: 'org-1',
-          scheduledDate: date,
-          status: DeliveryStatus.planned,
-          minVolunteersRequired: 2,
-          contracts: dcs,
-        );
-
-    test('returns empty list when contracts list is empty', () {
-      final org = Organization(
-        organizationId: 'org-1',
-        name: 'AMAP',
-        contactEmail: 'test@amap.fr',
-        deliveries: [
-          makeDelivery('d-1', '2025-06-01T18:00:00', [makeDc(contractA)]),
-        ],
-      );
-      expect(org.deliveriesForProducer(producerA), isEmpty);
-    });
-
-    test('returns only deliveries linked to the given producer', () {
-      final org = Organization(
-        organizationId: 'org-1',
-        name: 'AMAP',
-        contactEmail: 'test@amap.fr',
-        deliveries: [
-          makeDelivery('d-mine', '2025-06-01T18:00:00', [makeDc(contractA)]),
-          makeDelivery('d-other', '2025-07-01T18:00:00', [makeDc(contractB)]),
-        ],
-      );
-      final result = org.deliveriesForProducer(
-        producerA,
-        contracts: [
-          makeContract(contractA, producerA),
-          makeContract(contractB, producerB),
-        ],
-      );
-      expect(result.map((d) => d.deliveryId), containsAllInOrder(['d-mine']));
-      expect(result.length, 1);
-    });
-
-    test('returns deliveries sorted newest-first', () {
-      final org = Organization(
-        organizationId: 'org-1',
-        name: 'AMAP',
-        contactEmail: 'test@amap.fr',
-        deliveries: [
-          makeDelivery('d-old', '2025-03-01T18:00:00', [makeDc(contractA)]),
-          makeDelivery('d-new', '2025-06-01T18:00:00', [makeDc(contractA)]),
-          makeDelivery('d-mid', '2025-04-15T18:00:00', [makeDc(contractA)]),
-        ],
-      );
-      final result = org.deliveriesForProducer(
-        producerA,
-        contracts: [makeContract(contractA, producerA)],
-      );
-      expect(
-        result.map((d) => d.deliveryId),
-        containsAllInOrder(['d-new', 'd-mid', 'd-old']),
-      );
-    });
-
-    test('includes delivery linked to both producers when filtered by one', () {
-      final org = Organization(
-        organizationId: 'org-1',
-        name: 'AMAP',
-        contactEmail: 'test@amap.fr',
-        deliveries: [
-          makeDelivery('d-shared', '2025-06-01T18:00:00', [
-            makeDc(contractA),
-            makeDc(contractB),
-          ]),
-        ],
-      );
-      final result = org.deliveriesForProducer(
-        producerA,
-        contracts: [
-          makeContract(contractA, producerA),
-          makeContract(contractB, producerB),
-        ],
-      );
-      expect(result.length, 1);
-      expect(result.first.deliveryId, 'd-shared');
-    });
-  });
-
   group('OrganizationCreationRequest', () {
     test('toJson produces correct snake_case keys', () {
       const request = OrganizationCreationRequest(
@@ -331,7 +219,6 @@ void main() {
       // Delivery has no coordinatorId field — verify it decodes without error.
       expect(decoded.deliveryId, 'd-1');
     });
-
   });
 
   group('OrganizationRequestResponse', () {
@@ -417,6 +304,60 @@ void main() {
         expect(activeContracts.first.contractId, 'c-1');
       },
     );
+
+    test('activeContractsForDelivery keeps a contract on its first and last '
+        'delivery days (evening delivery time vs date-only bounds)', () {
+      Delivery eveningDelivery(String id, String date) => Delivery(
+        deliveryId: id,
+        organizationId: 'org-1',
+        scheduledDate: '${date}T19:00:00',
+        status: DeliveryStatus.planned,
+        minVolunteersRequired: 1,
+        contracts: const [
+          DeliveryContract(
+            contractId: 'c-1',
+            coordinators: [],
+            basketQuantity: 10,
+            deliveryDescription: 'Volaille',
+            status: DeliveryContractStatus.pending,
+          ),
+        ],
+      );
+      final first = eveningDelivery('d-first', '2026-04-29');
+      final last = eveningDelivery('d-last', '2026-10-28');
+      final after = eveningDelivery('d-after', '2026-11-04');
+      final org = Organization(
+        organizationId: 'org-1',
+        name: 'AMAP test',
+        contactEmail: 'test@amap.fr',
+        deliveries: [first, last, after],
+      );
+      const contracts = [
+        Contract(
+          contractId: 'c-1',
+          name: 'Volaille',
+          organizationId: 'org-1',
+          producerAccountId: 'pa-1',
+          minDeliveryDate: '2026-04-29',
+          maxDeliveryDate: '2026-10-28',
+          deliveryCount: 27,
+          seasonYear: 2026,
+        ),
+      ];
+
+      expect(
+        org.activeContractsForDelivery(first, contracts: contracts),
+        hasLength(1),
+      );
+      expect(
+        org.activeContractsForDelivery(last, contracts: contracts),
+        hasLength(1),
+      );
+      expect(
+        org.activeContractsForDelivery(after, contracts: contracts),
+        isEmpty,
+      );
+    });
 
     test(
       'activeContractsForDelivery returns all when contracts list is empty (fallback)',

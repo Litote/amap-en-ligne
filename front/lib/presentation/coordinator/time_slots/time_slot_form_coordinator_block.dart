@@ -1,6 +1,7 @@
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/domain/model/delivery_contract_name.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
@@ -49,18 +50,6 @@ class CoordinatorBlock extends StatelessWidget {
     return const [];
   }
 
-  /// Resolves the displayable contract name from the live [contracts] catalog
-  /// by id, falling back to the link's denormalised
-  /// [DeliveryContract.deliveryDescription] (which is blank on imported data).
-  String _nameFor(DeliveryContract link) {
-    for (final c in contracts) {
-      if (c.contractId == link.contractId && c.name.trim().isNotEmpty) {
-        return c.name;
-      }
-    }
-    return link.deliveryDescription;
-  }
-
   @override
   Widget build(BuildContext context) {
     final deliveryContracts = delivery?.contracts ?? const [];
@@ -78,7 +67,7 @@ class CoordinatorBlock extends StatelessWidget {
           for (final contract in deliveryContracts)
             _ContractCoordinatorRow(
               contract: contract,
-              contractName: _nameFor(contract),
+              contractName: deliveryContractName(contract, contracts),
               delivery: delivery!,
               org: org,
               me: me,
@@ -110,7 +99,7 @@ class CoordinatorBlock extends StatelessWidget {
               ),
             )
         else
-          const Text('Aucun contrat encore défini.'),
+          const Text('Aucun contrat lié à cette livraison.'),
       ],
     );
   }
@@ -245,10 +234,24 @@ class _ContractCoordinatorRow extends StatelessWidget {
     return '$first $last';
   }
 
+  /// Coordinator changes are written immediately, unlike the rest of the
+  /// delivery form (saved with « Enregistrer »): tell the coordinator.
+  static void _savedRightAway(
+    SyncBloc syncBloc,
+    ScaffoldMessengerState? messenger,
+    String verb,
+  ) {
+    syncBloc.add(const SyncEvent.mutationApplied());
+    messenger?.showSnackBar(
+      SnackBar(content: Text('Coordinateur $verb et enregistré.')),
+    );
+  }
+
   void _selfAssign(BuildContext context) {
     if (me == null) return;
     final orgRepo = context.read<OrganizationRepository>();
     final syncBloc = context.read<SyncBloc>();
+    final messenger = ScaffoldMessenger.maybeOf(context);
     orgRepo
         .assignCoordinatorById(
           organizationId: org.organizationId,
@@ -256,12 +259,13 @@ class _ContractCoordinatorRow extends StatelessWidget {
           contractId: contract.contractId,
           memberId: me!.memberId,
         )
-        .then((_) => syncBloc.add(const SyncEvent.mutationApplied()));
+        .then((_) => _savedRightAway(syncBloc, messenger, 'ajouté'));
   }
 
   void _removeCoordinator(BuildContext context, String coordinatorId) {
     final orgRepo = context.read<OrganizationRepository>();
     final syncBloc = context.read<SyncBloc>();
+    final messenger = ScaffoldMessenger.maybeOf(context);
     orgRepo
         .unassignCoordinatorById(
           organizationId: org.organizationId,
@@ -269,7 +273,7 @@ class _ContractCoordinatorRow extends StatelessWidget {
           contractId: contract.contractId,
           memberId: coordinatorId,
         )
-        .then((_) => syncBloc.add(const SyncEvent.mutationApplied()));
+        .then((_) => _savedRightAway(syncBloc, messenger, 'retiré'));
   }
 
   void _showAdminPicker(BuildContext context, Map<String, Member> membersById) {
@@ -288,6 +292,7 @@ class _ContractCoordinatorRow extends StatelessWidget {
           Navigator.of(sheetContext).pop();
           final orgRepo = context.read<OrganizationRepository>();
           final syncBloc = context.read<SyncBloc>();
+          final messenger = ScaffoldMessenger.maybeOf(context);
           orgRepo
               .assignCoordinatorById(
                 organizationId: org.organizationId,
@@ -295,7 +300,7 @@ class _ContractCoordinatorRow extends StatelessWidget {
                 contractId: contract.contractId,
                 memberId: memberId,
               )
-              .then((_) => syncBloc.add(const SyncEvent.mutationApplied()));
+              .then((_) => _savedRightAway(syncBloc, messenger, 'ajouté'));
         },
       ),
     );

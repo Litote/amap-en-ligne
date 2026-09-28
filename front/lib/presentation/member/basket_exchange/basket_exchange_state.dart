@@ -78,7 +78,8 @@ extension BasketExchangeReadyX on BasketExchangeReady {
       )
       .toList();
 
-  /// Count of successfully completed exchanges this calendar year.
+  /// Count of exchanges concluded (accepted) this calendar year — the swapped
+  /// deliveries may still be to come.
   int get successfulExchangesThisYear {
     final year = DateTime.now().year;
     return historyItems.where((e) {

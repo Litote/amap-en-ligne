@@ -5,6 +5,7 @@ package memberjoinrequest
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
+import core.memberInvitationChanges
 import email.MemberInvitationEmailPort
 import email.MemberJoinRequestRejectionEmailPort
 import id.generateId
@@ -15,7 +16,6 @@ import persistence.changes.ChangeOp
 import persistence.changes.ClientMutation
 import persistence.changes.Cursor
 import persistence.changes.Delete
-import persistence.changes.MemberInvitationPayload
 import persistence.changes.MemberJoinRequestPayload
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationOutcome
@@ -158,7 +158,7 @@ class MemberJoinRequestService(
                     resendRequestedAt = now,
                 )
             }
-        memberInvitationDAO.put(invitation, buildMemberInvitationChange(invitation))
+        memberInvitationDAO.put(invitation, memberInvitationChanges(invitation))
         activationTokenDAO.invalidateByMemberInvitationId(invitation.invitationId.toId(), now)
         val token = buildActivationToken(invitation, now)
         activationTokenDAO.create(token)
@@ -228,17 +228,6 @@ class MemberJoinRequestService(
             scopeKey = SyncScope.Organization(request.organizationId.id).key,
             op = ChangeOp.UPSERT,
             payload = MemberJoinRequestPayload(request),
-            producedAt = System.currentTimeMillis(),
-        )
-
-    private fun buildMemberInvitationChange(invitation: MemberInvitation): Change =
-        Change(
-            cursor = Cursor.next(),
-            entityType = EntityType.MemberInvitation,
-            entityId = invitation.invitationId,
-            scopeKey = SyncScope.Organization(invitation.organizationId.id).key,
-            op = ChangeOp.UPSERT,
-            payload = MemberInvitationPayload(invitation),
             producedAt = System.currentTimeMillis(),
         )
 

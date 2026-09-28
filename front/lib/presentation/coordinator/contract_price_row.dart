@@ -31,20 +31,25 @@ class ContractPriceRow extends StatelessWidget {
       padding: const EdgeInsets.only(left: 32, bottom: 8),
       child: Row(
         children: [
-          Expanded(child: Text(displayLabel)),
+          // Announced through the field below: a separate node would leave
+          // the field unnamed once the hint is gone.
+          Expanded(child: ExcludeSemantics(child: Text(displayLabel))),
           const SizedBox(width: 12),
           SizedBox(
             width: 100,
-            child: TextFormField(
-              controller: controller,
-              enabled: !saving,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: const InputDecoration(
-                hintText: 'Prix (€)',
-                suffixText: '€',
-                isDense: true,
+            child: Semantics(
+              label: displayLabel,
+              child: TextFormField(
+                controller: controller,
+                enabled: !saving,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'Prix (€)',
+                  suffixText: '€',
+                  isDense: true,
+                ),
               ),
             ),
           ),

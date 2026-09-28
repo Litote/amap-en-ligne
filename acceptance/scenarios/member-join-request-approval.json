@@ -1,9 +1,51 @@
 {
   "id": "member-join-request-approval",
   "title": "A member join request can be approved through sync and creates a pending member invitation",
-  "targets": ["flutter"],
+  "targets": ["organization-flow", "flutter"],
   "given": {
-    "backendState": "organization with a pending member join request",
-    "appState": "request cached in drift"
+    "backendState": "organization org-1",
+    "appState": "pending request cached in drift"
+  },
+  "when": [
+    {
+      "actor": "requester",
+      "action": "submit_member_join_request",
+      "request": {
+        "organization_id": "org-1",
+        "email": "bob@example.org",
+        "first_name": "Bob",
+        "last_name": "Durand"
+      },
+      "save": {
+        "requestIdRef": "requestId"
+      }
+    },
+    {
+      "actor": "admin",
+      "action": "review_member_join_request",
+      "params": {
+        "requestId": "$ref:requestId",
+        "status": "APPROVED"
+      }
+    },
+    {
+      "actor": "admin",
+      "action": "admin_sync"
+    }
+  ],
+  "then": {
+    "lastResponse": {
+      "statusCode": 200,
+      "snapshotContains": [
+        {
+          "entityType": "MemberJoinRequest",
+          "fields": { "email": "bob@example.org", "status": "APPROVED" }
+        },
+        {
+          "entityType": "MemberInvitation",
+          "fields": { "email": "bob@example.org", "status": "PENDING_ACTIVATION", "roles": ["VOLUNTEER"] }
+        }
+      ]
+    }
   }
 }

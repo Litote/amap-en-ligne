@@ -34,12 +34,12 @@ class _DeliveryTemplateListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final organizationRepository = context.read<OrganizationRepository>();
     return ConnectedScaffold(
-      title: 'Templates de livraison',
+      title: 'Modèles de livraison',
       actions: const [SyncButton()],
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/admin/delivery-templates/new'),
         icon: const Icon(Icons.add),
-        label: const Text('Nouveau template'),
+        label: const Text('Nouveau modèle'),
       ),
       body: StreamBuilder<Organization?>(
         stream: organizationRepository.watch(organizationId),
@@ -57,7 +57,7 @@ class _DeliveryTemplateListView extends StatelessWidget {
                 DeliveryTemplateLoaded(:final templates) =>
                   templates.isEmpty
                       ? const Center(
-                          child: Text('Aucun template de livraison configuré.'),
+                          child: Text('Aucun modèle de livraison configuré.'),
                         )
                       : _TemplateList(
                           templates: templates,
@@ -125,6 +125,12 @@ class _TemplateTile extends StatelessWidget {
             '${template.standardStartTime} – ${template.standardEndTime}'
             '${earlySlot != null ? ' · Livraison anticipée ${earlySlot.arrivalTime}' : ''}',
           ),
+          if (organization?.defaultDeliveryTemplateId ==
+              template.deliveryTemplateId) ...[
+            const SizedBox(height: 4),
+            // Spec screen-admin-05 wireframe.
+            const Text("⭐ Modèle par défaut de l'organisation"),
+          ],
           const SizedBox(height: 4),
           Text(
             '${associations.associationCount} livraison${associations.associationCount == 1 ? '' : 's'} associée${associations.associationCount == 1 ? '' : 's'}',
@@ -140,6 +146,7 @@ class _TemplateTile extends StatelessWidget {
       ),
       trailing: PopupMenuButton<_TemplateAction>(
         icon: const Icon(Icons.more_horiz),
+        tooltip: 'Actions du modèle « ${template.name} »',
         onSelected: (action) {
           if (action == _TemplateAction.edit) {
             context.push(
@@ -175,6 +182,7 @@ class _TemplateTile extends StatelessWidget {
         useRootNavigator: true,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Suppression impossible'),
+          semanticLabel: 'Suppression impossible',
           content: const Text(
             'Ce modèle ne peut pas être supprimé tant que des livraisons futures y sont associées.',
           ),
@@ -209,6 +217,7 @@ class _TemplateTile extends StatelessWidget {
     useRootNavigator: true,
     builder: (dialogContext) => AlertDialog(
       title: const Text('Supprimer le modèle'),
+      semanticLabel: 'Supprimer le modèle',
       content: Text(
         associationCount == 0
             ? 'Voulez-vous supprimer le modèle "${template.name}" ?'
@@ -236,6 +245,7 @@ class _TemplateTile extends StatelessWidget {
     useRootNavigator: true,
     builder: (dialogContext) => AlertDialog(
       title: const Text('Livraisons associées'),
+      semanticLabel: 'Livraisons associées',
       content: SizedBox(
         width: double.maxFinite,
         child: ListView(

@@ -83,10 +83,41 @@ resource "aws_cloudfront_response_headers_policy" "wasm" {
   }
 }
 
+# Same security headers for the API behaviors (/v1/*, /.well-known/*), without
+# the COOP/COEP pair that only matters for the Flutter WASM documents.
+resource "aws_cloudfront_response_headers_policy" "api" {
+  name = "${var.name}-api-headers"
+
+  security_headers_config {
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = false
+      override                   = true
+    }
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+    content_type_options {
+      override = true
+    }
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+    content_security_policy {
+      content_security_policy = "frame-ancestors 'none'"
+      override                = true
+    }
+  }
+}
+
 # ─── CloudFront distribution ─────────────────────────────────────────────────
 
 # SPA deep links (e.g. /planning, /activate?token=…) have no file extension:
 # rewrite them to /index.html so go_router can resolve them client-side.
+# /assets/* is never rewritten: Flutter ships extension-less assets there
+# (assets/NOTICES — the licenses page), which must reach S3 as-is.
 # index.html itself is uploaded with `Cache-Control: no-cache` so rewritten
 # deep links never serve a stale app shell from the default behavior's cache.
 resource "aws_cloudfront_function" "spa_rewrite" {
@@ -98,7 +129,7 @@ resource "aws_cloudfront_function" "spa_rewrite" {
     function handler(event) {
       var request = event.request;
       var lastSegment = request.uri.substring(request.uri.lastIndexOf('/') + 1);
-      if (lastSegment.indexOf('.') === -1) {
+      if (request.uri.indexOf('/assets/') !== 0 && lastSegment.indexOf('.') === -1) {
         request.uri = '/index.html';
       }
       return request;
@@ -145,8 +176,9 @@ resource "aws_cloudfront_distribution" "web" {
     # AllViewerExceptHostHeader managed policy
     origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
 
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = false
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = false
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.api.id
   }
 
   # /.well-known/* → API Gateway (short cache)
@@ -164,11 +196,12 @@ resource "aws_cloudfront_distribution" "web" {
       }
     }
 
-    min_ttl                = 0
-    default_ttl            = 60
-    max_ttl                = 60
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
+    min_ttl                    = 0
+    default_ttl                = 60
+    max_ttl                    = 60
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.api.id
   }
 
   # index.html → no cache (revalidate on every request)
@@ -309,6 +342,28 @@ data "aws_iam_policy_document" "web_bucket_policy" {
 
     actions   = ["s3:GetObject"]
     resources = ["${aws_s3_bucket.web.arn}/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.web.arn]
+    }
+  }
+
+  # Without ListBucket, S3 answers a missing key with 403 AccessDenied instead
+  # of 404. Listing itself stays unreachable: CloudFront forwards no query
+  # string and serves "/" as index.html.
+  statement {
+    sid    = "AllowCloudFrontOACList"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.web.arn]
 
     condition {
       test     = "StringEquals"

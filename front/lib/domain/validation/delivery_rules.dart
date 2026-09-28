@@ -62,3 +62,13 @@ String? _earlyMaxVolunteersError(int? earlyMaxVolunteers) {
   }
   return null;
 }
+
+/// Whether a delivery scheduled at [scheduledDate] (ISO local date-time) may
+/// be closed (archived as COMPLETED) on [now]: only from its scheduled day
+/// on, mirroring the back `OrganizationService.checkNoFutureDeliveryCompleted`.
+bool isDeliveryClosable(String scheduledDate, {required DateTime now}) {
+  final scheduled = DateTime.parse(scheduledDate);
+  final scheduledDay = DateTime(scheduled.year, scheduled.month, scheduled.day);
+  final today = DateTime(now.year, now.month, now.day);
+  return !scheduledDay.isAfter(today);
+}

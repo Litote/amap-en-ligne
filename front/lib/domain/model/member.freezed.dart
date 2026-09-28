@@ -292,7 +292,9 @@ as MemberContractStatus,
 /// @nodoc
 mixin _$Member {
 
-@JsonKey(name: 'member_id') String get memberId;@JsonKey(name: 'organization_id') String get organizationId; Set<Role> get roles;@JsonKey(name: 'first_name') String? get firstName;@JsonKey(name: 'last_name') String? get lastName; String? get email; String? get phone;@JsonKey(name: 'account_status') MemberAccountStatus get accountStatus; List<MemberContract> get contracts;@JsonKey(name: 'member_preferences') MemberPreferences? get memberPreferences;@JsonKey(name: 'user_preferences') UserPreferences? get userPreferences;@JsonKey(name: 'user_settings') Map<String, dynamic>? get userSettings;
+@JsonKey(name: 'member_id') String get memberId;@JsonKey(name: 'organization_id') String get organizationId; Set<Role> get roles;@JsonKey(name: 'first_name') String? get firstName;@JsonKey(name: 'last_name') String? get lastName; String? get email; String? get phone;@JsonKey(name: 'account_status') MemberAccountStatus get accountStatus; List<MemberContract> get contracts;@JsonKey(name: 'member_preferences') MemberPreferences? get memberPreferences;@JsonKey(name: 'user_preferences') UserPreferences? get userPreferences;@JsonKey(name: 'user_settings') Map<String, dynamic>? get userSettings;/// When the member joined the instance (ISO-8601). Server-authoritative;
+/// null for members created before the field existed.
+@JsonKey(name: 'registered_at') String? get registeredAt;
 /// Create a copy of Member
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -306,20 +308,20 @@ $MemberCopyWith<Member> get copyWith => _$MemberCopyWithImpl<Member>(this as Mem
 @override
 bool operator ==(Object other) {
   final _this = this as Member;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Member&&(identical(other.memberId, _this.memberId) || other.memberId == _this.memberId)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&const DeepCollectionEquality().equals(other.roles, _this.roles)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.accountStatus, _this.accountStatus) || other.accountStatus == _this.accountStatus)&&const DeepCollectionEquality().equals(other.contracts, _this.contracts)&&(identical(other.memberPreferences, _this.memberPreferences) || other.memberPreferences == _this.memberPreferences)&&(identical(other.userPreferences, _this.userPreferences) || other.userPreferences == _this.userPreferences)&&const DeepCollectionEquality().equals(other.userSettings, _this.userSettings));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Member&&(identical(other.memberId, _this.memberId) || other.memberId == _this.memberId)&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&const DeepCollectionEquality().equals(other.roles, _this.roles)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.accountStatus, _this.accountStatus) || other.accountStatus == _this.accountStatus)&&const DeepCollectionEquality().equals(other.contracts, _this.contracts)&&(identical(other.memberPreferences, _this.memberPreferences) || other.memberPreferences == _this.memberPreferences)&&(identical(other.userPreferences, _this.userPreferences) || other.userPreferences == _this.userPreferences)&&const DeepCollectionEquality().equals(other.userSettings, _this.userSettings)&&(identical(other.registeredAt, _this.registeredAt) || other.registeredAt == _this.registeredAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Member;
-  return Object.hash(runtimeType,_this.memberId,_this.organizationId,const DeepCollectionEquality().hash(_this.roles),_this.firstName,_this.lastName,_this.email,_this.phone,_this.accountStatus,const DeepCollectionEquality().hash(_this.contracts),_this.memberPreferences,_this.userPreferences,const DeepCollectionEquality().hash(_this.userSettings));
+  return Object.hash(runtimeType,_this.memberId,_this.organizationId,const DeepCollectionEquality().hash(_this.roles),_this.firstName,_this.lastName,_this.email,_this.phone,_this.accountStatus,const DeepCollectionEquality().hash(_this.contracts),_this.memberPreferences,_this.userPreferences,const DeepCollectionEquality().hash(_this.userSettings),_this.registeredAt);
 }
 
 @override
 String toString() {
   final _this = this as Member;
-  return 'Member(memberId: ${_this.memberId}, organizationId: ${_this.organizationId}, roles: ${_this.roles}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, email: ${_this.email}, phone: ${_this.phone}, accountStatus: ${_this.accountStatus}, contracts: ${_this.contracts}, memberPreferences: ${_this.memberPreferences}, userPreferences: ${_this.userPreferences}, userSettings: ${_this.userSettings})';
+  return 'Member(memberId: ${_this.memberId}, organizationId: ${_this.organizationId}, roles: ${_this.roles}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, email: ${_this.email}, phone: ${_this.phone}, accountStatus: ${_this.accountStatus}, contracts: ${_this.contracts}, memberPreferences: ${_this.memberPreferences}, userPreferences: ${_this.userPreferences}, userSettings: ${_this.userSettings}, registeredAt: ${_this.registeredAt})';
 }
 
 
@@ -330,7 +332,7 @@ abstract mixin class $MemberCopyWith<$Res>  {
   factory $MemberCopyWith(Member value, $Res Function(Member) _then) = _$MemberCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'member_id') String memberId,@JsonKey(name: 'organization_id') String organizationId, Set<Role> roles,@JsonKey(name: 'first_name') String? firstName,@JsonKey(name: 'last_name') String? lastName, String? email, String? phone,@JsonKey(name: 'account_status') MemberAccountStatus accountStatus, List<MemberContract> contracts,@JsonKey(name: 'member_preferences') MemberPreferences? memberPreferences,@JsonKey(name: 'user_preferences') UserPreferences? userPreferences,@JsonKey(name: 'user_settings') Map<String, dynamic>? userSettings
+@JsonKey(name: 'member_id') String memberId,@JsonKey(name: 'organization_id') String organizationId, Set<Role> roles,@JsonKey(name: 'first_name') String? firstName,@JsonKey(name: 'last_name') String? lastName, String? email, String? phone,@JsonKey(name: 'account_status') MemberAccountStatus accountStatus, List<MemberContract> contracts,@JsonKey(name: 'member_preferences') MemberPreferences? memberPreferences,@JsonKey(name: 'user_preferences') UserPreferences? userPreferences,@JsonKey(name: 'user_settings') Map<String, dynamic>? userSettings,@JsonKey(name: 'registered_at') String? registeredAt
 });
 
 
@@ -347,7 +349,7 @@ class _$MemberCopyWithImpl<$Res>
 
 /// Create a copy of Member
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? memberId = null,Object? organizationId = null,Object? roles = null,Object? firstName = freezed,Object? lastName = freezed,Object? email = freezed,Object? phone = freezed,Object? accountStatus = null,Object? contracts = null,Object? memberPreferences = freezed,Object? userPreferences = freezed,Object? userSettings = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? memberId = null,Object? organizationId = null,Object? roles = null,Object? firstName = freezed,Object? lastName = freezed,Object? email = freezed,Object? phone = freezed,Object? accountStatus = null,Object? contracts = null,Object? memberPreferences = freezed,Object? userPreferences = freezed,Object? userSettings = freezed,Object? registeredAt = freezed,}) {
   return _then(Member(
 memberId: null == memberId ? _self.memberId : memberId // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
@@ -361,7 +363,8 @@ as MemberAccountStatus,contracts: null == contracts ? _self.contracts : contract
 as List<MemberContract>,memberPreferences: freezed == memberPreferences ? _self.memberPreferences : memberPreferences // ignore: cast_nullable_to_non_nullable
 as MemberPreferences?,userPreferences: freezed == userPreferences ? _self.userPreferences : userPreferences // ignore: cast_nullable_to_non_nullable
 as UserPreferences?,userSettings: freezed == userSettings ? _self.userSettings : userSettings // ignore: cast_nullable_to_non_nullable
-as Map<String, dynamic>?,
+as Map<String, dynamic>?,registeredAt: freezed == registeredAt ? _self.registeredAt : registeredAt // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of Member
@@ -470,10 +473,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'member_id')  String memberId, @JsonKey(name: 'organization_id')  String organizationId,  Set<Role> roles, @JsonKey(name: 'first_name')  String? firstName, @JsonKey(name: 'last_name')  String? lastName,  String? email,  String? phone, @JsonKey(name: 'account_status')  MemberAccountStatus accountStatus,  List<MemberContract> contracts, @JsonKey(name: 'member_preferences')  MemberPreferences? memberPreferences, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences, @JsonKey(name: 'user_settings')  Map<String, dynamic>? userSettings)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'member_id')  String memberId, @JsonKey(name: 'organization_id')  String organizationId,  Set<Role> roles, @JsonKey(name: 'first_name')  String? firstName, @JsonKey(name: 'last_name')  String? lastName,  String? email,  String? phone, @JsonKey(name: 'account_status')  MemberAccountStatus accountStatus,  List<MemberContract> contracts, @JsonKey(name: 'member_preferences')  MemberPreferences? memberPreferences, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences, @JsonKey(name: 'user_settings')  Map<String, dynamic>? userSettings, @JsonKey(name: 'registered_at')  String? registeredAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Member() when $default != null:
-return $default(_that.memberId,_that.organizationId,_that.roles,_that.firstName,_that.lastName,_that.email,_that.phone,_that.accountStatus,_that.contracts,_that.memberPreferences,_that.userPreferences,_that.userSettings);case _:
+return $default(_that.memberId,_that.organizationId,_that.roles,_that.firstName,_that.lastName,_that.email,_that.phone,_that.accountStatus,_that.contracts,_that.memberPreferences,_that.userPreferences,_that.userSettings,_that.registeredAt);case _:
   return orElse();
 
 }
@@ -491,10 +494,10 @@ return $default(_that.memberId,_that.organizationId,_that.roles,_that.firstName,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'member_id')  String memberId, @JsonKey(name: 'organization_id')  String organizationId,  Set<Role> roles, @JsonKey(name: 'first_name')  String? firstName, @JsonKey(name: 'last_name')  String? lastName,  String? email,  String? phone, @JsonKey(name: 'account_status')  MemberAccountStatus accountStatus,  List<MemberContract> contracts, @JsonKey(name: 'member_preferences')  MemberPreferences? memberPreferences, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences, @JsonKey(name: 'user_settings')  Map<String, dynamic>? userSettings)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'member_id')  String memberId, @JsonKey(name: 'organization_id')  String organizationId,  Set<Role> roles, @JsonKey(name: 'first_name')  String? firstName, @JsonKey(name: 'last_name')  String? lastName,  String? email,  String? phone, @JsonKey(name: 'account_status')  MemberAccountStatus accountStatus,  List<MemberContract> contracts, @JsonKey(name: 'member_preferences')  MemberPreferences? memberPreferences, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences, @JsonKey(name: 'user_settings')  Map<String, dynamic>? userSettings, @JsonKey(name: 'registered_at')  String? registeredAt)  $default,) {final _that = this;
 switch (_that) {
 case _Member():
-return $default(_that.memberId,_that.organizationId,_that.roles,_that.firstName,_that.lastName,_that.email,_that.phone,_that.accountStatus,_that.contracts,_that.memberPreferences,_that.userPreferences,_that.userSettings);case _:
+return $default(_that.memberId,_that.organizationId,_that.roles,_that.firstName,_that.lastName,_that.email,_that.phone,_that.accountStatus,_that.contracts,_that.memberPreferences,_that.userPreferences,_that.userSettings,_that.registeredAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -511,10 +514,10 @@ return $default(_that.memberId,_that.organizationId,_that.roles,_that.firstName,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'member_id')  String memberId, @JsonKey(name: 'organization_id')  String organizationId,  Set<Role> roles, @JsonKey(name: 'first_name')  String? firstName, @JsonKey(name: 'last_name')  String? lastName,  String? email,  String? phone, @JsonKey(name: 'account_status')  MemberAccountStatus accountStatus,  List<MemberContract> contracts, @JsonKey(name: 'member_preferences')  MemberPreferences? memberPreferences, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences, @JsonKey(name: 'user_settings')  Map<String, dynamic>? userSettings)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'member_id')  String memberId, @JsonKey(name: 'organization_id')  String organizationId,  Set<Role> roles, @JsonKey(name: 'first_name')  String? firstName, @JsonKey(name: 'last_name')  String? lastName,  String? email,  String? phone, @JsonKey(name: 'account_status')  MemberAccountStatus accountStatus,  List<MemberContract> contracts, @JsonKey(name: 'member_preferences')  MemberPreferences? memberPreferences, @JsonKey(name: 'user_preferences')  UserPreferences? userPreferences, @JsonKey(name: 'user_settings')  Map<String, dynamic>? userSettings, @JsonKey(name: 'registered_at')  String? registeredAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Member() when $default != null:
-return $default(_that.memberId,_that.organizationId,_that.roles,_that.firstName,_that.lastName,_that.email,_that.phone,_that.accountStatus,_that.contracts,_that.memberPreferences,_that.userPreferences,_that.userSettings);case _:
+return $default(_that.memberId,_that.organizationId,_that.roles,_that.firstName,_that.lastName,_that.email,_that.phone,_that.accountStatus,_that.contracts,_that.memberPreferences,_that.userPreferences,_that.userSettings,_that.registeredAt);case _:
   return null;
 
 }
@@ -526,7 +529,7 @@ return $default(_that.memberId,_that.organizationId,_that.roles,_that.firstName,
 @JsonSerializable()
 
 class _Member implements Member {
-  const _Member({@JsonKey(name: 'member_id') required this.memberId, @JsonKey(name: 'organization_id') required this.organizationId,  Set<Role> roles = const {Role.volunteer}, @JsonKey(name: 'first_name') this.firstName, @JsonKey(name: 'last_name') this.lastName, this.email, this.phone, @JsonKey(name: 'account_status') this.accountStatus = MemberAccountStatus.active,  List<MemberContract> contracts = const [], @JsonKey(name: 'member_preferences') this.memberPreferences, @JsonKey(name: 'user_preferences') this.userPreferences, @JsonKey(name: 'user_settings')  Map<String, dynamic>? userSettings}): _roles = roles,_contracts = contracts,_userSettings = userSettings;
+  const _Member({@JsonKey(name: 'member_id') required this.memberId, @JsonKey(name: 'organization_id') required this.organizationId,  Set<Role> roles = const {Role.volunteer}, @JsonKey(name: 'first_name') this.firstName, @JsonKey(name: 'last_name') this.lastName, this.email, this.phone, @JsonKey(name: 'account_status') this.accountStatus = MemberAccountStatus.active,  List<MemberContract> contracts = const [], @JsonKey(name: 'member_preferences') this.memberPreferences, @JsonKey(name: 'user_preferences') this.userPreferences, @JsonKey(name: 'user_settings')  Map<String, dynamic>? userSettings, @JsonKey(name: 'registered_at') this.registeredAt}): _roles = roles,_contracts = contracts,_userSettings = userSettings;
   factory _Member.fromJson(Map<String, dynamic> json) => _$MemberFromJson(json);
 
 @override@JsonKey(name: 'member_id') final  String memberId;
@@ -561,6 +564,9 @@ class _Member implements Member {
   return EqualUnmodifiableMapView(value);
 }
 
+/// When the member joined the instance (ISO-8601). Server-authoritative;
+/// null for members created before the field existed.
+@override@JsonKey(name: 'registered_at') final  String? registeredAt;
 
 /// Create a copy of Member
 /// with the given fields replaced by the non-null parameter values.
@@ -575,18 +581,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Member&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&const DeepCollectionEquality().equals(other.roles, _roles)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.accountStatus, accountStatus) || other.accountStatus == accountStatus)&&const DeepCollectionEquality().equals(other.contracts, _contracts)&&(identical(other.memberPreferences, memberPreferences) || other.memberPreferences == memberPreferences)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences)&&const DeepCollectionEquality().equals(other.userSettings, _userSettings));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Member&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&const DeepCollectionEquality().equals(other.roles, _roles)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.accountStatus, accountStatus) || other.accountStatus == accountStatus)&&const DeepCollectionEquality().equals(other.contracts, _contracts)&&(identical(other.memberPreferences, memberPreferences) || other.memberPreferences == memberPreferences)&&(identical(other.userPreferences, userPreferences) || other.userPreferences == userPreferences)&&const DeepCollectionEquality().equals(other.userSettings, _userSettings)&&(identical(other.registeredAt, registeredAt) || other.registeredAt == registeredAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,memberId,organizationId,const DeepCollectionEquality().hash(_roles),firstName,lastName,email,phone,accountStatus,const DeepCollectionEquality().hash(_contracts),memberPreferences,userPreferences,const DeepCollectionEquality().hash(_userSettings));
+    return Object.hash(runtimeType,memberId,organizationId,const DeepCollectionEquality().hash(_roles),firstName,lastName,email,phone,accountStatus,const DeepCollectionEquality().hash(_contracts),memberPreferences,userPreferences,const DeepCollectionEquality().hash(_userSettings),registeredAt);
 }
 
 @override
 String toString() {
-    return 'Member(memberId: $memberId, organizationId: $organizationId, roles: $roles, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, accountStatus: $accountStatus, contracts: $contracts, memberPreferences: $memberPreferences, userPreferences: $userPreferences, userSettings: $userSettings)';
+    return 'Member(memberId: $memberId, organizationId: $organizationId, roles: $roles, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, accountStatus: $accountStatus, contracts: $contracts, memberPreferences: $memberPreferences, userPreferences: $userPreferences, userSettings: $userSettings, registeredAt: $registeredAt)';
 }
 
 
@@ -597,7 +603,7 @@ abstract mixin class _$MemberCopyWith<$Res> implements $MemberCopyWith<$Res> {
   factory _$MemberCopyWith(_Member value, $Res Function(_Member) _then) = __$MemberCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'member_id') String memberId,@JsonKey(name: 'organization_id') String organizationId, Set<Role> roles,@JsonKey(name: 'first_name') String? firstName,@JsonKey(name: 'last_name') String? lastName, String? email, String? phone,@JsonKey(name: 'account_status') MemberAccountStatus accountStatus, List<MemberContract> contracts,@JsonKey(name: 'member_preferences') MemberPreferences? memberPreferences,@JsonKey(name: 'user_preferences') UserPreferences? userPreferences,@JsonKey(name: 'user_settings') Map<String, dynamic>? userSettings
+@JsonKey(name: 'member_id') String memberId,@JsonKey(name: 'organization_id') String organizationId, Set<Role> roles,@JsonKey(name: 'first_name') String? firstName,@JsonKey(name: 'last_name') String? lastName, String? email, String? phone,@JsonKey(name: 'account_status') MemberAccountStatus accountStatus, List<MemberContract> contracts,@JsonKey(name: 'member_preferences') MemberPreferences? memberPreferences,@JsonKey(name: 'user_preferences') UserPreferences? userPreferences,@JsonKey(name: 'user_settings') Map<String, dynamic>? userSettings,@JsonKey(name: 'registered_at') String? registeredAt
 });
 
 
@@ -614,7 +620,7 @@ class __$MemberCopyWithImpl<$Res>
 
 /// Create a copy of Member
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? memberId = null,Object? organizationId = null,Object? roles = null,Object? firstName = freezed,Object? lastName = freezed,Object? email = freezed,Object? phone = freezed,Object? accountStatus = null,Object? contracts = null,Object? memberPreferences = freezed,Object? userPreferences = freezed,Object? userSettings = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? memberId = null,Object? organizationId = null,Object? roles = null,Object? firstName = freezed,Object? lastName = freezed,Object? email = freezed,Object? phone = freezed,Object? accountStatus = null,Object? contracts = null,Object? memberPreferences = freezed,Object? userPreferences = freezed,Object? userSettings = freezed,Object? registeredAt = freezed,}) {
   return _then(_Member(
 memberId: null == memberId ? _self.memberId : memberId // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
@@ -628,7 +634,8 @@ as MemberAccountStatus,contracts: null == contracts ? _self._contracts : contrac
 as List<MemberContract>,memberPreferences: freezed == memberPreferences ? _self.memberPreferences : memberPreferences // ignore: cast_nullable_to_non_nullable
 as MemberPreferences?,userPreferences: freezed == userPreferences ? _self.userPreferences : userPreferences // ignore: cast_nullable_to_non_nullable
 as UserPreferences?,userSettings: freezed == userSettings ? _self._userSettings : userSettings // ignore: cast_nullable_to_non_nullable
-as Map<String, dynamic>?,
+as Map<String, dynamic>?,registeredAt: freezed == registeredAt ? _self.registeredAt : registeredAt // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

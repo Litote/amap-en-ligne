@@ -225,7 +225,7 @@ void main() {
         await tester.tap(saveButton);
         await tester.pump();
 
-        expect(find.text('Le nom est requis'), findsOneWidget);
+        expect(find.text('Ce champ est requis.'), findsOneWidget);
       },
     );
 
@@ -246,7 +246,7 @@ void main() {
       await tester.tap(saveButton);
       await tester.pump();
 
-      expect(find.text("L'adresse email n'est pas valide"), findsOneWidget);
+      expect(find.text('Adresse email invalide.'), findsOneWidget);
     });
 
     testWidgets(
@@ -263,7 +263,7 @@ void main() {
         await tester.tap(saveButton);
         await tester.pump();
 
-        expect(find.text("L'email de contact est requis"), findsOneWidget);
+        expect(find.text('Ce champ est requis.'), findsOneWidget);
       },
     );
 

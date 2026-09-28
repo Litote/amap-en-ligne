@@ -123,7 +123,7 @@ return joinFormSubmitted(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  orgsLoadRequested,TResult Function( Organization org)?  orgSelected,TResult Function( String firstName,  String lastName,  String email)?  joinFormSubmitted,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  orgsLoadRequested,TResult Function( PublicOrganization org)?  orgSelected,TResult Function( String firstName,  String lastName,  String email)?  joinFormSubmitted,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case OrgsLoadRequested() when orgsLoadRequested != null:
 return orgsLoadRequested();case OrgSelected() when orgSelected != null:
@@ -146,7 +146,7 @@ return joinFormSubmitted(_that.firstName,_that.lastName,_that.email);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  orgsLoadRequested,required TResult Function( Organization org)  orgSelected,required TResult Function( String firstName,  String lastName,  String email)  joinFormSubmitted,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  orgsLoadRequested,required TResult Function( PublicOrganization org)  orgSelected,required TResult Function( String firstName,  String lastName,  String email)  joinFormSubmitted,}) {final _that = this;
 switch (_that) {
 case OrgsLoadRequested():
 return orgsLoadRequested();case OrgSelected():
@@ -165,7 +165,7 @@ return joinFormSubmitted(_that.firstName,_that.lastName,_that.email);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  orgsLoadRequested,TResult? Function( Organization org)?  orgSelected,TResult? Function( String firstName,  String lastName,  String email)?  joinFormSubmitted,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  orgsLoadRequested,TResult? Function( PublicOrganization org)?  orgSelected,TResult? Function( String firstName,  String lastName,  String email)?  joinFormSubmitted,}) {final _that = this;
 switch (_that) {
 case OrgsLoadRequested() when orgsLoadRequested != null:
 return orgsLoadRequested();case OrgSelected() when orgSelected != null:
@@ -217,7 +217,7 @@ class OrgSelected implements AmapSearchEvent {
   const OrgSelected(this.org);
   
 
- final  Organization org;
+ final  PublicOrganization org;
 
 /// Create a copy of AmapSearchEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -251,11 +251,11 @@ abstract mixin class $OrgSelectedCopyWith<$Res> implements $AmapSearchEventCopyW
   factory $OrgSelectedCopyWith(OrgSelected value, $Res Function(OrgSelected) _then) = _$OrgSelectedCopyWithImpl;
 @useResult
 $Res call({
- Organization org
+ PublicOrganization org
 });
 
 
-$OrganizationCopyWith<$Res> get org;
+$PublicOrganizationCopyWith<$Res> get org;
 
 }
 /// @nodoc
@@ -271,7 +271,7 @@ class _$OrgSelectedCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? org = null,}) {
   return _then(OrgSelected(
 null == org ? _self.org : org // ignore: cast_nullable_to_non_nullable
-as Organization,
+as PublicOrganization,
   ));
 }
 
@@ -279,9 +279,9 @@ as Organization,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$OrganizationCopyWith<$Res> get org {
+$PublicOrganizationCopyWith<$Res> get org {
   
-  return $OrganizationCopyWith<$Res>(_self.org, (value) {
+  return $PublicOrganizationCopyWith<$Res>(_self.org, (value) {
     return _then(_self.copyWith(org: value));
   });
 }

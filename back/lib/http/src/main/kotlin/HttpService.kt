@@ -131,6 +131,42 @@ class HttpService {
                 ),
         )
 
+    fun methodNotAllowedError(
+        instance: String,
+        timestamp: Instant = Clock.System.now(),
+    ): ErrorResponse =
+        ErrorResponse(
+            type = "${PROBLEM_TYPE_PREFIX}method-not-allowed",
+            title = "Method Not Allowed",
+            status = 405,
+            detail = "method not allowed on this resource",
+            instance = instance,
+            timestamp = timestamp,
+            error =
+                ErrorDetails(
+                    code = "METHOD_NOT_ALLOWED",
+                    details = mapOf("reason" to "Method not allowed"),
+                ),
+        )
+
+    fun unsupportedMediaTypeError(
+        instance: String,
+        timestamp: Instant = Clock.System.now(),
+    ): ErrorResponse =
+        ErrorResponse(
+            type = "${PROBLEM_TYPE_PREFIX}unsupported-media-type",
+            title = "Unsupported Media Type",
+            status = 415,
+            detail = "request body must be application/json",
+            instance = instance,
+            timestamp = timestamp,
+            error =
+                ErrorDetails(
+                    code = "UNSUPPORTED_MEDIA_TYPE",
+                    details = mapOf("reason" to "Request body must be application/json"),
+                ),
+        )
+
     fun goneError(
         instance: String,
         timestamp: Instant = Clock.System.now(),

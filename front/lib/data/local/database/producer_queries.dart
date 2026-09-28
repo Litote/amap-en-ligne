@@ -36,6 +36,49 @@ mixin _ProducerQueries on _$AppDatabase, _OrganizationQueries {
     productTypes,
   )..where((t) => t.producerAccountId.equals(producerAccountId))).go();
 
+  /// Reactive list of the producer's read-only AMAP schedules.
+  Stream<List<ProducerSchedule>> watchProducerSchedules(
+    String producerAccountId,
+  ) =>
+      (select(producerSchedules)
+            ..where((t) => t.producerAccountId.equals(producerAccountId)))
+          .watch()
+          .map(
+            (rows) => rows
+                .map(
+                  (row) => ProducerSchedule.fromJson(
+                    jsonDecode(row.dataJson) as Map<String, dynamic>,
+                  ),
+                )
+                .toList(),
+          );
+
+  Future<void> upsertProducerSchedule(ProducerSchedule schedule) =>
+      into(producerSchedules).insertOnConflictUpdate(
+        ProducerSchedulesCompanion.insert(
+          producerAccountId: schedule.producerAccountId,
+          organizationId: schedule.organizationId,
+          dataJson: jsonEncode(schedule.toJson()),
+        ),
+      );
+
+  /// Tombstones carry the organization id; the producer is the scope's.
+  Future<void> deleteProducerSchedule({
+    required String producerAccountId,
+    required String organizationId,
+  }) =>
+      (delete(producerSchedules)..where(
+            (t) =>
+                t.producerAccountId.equals(producerAccountId) &
+                t.organizationId.equals(organizationId),
+          ))
+          .go();
+
+  Future<void> clearProducerSchedulesForProducer(String producerAccountId) =>
+      (delete(
+        producerSchedules,
+      )..where((t) => t.producerAccountId.equals(producerAccountId))).go();
+
   /// Replaces a row's primary key after the server allocated a real id for a
   /// `tmp_*` creation. Done in a transaction (delete + insert) because the
   /// composite PK is part of the row identity.

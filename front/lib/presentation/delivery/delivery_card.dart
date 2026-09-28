@@ -1,16 +1,18 @@
 import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/domain/model/delivery_slots.dart';
 import 'package:amap_en_ligne/domain/model/delivery_template.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/domain/model/shared_basket_view.dart';
+import 'package:amap_en_ligne/domain/model/volunteer_need.dart';
 import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
+import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_coordinators.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_registration_actions.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 /// Which screen the card is rendered on. Drives the copy, ordering and
 /// coordinator style differences mandated by the respective UI specs.
@@ -77,6 +79,12 @@ class DeliveryCard extends StatelessWidget {
   /// screen-member-01-home.md.
   final bool highlightAsNextParticipation;
 
+  /// The delivery as rendered to this member: without its IN_PREPARATION
+  /// contracts for a plain member. Display only — actions keep [delivery].
+  Delivery get _shownDelivery => canSeeContractsInPreparation(member.roles)
+      ? delivery
+      : deliveryWithoutInPreparationContracts(delivery, org, contracts);
+
   @override
   Widget build(BuildContext context) {
     final state = _DeliveryCardState.from(
@@ -102,8 +110,7 @@ class DeliveryCard extends StatelessWidget {
   /// Coordinator-only "Suivre" button routing to the delivery tracking screen.
   /// Mirrors the action on the coordinator time-slots screen.
   Widget _followButton(BuildContext context) => TextButton.icon(
-    onPressed: () =>
-        context.push('/coordinator/tracking/${delivery.deliveryId}'),
+    onPressed: () => openDeliveryTracking(context, delivery.deliveryId),
     icon: const Icon(Icons.fact_check_outlined),
     label: const Text('Suivre'),
   );
@@ -121,14 +128,16 @@ class DeliveryCard extends StatelessWidget {
     final isPast = date.isBefore(DateTime.now());
     final dateLabel = formatDeliveryDateLine(
       delivery.scheduledDate,
+      slotEndTime: deliveryStandardEndTime(delivery),
       longMonth: true,
     );
     final alreadyRegistered = isRegisteredOn(delivery, memberId);
     final isCompleted = delivery.status == DeliveryStatus.completed;
     final isCancelled = delivery.status == DeliveryStatus.cancelled;
 
+    final shown = _shownDelivery;
     final productNames = org.productNamesForDelivery(
-      delivery,
+      shown,
       contracts: contracts,
     );
 
@@ -180,7 +189,11 @@ class DeliveryCard extends StatelessWidget {
         _planningCounter(context, state, completed: true),
       ] else if (alreadyRegistered) ...[
         Text(
-          '✅ Vous êtes inscrit(e) comme bénévole',
+          // A coordinator of the delivery is never counted among the
+          // volunteers: say so, or "0/2 — Manque 2" would contradict it.
+          deliveryCoordinatorIds(delivery).contains(memberId)
+              ? '✅ Vous êtes inscrit(e) comme coordinateur'
+              : '✅ Vous êtes inscrit(e) comme bénévole',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w600,
@@ -189,7 +202,12 @@ class DeliveryCard extends StatelessWidget {
         const SizedBox(height: 4),
         _planningCounter(context, state),
         const SizedBox(height: 8),
-        UnregisterButton(delivery: delivery, memberId: memberId, org: org),
+        UnregisterButton(
+          delivery: delivery,
+          memberId: memberId,
+          org: org,
+          member: member,
+        ),
       ] else if (state.allSlotsCancelled) ...[
         Text(
           'Créneau annulé',
@@ -200,6 +218,9 @@ class DeliveryCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const OutlinedButton(onPressed: null, child: Text('❌ Créneau annulé')),
+      ] else if (!state.hasVolunteerNeed) ...[
+        // No volunteer slot (e.g. a secondary contract only): nothing to
+        // staff, so no badge, counter or registration action.
       ] else if (!isPast) ...[
         _planningUrgencyBadge(context, state),
         const SizedBox(height: 4),
@@ -210,12 +231,12 @@ class DeliveryCard extends StatelessWidget {
         _planningCounter(context, state),
       ],
       CoordinatorsSection(
-        delivery: delivery,
+        delivery: shown,
         membersById: membersById,
         org: org,
         contracts: contracts,
       ),
-      BasketCompositionSection(delivery: delivery, org: org),
+      BasketCompositionSection(delivery: shown, org: org),
     ];
   }
 
@@ -302,26 +323,36 @@ class DeliveryCard extends StatelessWidget {
         ),
       );
     }
-    final required = state.totalRequired;
-    if (required == 0) return const SizedBox.shrink();
-    final rate = state.totalCurrent / required;
-    if (rate >= 0.8) return const SizedBox.shrink();
-    if (rate >= 0.5) {
-      return Text(
+    return switch (_needLevel(state)) {
+      VolunteerNeedLevel.none => const SizedBox.shrink(),
+      VolunteerNeedLevel.limited => Text(
         '⚠️ Attention - Places limitées',
         style: Theme.of(
           context,
         ).textTheme.bodyMedium?.copyWith(color: Colors.orange.shade700),
-      );
-    }
-    return Text(
-      '🔴 BESOIN URGENT DE BÉNÉVOLES',
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        color: Theme.of(context).colorScheme.error,
-        fontWeight: FontWeight.w700,
       ),
-    );
+      VolunteerNeedLevel.wanted => Text(
+        '🙋 Bénévoles recherchés',
+        style: Theme.of(
+          context,
+        ).textTheme.bodyMedium?.copyWith(color: Colors.orange.shade700),
+      ),
+      VolunteerNeedLevel.urgent => Text(
+        '🔴 BESOIN URGENT DE BÉNÉVOLES',
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).colorScheme.error,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    };
   }
+
+  VolunteerNeedLevel _needLevel(_DeliveryCardState state) => volunteerNeedLevel(
+    current: state.totalCurrent,
+    required: state.totalRequired,
+    start: DateTime.parse(delivery.scheduledDate),
+    now: DateTime.now(),
+  );
 
   Widget _planningRegistrationActions(
     BuildContext context,
@@ -368,9 +399,7 @@ class DeliveryCard extends StatelessWidget {
       );
     }
 
-    final isUrgent =
-        state.totalRequired > 0 &&
-        (state.totalCurrent / state.totalRequired) < 0.5;
+    final isUrgent = _needLevel(state) == VolunteerNeedLevel.urgent;
     return RegisterButton(
       delivery: delivery,
       slotKind: SlotKind.standard,
@@ -445,13 +474,14 @@ class DeliveryCard extends StatelessWidget {
     final alreadyRegistered = isRegisteredOn(delivery, memberId);
     final dateLabel = formatDeliveryDateLine(
       delivery.scheduledDate,
-      slotEndTime: state.standardSlot?.endTime,
+      slotEndTime: deliveryStandardEndTime(delivery),
     );
     final urgencyBadge = alreadyRegistered
         ? null
         : _dashboardUrgencyBadge(context, state);
+    final shown = _shownDelivery;
     final productNames = org.productNamesForDelivery(
-      delivery,
+      shown,
       contracts: contracts,
     );
 
@@ -486,23 +516,30 @@ class DeliveryCard extends StatelessWidget {
         '${highlightAsNextParticipation ? ' confirmés' : ''}',
       ),
       CoordinatorsSection(
-        delivery: delivery,
+        delivery: shown,
         membersById: membersById,
         org: org,
         contracts: contracts,
       ),
-      BasketCompositionSection(delivery: delivery, org: org),
+      BasketCompositionSection(delivery: shown, org: org),
       const SizedBox(height: 8),
       if (alreadyRegistered) ...[
         Text(
-          '✅ Inscrit(e)',
+          deliveryCoordinatorIds(delivery).contains(memberId)
+              ? '✅ Inscrit(e) comme coordinateur'
+              : '✅ Inscrit(e)',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 4),
-        UnregisterButton(delivery: delivery, memberId: memberId, org: org),
+        UnregisterButton(
+          delivery: delivery,
+          memberId: memberId,
+          org: org,
+          member: member,
+        ),
       ] else if (!state.hasStandardCapacity && !state.hasEarlyCapacity) ...[
         const OutlinedButton(onPressed: null, child: Text('✅ COMPLET')),
       ] else if (state.hasEarlyCapacity && state.hasStandardCapacity) ...[
@@ -557,20 +594,14 @@ class DeliveryCard extends StatelessWidget {
         ),
       );
     }
-    final required = state.totalRequired;
-    if (required == 0) return null;
-    final rate = state.totalCurrent / required;
-    if (rate >= 0.8) return null;
-    if (rate >= 0.5) {
-      return Text(
-        '⚠️ Places limitées',
-        style: Theme.of(context).textTheme.bodySmall,
-      );
-    }
-    return Text(
-      '🔴 Besoin urgent de bénévoles',
-      style: Theme.of(context).textTheme.bodySmall,
-    );
+    final label = switch (_needLevel(state)) {
+      VolunteerNeedLevel.none => null,
+      VolunteerNeedLevel.limited => '⚠️ Places limitées',
+      VolunteerNeedLevel.wanted => '🙋 Bénévoles recherchés',
+      VolunteerNeedLevel.urgent => '🔴 Besoin urgent de bénévoles',
+    };
+    if (label == null) return null;
+    return Text(label, style: Theme.of(context).textTheme.bodySmall);
   }
 
   String _dashboardStandardLabel(_DeliveryCardState state) {
@@ -701,6 +732,10 @@ class _DeliveryCardState {
   final bool hasStandardCapacity;
   final bool hasEarlyCapacity;
   final int earlyRemaining;
+
+  /// Whether the delivery mobilises volunteers at all (it has a staffed slot).
+  bool get hasVolunteerNeed =>
+      totalRequired > 0 || hasStandardCapacity || hasEarlyCapacity;
 }
 
 /// Read-only, purely informative display of a delivery's basket composition.
@@ -722,14 +757,7 @@ class BasketCompositionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Group described baskets by basket size, keeping only those with items.
-    final byBasketSize = <String, List<DeliveryItem>>{};
-    for (final description in delivery.basketDescriptions) {
-      if (description.items.isEmpty) continue;
-      byBasketSize
-          .putIfAbsent(description.basketSizeName, () => <DeliveryItem>[])
-          .addAll(description.items);
-    }
+    final byBasketSize = _itemsByBasketLabel();
     if (byBasketSize.isEmpty) return const SizedBox.shrink();
 
     // Resolve each component's SVG icon once from the org-level catalog.
@@ -739,70 +767,155 @@ class BasketCompositionSection extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(top: 4),
-      child: Theme(
-        // Drop the ExpansionTile dividers to keep the card visually compact.
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          childrenPadding: const EdgeInsets.only(bottom: 8),
-          // Explicit label: screen readers get a clean, emoji-free header.
-          title: Semantics(
-            label: 'Composition du panier',
-            excludeSemantics: true,
-            child: Text(
-              '🧺 Composition du panier',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-          children: [
-            for (final entry in byBasketSize.entries)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4, bottom: 2),
-                    child: Text(
-                      entry.key,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
+      child: _CollapsibleSection(
+        title: '🧺 Composition du panier',
+        // Clean, emoji-free label for screen readers.
+        semanticsLabel: 'Composition du panier',
+        children: [
+          for (final entry in byBasketSize.entries)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, bottom: 2),
+                  child: Text(
+                    entry.key,
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
-                  for (final item in entry.value)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Row(
-                        children: [
-                          ItemTypeSvgIcon(
-                            svg: svgByItemTypeId[item.itemTypeId],
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              item.name.isEmpty ? item.itemTypeId : item.name,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ),
-                          if (item.weight != null &&
-                              item.weight!.trim().isNotEmpty)
-                            Text(
-                              item.weight!,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.secondary,
-                                  ),
-                            ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-          ],
-        ),
+                ),
+                for (final item in entry.value)
+                  _BasketItemRow(
+                    item: item,
+                    svg: svgByItemTypeId[item.itemTypeId],
+                  ),
+              ],
+            ),
+        ],
       ),
     );
   }
+
+  /// Groups the described baskets by product and basket size (« Fromages —
+  /// Petit »), keeping only those with items: a size name alone is ambiguous
+  /// when several products share it.
+  Map<String, List<DeliveryItem>> _itemsByBasketLabel() {
+    final productNames = <String, String>{
+      for (final p in org.products) p.productTypeId: p.name,
+    };
+    final byBasketSize = <String, List<DeliveryItem>>{};
+    for (final description in delivery.basketDescriptions) {
+      if (description.items.isEmpty) continue;
+      final productName = productNames[description.productTypeId];
+      final label = productName == null
+          ? description.basketSizeName
+          : '$productName — ${description.basketSizeName}';
+      byBasketSize
+          .putIfAbsent(label, () => <DeliveryItem>[])
+          .addAll(description.items);
+    }
+    return byBasketSize;
+  }
+}
+
+/// One basket component line: icon, name and optional weight.
+class _BasketItemRow extends StatelessWidget {
+  const _BasketItemRow({required this.item, required this.svg});
+
+  final DeliveryItem item;
+  final String? svg;
+
+  @override
+  Widget build(BuildContext context) {
+    final weight = item.weight;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          ItemTypeSvgIcon(svg: svg, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              item.name.isEmpty ? item.itemTypeId : item.name,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          if (weight != null && weight.trim().isNotEmpty)
+            Text(
+              weight,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Collapsible section whose header is a real button for assistive
+/// technologies (label + expanded state + tap). Replaces `ExpansionTile`,
+/// whose header sits under an accessibility-focus-blocked live region that
+/// the web engine folds into the enclosing card's node — the header was then
+/// neither announced nor activatable by screen readers.
+class _CollapsibleSection extends StatefulWidget {
+  const _CollapsibleSection({
+    required this.title,
+    required this.semanticsLabel,
+    required this.children,
+  });
+
+  final String title;
+  final String semanticsLabel;
+  final List<Widget> children;
+
+  @override
+  State<_CollapsibleSection> createState() => _CollapsibleSectionState();
+}
+
+class _CollapsibleSectionState extends State<_CollapsibleSection> {
+  bool _expanded = false;
+
+  void _toggle() => setState(() => _expanded = !_expanded);
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Semantics(
+        container: true,
+        button: true,
+        expanded: _expanded,
+        label: widget.semanticsLabel,
+        onTap: _toggle,
+        excludeSemantics: true,
+        child: InkWell(
+          onTap: _toggle,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Icon(_expanded ? Icons.expand_less : Icons.expand_more),
+              ],
+            ),
+          ),
+        ),
+      ),
+      if (_expanded)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widget.children,
+          ),
+        ),
+    ],
+  );
 }

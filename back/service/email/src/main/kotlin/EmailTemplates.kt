@@ -4,8 +4,6 @@ package email
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format.MonthNames
-import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 import persistence.model.BasketExchange
 import persistence.model.BasketExchangeStatus
@@ -50,37 +48,32 @@ object EmailTemplates {
     private const val GREETING = "Bonjour,\n\n"
     private const val ADMIN_REVIEW_PROMPT = "Connectez-vous à l'espace d'administration pour l'examiner."
 
-    private val FRENCH_DATE_TIME_FORMAT =
-        LocalDateTime.Format {
-            day()
-            char(' ')
-            monthName(
-                MonthNames(
-                    listOf(
-                        "janvier",
-                        "février",
-                        "mars",
-                        "avril",
-                        "mai",
-                        "juin",
-                        "juillet",
-                        "août",
-                        "septembre",
-                        "octobre",
-                        "novembre",
-                        "décembre",
-                    ),
-                ),
-            )
-            char(' ')
-            year()
-            chars(" à ")
-            hour()
-            char('h')
-            minute()
-        }
+    private val FRENCH_MONTH_NAMES =
+        listOf(
+            "janvier",
+            "février",
+            "mars",
+            "avril",
+            "mai",
+            "juin",
+            "juillet",
+            "août",
+            "septembre",
+            "octobre",
+            "novembre",
+            "décembre",
+        )
 
-    private fun Instant.toFrenchDateTime(): String = FRENCH_DATE_TIME_FORMAT.format(toLocalDateTime(TimeZone.of("Europe/Paris")))
+    /** "1er décembre 2023", "14 novembre 2023". */
+    private fun frenchDate(dt: LocalDateTime): String {
+        val day = if (dt.day == 1) "1er" else dt.day.toString()
+        return "$day ${FRENCH_MONTH_NAMES[dt.month.ordinal]} ${dt.year}"
+    }
+
+    private fun Instant.toFrenchDateTime(): String {
+        val dt = toLocalDateTime(TimeZone.of("Europe/Paris"))
+        return "${frenchDate(dt)} à ${dt.hour.toString().padStart(2, '0')}h${dt.minute.toString().padStart(2, '0')}"
+    }
 
     private fun activationFooter(
         activationUrl: String,
@@ -411,12 +404,17 @@ object EmailTemplates {
 
     private fun StringBuilder.appendVolunteerSignOffSection(delivery: Delivery) {
         appendLine("=== ÉMARGEMENT BÉNÉVOLES ===")
+        // The delivery's coordinators are not volunteers, even when registered
+        // on a slot (same rule as the front attendance sheet and tracking screen).
+        val coordinatorIds = delivery.contracts.flatMap { it.coordinators }.toSet()
         val volunteers =
             delivery.contracts
                 .flatMap { dc ->
                     dc.slots.flatMap { slot ->
                         slot.registrations
-                            .filter { it.status == RegistrationStatus.REGISTERED || it.status == RegistrationStatus.CONFIRMED }
+                            // Absent volunteers (CANCELLED) are left out; present ones may be
+                            // CONFIRMED (tracking screen) or COMPLETED (imported/legacy data).
+                            .filter { it.status != RegistrationStatus.CANCELLED && it.memberId !in coordinatorIds }
                             .map { reg -> Pair(slot.startTime, reg) }
                     }
                 }
@@ -491,24 +489,8 @@ object EmailTemplates {
     }
 
     private fun formatDeliveryDate(dt: LocalDateTime): String {
-        val months =
-            listOf(
-                "janvier",
-                "février",
-                "mars",
-                "avril",
-                "mai",
-                "juin",
-                "juillet",
-                "août",
-                "septembre",
-                "octobre",
-                "novembre",
-                "décembre",
-            )
-        val month = months[dt.month.ordinal]
         val hour = "${dt.hour}h${dt.minute.toString().padStart(2, '0')}"
-        return "${dt.day} $month ${dt.year} à $hour"
+        return "${frenchDate(dt)} à $hour"
     }
 
     private fun rejectionReason(reviewComment: String?): String =

@@ -1,0 +1,100 @@
+{
+  "id": "basket-exchange-reciprocal-swap",
+  "title": "A basket swap is offered, answered by two members each proposing a counter-delivery, and validated for one of them: the other pending request is rejected",
+  "targets": [
+    "basket-exchange-flow",
+    "flutter"
+  ],
+  "description": "BasketExchange is a reciprocal-swap aggregate on organization:{id}. The offerer publishes D1; each requester answers with the delivery they give in return (proposed_delivery_id / proposed_contract_id). Validating one request settles the swap (OPEN→ACCEPTED) and atomically rejects every other PENDING request.",
+  "given": {
+    "organizationId": "org-1",
+    "members": [
+      {
+        "memberId": "offerer-1",
+        "roles": [
+          "VOLUNTEER"
+        ]
+      },
+      {
+        "memberId": "requester-1",
+        "roles": [
+          "VOLUNTEER"
+        ]
+      },
+      {
+        "memberId": "requester-2",
+        "roles": [
+          "VOLUNTEER"
+        ]
+      }
+    ],
+    "deliveries": [
+      {
+        "deliveryId": "delivery-d1",
+        "contractId": "contract-c1",
+        "scheduledDate": "2099-06-15T18:00:00"
+      },
+      {
+        "deliveryId": "delivery-d2",
+        "contractId": "contract-c2",
+        "scheduledDate": "2099-06-22T18:00:00"
+      },
+      {
+        "deliveryId": "delivery-d3",
+        "contractId": "contract-c3",
+        "scheduledDate": "2099-06-29T18:00:00"
+      }
+    ]
+  },
+  "when": [
+    {
+      "actor": "offerer-1",
+      "action": "create_offer",
+      "params": {
+        "deliveryId": "delivery-d1",
+        "contractId": "contract-c1"
+      },
+      "save": {
+        "offerRef": "offer"
+      }
+    },
+    {
+      "actor": "requester-1",
+      "action": "submit_request",
+      "params": {
+        "offer": "offer",
+        "proposedDeliveryId": "delivery-d2",
+        "proposedContractId": "contract-c2"
+      }
+    },
+    {
+      "actor": "requester-2",
+      "action": "submit_request",
+      "params": {
+        "offer": "offer",
+        "proposedDeliveryId": "delivery-d3",
+        "proposedContractId": "contract-c3"
+      }
+    },
+    {
+      "actor": "offerer-1",
+      "action": "accept_request",
+      "params": {
+        "offer": "offer",
+        "requester": "requester-1"
+      }
+    }
+  ],
+  "then": {
+    "exchange": {
+      "offer": "offer",
+      "viewedBy": "requester-2",
+      "status": "ACCEPTED",
+      "acceptedRequester": "requester-1",
+      "requestStatuses": {
+        "requester-1": "ACCEPTED",
+        "requester-2": "REJECTED"
+      }
+    }
+  }
+}

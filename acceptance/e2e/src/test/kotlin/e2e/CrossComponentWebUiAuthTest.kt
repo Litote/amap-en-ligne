@@ -20,7 +20,7 @@ internal class CrossComponentWebUiAuthTest : E2eTestSupport() {
     private val password = "WebUiAuthTest123!"
 
     @Test
-    fun `GIVEN valid credentials WHEN user signs in on the web app THEN product types screen is shown`() {
+    fun `GIVEN valid credentials WHEN user signs in on the web app THEN producer dashboard is shown`() {
         ContainerSuite.createUser(
             email = email,
             password = password,
@@ -135,9 +135,9 @@ internal class CrossComponentWebUiAuthTest : E2eTestSupport() {
                                     .setName("SE CONNECTER"),
                             ).click()
 
-                        // Assert: product types screen is shown after successful login.
+                        // Assert: the producer dashboard is shown after successful login.
                         page.waitForURL(
-                            "**/product-types**",
+                            "**/producer-dashboard**",
                             com.microsoft.playwright.Page
                                 .WaitForURLOptions()
                                 .setTimeout(30_000.0),

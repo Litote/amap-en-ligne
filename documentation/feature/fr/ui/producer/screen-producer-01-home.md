@@ -1,154 +1,119 @@
 # Dashboard Producteur
 
 ## Description
-Interface d'accueil dédiée aux producteurs, présentant les informations essentielles sur leurs livraisons, contrats actifs, et gestion de production pour les organismes partenaires.
+Écran d'accueil du producteur (route `/producer-dashboard`, entrée « Accueil producteur » du menu ; c'est aussi l'écran ouvert à la connexion). Il salue le producteur par son nom et résume son activité auprès des organismes partenaires : vue d'ensemble, prochaines livraisons et contrats en cours, puis les accès rapides.
 
-> **📋 Référence** : Structure détaillée dans `../../../../architecture/data-model.md` - Section PRODUCER_ACCOUNT, PRODUCER, CONTRACT, DELIVERY.
+> **📋 Source des données** : un producteur ne reçoit jamais le scope d'une AMAP (`organization:{id}`, qui porte les données personnelles des membres). Tout l'écran est calculé sur l'appareil à partir des projections en lecture seule planning producteur (*ProducerSchedule*) de son propre flux `producer-account:{id}` : une par AMAP rattachée, avec les livraisons portant l'un de **ses** contrats (date, statut, nom du contrat, nombre de paniers). Voir `AI_CONTEXT.md` → *Producer schedules*.
 
 ## Wireframe ASCII
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      🥕 Producteurs                    │
+│  [☰]  Mon tableau de bord                           [⟳]    │
 ├─────────────────────────────────────────────────────────────┤
-│  🏭 Ferme Bio des Collines - Pierre Martin    📱 [Menu]     │
-└─────────────────────────────────────────────────────────────┘
+│                                                             │
+│  Bonjour Ferme Bio des Collines 👋                          │
 │                                                             │
 │  📊 Vue d'ensemble                                          │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │  📈 Saison 2025                                        │ │
-│  │  • 3 contrats actifs • 127 paniers/semaine             │ │
-│  │  • 2 organismes partenaires                            │ │
-│  │  • Prochaine livraison : Mercredi 17 Jan               │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                             │
-│  🎯 Livraisons urgentes                                     │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  ⚠️ URGENT - Mercredi 17 Jan • AMAP Les Jardins        │ │
-│  │  🥬 Paniers légumes bio • 45 paniers MEDIUM            │ │
-│  │  📅 Préparation requise avant 12h                      │ │
-│  │  [📋 DÉTAILS] [✅ MARQUER PRÊT]                         │ │
+│  │  • 2 organismes partenaires                             │ │
+│  │  • 3 contrats en cours                                  │ │
+│  │  • Prochaine livraison : Mercredi 17 janv. • 18h-20h    │ │
+│  │    • AMAP Les Jardins                                   │ │
 │  └─────────────────────────────────────────────────────────┘ │
 │                                                             │
 │  📅 Prochaines livraisons                                   │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │  📅 Mercredi 31 Jan • AMAP Les Jardins                 │ │
-│  │  🥬 Paniers légumes bio • 45 MEDIUM                    │ │
-│  │  ✅ Préparation confirmée • [📋 DÉTAILS]                │ │
+│  │  📅 Mercredi 17 janv. • 18h-20h • AMAP Les Jardins      │ │
+│  │  Légumes bio 2026 • 45 paniers           [Planifiée]    │ │
+│  │  [🧺 COMPOSITION DU PANIER]                              │ │
 │  └─────────────────────────────────────────────────────────┘ │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │  📅 Jeudi 1 Fév • Coop Bio Ville                      │ │
-│  │  🍎 Fruits de saison • 32 SMALL + 15 LARGE            │ │
-│  │  ⏳ En attente de préparation • [📋 DÉTAILS]            │ │
+│  │  📅 Jeudi 18 janv. • 18h-20h • Coop Bio Ville           │ │
+│  │  Fruits de saison • 32 paniers           [Confirmée]    │ │
 │  └─────────────────────────────────────────────────────────┘ │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │  📅 Mercredi 24 janv. • 18h-20h • AMAP Les Jardins      │ │
+│  │  Légumes bio 2026 • 45 paniers           [Planifiée]    │ │
+│  └─────────────────────────────────────────────────────────┘ │
+│  [VOIR TOUTES MES LIVRAISONS]                               │
 │                                                             │
 │  📊 Mes contrats actifs                                     │
-│  • AMAP Les Jardins - Légumes bio (45 paniers/semaine)     │
-│  • Coop Bio Ville - Fruits (47 paniers/semaine)           │
-│  • AMAP Centre - Légumes (35 paniers/semaine)              │
+│  • AMAP Les Jardins - Légumes bio 2026 (45 paniers/livraison)│
+│  • Coop Bio Ville - Fruits de saison (32 paniers/livraison) │
+│  • Coop Bio Ville - Oeufs (1 panier/livraison)              │
 │                                                             │
-│ [📋 GÉRER PRODUCTION]    [📊 RAPPORTS]    [⚙️ PARAMÈTRES]   │
+│  Accès rapides                                              │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │ 📦 Catalogue de produits                              › │ │
+│  │    Gérez vos types de produits                          │ │
+│  ├─────────────────────────────────────────────────────────┤ │
+│  │ 🚚 Mes livraisons                                     › │ │
+│  │    Suivez vos livraisons à venir                        │ │
+│  ├─────────────────────────────────────────────────────────┤ │
+│  │ ⚙️ Préférences                                         › │ │
+│  │    Paramètres du compte                                 │ │
+│  └─────────────────────────────────────────────────────────┘ │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## Contenu
+
+### Salutation
+« Bonjour {nom du compte producteur} 👋 » — le même nom que l'en-tête du menu. Tant que le nom n'est pas connu (avant la première synchronisation), « Bonjour 👋 ».
+
+### Vue d'ensemble
+- **Organismes partenaires** : nombre d'AMAP auxquelles le producteur est rattaché (une projection par AMAP, même sans livraison à venir). Accord singulier/pluriel.
+- **Contrats en cours** : nombre de contrats du producteur ayant au moins une livraison à venir (voir « Mes contrats actifs »).
+- **Prochaine livraison** : date (format du planning, ex. « Jeudi 1 oct. • 18h-20h ») et AMAP de la livraison à venir la plus proche, ou « Aucune livraison à venir ».
+
+### Prochaines livraisons
+Les **3** livraisons à venir les plus proches, toutes AMAP confondues. Une carte par livraison : date • AMAP, puis une ligne par contrat du producteur lié à cette livraison (« {nom du contrat} • {N} panier(s) »), le badge de statut de la livraison (Planifiée, Confirmée, 🔴 En cours) et le bouton **[COMPOSITION DU PANIER]**, qui ouvre la [composition du panier](../common/screen-common-03-delivery-description.md) de ses produits sur cette livraison.
+
+Le bouton **[VOIR TOUTES MES LIVRAISONS]** ouvre la liste complète (`/producer-deliveries`). Sans livraison à venir : « Aucune livraison à venir pour vos produits. » (pas de bouton).
+
+### Mes contrats actifs
+Une ligne par couple (AMAP, contrat) ayant au moins une livraison à venir : « • {AMAP} - {contrat} ({N} panier(s)/livraison) », où N est le nombre de paniers de la **prochaine** livraison du contrat. Triée par AMAP puis par nom de contrat. Sans contrat : « Aucun contrat en cours. ».
+
+> Le planning producteur ne transporte pas le statut du contrat : un contrat encore « En préparation » mais déjà lié à des livraisons apparaît ici (avec le nombre de paniers saisi par le coordinateur, éventuellement 0).
+
+### Accès rapides
+Trois tuiles, dans cet ordre :
+
+| Tuile | Route |
+|-------|-------|
+| Catalogue de produits — « Gérez vos types de produits » | `/product-types` |
+| Mes livraisons — « Suivez vos livraisons à venir » | `/producer-deliveries` |
+| Préférences — « Paramètres du compte » | `/preferences` |
+
+## Règles de calcul
+- **Livraison à venir** : livraison dont la date est aujourd'hui ou plus tard (la journée entière d'aujourd'hui compte) et dont le statut n'est ni terminé (*COMPLETED*) ni annulé (*CANCELLED*).
+- Le producteur ne modifie ici ni les livraisons ni les contrats (ils sont gérés par les coordinateurs de chaque AMAP) ; il peut seulement composer le panier de ses produits (bouton [COMPOSITION DU PANIER]).
+- L'écran se met à jour à chaque synchronisation (bouton ⟳ ou synchronisation automatique).
+
 ## Navigation et interactions
 
-### Actions principales
-- **[📋 DÉTAILS]** : Navigation vers le détail de la livraison spécifique
-- **[✅ MARQUER PRÊT]** : Confirmation que la production est prête pour livraison
-- **[📋 GÉRER PRODUCTION]** : Navigation vers l'interface de gestion des produits et planification
-- **[📊 RAPPORTS]** : Navigation vers les statistiques et rapports de production
-- **[⚙️ PARAMÈTRES]** : Navigation vers les préférences producteur
-- **[Menu]** : Accès au menu principal de navigation producteur
+| Contrôle | Action |
+|----------|--------|
+| [☰] | Ouvre le menu producteur (Accueil producteur, Notifications, Préférences, Aide, Se déconnecter) |
+| [⟳] | Synchronise (appui long : synchronisation complète) |
+| [VOIR TOUTES MES LIVRAISONS] | `/producer-deliveries` |
+| [COMPOSITION DU PANIER] (carte de livraison) | `/producer-deliveries/:organizationId/:deliveryId/composition` — [composition du panier](../common/screen-common-03-delivery-description.md) |
+| Tuiles « Accès rapides » | Route de la tuile |
 
-### États dynamiques
-- **Livraisons urgentes** : Affichage en rouge ⚠️ avec deadline claire
-- **Préparation confirmée** : État validé avec ✅ et accès aux détails
-- **En attente** : État neutre ⏳ avec possibilité d'action
-- **Vue d'ensemble** : Métriques actualisées en temps réel
+## États de l'interface
+- **Chargement** : la lecture du cache local est quasi instantanée ; tant qu'elle n'a pas répondu, seuls la salutation et les accès rapides sont affichés (pas d'indicateur de progression).
+- **Première synchronisation** : tant qu'une synchronisation est en cours et qu'aucun planning n'est en cache (juste après la connexion), « 🔄 Synchronisation en cours… » remplace la vue d'ensemble (texte seul, pas d'animation).
+- **Aucune AMAP rattachée / aucune livraison** : « 0 organisme partenaire », « 0 contrat en cours », « Aucune livraison à venir » et les messages vides des deux sections.
 
-### Données affichées
-- Informations du compte producteur connecté
-- Statistiques de la saison en cours
-- Livraisons prioritaires nécessitant une action
-- Planning des prochaines livraisons avec statuts
-- Liste des contrats actifs avec volumes
-
-### Notifications et alertes
-- **Deadline approchant** : Alerte visuelle 24h avant échéance
-- **Livraison urgente** : Notification push et mise en avant rouge
-- **Confirmation requise** : Rappel pour validation de préparation
-- **Nouveaux contrats** : Notification des nouvelles opportunités
-
-## Gestion des statuts livraison
-
-### États possibles
-- **⚠️ URGENT** : Deadline dans moins de 24h, action requise
-- **✅ PRÊT** : Production confirmée et prête pour livraison
-- **⏳ EN ATTENTE** : Préparation pas encore démarrée
-- **🚚 EN LIVRAISON** : Livraison en cours chez le partenaire
-- **✅ LIVRÉE** : Livraison terminée et confirmée
-
-### Actions disponibles
-- **[✅ MARQUER PRÊT]** : Confirmer que la production est terminée
-- **[📝 AJOUTER NOTES]** : Ajouter des notes de préparation ou alertes
-- **[📞 CONTACTER]** : Contact direct avec le coordinateur du contrat
-- **[📋 DÉTAILS]** : Accès aux spécifications détaillées de la commande
-
-## Métriques producteur
-
-### Indicateurs clés
-- **Contrats actifs** : Nombre de contrats en cours
-- **Volume hebdomadaire** : Total de paniers à produire par semaine
-- **Organismes partenaires** : Nombre d'AMAP/coopératives desservies
-- **Taux de ponctualité** : Pourcentage de livraisons à l'heure
-- **Satisfaction clients** : Note moyenne des organismes partenaires
-
-### Suivi de performance
-- **Livraisons réussies** : Historique des livraisons terminées
-- **Retards** : Suivi des retards et causes identifiées
-- **Qualité** : Feedback des coordinateurs sur la qualité
-- **Évolution saisonnière** : Comparaison avec les saisons précédentes
-
-## Intégration organismes
-
-### Flux de communication
-- **Réception commandes** : Intégration automatique des besoins
-- **Confirmation production** : Validation de la capacité de production
-- **Mise à jour statuts** : Communication temps réel avec les coordinateurs
-- **Alertes partagées** : Notification mutuelle en cas de problème
-
-### Données partagées
-- **Planning livraisons** : Synchronisation avec les organismes
-- **Spécifications produits** : Détails des produits et conditionnement
-- **Quantités** : Volumes exacts par taille de panier
-- **Contact urgence** : Coordination directe en cas d'imprévu
-
-## États d'urgence
-
-### Gestion des priorités
-- **Deadline < 24h** : Alerte rouge automatique
-- **Production en retard** : Escalade vers les coordinateurs
-- **Problème qualité** : Système d'alerte et de replacement
-- **Météo défavorable** : Notification préventive aux partenaires
-
-### Actions d'urgence
-- **[🚨 SIGNALER PROBLÈME]** : Notification immédiate aux coordinateurs
-- **[📞 URGENCE]** : Contact direct avec tous les partenaires concernés
-- **[🔄 REPORTER]** : Demande de report avec proposition alternative
-- **[⚠️ ANNULER]** : Annulation exceptionnelle avec justification
+## Hors périmètre (évolutions envisagées, non implémentées)
+Les éléments suivants de la maquette d'origine ne sont **pas** disponibles : ils demandent de nouvelles données côté serveur (statut de préparation par livraison et par producteur, échéances, historique) et des règles métier encore à définir.
+- Bloc « Livraisons urgentes » (échéance de préparation, alerte 24h avant).
+- Action **[✅ MARQUER PRÊT]** et statuts de préparation (⏳ en attente, ✅ prêt, 🚚 en livraison).
+- Détail d'une livraison (au-delà de la composition du panier), notes de préparation, contact direct du coordinateur, signalement de problème, report ou annulation.
+- Écrans **[📋 GÉRER PRODUCTION]** et **[📊 RAPPORTS]** (volume hebdomadaire, taux de ponctualité, satisfaction, évolution saisonnière).
 
 ## Références
-
-### Documentation liée
-- **Spécifications UI** : [`../spec-ui.md`](../spec-ui.md) - Section "Dashboard producteur"
-- **Données** : `../../../../architecture/data-model.md` - Entités PRODUCER_ACCOUNT, PRODUCER, CONTRACT, DELIVERY_CONTRACT
-- **Navigation** : menu principal version producteur
-- **Règles métier** : `../../regles-metier.md` - Gestion de production et responsabilités
-- **Intégration** : Voir écrans 3, 7 pour les interactions coordinateur-producteur
-
-### Actions connexes
-- **Gestion production** : Interface de planification et suivi des cultures
-- **Rapports** : Statistiques et analyses de performance
-- **Paramètres** : Configuration des préférences et notifications producteur
-- **Support** : Contact et assistance technique dédiée
+- **Liste des livraisons** : `/producer-deliveries` (même source de données, liste complète).
+- **Catalogue** : [screen-producer-02-product-catalog.md](screen-producer-02-product-catalog.md).
+- **Données** : `../../../../architecture/data-model.md` — entités PRODUCER_ACCOUNT, CONTRACT, DELIVERY ; projection *ProducerSchedule* décrite dans `AI_CONTEXT.md`.

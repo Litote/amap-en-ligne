@@ -11,5 +11,7 @@ public class _KSP_ProduceraccountProducerAccountChangeFactory
 public class _KSP_ProduceraccountProducerAccountService
 @MetaDefinition("produceraccount.ProducerAccountService",moduleTagId="5guh9o:ProduceraccountProducerAccountModule", dependencies=["producerAccountSyncDAO:persistence.dao.ProducerAccountSyncDAO","organizationSyncDAO:persistence.dao.OrganizationSyncDAO","upsertNormalizer:produceraccount.ProducerAccountUpsertNormalizer","changeFactory:produceraccount.ProducerAccountChangeFactory","lifecycleService:produceraccount.ProducerAccountLifecycleService"], binds=["core.EntityTypeService"])
 public val _KSP_CoreEntityTypeService : Unit get() = Unit
+@MetaDefinition("produceraccount.ProducerScheduleService",moduleTagId="5guh9o:ProduceraccountProducerAccountModule", dependencies=["organizationSyncDAO:persistence.dao.OrganizationSyncDAO","contractSyncDAO:persistence.dao.ContractSyncDAO","productTypeDAO:persistence.dao.ProductTypeSyncDAO"], binds=["core.EntityTypeService"])
+public class _KSP_ProduceraccountProducerScheduleService
 @MetaDefinition("produceraccount.ProducerAccountUpsertNormalizer",moduleTagId="5guh9o:ProduceraccountProducerAccountModule", dependencies=["producerAccountSyncDAO:persistence.dao.ProducerAccountSyncDAO"])
 public class _KSP_ProduceraccountProducerAccountUpsertNormalizer

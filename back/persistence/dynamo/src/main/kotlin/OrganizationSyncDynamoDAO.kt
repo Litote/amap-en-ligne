@@ -63,8 +63,9 @@ internal class OrganizationSyncDynamoDAO(
     override suspend fun put(
         organization: Organization,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
-        client.transactPutEntityAndChange(organization.toAttributeValueMap(), change)
+        client.transactPutEntityAndChange(organization.toAttributeValueMap(), change, fanOutChanges)
     }
 
     override suspend fun delete(

@@ -37,6 +37,10 @@ enum EntityType {
   attendanceEmailRequest,
   @JsonValue('ErrorReport')
   errorReport,
+
+  /// Read-only, server-derived projection (never mutated by the client).
+  @JsonValue('ProducerSchedule')
+  producerSchedule,
 }
 
 /// Wire-format mapping kept in sync with the `@JsonValue` annotations above.
@@ -60,6 +64,7 @@ const Map<EntityType, String> entityTypeWireNames = {
   EntityType.deviceToken: 'DeviceToken',
   EntityType.attendanceEmailRequest: 'AttendanceEmailRequest',
   EntityType.errorReport: 'ErrorReport',
+  EntityType.producerSchedule: 'ProducerSchedule',
 };
 
 EntityType entityTypeFromWire(String value) => entityTypeWireNames.entries

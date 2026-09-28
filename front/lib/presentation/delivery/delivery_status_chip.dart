@@ -1,4 +1,5 @@
 import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:flutter/material.dart';
 
 /// Status chip for a [DeliveryStatus] — shared by the coordinator dashboard and
@@ -16,11 +17,9 @@ class DeliveryStatusChip extends StatelessWidget {
       DeliveryStatus.planned => ('Planifiée', Colors.blue),
       _ => (status.name, Colors.grey),
     };
-    return Chip(
-      label: Text(label),
+    return StatusBadge(
+      label,
       labelStyle: TextStyle(color: color),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      padding: EdgeInsets.zero,
       side: BorderSide(color: color),
     );
   }
@@ -44,11 +43,9 @@ class SlotStatusChip extends StatelessWidget {
       SlotStatus.closed => ('Fermé', Colors.grey),
       SlotStatus.cancelled => ('Annulé', Colors.red),
     };
-    return Chip(
-      label: Text(label),
+    return StatusBadge(
+      label,
       labelStyle: TextStyle(color: color),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      padding: EdgeInsets.zero,
       side: BorderSide(color: color),
     );
   }

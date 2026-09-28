@@ -49,16 +49,18 @@ internal class ContractSyncDynamoDAO(
     override suspend fun put(
         contract: Contract,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
-        client.transactPutEntityAndChange(contract.toAttributeValueMap(), change)
+        client.transactPutEntityAndChange(contract.toAttributeValueMap(), change, fanOutChanges)
     }
 
     override suspend fun delete(
         contractId: Id<Contract>,
         organizationId: Id<Organization>,
         change: Change,
+        fanOutChanges: List<Change>,
     ) {
-        client.transactDeleteEntityAndChange("CONTRACT#${organizationId.id}", contractId.id, change)
+        client.transactDeleteEntityAndChange("CONTRACT#${organizationId.id}", contractId.id, change, fanOutChanges)
     }
 }
 

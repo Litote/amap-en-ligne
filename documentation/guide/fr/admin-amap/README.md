@@ -13,8 +13,8 @@ coordinateur.
 ## Votre tableau de bord
 
 Le tableau de bord admin propose des **accès rapides** (Utilisateurs, Producteurs,
-Modèles de livraison, Préférences, Demandes d'adhésion), un bloc **Alertes** (par
-exemple un producteur suspendu) et une **synthèse** (membres actifs, coordinateurs,
+Modèles de livraison, Préférences, Demandes d'adhésion), un bloc **Alertes** (demandes
+d'adhésion en attente, producteurs suspendus — touchez une alerte pour ouvrir l'écran où la traiter) et une **synthèse** (membres actifs, coordinateurs,
 producteurs actifs).
 
 ## Les demandes d'adhésion
@@ -22,6 +22,10 @@ producteurs actifs).
 Lorsqu'une personne demande à rejoindre votre AMAP, sa demande apparaît dans
 **Demandes d'adhésion** (accès rapide du tableau de bord). Vous pouvez l'**approuver**
 — ce qui déclenche l'invitation de la personne par e-mail — ou la **refuser**.
+
+Vous êtes aussi prévenu par une notification « Nouvelle demande d'adhésion ». Dans
+**[Notifications]**, elle indique où en est la demande (« Demande en attente »,
+« Demande approuvée » ou « Demande rejetée ») ; touchez-la pour ouvrir les demandes.
 
 ## Voir aussi
 

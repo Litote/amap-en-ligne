@@ -259,9 +259,9 @@ void main() {
 
   group('MemberRepository.reactivate', () {
     test('flips accountStatus to ACTIVE and enqueues Upsert', () async {
-      final seeded = buildMember(memberId: 'm-1').copyWith(
-        accountStatus: MemberAccountStatus.suspended,
-      );
+      final seeded = buildMember(
+        memberId: 'm-1',
+      ).copyWith(accountStatus: MemberAccountStatus.suspended);
       await db.upsertMember('org-1', seeded);
 
       await repo.reactivate(memberId: 'm-1', organizationId: 'org-1');

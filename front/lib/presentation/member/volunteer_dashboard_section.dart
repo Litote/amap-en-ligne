@@ -14,13 +14,13 @@ import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_card.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 /// Volunteer / member section of the unified dashboard.
 ///
@@ -223,6 +223,23 @@ class _SectionBody extends StatelessWidget {
   final List<DeliveryTemplate> templates;
   final List<Contract> contracts;
 
+  /// Upcoming deliveries for the "Prochaines livraisons" list. Plain members
+  /// never see deliveries whose contracts are all still IN_PREPARATION (same
+  /// rule as the planning), and [nextRegistered] — already shown as "Ma
+  /// prochaine participation" — is not repeated.
+  List<Delivery> _upcomingDeliveries(DateTime now, Delivery? nextRegistered) {
+    final contractsById = {for (final c in contracts) c.contractId: c};
+    final seeInPreparation = canSeeContractsInPreparation(member.roles);
+    return upcomingActiveDeliveries(
+      org,
+      now,
+      include: (d) =>
+          d.deliveryId != nextRegistered?.deliveryId &&
+          (seeInPreparation ||
+              !isDeliveryPendingContractActivation(d, contractsById)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -230,7 +247,7 @@ class _SectionBody extends StatelessWidget {
     final isCoordinator = member.roles.contains(Role.coordinator);
 
     final nextRegistered = nextRegistrationFor(org, memberId, now: now);
-    final upcoming = upcomingActiveDeliveries(org, now, limit: 5);
+    final upcoming = _upcomingDeliveries(now, nextRegistered);
 
     // Dashboard uses calendar-year scope for a quick participation count.
     // The detailed history screen uses contract-season scoping instead.
@@ -261,9 +278,13 @@ class _SectionBody extends StatelessWidget {
         // --- Section 2: Prochaines livraisons ---
         const _SectionHeader(title: '📋 Prochaines livraisons'),
         if (upcoming.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text('Aucune livraison à venir.'),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              nextRegistered == null
+                  ? 'Aucune livraison à venir.'
+                  : 'Aucune autre livraison à venir.',
+            ),
           )
         else
           for (final delivery in upcoming)
@@ -334,7 +355,7 @@ class _SectionBody extends StatelessWidget {
 
   String _formatHistoryDate(String scheduledDate) {
     final date = DateTime.parse(scheduledDate);
-    return DateFormat('d MMM yyyy', 'fr').format(date);
+    return frenchDateFormat('d MMM yyyy').format(date);
   }
 }
 
@@ -371,14 +392,14 @@ int _completedInYear(Organization org, String memberId, int year) {
   return count;
 }
 
-/// Counts completed registrations for [memberId] across [delivery]'s slots.
+/// Counts present registrations for [memberId] across [delivery]'s slots.
 int _completedOnDelivery(Delivery delivery, String memberId) {
   var count = 0;
   for (final contract in delivery.contracts) {
     for (final slot in contract.slots) {
       for (final reg in slot.registrations) {
         if (reg.memberId == memberId &&
-            reg.status == RegistrationStatus.completed) {
+            isPresentRegistrationStatus(reg.status)) {
           count++;
         }
       }

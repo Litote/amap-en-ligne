@@ -11,12 +11,12 @@ import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 /// Personal participation history screen for volunteer (Amapien) members.
 ///
@@ -361,9 +361,12 @@ class _StatsCard extends StatelessWidget {
 
     // Rank label with ex-aequo support.
     // null → member not in activeMembers (e.g. suspended) → display '—'.
+    // No rank before a first participation (everyone would be "1er ex-aequo").
     final String rankLabel;
     if (rankResult == null) {
       rankLabel = '—';
+    } else if (totalCount == 0) {
+      rankLabel = '— (aucune participation)';
     } else if (rankResult.tied) {
       rankLabel =
           '${_ordinal(rankResult.rank)} ex-aequo / ${rankResult.total} membres';
@@ -408,7 +411,7 @@ class _StatsCard extends StatelessWidget {
   String _formatLastDate(String scheduledDate) {
     try {
       final date = DateTime.parse(scheduledDate);
-      return DateFormat('d MMMM yyyy', 'fr').format(date);
+      return frenchDateFormat('d MMMM yyyy').format(date);
     } on Exception catch (e) {
       recordFallbackBreadcrumb('delivery date parse failed', e);
       return scheduledDate;
@@ -431,6 +434,9 @@ class _UpcomingCard extends StatelessWidget {
     final dateLabel = _formatCardDate(delivery.scheduledDate);
     final teammates = teammatesOn(delivery, selfMemberId);
     final activity = selfActivityOn(delivery, selfMemberId);
+    // A coordinator registered on a slot comes as coordinator, not as a
+    // volunteer (the planning reads « inscrit(e) comme coordinateur »).
+    final coordinates = deliveryCoordinatorIds(delivery).contains(selfMemberId);
 
     // Show up to 4 names; add "… et N autres" suffix when more.
     final String teammateLabel;
@@ -462,7 +468,9 @@ class _UpcomingCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              activity == null
+              coordinates
+                  ? '✅ Confirmé - Coordinateur'
+                  : activity == null
                   ? '✅ Confirmé'
                   : '✅ Confirmé - ${activityLabel(activity)}',
             ),
@@ -741,7 +749,7 @@ class _HistoryFooter extends StatelessWidget {
 String _formatCardDate(String scheduledDate) {
   try {
     final date = DateTime.parse(scheduledDate);
-    final datePart = DateFormat('d MMM yyyy', 'fr').format(date);
+    final datePart = frenchDateFormat('d MMM yyyy').format(date);
     final startH = date.hour.toString().padLeft(2, '0');
     final endH = (date.hour + 2).toString().padLeft(2, '0');
     return '$datePart • ${startH}h-${endH}h';

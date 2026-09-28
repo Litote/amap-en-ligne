@@ -48,6 +48,16 @@ void main() {
     expect(rows.single.requestId, 'req-1');
   });
 
+  test('watchAll() emits the requests of every organization', () async {
+    await db.upsertMemberJoinRequest(_buildRequest());
+    await db.upsertMemberJoinRequest(
+      _buildRequest(requestId: 'req-2', organizationId: 'org-2'),
+    );
+
+    final rows = await repo.watchAll().first;
+    expect(rows.map((r) => r.requestId), unorderedEquals(['req-1', 'req-2']));
+  });
+
   test(
     'approve() enqueues Upsert mutation without changing the local cache',
     () async {

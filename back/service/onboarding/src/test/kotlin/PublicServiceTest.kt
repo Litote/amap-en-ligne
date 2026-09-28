@@ -388,6 +388,39 @@ internal class PublicServiceTest {
         }
 
     @Test
+    fun `WHEN createMemberJoinRequest THEN the notification body does not state the request status`() =
+        runTest {
+            // The notification text is frozen at send time: "est en attente" would turn
+            // false once the request is approved or rejected.
+            val admin = buildMember(sub = "sub-admin", role = Role.ADMIN, pushEnabled = true)
+            coEvery { memberJoinRequestDAO.existsPendingByEmailAndOrganization(any(), any()) } returns false
+            coEvery { memberSyncDAO.getByOrganizationId(any()) } returns listOf(admin)
+
+            service.createMemberJoinRequest(
+                CreateMemberJoinRequestBody(
+                    organizationId = "org-1",
+                    email = "alice@example.com",
+                    firstName = "Alice",
+                    lastName = "Martin",
+                ),
+            )
+
+            coVerify {
+                notificationPublisher.publish(
+                    recipientScope = "member:sub-admin",
+                    type = NotificationType.INFO,
+                    category = NotificationCategory.MEMBER_JOIN_REQUEST_SUBMITTED,
+                    content =
+                        match {
+                            it.title == "Nouvelle demande d'adhésion" &&
+                                it.body == "Alice Martin demande à rejoindre votre AMAP."
+                        },
+                    channels = setOf(NotificationChannel.PUSH),
+                )
+            }
+        }
+
+    @Test
     fun `GIVEN active member with same email WHEN createMemberJoinRequest THEN returns Conflict email_member`() =
         runTest {
             val activeMember =

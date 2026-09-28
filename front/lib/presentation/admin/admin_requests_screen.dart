@@ -8,6 +8,7 @@ import 'package:amap_en_ligne/presentation/admin/admin_requests_event.dart';
 import 'package:amap_en_ligne/presentation/admin/admin_requests_state.dart';
 import 'package:amap_en_ligne/presentation/admin/approve_confirmation_dialog.dart';
 import 'package:amap_en_ligne/presentation/common/instant_format.dart';
+import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_status_banner.dart';
@@ -361,14 +362,10 @@ class _ProducerStatusBadge extends StatelessWidget {
   final ProducerRequestStatus status;
 
   @override
-  Widget build(BuildContext context) => Chip(
-    label: Text(
-      _producerStatusLabel(status),
-      style: const TextStyle(color: Colors.white, fontSize: 12),
-    ),
+  Widget build(BuildContext context) => StatusBadge(
+    _producerStatusLabel(status),
+    labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
     backgroundColor: _producerStatusColor(status),
-    padding: EdgeInsets.zero,
-    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
   );
 }
 
@@ -453,14 +450,10 @@ class _StatusBadge extends StatelessWidget {
   final OrganizationRequestStatus status;
 
   @override
-  Widget build(BuildContext context) => Chip(
-    label: Text(
-      _statusLabel(status),
-      style: const TextStyle(color: Colors.white, fontSize: 12),
-    ),
+  Widget build(BuildContext context) => StatusBadge(
+    _statusLabel(status),
+    labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
     backgroundColor: _statusColor(status),
-    padding: EdgeInsets.zero,
-    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
   );
 }
 
@@ -668,6 +661,7 @@ class _RejectDialogState extends State<_RejectDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Rejeter la demande'),
+    semanticLabel: 'Rejeter la demande',
     content: TextField(
       controller: _controller,
       decoration: const InputDecoration(

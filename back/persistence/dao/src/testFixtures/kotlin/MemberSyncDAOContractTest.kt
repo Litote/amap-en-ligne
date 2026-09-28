@@ -195,6 +195,22 @@ abstract class MemberSyncDAOContractTest {
         }
 
     @Test
+    fun `GIVEN members with and without registration date WHEN put THEN the date round-trips`() =
+        runTest {
+            val orgId = newOrganizationId()
+            insertOrganization(orgId)
+            val registered = buildMember(organizationId = orgId).copy(registeredAt = Instant.fromEpochMilliseconds(1_790_000_000_000L))
+            val legacy = buildMember(organizationId = orgId)
+            memberSyncDAO.put(registered, listOf(buildUpsertChange(registered, orgId)))
+            memberSyncDAO.put(legacy, listOf(buildUpsertChange(legacy, orgId)))
+
+            val byId = memberSyncDAO.getByOrganizationId(orgId.toId()).associateBy { it.memberId }
+
+            assertEquals(Instant.fromEpochMilliseconds(1_790_000_000_000L), byId.getValue(registered.memberId).registeredAt)
+            assertEquals(null, byId.getValue(legacy.memberId).registeredAt)
+        }
+
+    @Test
     fun `GIVEN members in two orgs WHEN listAll THEN returns all members`() =
         runTest {
             val orgA = newOrganizationId()

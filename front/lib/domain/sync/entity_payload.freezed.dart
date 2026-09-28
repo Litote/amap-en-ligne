@@ -4806,4 +4806,286 @@ $ErrorReportCopyWith<$Res> get errorReport {
 }
 }
 
+/// @nodoc
+mixin _$ProducerSchedulePayload {
+
+ ProducerSchedule get producerSchedule;
+/// Create a copy of ProducerSchedulePayload
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProducerSchedulePayloadCopyWith<ProducerSchedulePayload> get copyWith => _$ProducerSchedulePayloadCopyWithImpl<ProducerSchedulePayload>(this as ProducerSchedulePayload, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ProducerSchedulePayload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProducerSchedulePayload&&(identical(other.producerSchedule, _this.producerSchedule) || other.producerSchedule == _this.producerSchedule));
+}
+
+
+@override
+int get hashCode {
+  final _this = this as ProducerSchedulePayload;
+  return Object.hash(runtimeType,_this.producerSchedule);
+}
+
+@override
+String toString() {
+  final _this = this as ProducerSchedulePayload;
+  return 'ProducerSchedulePayload(producerSchedule: ${_this.producerSchedule})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProducerSchedulePayloadCopyWith<$Res>  {
+  factory $ProducerSchedulePayloadCopyWith(ProducerSchedulePayload value, $Res Function(ProducerSchedulePayload) _then) = _$ProducerSchedulePayloadCopyWithImpl;
+@useResult
+$Res call({
+ ProducerSchedule producerSchedule
+});
+
+
+$ProducerScheduleCopyWith<$Res> get producerSchedule;
+
+}
+/// @nodoc
+class _$ProducerSchedulePayloadCopyWithImpl<$Res>
+    implements $ProducerSchedulePayloadCopyWith<$Res> {
+  _$ProducerSchedulePayloadCopyWithImpl(this._self, this._then);
+
+  final ProducerSchedulePayload _self;
+  final $Res Function(ProducerSchedulePayload) _then;
+
+/// Create a copy of ProducerSchedulePayload
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? producerSchedule = null,}) {
+  return _then(ProducerSchedulePayload(
+producerSchedule: null == producerSchedule ? _self.producerSchedule : producerSchedule // ignore: cast_nullable_to_non_nullable
+as ProducerSchedule,
+  ));
+}
+/// Create a copy of ProducerSchedulePayload
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProducerScheduleCopyWith<$Res> get producerSchedule {
+  
+  return $ProducerScheduleCopyWith<$Res>(_self.producerSchedule, (value) {
+    return _then(_self.copyWith(producerSchedule: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ProducerSchedulePayload].
+extension ProducerSchedulePayloadPatterns on ProducerSchedulePayload {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProducerSchedulePayload value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProducerSchedulePayload() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProducerSchedulePayload value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProducerSchedulePayload():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProducerSchedulePayload value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProducerSchedulePayload() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProducerSchedule producerSchedule)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProducerSchedulePayload() when $default != null:
+return $default(_that.producerSchedule);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProducerSchedule producerSchedule)  $default,) {final _that = this;
+switch (_that) {
+case _ProducerSchedulePayload():
+return $default(_that.producerSchedule);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProducerSchedule producerSchedule)?  $default,) {final _that = this;
+switch (_that) {
+case _ProducerSchedulePayload() when $default != null:
+return $default(_that.producerSchedule);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ProducerSchedulePayload extends ProducerSchedulePayload {
+  const _ProducerSchedulePayload({required this.producerSchedule}): super._();
+  
+
+@override final  ProducerSchedule producerSchedule;
+
+/// Create a copy of ProducerSchedulePayload
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProducerSchedulePayloadCopyWith<_ProducerSchedulePayload> get copyWith => __$ProducerSchedulePayloadCopyWithImpl<_ProducerSchedulePayload>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProducerSchedulePayload&&(identical(other.producerSchedule, producerSchedule) || other.producerSchedule == producerSchedule));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,producerSchedule);
+}
+
+@override
+String toString() {
+    return 'ProducerSchedulePayload(producerSchedule: $producerSchedule)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProducerSchedulePayloadCopyWith<$Res> implements $ProducerSchedulePayloadCopyWith<$Res> {
+  factory _$ProducerSchedulePayloadCopyWith(_ProducerSchedulePayload value, $Res Function(_ProducerSchedulePayload) _then) = __$ProducerSchedulePayloadCopyWithImpl;
+@override @useResult
+$Res call({
+ ProducerSchedule producerSchedule
+});
+
+
+@override $ProducerScheduleCopyWith<$Res> get producerSchedule;
+
+}
+/// @nodoc
+class __$ProducerSchedulePayloadCopyWithImpl<$Res>
+    implements _$ProducerSchedulePayloadCopyWith<$Res> {
+  __$ProducerSchedulePayloadCopyWithImpl(this._self, this._then);
+
+  final _ProducerSchedulePayload _self;
+  final $Res Function(_ProducerSchedulePayload) _then;
+
+/// Create a copy of ProducerSchedulePayload
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? producerSchedule = null,}) {
+  return _then(_ProducerSchedulePayload(
+producerSchedule: null == producerSchedule ? _self.producerSchedule : producerSchedule // ignore: cast_nullable_to_non_nullable
+as ProducerSchedule,
+  ));
+}
+
+/// Create a copy of ProducerSchedulePayload
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProducerScheduleCopyWith<$Res> get producerSchedule {
+  
+  return $ProducerScheduleCopyWith<$Res>(_self.producerSchedule, (value) {
+    return _then(_self.copyWith(producerSchedule: value));
+  });
+}
+}
+
 // dart format on

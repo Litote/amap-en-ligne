@@ -9,13 +9,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'alert_templates_bloc.freezed.dart';
 
-/// Org-scoped notification categories an admin can customise from /preferences.
+/// Org-scoped notification categories an admin can customise from /preferences
+/// (mirrors the back `CUSTOMISABLE_ALERT_CATEGORIES`, which rejects the others).
 /// Owner/instance categories (organization/producer request submitted) are
 /// excluded: they target instance owners and have no owning organization.
+/// Delivery reminders are never sent, so they are not offered either.
 const List<NotificationCategory> kCustomisableAlertCategories = [
   NotificationCategory.slotCancelled,
   NotificationCategory.slotRescheduled,
-  NotificationCategory.deliveryReminder,
+  NotificationCategory.volunteerShortage,
+  NotificationCategory.volunteerUrgentNeed,
   NotificationCategory.basketExchangeRequestReceived,
   NotificationCategory.basketExchangeAccepted,
   NotificationCategory.basketExchangeRejected,
@@ -26,7 +29,10 @@ const List<NotificationCategory> kCustomisableAlertCategories = [
 String alertCategoryLabel(NotificationCategory category) => switch (category) {
   NotificationCategory.slotCancelled => 'Créneau annulé',
   NotificationCategory.slotRescheduled => 'Horaire de créneau modifié',
-  NotificationCategory.deliveryReminder => 'Rappel de livraison',
+  NotificationCategory.volunteerShortage =>
+    'Manque de bénévoles (3 jours avant)',
+  NotificationCategory.volunteerUrgentNeed =>
+    'Besoin urgent de bénévoles (la veille)',
   NotificationCategory.basketExchangeRequestReceived =>
     'Nouvelle demande d\'échange de panier',
   NotificationCategory.basketExchangeAccepted => 'Échange de panier accepté',
@@ -34,6 +40,7 @@ String alertCategoryLabel(NotificationCategory category) => switch (category) {
   NotificationCategory.memberJoinRequestSubmitted =>
     'Nouvelle demande d\'adhésion',
   NotificationCategory.generic ||
+  NotificationCategory.deliveryReminder ||
   NotificationCategory.organizationRequestSubmitted ||
   NotificationCategory.producerRequestSubmitted => category.name,
 };
@@ -45,7 +52,8 @@ String alertCategoryDefaultTitle(NotificationCategory category) =>
     switch (category) {
       NotificationCategory.slotCancelled => 'Créneau annulé',
       NotificationCategory.slotRescheduled => 'Horaire de créneau modifié',
-      NotificationCategory.deliveryReminder => 'Rappel de livraison',
+      NotificationCategory.volunteerShortage => 'Bénévoles recherchés',
+      NotificationCategory.volunteerUrgentNeed => 'Besoin urgent de bénévoles',
       NotificationCategory.basketExchangeRequestReceived =>
         'Nouvelle demande d\'échange de panier',
       NotificationCategory.basketExchangeAccepted =>
@@ -55,6 +63,7 @@ String alertCategoryDefaultTitle(NotificationCategory category) =>
       NotificationCategory.memberJoinRequestSubmitted =>
         'Nouvelle demande d\'adhésion',
       NotificationCategory.generic ||
+      NotificationCategory.deliveryReminder ||
       NotificationCategory.organizationRequestSubmitted ||
       NotificationCategory.producerRequestSubmitted => '',
     };
@@ -67,7 +76,12 @@ String alertCategoryDefaultBody(
   NotificationCategory.slotCancelled => 'Le créneau du {date} a été annulé.',
   NotificationCategory.slotRescheduled =>
     'L\'horaire de votre créneau a été modifié : {créneau}.',
-  NotificationCategory.deliveryReminder => 'Une livraison approche.',
+  NotificationCategory.volunteerShortage =>
+    'Il manque {n} bénévole(s) pour la livraison du {date}. '
+        'Inscrivez-vous sur le planning !',
+  NotificationCategory.volunteerUrgentNeed =>
+    'La livraison du {date} manque encore de {n} bénévole(s). '
+        'Pouvez-vous aider ?',
   NotificationCategory.basketExchangeRequestReceived =>
     '{membre} propose son panier du {date} en échange du vôtre du {date}.',
   NotificationCategory.basketExchangeAccepted =>
@@ -76,8 +90,9 @@ String alertCategoryDefaultBody(
   NotificationCategory.basketExchangeRejected =>
     'Votre proposition d\'échange pour le panier du {date} n\'a pas été retenue.',
   NotificationCategory.memberJoinRequestSubmitted =>
-    'Une demande d\'adhésion de {prénom nom} est en attente.',
+    '{prénom nom} demande à rejoindre votre AMAP.',
   NotificationCategory.generic ||
+  NotificationCategory.deliveryReminder ||
   NotificationCategory.organizationRequestSubmitted ||
   NotificationCategory.producerRequestSubmitted => '',
 };

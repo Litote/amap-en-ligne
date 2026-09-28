@@ -38,6 +38,12 @@ void main() {
     'sync-retry-internal-error-keeps-mutation-queued',
   );
   final remapStory = _loadStory('contract-weekly-deliveries-tmp-id-remap');
+  final idempotentRetryStory = _loadStory(
+    'sync-retry-idempotent-create-product-type',
+  );
+  final componentCatalogStory = _loadStory(
+    'product-type-component-catalog-persisted',
+  );
 
   late AppDatabase db;
   late SyncRepository syncRepo;
@@ -405,6 +411,151 @@ void main() {
     expect(await db.readCursor(producerScope), 'c1');
     expect(await db.readPendingMutations(), isEmpty);
   });
+
+  // The response of the first send is lost (timeout after the request left):
+  // the client must resend the *identical* mutation (same client_op_id, same
+  // tmp id) so the server replays its stored outcome instead of creating a
+  // second entity, and must end with a single, remapped product type.
+  test('${idempotentRetryStory.title} [${idempotentRetryStory.id}]', () async {
+    final productRepo = ProductTypeRepository(
+      db: db,
+      idGenerator: _SequenceIdGenerator(['vegetables', 'op-1']),
+    );
+    await productRepo.create(
+      tenantId: tenant,
+      name: 'Vegetables',
+      supportedBasketSizes: const [BasketSize(name: 'small')],
+    );
+    final pending = await db.readPendingMutations();
+    expect(pending.single.clientOpId, 'op-1');
+
+    const persisted = ProductType(
+      productTypeId: 'pt-1',
+      producerAccountId: tenant,
+      supportedBasketSizes: [BasketSize(name: 'small')],
+      name: 'Vegetables',
+    );
+    api = _ScriptedSyncApi([
+      _ExpectedSyncCall.failure(
+        label: '${idempotentRetryStory.id} lost response',
+        request: SyncRequest(cursors: const {}, mutations: pending),
+        error: DioException(
+          requestOptions: RequestOptions(path: '/v1/sync'),
+          type: DioExceptionType.receiveTimeout,
+        ),
+      ),
+      _ExpectedSyncCall.response(
+        label: '${idempotentRetryStory.id} replay',
+        request: SyncRequest(cursors: const {}, mutations: pending),
+        response: const SyncResponse(
+          authorizedScopes: [producerScope],
+          results: {
+            producerScope: BootstrapScopeSyncResult(
+              items: [ProductTypePayload(productType: persisted)],
+              nextCursor: 'c1',
+            ),
+          },
+          mutations: [
+            MutationOutcome(
+              clientOpId: 'op-1',
+              status: MutationStatus.applied,
+              serverEntityId: 'pt-1',
+            ),
+          ],
+        ),
+      ),
+    ]);
+    syncRepo = SyncRepository(db: db, api: api);
+
+    expect(await syncRepo.sync(tenantId: tenant), isA<SyncNetworkFailure>());
+    expect(await db.readPendingMutations(), pending);
+
+    expect(await syncRepo.sync(tenantId: tenant), isA<SyncSuccess>());
+    expect(await db.watchProductTypes(tenant).first, const [persisted]);
+    expect(await db.readPendingMutations(), isEmpty);
+  });
+
+  // The producer's component catalog (inline SVG icons included) travels in
+  // the ProductType upsert and survives the round-trip in the local cache.
+  test(
+    '${componentCatalogStory.title} [${componentCatalogStory.id}]',
+    () async {
+      const existing = ProductType(
+        productTypeId: 'pt-1',
+        producerAccountId: tenant,
+        supportedBasketSizes: [BasketSize(name: 'small')],
+        name: 'Vegetables',
+      );
+      const catalog = [
+        ItemType(
+          id: 'it-carrot',
+          name: 'Carottes',
+          imageSvg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
+        ),
+        ItemType(id: 'it-leek', name: 'Poireaux'),
+      ];
+      await db.upsertProductType(existing);
+      await db.writeCursor(producerScope, 'c0');
+
+      await ProductTypeRepository(
+        db: db,
+        idGenerator: _SequenceIdGenerator(['op-1']),
+      ).updateItemTypes(existing, catalog);
+      final pending = await db.readPendingMutations();
+      final sent = ((pending.single.op as Upsert).payload as ProductTypePayload)
+          .productType;
+      expect(sent.itemTypes, catalog);
+      // Wire check: the SVG markup is part of the mutation JSON.
+      expect(
+        jsonEncode(pending.single.toJson()),
+        contains(
+          '"image_svg":"<svg xmlns=\\"http://www.w3.org/2000/svg\\"></svg>"',
+        ),
+      );
+
+      api = _ScriptedSyncApi([
+        _ExpectedSyncCall.response(
+          label: componentCatalogStory.id,
+          request: SyncRequest(
+            cursors: const {producerScope: 'c0'},
+            mutations: pending,
+          ),
+          response: SyncResponse(
+            authorizedScopes: const [producerScope],
+            results: {
+              producerScope: IncrementalScopeSyncResult(
+                changes: [
+                  Change(
+                    entityType: EntityType.productType,
+                    entityId: 'pt-1',
+                    op: ChangeOp.upsert,
+                    payload: ProductTypePayload(
+                      productType: existing.copyWith(itemTypes: catalog),
+                    ),
+                    producedAt: 1,
+                  ),
+                ],
+                nextCursor: 'c1',
+              ),
+            },
+            mutations: const [
+              MutationOutcome(
+                clientOpId: 'op-1',
+                status: MutationStatus.applied,
+                serverEntityId: 'pt-1',
+              ),
+            ],
+          ),
+        ),
+      ]);
+      syncRepo = SyncRepository(db: db, api: api);
+
+      expect(await syncRepo.sync(tenantId: tenant), isA<SyncSuccess>());
+      final stored = (await db.watchProductTypes(tenant).first).single;
+      expect(stored.itemTypes, catalog);
+      expect(await db.readPendingMutations(), isEmpty);
+    },
+  );
 
   test('${internalErrorStory.title} [${internalErrorStory.id}]', () async {
     final productRepo = ProductTypeRepository(

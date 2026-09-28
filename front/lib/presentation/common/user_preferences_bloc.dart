@@ -54,9 +54,6 @@ class ProducerSource extends UserPreferencesSource {
 // Field enums — which logical toggle was changed
 // ---------------------------------------------------------------------------
 
-/// Reminder fields that live in [MemberPreferences].
-enum ReminderField { reminder24h, reminder2h, reminder30min }
-
 /// Alert fields that live in [MemberPreferences].
 enum AlertField { urgentNeed, incompleteSlot, planningChanges }
 
@@ -81,12 +78,6 @@ sealed class UserPreferencesEvent with _$UserPreferencesEvent {
   const factory UserPreferencesEvent.producerLoaded(
     ProducerAccount? producerAccount,
   ) = _UserPreferencesProducerLoaded;
-
-  /// User toggled a delivery-reminder checkbox.
-  const factory UserPreferencesEvent.reminderToggled(
-    ReminderField field, {
-    required bool value,
-  }) = _UserPreferencesReminderToggled;
 
   /// User toggled an alert checkbox.
   const factory UserPreferencesEvent.alertToggled(
@@ -170,7 +161,6 @@ class UserPreferencesBloc
     on<_UserPreferencesLoaded>(_onLoaded);
     on<_UserPreferencesOwnerLoaded>(_onOwnerLoaded);
     on<_UserPreferencesProducerLoaded>(_onProducerLoaded);
-    on<_UserPreferencesReminderToggled>(_onReminderToggled);
     on<_UserPreferencesAlertToggled>(_onAlertToggled);
     on<_UserPreferencesChannelToggled>(_onChannelToggled);
     on<_UserPreferencesSaved>(_onSaved);
@@ -245,28 +235,6 @@ class UserPreferencesBloc
     } else {
       emit(_seedFromProducer(producer));
     }
-  }
-
-  void _onReminderToggled(
-    _UserPreferencesReminderToggled event,
-    Emitter<UserPreferencesState> emit,
-  ) {
-    final current = state;
-    if (current is! UserPreferencesReady) return;
-
-    final updated = switch (event.field) {
-      ReminderField.reminder24h => current.memberPreferences.copyWith(
-        reminder24hEnabled: event.value,
-      ),
-      ReminderField.reminder2h => current.memberPreferences.copyWith(
-        reminder2hEnabled: event.value,
-      ),
-      ReminderField.reminder30min => current.memberPreferences.copyWith(
-        reminder30minEnabled: event.value,
-      ),
-    };
-
-    emit(_withUpdatedPrefs(current, memberPreferences: updated));
   }
 
   void _onAlertToggled(
@@ -545,9 +513,6 @@ class UserPreferencesBloc
     MemberPreferences newPrefs,
     MemberPreferences loadedPrefs,
   ) =>
-      newPrefs.reminder24hEnabled != loadedPrefs.reminder24hEnabled ||
-      newPrefs.reminder2hEnabled != loadedPrefs.reminder2hEnabled ||
-      newPrefs.reminder30minEnabled != loadedPrefs.reminder30minEnabled ||
       newPrefs.urgentNeedAlertsEnabled != loadedPrefs.urgentNeedAlertsEnabled ||
       newPrefs.incompleteSlotRemindersEnabled !=
           loadedPrefs.incompleteSlotRemindersEnabled ||

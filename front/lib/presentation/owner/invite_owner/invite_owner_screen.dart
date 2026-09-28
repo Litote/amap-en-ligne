@@ -47,14 +47,14 @@ class _InviteOwnerScreenState extends State<InviteOwnerScreen> {
   }
 
   String? _validateRequired(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Ce champ est requis.';
+    if (value == null || value.trim().isEmpty) return kFieldRequiredMessage;
     return requiredName(value);
   }
 
   String? _validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Ce champ est requis.';
+    if (value == null || value.trim().isEmpty) return kFieldRequiredMessage;
     if (!isValidEmail(value)) {
-      return 'Adresse email invalide.';
+      return kInvalidEmailMessage;
     }
     return null;
   }

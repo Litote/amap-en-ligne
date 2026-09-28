@@ -18,6 +18,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
 const _activeContract = Contract(
@@ -158,6 +159,26 @@ class _FakeContract extends Fake implements Contract {}
 class _FakeOrganization extends Fake implements Organization {}
 
 void main() {
+  group('weeklyDeliveriesPrompt', () {
+    test('create and link', () {
+      final p = weeklyDeliveriesPrompt(newCount: 8, linkedCount: 4);
+      expect(p.title, 'Créer les livraisons hebdomadaires ?');
+      expect(
+        p.body,
+        'Créer 8 nouvelles livraisons et lier 4 livraisons existantes à ce '
+        'contrat ?',
+      );
+      expect(p.action, 'Créer');
+    });
+
+    test('link only: no creation wording', () {
+      final p = weeklyDeliveriesPrompt(newCount: 0, linkedCount: 1);
+      expect(p.title, 'Lier les livraisons existantes ?');
+      expect(p.body, 'Lier 1 livraison existante à ce contrat ?');
+      expect(p.action, 'Lier');
+    });
+  });
+
   late _MockOrganizationRepository organizationRepository;
   late _MockMemberRepository memberRepository;
   late _MockContractRepository contractRepository;
@@ -165,7 +186,8 @@ void main() {
   late _MockDeliveryTemplateRepository deliveryTemplateRepository;
   late _MockSyncBloc syncBloc;
 
-  setUpAll(() {
+  setUpAll(() async {
+    await initializeDateFormatting('fr');
     registerFallbackValue(_FakeContract());
     registerFallbackValue(_FakeOrganization());
     registerFallbackValue(<Delivery>[]);
@@ -622,12 +644,18 @@ void main() {
     await tester.ensureVisible(find.text('ENREGISTRER LE CONTRAT'));
     await tester.tap(find.text('ENREGISTRER LE CONTRAT'));
     await tester.pumpAndSettle();
-    expect(find.text('Valeur invalide'), findsOneWidget);
+    expect(
+      find.text('Saisissez un nombre entier supérieur ou égal à 1.'),
+      findsOneWidget,
+    );
 
     await tester.enterText(deliveryCount, '10');
     await tester.pump();
 
-    expect(find.text('Valeur invalide'), findsNothing);
+    expect(
+      find.text('Saisissez un nombre entier supérieur ou égal à 1.'),
+      findsNothing,
+    );
   });
 
   testWidgets('toggling "Contrat principal" persists isMainContract', (
@@ -1355,6 +1383,44 @@ void main() {
     );
 
     testWidgets(
+      'GIVEN a coordinator checked on a new contract WHEN it is saved THEN the '
+      'next blank form starts with no coordinator checked',
+      (tester) async {
+        stubForNewContract();
+        when(() => memberRepository.watch(any())).thenAnswer(
+          (_) => Stream.value([
+            const Member(
+              memberId: 'coord-1',
+              organizationId: 'org-1',
+              firstName: 'Claude',
+              lastName: 'Coordo',
+              roles: {Role.coordinator},
+            ),
+          ]),
+        );
+
+        await startContractCreation(tester);
+        final chip = find.widgetWithText(FilterChip, 'Claude Coordo');
+        await tester.ensureVisible(chip);
+        await tester.tap(chip);
+        await tester.pumpAndSettle();
+        expect(tester.widget<FilterChip>(chip).selected, isTrue);
+
+        await tester.ensureVisible(find.text('ENREGISTRER LE CONTRAT'));
+        await tester.tap(find.text('ENREGISTRER LE CONTRAT'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.tap(find.text('Non'));
+        await tester.pumpAndSettle();
+
+        // The saved contract is not in the (stubbed) list: the screen falls
+        // back to a blank "Nouveau contrat" form.
+        expect(find.text('Nouveau contrat'), findsOneWidget);
+        expect(tester.widget<FilterChip>(chip).selected, isFalse);
+      },
+    );
+
+    testWidgets(
       'GIVEN deliveries generated earlier for another contract WHEN weekly '
       'deliveries are generated THEN new ids never collide with existing ones',
       (tester) async {
@@ -1471,7 +1537,7 @@ void main() {
                 ).captured.single
                 as List<Delivery>;
         final generated = captured
-            .where((d) => d.deliveryId.startsWith('tmp_delivery_'))
+            .where((d) => d.deliveryId.startsWith('delivery_'))
             .toList();
         expect(generated, isNotEmpty);
         for (final delivery in generated) {

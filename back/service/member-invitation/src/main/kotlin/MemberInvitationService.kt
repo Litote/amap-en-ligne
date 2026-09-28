@@ -6,14 +6,12 @@ import authentication.AuthenticatedInfo
 import authentication.Role
 import core.EntityTypeService
 import core.InputRules
+import core.memberInvitationChanges
 import email.MemberInvitationEmailPort
 import id.generateId
 import id.toId
 import org.koin.core.annotation.Single
-import persistence.changes.Change
-import persistence.changes.ChangeOp
 import persistence.changes.ClientMutation
-import persistence.changes.Cursor
 import persistence.changes.Delete
 import persistence.changes.MemberInvitationPayload
 import persistence.changes.MutationErrorCode
@@ -88,7 +86,7 @@ class MemberInvitationService(
         }
         val now = Clock.System.now()
         val cancelled = existing.copy(status = MemberInvitationStatus.CANCELLED)
-        memberInvitationDAO.put(cancelled, buildChange(cancelled))
+        memberInvitationDAO.put(cancelled, memberInvitationChanges(cancelled))
         activationTokenDAO.invalidateByMemberInvitationId(cancelled.invitationId.toId(), now)
         return applied(mutation, cancelled.invitationId)
     }
@@ -110,7 +108,11 @@ class MemberInvitationService(
                     ).map(::MemberInvitationPayload)
             }
 
-            SyncScope.InstanceOwner,
+            // OWNER instance view: pending invitations of every AMAP, listed as "Invité".
+            SyncScope.InstanceOwner -> {
+                memberInvitationDAO.listPending().map(::MemberInvitationPayload)
+            }
+
             is SyncScope.ProducerAccount,
             is SyncScope.Member,
             is SyncScope.Owner,
@@ -153,7 +155,7 @@ class MemberInvitationService(
             }
             // Expired pending invitation: cancel it to release the constraint before creating a new one.
             val cancelled = pendingInvitation.copy(status = MemberInvitationStatus.CANCELLED)
-            memberInvitationDAO.put(cancelled, buildChange(cancelled))
+            memberInvitationDAO.put(cancelled, memberInvitationChanges(cancelled))
             activationTokenDAO.invalidateByMemberInvitationId(cancelled.invitationId.toId(), now)
         }
 
@@ -168,7 +170,7 @@ class MemberInvitationService(
                 activatedAt = null,
             )
         return try {
-            memberInvitationDAO.put(invitation, buildChange(invitation))
+            memberInvitationDAO.put(invitation, memberInvitationChanges(invitation))
             val token = buildActivationToken(invitation, now)
             activationTokenDAO.create(token)
             memberInvitationEmailPort.sendInvitationEmail(
@@ -221,7 +223,7 @@ class MemberInvitationService(
                 customEmailSubject = incoming.customEmailSubject,
                 customEmailBody = incoming.customEmailBody,
             )
-        memberInvitationDAO.put(updated, buildChange(updated))
+        memberInvitationDAO.put(updated, memberInvitationChanges(updated))
         activationTokenDAO.invalidateByMemberInvitationId(updated.invitationId.toId(), now)
         val token = buildActivationToken(updated, now)
         activationTokenDAO.create(token)
@@ -270,16 +272,5 @@ class MemberInvitationService(
             adminEmail = invitation.email,
             createdAt = now,
             expiresAt = now + 168.hours,
-        )
-
-    private fun buildChange(invitation: MemberInvitation): Change =
-        Change(
-            cursor = Cursor.next(),
-            entityType = EntityType.MemberInvitation,
-            entityId = invitation.invitationId,
-            scopeKey = SyncScope.Organization(invitation.organizationId.id).key,
-            op = ChangeOp.UPSERT,
-            payload = MemberInvitationPayload(invitation),
-            producedAt = System.currentTimeMillis(),
         )
 }

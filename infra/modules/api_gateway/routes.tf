@@ -74,3 +74,15 @@ resource "aws_apigatewayv2_route" "admin_post" {
   route_key = "POST /v1/admin/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
+
+# ─── Fallback — any other method / path under /v1 or /.well-known ────────────
+# Without it the gateway answers unrouted calls itself ({"message":"Not Found"}
+# for a known path called with another method). The Lambda (Ktor) returns a
+# problem document instead: 405 for a known path with another method, 404 for
+# an unknown one. Every Lambda route keeps its own auth (POST /v1/sync stays
+# behind the JWT authorizer above; any other method on it is a 405).
+resource "aws_apigatewayv2_route" "default" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "$default"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}

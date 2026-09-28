@@ -6,6 +6,7 @@ import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/edit_producer_products_screen.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/producer_management_bloc.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/producer_ui_helpers.dart';
+import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:flutter/material.dart';
@@ -306,14 +307,10 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = _statusColors(context, status);
-    return Chip(
-      label: Text(
-        _statusLabel(status),
-        style: TextStyle(color: colors.text, fontSize: 12),
-      ),
+    return StatusBadge(
+      _statusLabel(status),
+      labelStyle: TextStyle(color: colors.text, fontSize: 12),
       backgroundColor: colors.background,
-      padding: EdgeInsets.zero,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }

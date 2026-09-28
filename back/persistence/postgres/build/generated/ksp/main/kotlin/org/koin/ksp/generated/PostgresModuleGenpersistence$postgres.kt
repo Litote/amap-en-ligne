@@ -33,6 +33,7 @@ public val persistence_postgres_PostgresModule : Module get() = module {
 	single(createdAtStart=true) { _ -> persistence.postgres.ProducerRequestSyncPostgresDAO(client=get())} bind(persistence.dao.ProducerRequestSyncDAO::class)
 	single(createdAtStart=true) { _ -> persistence.postgres.ProducerSyncPostgresDAO(client=get())} bind(persistence.dao.ProducerSyncDAO::class)
 	single(createdAtStart=true) { _ -> persistence.postgres.ProductTypeSyncPostgresDAO(client=get())} bind(persistence.dao.ProductTypeSyncDAO::class)
+	single(createdAtStart=true) { _ -> persistence.postgres.SentAlertPostgresDAO(client=get())} bind(persistence.dao.SentAlertDAO::class)
 	single(createdAtStart=true) { _ -> persistence.postgres.ServerPostgresDAO(client=get())} bind(persistence.dao.ServerDAO::class)
 	single(createdAtStart=true) { _ -> moduleInstance.dataSource(postgresClient=get())} bind(javax.sql.DataSource::class)
 	single(createdAtStart=true) { _ -> moduleInstance.postgresClient(properties=get())} bind(persistence.postgres.PostgresClient::class)

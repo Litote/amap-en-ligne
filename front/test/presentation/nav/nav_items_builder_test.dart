@@ -158,13 +158,13 @@ void main() {
 
   group('buildNavItemsForRole — admin', () {
     test(
-      "contains Accueil, Utilisateurs, Producteurs, Templates de livraison and Demandes d'adhésion",
+      "contains Accueil, Utilisateurs, Producteurs, Modèles de livraison and Demandes d'adhésion",
       () {
         final labels = actionLabels(buildNavItemsForRole(UserRole.admin, noop));
         expect(labels, contains('Accueil'));
         expect(labels, contains('Utilisateurs'));
         expect(labels, contains('Producteurs'));
-        expect(labels, contains('Templates de livraison'));
+        expect(labels, contains('Modèles de livraison'));
         expect(labels, contains("Demandes d'adhésion"));
       },
     );
@@ -178,7 +178,7 @@ void main() {
       expect(routes['Accueil'], '/dashboard');
       expect(routes['Utilisateurs'], '/members');
       expect(routes['Producteurs'], '/admin/producers');
-      expect(routes['Templates de livraison'], '/admin/delivery-templates');
+      expect(routes['Modèles de livraison'], '/admin/delivery-templates');
       expect(routes["Demandes d'adhésion"], '/admin/membership-requests');
     });
   });
@@ -215,6 +215,14 @@ void main() {
         buildNavItemsForRole(UserRole.producer, noop),
       );
       expect(labels, contains('Accueil producteur'));
+    });
+
+    test('Accueil producteur opens the producer dashboard', () {
+      final home = buildNavItemsForRole(
+        UserRole.producer,
+        noop,
+      ).whereType<NavItem>().firstWhere((i) => i.label == 'Accueil producteur');
+      expect(home.route, '/producer-dashboard');
     });
   });
 
@@ -278,7 +286,7 @@ void main() {
       expect(labels, isNot(contains('Gestion des membres')));
       expect(labels, contains('Utilisateurs'));
       expect(labels, contains('Producteurs'));
-      expect(labels, contains('Templates de livraison'));
+      expect(labels, contains('Modèles de livraison'));
       expect(labels, contains("Demandes d'adhésion"));
     });
 

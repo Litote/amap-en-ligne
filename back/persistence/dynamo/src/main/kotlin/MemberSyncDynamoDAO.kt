@@ -27,6 +27,7 @@ import persistence.model.UserPreferences
 import persistence.model.UserSettings
 import serialization.json
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /**
  * Dynamo pk prefix for the lightweight sub→organizationId lookup items.
@@ -338,6 +339,7 @@ private fun Member.toAttributeValueMap(): Map<String, AttributeValue> =
         )
         put("user_preferences", AttributeValue.S(json.encodeToString(UserPreferences.serializer(), userPreferences)))
         put("user_settings", AttributeValue.S(json.encodeToString(UserSettings.serializer(), userSettings)))
+        registeredAt?.let { put("registered_at", AttributeValue.N(it.toEpochMilliseconds().toString())) }
     }
 
 private fun Map<String, AttributeValue>.toMember(): Member =
@@ -378,4 +380,5 @@ private fun Map<String, AttributeValue>.toMember(): Member =
                 UserSettings.serializer(),
                 getValue("user_settings").asS(),
             ),
+        registeredAt = get("registered_at")?.asN()?.toLong()?.let(Instant::fromEpochMilliseconds),
     )

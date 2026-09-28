@@ -47,3 +47,12 @@ String formatCoordinatorsCompact(
   if (names.isEmpty) return '—';
   return names.join(', ');
 }
+
+/// Placeholder shown for [contract] when none of its coordinators can be named:
+///   - "Coordinateur à confirmer" when nobody coordinates it yet.
+///   - "Coordinateur inscrit" when someone does but their [Member] is not in the
+///     local cache (e.g. right after login, before the members are synced).
+String unnamedCoordinatorLabel(DeliveryContract contract) =>
+    contract.coordinators.isEmpty
+    ? 'Coordinateur à confirmer'
+    : 'Coordinateur inscrit';

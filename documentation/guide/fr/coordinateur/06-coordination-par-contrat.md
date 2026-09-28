@@ -30,7 +30,8 @@ un bouton :
 ```
 
 1. Touchez **[ME PORTER COORDINATEUR]**.
-2. Choisissez le produit sur lequel vous positionner.
+2. Choisissez le produit sur lequel vous positionner. Seuls les produits dont vous êtes
+   coordinateur référent (défini dans la fiche du contrat) vous sont proposés.
 3. Vous êtes ajouté comme coordinateur de ce produit pour cette livraison.
 
 ## Se porter coordinateur lors de la création / modification d'un créneau

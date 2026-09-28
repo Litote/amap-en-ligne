@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'member_preferences.freezed.dart';
 part 'member_preferences.g.dart';
 
-/// Notification and reminder preferences for a member within an organization.
+/// Notification preferences for a member within an organization.
 ///
 /// Mirrors `MemberPreferences` in `back/persistence/model/src/main/kotlin/Member.kt`.
 /// All boolean fields are non-null with the same defaults as the back.
@@ -16,13 +16,6 @@ abstract class MemberPreferences with _$MemberPreferences {
     @JsonKey(name: 'volunteer_alerts_enabled')
     @Default(true)
     bool volunteerAlertsEnabled,
-    @JsonKey(name: 'reminder_24h_enabled')
-    @Default(true)
-    bool reminder24hEnabled,
-    @JsonKey(name: 'reminder_2h_enabled') @Default(true) bool reminder2hEnabled,
-    @JsonKey(name: 'reminder_30min_enabled')
-    @Default(false)
-    bool reminder30minEnabled,
     @JsonKey(name: 'urgent_need_alerts_enabled')
     @Default(true)
     bool urgentNeedAlertsEnabled,

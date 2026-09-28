@@ -353,14 +353,14 @@ class _FormViewState extends State<_FormView> {
   }
 
   String? _requireNonEmpty(String? value) {
-    if ((value ?? '').trim().isEmpty) return 'Ce champ est requis.';
+    if ((value ?? '').trim().isEmpty) return kFieldRequiredMessage;
     return requiredName(value);
   }
 
   String? _validateEmail(String? value) {
     final trimmed = (value ?? '').trim();
-    if (trimmed.isEmpty) return 'Ce champ est requis.';
-    if (!isValidEmail(trimmed)) return 'Email invalide.';
+    if (trimmed.isEmpty) return kFieldRequiredMessage;
+    if (!isValidEmail(trimmed)) return kInvalidEmailMessage;
     return null;
   }
 }

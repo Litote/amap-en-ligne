@@ -1,5 +1,5 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
-import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/public_organization.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_bloc.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_event.dart';
@@ -70,7 +70,7 @@ class _AmapSearchView extends StatelessWidget {
 class _OrgPickerView extends StatefulWidget {
   const _OrgPickerView({required this.orgs, required this.searchQuery});
 
-  final List<Organization> orgs;
+  final List<PublicOrganization> orgs;
   final String searchQuery;
 
   @override
@@ -128,7 +128,6 @@ class _OrgPickerViewState extends State<_OrgPickerView> {
                 final org = filtered[index];
                 return ListTile(
                   title: Text(org.name),
-                  subtitle: Text(org.contactEmail),
                   onTap: () => context.read<AmapSearchBloc>().add(
                     AmapSearchEvent.orgSelected(org),
                   ),
@@ -152,7 +151,7 @@ class _JoinFormView extends StatefulWidget {
     this.isSubmitting = false,
   });
 
-  final Organization org;
+  final PublicOrganization org;
   final String? errorMessage;
   final bool isSubmitting;
 
@@ -215,13 +214,6 @@ class _JoinFormViewState extends State<_JoinFormView> {
               Text(
                 widget.org.name,
                 style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                widget.org.contactEmail,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
               ),
               const SizedBox(height: 24),
               TextFormField(

@@ -6,9 +6,12 @@ import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
 import 'package:amap_en_ligne/domain/auth/auth_state.dart';
 import 'package:amap_en_ligne/domain/model/basket_exchange.dart';
+import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/domain/model/delivery_contract_name.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/member/basket_exchange/basket_exchange_bloc.dart';
 import 'package:amap_en_ligne/presentation/member/basket_exchange/basket_exchange_event.dart';
 import 'package:amap_en_ligne/presentation/member/basket_exchange/basket_exchange_state.dart';
@@ -20,7 +23,6 @@ import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 /// Main basket-exchange screen.
 ///
@@ -150,7 +152,7 @@ class _BasketExchangeView extends StatelessWidget {
         );
         final offerLabel =
             '${_resolveDateLabel(offer, org)} • '
-            '${_resolveContractDescription(offer, org)}';
+            '${_resolveContractDescription(offer, org, state.contracts)}';
         showDialog<void>(
           context: context,
           barrierDismissible: false,
@@ -263,7 +265,11 @@ class _ReadyBody extends StatelessWidget {
           const _EmptyCard(message: 'Aucune proposition en cours.')
         else
           for (final offer in openOffers)
-            _MyOfferCard(offer: offer, org: state.org),
+            _MyOfferCard(
+              offer: offer,
+              org: state.org,
+              contracts: state.contracts,
+            ),
         const SizedBox(height: 12),
 
         // --- Propose button ---
@@ -291,6 +297,7 @@ class _ReadyBody extends StatelessWidget {
             _AvailableOfferCard(
               offer: offer,
               org: state.org,
+              contracts: state.contracts,
               membersById: state.membersById,
               myPendingRequest: state.myPendingRequestOn(offer),
             ),
@@ -309,7 +316,7 @@ class _ReadyBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '✅ Échanges réussis cette année : ${state.successfulExchangesThisYear}',
+                  '✅ Échanges conclus cette année : ${state.successfulExchangesThisYear}',
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 if (recentHistory.isNotEmpty) ...[
@@ -370,10 +377,15 @@ class _ReadyBody extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _MyOfferCard extends StatelessWidget {
-  const _MyOfferCard({required this.offer, required this.org});
+  const _MyOfferCard({
+    required this.offer,
+    required this.org,
+    required this.contracts,
+  });
 
   final BasketExchange offer;
   final Organization org;
+  final List<Contract> contracts;
 
   @override
   Widget build(BuildContext context) {
@@ -381,7 +393,7 @@ class _MyOfferCard extends StatelessWidget {
         .where((r) => r.status == BasketExchangeRequestStatus.pending)
         .length;
     final dateLabel = _resolveDateLabel(offer, org);
-    final contractDesc = _resolveContractDescription(offer, org);
+    final contractDesc = _resolveContractDescription(offer, org, contracts);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -416,11 +428,7 @@ class _MyOfferCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {
-                      context.read<BasketExchangeBloc>().add(
-                        BasketExchangeEvent.offerCancelled(offer: offer),
-                      );
-                    },
+                    onPressed: () => _confirmCancel(context),
                     child: const Text('ANNULER'),
                   ),
                 ),
@@ -430,6 +438,34 @@ class _MyOfferCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmCancel(BuildContext context) async {
+    final bloc = context.read<BasketExchangeBloc>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Annuler cette proposition ?'),
+        semanticLabel: 'Annuler cette proposition ?',
+        content: const Text(
+          'Votre panier ne sera plus proposé et les demandes en attente '
+          'seront refusées.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('NON'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('ANNULER LA PROPOSITION'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed ?? false) {
+      bloc.add(BasketExchangeEvent.offerCancelled(offer: offer));
+    }
   }
 }
 
@@ -441,19 +477,21 @@ class _AvailableOfferCard extends StatelessWidget {
   const _AvailableOfferCard({
     required this.offer,
     required this.org,
+    required this.contracts,
     required this.membersById,
     required this.myPendingRequest,
   });
 
   final BasketExchange offer;
   final Organization org;
+  final List<Contract> contracts;
   final Map<String, Member> membersById;
   final BasketExchangeRequest? myPendingRequest;
 
   @override
   Widget build(BuildContext context) {
     final dateLabel = _resolveDateLabel(offer, org);
-    final contractDesc = _resolveContractDescription(offer, org);
+    final contractDesc = _resolveContractDescription(offer, org, contracts);
     final offererName = _resolveMemberName(offer.offeringMemberId, membersById);
     final pending = myPendingRequest;
 
@@ -556,10 +594,16 @@ class _HistoryRow extends StatelessWidget {
         ? '$offeredDate ↔ ${_deliveryDateLabel(counterDeliveryId, org)}'
         : offeredDate;
 
+    // Same wording as the full history: the icon alone does not tell.
+    final status = switch (exchange.status) {
+      BasketExchangeStatus.accepted => 'Échangé',
+      BasketExchangeStatus.cancelled => isOfferer ? 'Annulé par moi' : 'Annulé',
+      BasketExchangeStatus.open => 'Ouvert',
+    };
     final who = counterpart != null ? ' · $counterpart' : '';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Text('$statusEmoji $swap$who'),
+      child: Text('$statusEmoji $swap — $status$who'),
     );
   }
 
@@ -604,12 +648,17 @@ String _resolveDateLabel(BasketExchange offer, Organization org) {
   if (delivery == null) return offer.deliveryId;
   final dt = DateTime.tryParse(delivery.scheduledDate);
   if (dt == null) return offer.deliveryId;
-  final part = DateFormat('EEEE d MMM', 'fr').format(dt);
+  final part = frenchDateFormat('EEEE d MMM').format(dt);
   return part[0].toUpperCase() + part.substring(1);
 }
 
-/// Returns the contract description for the basket in [offer].
-String _resolveContractDescription(BasketExchange offer, Organization org) {
+/// Returns the contract name for the basket in [offer] (see
+/// [deliveryContractName]), falling back to the contract id.
+String _resolveContractDescription(
+  BasketExchange offer,
+  Organization org,
+  List<Contract> contracts,
+) {
   final delivery = org.deliveries
       .where((d) => d.deliveryId == offer.deliveryId)
       .firstOrNull;
@@ -618,9 +667,8 @@ String _resolveContractDescription(BasketExchange offer, Organization org) {
       .where((c) => c.contractId == offer.contractId)
       .firstOrNull;
   if (contract == null) return offer.contractId;
-  return contract.deliveryDescription.isNotEmpty
-      ? contract.deliveryDescription
-      : offer.contractId;
+  final name = deliveryContractName(contract, contracts);
+  return name.isNotEmpty ? name : offer.contractId;
 }
 
 /// Resolves a member's display name from the synced member list, falling back to
@@ -644,5 +692,5 @@ String _deliveryDateLabel(String? deliveryId, Organization org) {
   if (delivery == null) return '?';
   final dt = DateTime.tryParse(delivery.scheduledDate);
   if (dt == null) return '?';
-  return DateFormat('d MMM yyyy', 'fr').format(dt);
+  return frenchDateFormat('d MMM yyyy').format(dt);
 }

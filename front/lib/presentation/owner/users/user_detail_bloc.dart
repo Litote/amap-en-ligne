@@ -1,12 +1,16 @@
 import 'dart:async';
 
+import 'package:amap_en_ligne/data/repositories/member_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
+import 'package:amap_en_ligne/data/repositories/owner_invitation_repository.dart';
 import 'package:amap_en_ligne/data/repositories/owner_repository.dart';
 import 'package:amap_en_ligne/data/repositories/producer_account_repository.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
+import 'package:amap_en_ligne/domain/model/member_invitation.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
+import 'package:amap_en_ligne/domain/model/owner_invitation.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_detail_event.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_detail_state.dart';
@@ -20,12 +24,25 @@ class _DetailSnapshot {
     required this.members,
     required this.organizations,
     required this.producerAccounts,
+    required this.ownerInvitations,
+    required this.memberInvitations,
   });
 
   final List<Owner> owners;
   final List<Member> members;
   final List<Organization> organizations;
   final List<ProducerAccount> producerAccounts;
+  final List<OwnerInvitation> ownerInvitations;
+  final List<MemberInvitation> memberInvitations;
+
+  List<UserRow> get rows => buildInstanceUserRows(
+    owners: owners,
+    members: members,
+    organizations: organizations,
+    producerAccounts: producerAccounts,
+    ownerInvitations: ownerInvitations,
+    memberInvitations: memberInvitations,
+  );
 }
 
 class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
@@ -34,10 +51,14 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
     required MemberRepository memberRepository,
     required OrganizationRepository organizationRepository,
     required ProducerAccountRepository producerAccountRepository,
+    required OwnerInvitationRepository ownerInvitationRepository,
+    required MemberInvitationRepository memberInvitationRepository,
   }) : _ownerRepo = ownerRepository,
        _memberRepo = memberRepository,
        _orgRepo = organizationRepository,
        _producerAccountRepo = producerAccountRepository,
+       _ownerInvitationRepo = ownerInvitationRepository,
+       _memberInvitationRepo = memberInvitationRepository,
        super(const UserDetailState.initial()) {
     on<UserDetailLoadRequested>(_onLoaded);
     on<UserDetailMembershipRolesChanged>(_onMembershipRolesChanged);
@@ -47,6 +68,8 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
   final MemberRepository _memberRepo;
   final OrganizationRepository _orgRepo;
   final ProducerAccountRepository _producerAccountRepo;
+  final OwnerInvitationRepository _ownerInvitationRepo;
+  final MemberInvitationRepository _memberInvitationRepo;
 
   Future<void> _onLoaded(
     UserDetailLoadRequested event,
@@ -59,6 +82,8 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
     final members = <Member>[];
     final organizations = <Organization>[];
     final producerAccounts = <ProducerAccount>[];
+    final ownerInvitations = <OwnerInvitation>[];
+    final memberInvitations = <MemberInvitation>[];
 
     final controller = StreamController<_DetailSnapshot>();
 
@@ -67,6 +92,8 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
       members: List.of(members),
       organizations: List.of(organizations),
       producerAccounts: List.of(producerAccounts),
+      ownerInvitations: List.of(ownerInvitations),
+      memberInvitations: List.of(memberInvitations),
     );
 
     final ownersSub = _ownerRepo.watchAll().listen((data) {
@@ -93,6 +120,20 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
         ..addAll(data);
       if (!controller.isClosed) controller.add(snapshot());
     });
+    final ownerInvitationsSub = _ownerInvitationRepo.watchAll().listen((data) {
+      ownerInvitations
+        ..clear()
+        ..addAll(data);
+      if (!controller.isClosed) controller.add(snapshot());
+    });
+    final memberInvitationsSub = _memberInvitationRepo.watchAll().listen((
+      data,
+    ) {
+      memberInvitations
+        ..clear()
+        ..addAll(data);
+      if (!controller.isClosed) controller.add(snapshot());
+    });
 
     await emit.forEach<_DetailSnapshot>(
       controller.stream,
@@ -105,6 +146,8 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
     await membersSub.cancel();
     await orgsSub.cancel();
     await producersSub.cancel();
+    await ownerInvitationsSub.cancel();
+    await memberInvitationsSub.cancel();
     await controller.close();
   }
 
@@ -120,44 +163,10 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
   }
 
   UserDetailState _computeDetailState(String userId, _DetailSnapshot snapshot) {
-    final organizationNamesById = {
-      for (final organization in snapshot.organizations)
-        organization.organizationId: organization.name,
-    };
-
-    final ownerRow = snapshot.owners
-        .where((o) => o.ownerId == userId)
-        .firstOrNull;
-    if (ownerRow != null) {
-      return UserDetailState.loaded(userRow: userRowFromOwner(ownerRow));
-    }
-
-    // Producer detail — keyed on producerAccountId (which is what the list
-    // surfaces as the row id for producer users).
-    final producerRow = snapshot.producerAccounts
-        .where((p) => p.producerAccountId == userId)
-        .firstOrNull;
-    if (producerRow != null) {
-      return UserDetailState.loaded(
-        userRow: userRowFromProducerAccount(producerRow),
-      );
-    }
-
-    final matchingMember = snapshot.members
-        .where((m) => m.memberId == userId)
-        .firstOrNull;
-    if (matchingMember == null) return const UserDetailState.notFound();
-
-    // After sub/id unification: memberId == sub by invariant. The wire no
-    // longer emits a `sub` field; use memberId to identify the user.
-    final sub = matchingMember.memberId;
-
-    final memberList = snapshot.members
-        .where((m) => m.memberId == sub)
-        .toList();
-    final userRow = userRowFromMembers(memberList, organizationNamesById);
-    if (userRow == null) return const UserDetailState.notFound();
-
-    return UserDetailState.loaded(userRow: userRow);
+    // Same rows as the list (the list opens the detail with `row.ownerId`).
+    final row = snapshot.rows.where((r) => r.ownerId == userId).firstOrNull;
+    return row == null
+        ? const UserDetailState.notFound()
+        : UserDetailState.loaded(userRow: row);
   }
 }

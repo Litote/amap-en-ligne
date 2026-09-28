@@ -91,8 +91,11 @@ services:
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_JWT_EXP: 3600
 
-      # Email auth — signups enabled, confirmation required so GoTrue sends emails.
-      GOTRUE_DISABLE_SIGNUP: "false"
+      # Email auth — public sign-up disabled: accounts are only created by the
+      # back through the admin API (account activation). Login, refresh and
+      # password recovery keep working for existing users. Confirmation is
+      # required so GoTrue sends emails.
+      GOTRUE_DISABLE_SIGNUP: "true"
       GOTRUE_MAILER_AUTOCONFIRM: "false"
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_EXTERNAL_PHONE_ENABLED: "false"

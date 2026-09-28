@@ -81,6 +81,10 @@ internal class ProductTypeServiceTest {
                     valid.copy(name = " "),
                     valid.copy(itemTypes = listOf(ItemType(id = "it-1".toId(), name = " "))),
                     valid.copy(itemTypes = listOf(ItemType(id = "it-1".toId(), name = "Oeuf", imageSvg = "https://x/y.png"))),
+                    // An oversized icon would blow the organization's DynamoDB item once copied there.
+                    valid.copy(
+                        itemTypes = listOf(ItemType(id = "it-1".toId(), name = "Oeuf", imageSvg = "<svg>${"x".repeat(10_000)}</svg>")),
+                    ),
                     // Basket sizes are identified by name: duplicates would be indistinguishable.
                     valid.copy(supportedBasketSizes = listOf(BasketSize("Petit"), BasketSize("petit"))),
                     valid.copy(supportedBasketSizes = listOf(BasketSize(" "))),

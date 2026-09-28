@@ -214,6 +214,67 @@ void main() {
     },
   );
 
+  testWidgets(
+    'the shared basket dialog scrolls a long list of families instead of '
+    'overflowing',
+    (tester) async {
+      tester.view.physicalSize = const Size(1280, 700);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final members = [
+        for (var i = 0; i < 30; i++)
+          buildMember(memberId: 'm-$i', firstName: 'Famille $i'),
+      ];
+      await _pump(
+        tester,
+        organizationRepository: organizationRepository,
+        memberRepository: memberRepository,
+        contractRepository: contractRepository,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+      organizationStream.add(buildOrganization());
+      await tester.pump();
+      memberStream.add(members);
+      await tester.pump();
+      contractStream.add([
+        buildContract(
+          contractId: 'c-active',
+          members: [
+            for (final m in members)
+              ContractMember(
+                memberId: m.memberId,
+                subscriptionInstant: '2026-01-01T00:00:00Z',
+                status: ContractMemberStatus.active,
+                subscriptions: const [
+                  MemberSubscription(productTypeId: 'pt-1'),
+                ],
+              ),
+          ],
+        ),
+      ]);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(TextButton, 'PANIER PARTAGÉ'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      final lastFamily = find.text('Famille 29');
+      await tester.scrollUntilVisible(
+        lastFamily,
+        100,
+        scrollable: find
+            .descendant(
+              of: find.byType(AlertDialog),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      expect(lastFamily.hitTestable(), findsOneWidget);
+    },
+  );
+
   testWidgets('contract subtitles show the producer name', (tester) async {
     await _pump(
       tester,
@@ -237,6 +298,115 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Ferme du Pré •'), findsWidgets);
+  });
+
+  testWidgets('selecting members does not re-subscribe to the data streams '
+      '(a re-subscription flashes the spinner and resets the scroll)', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      organizationRepository: organizationRepository,
+      memberRepository: memberRepository,
+      contractRepository: contractRepository,
+      syncBloc: syncBloc,
+    );
+    await tester.pump();
+    organizationStream.add(buildOrganization());
+    await tester.pump();
+    memberStream.add([
+      buildMember(memberId: 'm-1', firstName: 'Alice'),
+      buildMember(memberId: 'm-2', firstName: 'Bruno'),
+    ]);
+    await tester.pump();
+    contractStream.add([buildContract(contractId: 'c-active')]);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Bruno'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Alice'));
+    await tester.pumpAndSettle();
+
+    verify(() => organizationRepository.watch(any())).called(1);
+    verify(() => memberRepository.watch(any())).called(1);
+    verify(() => contractRepository.watch(any())).called(1);
+  });
+
+  testWidgets('on a phone, selecting a member scrolls to their contract '
+      'detail, stacked below the member list', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final members = [
+      for (var i = 10; i < 40; i++)
+        Member(
+          memberId: 'm-$i',
+          organizationId: 'org-1',
+          firstName: 'Famille $i',
+          email: 'famille$i@example.org',
+        ),
+    ];
+    await _pump(
+      tester,
+      organizationRepository: organizationRepository,
+      memberRepository: memberRepository,
+      contractRepository: contractRepository,
+      syncBloc: syncBloc,
+    );
+    await tester.pump();
+    organizationStream.add(buildOrganization());
+    await tester.pump();
+    memberStream.add(members);
+    await tester.pump();
+    contractStream.add([buildContract(contractId: 'c-active')]);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Famille 12'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('famille12@example.org').hitTestable(), findsOneWidget);
+  });
+
+  testWidgets('on a phone, the assigned contract actions do not squeeze its '
+      'title', (tester) async {
+    tester.view.physicalSize = const Size(390, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _pump(
+      tester,
+      organizationRepository: organizationRepository,
+      memberRepository: memberRepository,
+      contractRepository: contractRepository,
+      syncBloc: syncBloc,
+    );
+    await tester.pump();
+
+    organizationStream.add(buildOrganization());
+    await tester.pump();
+    memberStream.add([buildMember(memberId: 'm-1', firstName: 'Alice')]);
+    await tester.pump();
+    contractStream.add([
+      buildContract(
+        contractId: 'c-active',
+        name: 'Oeufs automne 2026',
+        members: const [
+          ContractMember(
+            memberId: 'm-1',
+            subscriptionInstant: '2026-01-01T00:00:00Z',
+            status: ContractMemberStatus.active,
+          ),
+        ],
+      ),
+    ]);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    final title = tester.getRect(find.text('Oeufs automne 2026').last);
+    final edit = tester.getRect(find.text('MODIFIER'));
+    // Actions sit below the title, which keeps the card's full width.
+    expect(edit.top, greaterThanOrEqualTo(title.bottom));
+    // Not squeezed into a narrow column beside the buttons.
+    expect(title.width, greaterThan(250));
   });
 
   testWidgets('assigns a contract to a member with subscription', (
@@ -355,6 +525,21 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('📦'), findsOneWidget);
+    expect(find.textContaining('1 contrat actif •'), findsOneWidget);
+    // The last line keeps a margin above the card edge (not clipped by its
+    // rounded corners).
+    final cardBottom = tester
+        .getRect(
+          find
+              .ancestor(
+                of: find.textContaining('📦'),
+                matching: find.byType(Card),
+              )
+              .first,
+        )
+        .bottom;
+    final summaryBottom = tester.getRect(find.textContaining('📦')).bottom;
+    expect(cardBottom - summaryBottom, greaterThanOrEqualTo(8));
     expect(find.widgetWithText(TextButton, 'MODIFIER'), findsOneWidget);
     expect(find.widgetWithText(TextButton, 'RETIRER'), findsOneWidget);
   });
@@ -497,7 +682,7 @@ void main() {
       // The removal confirmation shows readable French dates, not ISO ones.
       await tester.tap(find.widgetWithText(TextButton, 'RETIRER'));
       await tester.pumpAndSettle();
-      expect(find.text('1 janv. 2025 → 31 déc. 2025'), findsOneWidget);
+      expect(find.text('1er janv. 2025 → 31 déc. 2025'), findsOneWidget);
       expect(find.textContaining('2025-01-01'), findsNothing);
     },
   );

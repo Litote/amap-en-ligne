@@ -74,10 +74,10 @@ void main() {
     await tester.tap(find.byKey(const Key('forgot_confirm_submit')));
     // confirmPasswordReset calls signInWithSession internally, so the user is
     // already authenticated when the BlocListener navigates to /login.
-    // The router's redirect fires immediately and lands on /product-types.
-    await _pumpUntil(tester, find.text('Types de produits'));
+    // The router's redirect fires immediately and lands on /producer-dashboard.
+    await _pumpUntil(tester, find.text('Mon tableau de bord'));
 
-    expect(find.text('Types de produits'), findsOneWidget);
+    expect(find.text('Mon tableau de bord'), findsOneWidget);
   });
 }
 

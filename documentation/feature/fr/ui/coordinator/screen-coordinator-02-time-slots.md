@@ -1,7 +1,7 @@
 # Gestion des livraisons (Coordinateur)
 
 ## Description
-Interface de création et modification des créneaux de livraison avec paramétrage des besoins en bénévoles. Lors de la création d'une nouvelle livraison, le template de livraison (*DELIVERY_TEMPLATE*) par défaut de l'organisation est sélectionné automatiquement s'il existe ; à défaut, le premier template disponible est sélectionné.
+Interface de création et modification des créneaux de livraison avec paramétrage des besoins en bénévoles. Lors de la création d'une nouvelle livraison, le modèle de livraison (*DELIVERY_TEMPLATE*) par défaut de l'organisation est sélectionné automatiquement s'il existe ; à défaut, le premier template disponible est sélectionné.
 
 Cet écran est notamment ouvert depuis l'action `[➕ NOUVELLE LIVRAISON]` du dashboard via la route `/coordinator/time-slots/new`.
 
@@ -29,7 +29,7 @@ Cet écran est notamment ouvert depuis l'action `[➕ NOUVELLE LIVRAISON]` du da
 │  │  ┄┄┄┄┄ Créneau anticipé ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ │ │
 │  │  🕐 Heure d'arrivée anticipée: [17:00]  (du template)  │ │
 │  │  💬 Explication: "Réception des légumes du maraîcher"  │ │
-│  │  👥 Max volontaires anticipés: [2]                      │ │
+│  │  👥 Max bénévoles anticipés: [2]                        │ │
 │  │     [Modifier pour cette livraison uniquement]          │ │
 │  │                                                         │ │
 │  │  👥 Bénévoles requis:                                   │ │
@@ -95,7 +95,7 @@ Cet écran est notamment ouvert depuis l'action `[➕ NOUVELLE LIVRAISON]` du da
 
 ### Actions principales - Nouvelle livraison
 - **[📅 Date picker]** : Sélection de la date de livraison
-- **[Template dropdown]** : Sélection d'un template de livraison (*DELIVERY_TEMPLATE*) parmi les templates définis par l'admin de l'organisation ; si un template par défaut existe pour l'organisation, il est déjà sélectionné à l'ouverture du formulaire — sinon le premier template disponible est présélectionné. L'option « Aucun » laisse les horaires et le créneau anticipé entièrement libres. Le coordinateur ne peut pas créer ni modifier de template depuis cet écran.
+- **[Template dropdown]** : Sélection d'un modèle de livraison (*DELIVERY_TEMPLATE*) parmi les templates définis par l'admin de l'organisation ; si un template par défaut existe pour l'organisation, il est déjà sélectionné à l'ouverture du formulaire — sinon le premier template disponible est présélectionné. L'option « Aucun » laisse les horaires et le créneau anticipé entièrement libres. Le coordinateur ne peut pas créer ni modifier de template depuis cet écran.
 - **[Horaires dropdown]** : Configuration des heures de début/fin (préremplies depuis le template si un template est sélectionné)
 - **[Créneau anticipé]** : Affiché en lecture seule si un template avec créneau anticipé est sélectionné ; un lien « Modifier pour cette livraison uniquement » permet de surcharger les valeurs pour cette livraison uniquement, sans altérer le template source
 - **[Bénévoles dropdown]** : Définition des besoins min/max en bénévoles ; le minimum est prérempli depuis le nombre de bénévoles souhaité du template sélectionné tant que le coordinateur ne l'a pas modifié manuellement
@@ -104,6 +104,7 @@ Cet écran est notamment ouvert depuis l'action `[➕ NOUVELLE LIVRAISON]` du da
   - **[ME PORTER COORDINATEUR]** (visible par tout coordinateur) : ajoute l'utilisateur connecté à la liste des coordinateurs du contrat-livraison. Disponible si la livraison est active (statut différent de `COMPLETED` / `CANCELLED`).
   - **✕** à côté d'un nom : retire un coordinateur. Pour un coordinateur non-ADMIN, le bouton n'est actif que sur sa propre entrée et tant que la livraison n'est pas `IN_PROGRESS`.
   - **[+ Ajouter un coordinateur ▼]** (visible uniquement par ADMIN) : ouvre un sélecteur listant tous les coordinateurs (*COORDINATOR*) de l'AMAP et permet d'en affecter n'importe lequel.
+  - Contrairement au reste du formulaire (enregistré par **[Enregistrer]**), chaque ajout ou retrait de coordinateur est **enregistré immédiatement** ; un message le confirme (« Coordinateur ajouté et enregistré. » / « Coordinateur retiré et enregistré. »), y compris si l'on quitte ensuite le formulaire par « Retour ».
 - **[Zone texte Instructions]** : Consignes spéciales pour la livraison
 - **[CRÉER LIVRAISON]** : Validation et création de la nouvelle livraison
 
@@ -117,9 +118,9 @@ Chaque carte propose deux actions :
 - **[MODIFIER]** : ouvre le formulaire d'édition de la livraison existante.
 - **[SUIVRE]** : ouvre l'écran de suivi en direct ([Écran 4](screen-coordinator-04-delivery-tracking.md)) — présences bénévoles et récupération des paniers.
 
-La suppression d'une livraison se fait en **balayant la carte vers la gauche** (geste de suppression). Une confirmation « Supprimer la livraison ? » est toujours demandée (ANNULER / SUPPRIMER) ; si des bénévoles sont inscrits, elle précise combien perdront leur inscription. Annuler remet la carte en place.
+La suppression d'une livraison se fait en **balayant la carte vers la gauche** (geste de suppression), ou depuis son formulaire de modification avec le bouton **[Supprimer la livraison]** (accessible au clavier et aux lecteurs d'écran ; absent à la création). Une confirmation « Supprimer la livraison ? » est toujours demandée (ANNULER / SUPPRIMER) ; si des bénévoles sont inscrits, elle précise combien perdront leur inscription. Annuler remet la carte en place.
 
-Dans la liste des livraisons existantes, l'indicateur `👥 N/M` correspond aux inscriptions actuelles sur bénévolat sur la livraison, rapportées au nombre de bénévoles requis pour cette livraison.
+Dans la liste des livraisons existantes, l'indicateur `👥 N/M` correspond aux inscriptions actuelles sur bénévolat sur la livraison, rapportées au nombre de bénévoles requis pour cette livraison. Une livraison qui ne porte aucun contrat principal alors que l'AMAP en a un (ex. une livraison de fromages seule) n'a besoin d'aucun bénévole : la carte affiche « Aucun bénévole requis », sans pastille de statut. La pastille de statut suit le taux de remplissage : « Complet » (100 %), « Ouvert » (≥ 50 %), « Critique » (< 50 %) — mais une livraison à moins de 50 % prévue dans plus de 3 jours reste « Ouverte », comme le badge « 🙋 Bénévoles recherchés » vu par les amapiens (l'urgence ne commence qu'à 3 jours, délai de la première alerte de manque de bénévoles).
 
 ### Actions globales
 - **[← Retour Dashboard]** : Retour au dashboard coordination ([Écran 1](screen-coordinator-01-home.md))
@@ -147,10 +148,11 @@ Dans la liste des livraisons existantes, l'indicateur `👥 N/M` correspond aux 
 - **Créneau anticipé** : Visible en lecture seule si le template sélectionné définit un créneau anticipé (*EARLY_SLOT*). Les champs affichés sont :
   - Heure d'arrivée anticipée (antérieure à l'heure de début standard)
   - Explication (texte visible par les Amapiens)
-  - Nombre maximum de volontaires pour ce créneau anticipé
+  - Nombre maximum de bénévoles pour ce créneau anticipé
   L'action « Modifier pour cette livraison uniquement » passe ces champs en édition sans modifier le template source.
 - **Bénévoles maximum** : Limite supérieure d'inscription
 - **Contrats additionnels** : Œufs, Pain, Fromage selon les contrats actifs disponibles
+- **Aucun contrat à la date choisie** : si l'AMAP a des contrats mais qu'aucun ne couvre la date de la livraison, la section « Contrats présents » l'indique (« Aucun contrat ne couvre cette date : vérifiez les dates de première et de dernière livraison des contrats dans « Gestion des contrats ». ») et le bloc des coordinateurs affiche « Aucun contrat lié à cette livraison. ».
 - **Instructions spéciales** : Consignes particulières pour cette livraison
 
 ### Comportement du préremplissage des bénévoles
@@ -190,4 +192,4 @@ Les livraisons générées automatiquement à la création d'un contrat (génér
 ### Documentation liée
 - **Spécifications UI** : `../spec-ui.md` - Section "Gestion des livraisons"
 - **Dashboard coordination** : Écran 1 pour le retour et navigation
-- **Gestion des templates** : [`../admin/screen-admin-05-delivery-template.md`](../admin/screen-admin-05-delivery-template.md) — création et modification des templates de livraison (*DELIVERY_TEMPLATE*) par l'admin
+- **Gestion des templates** : [`../admin/screen-admin-05-delivery-template.md`](../admin/screen-admin-05-delivery-template.md) — création et modification des modèles de livraison (*DELIVERY_TEMPLATE*) par l'admin

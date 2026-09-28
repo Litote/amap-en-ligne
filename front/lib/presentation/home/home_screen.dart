@@ -1,5 +1,5 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
-import 'package:amap_en_ligne/domain/model/organization.dart';
+import 'package:amap_en_ligne/domain/model/public_organization.dart';
 import 'package:amap_en_ligne/presentation/home/home_bloc.dart';
 import 'package:amap_en_ligne/presentation/home/home_state.dart';
 import 'package:flutter/material.dart';
@@ -126,7 +126,7 @@ class _JoinAmapCard extends StatefulWidget {
 }
 
 class _JoinAmapCardState extends State<_JoinAmapCard> {
-  Organization? _selected;
+  PublicOrganization? _selected;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -194,9 +194,9 @@ class _OrganizationDropdown extends StatelessWidget {
     required this.onChanged,
   });
 
-  final List<Organization> organizations;
-  final Organization? selected;
-  final ValueChanged<Organization?> onChanged;
+  final List<PublicOrganization> organizations;
+  final PublicOrganization? selected;
+  final ValueChanged<PublicOrganization?> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +207,7 @@ class _OrganizationDropdown extends StatelessWidget {
         border: OutlineInputBorder(),
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       ),
-      child: DropdownButton<Organization>(
+      child: DropdownButton<PublicOrganization>(
         value: selected,
         isExpanded: true,
         underline: const SizedBox.shrink(),

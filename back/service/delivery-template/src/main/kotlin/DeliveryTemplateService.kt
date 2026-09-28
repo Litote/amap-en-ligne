@@ -5,6 +5,7 @@ import authentication.Role
 import core.EntityTypeService
 import id.generateId
 import id.toId
+import kotlinx.datetime.toLocalDateTime
 import org.koin.core.annotation.Single
 import persistence.changes.Change
 import persistence.changes.ChangeOp
@@ -16,12 +17,15 @@ import persistence.changes.MutationErrorCode
 import persistence.changes.MutationOutcome
 import persistence.changes.SyncScope
 import persistence.dao.DeliveryTemplateSyncDAO
+import persistence.dao.OrganizationSyncDAO
 import persistence.model.DeliveryTemplate
 import persistence.model.EntityType
+import kotlin.time.Clock
 
 @Single(createdAtStart = true, binds = [EntityTypeService::class])
 class DeliveryTemplateService(
     val deliveryTemplateSyncDAO: DeliveryTemplateSyncDAO,
+    private val organizationSyncDAO: OrganizationSyncDAO,
 ) : EntityTypeService<DeliveryTemplatePayload>(EntityType.DeliveryTemplate) {
     override suspend fun applyUpsert(
         auth: AuthenticatedInfo,
@@ -72,12 +76,26 @@ class DeliveryTemplateService(
                 ?: return rejected(mutation, MutationErrorCode.FORBIDDEN, "missing organization id")
         requireAnyRole(auth, ALLOWED_ROLES, mutation, "only OWNER, ADMIN, or COORDINATOR may manage delivery templates")
             ?.let { return it }
+        // Mirrors the admin list screen: a template still used by a future delivery
+        // cannot be deleted (its slot times would silently fall back to the defaults).
+        if (usedByFutureDelivery(organizationId, op.entityId)) {
+            return rejected(mutation, MutationErrorCode.CONFLICT, "delivery template is used by future deliveries")
+        }
         deliveryTemplateSyncDAO.delete(
             op.entityId.toId(),
             organizationId.toId(),
             buildDeleteChange(organizationId, op.entityId),
         )
         return applied(mutation, op.entityId)
+    }
+
+    private suspend fun usedByFutureDelivery(
+        organizationId: String,
+        deliveryTemplateId: String,
+    ): Boolean {
+        val organization = organizationSyncDAO.getById(organizationId.toId()) ?: return false
+        val now = Clock.System.now().toLocalDateTime(organization.timezone)
+        return organization.deliveries.any { it.deliveryTemplateId?.id == deliveryTemplateId && it.scheduledDate > now }
     }
 
     override suspend fun snapshot(auth: AuthenticatedInfo): List<DeliveryTemplatePayload> {

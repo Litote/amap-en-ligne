@@ -11,6 +11,7 @@ Future<bool> confirmApproval(
       useRootNavigator: true,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Approuver la demande ?'),
+        semanticLabel: 'Approuver la demande ?',
         content: Text(message),
         actions: [
           TextButton(

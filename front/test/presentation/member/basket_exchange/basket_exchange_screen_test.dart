@@ -78,6 +78,17 @@ Future<void> _pump(
 void main() {
   setUpAll(() async {
     await initializeDateFormatting('fr', null);
+    registerFallbackValue(
+      const BasketExchange(
+        basketExchangeId: 'fallback',
+        organizationId: 'org-1',
+        deliveryId: 'd-fallback',
+        contractId: 'c-fallback',
+        offeringMemberId: 'm-fallback',
+        status: BasketExchangeStatus.open,
+        createdAt: '2026-01-01T00:00:00Z',
+      ),
+    );
   });
 
   late _MockOrganizationRepository orgRepo;
@@ -263,6 +274,265 @@ void main() {
         await orgController.close();
         await memberController.close();
         await exchangeController.close();
+      },
+    );
+
+    testWidgets(
+      'my open offer names the contract from the live catalog when the '
+      'delivery link snapshot is blank (imported data)',
+      (tester) async {
+        final org = Organization(
+          organizationId: 'org-1',
+          name: 'Test AMAP',
+          contactEmail: 'contact@test.com',
+          deliveries: [
+            Delivery(
+              deliveryId: 'd-21',
+              organizationId: 'org-1',
+              scheduledDate: '${DateTime.now().year + 1}-10-21T19:00:00',
+              status: DeliveryStatus.planned,
+              minVolunteersRequired: 1,
+              contracts: const [
+                DeliveryContract(
+                  contractId: 'c-veg',
+                  basketQuantity: 10,
+                  deliveryDescription: '',
+                  status: DeliveryContractStatus.pending,
+                ),
+              ],
+            ),
+          ],
+        );
+        const me = Member(
+          memberId: 'sub-001',
+          organizationId: 'org-1',
+          firstName: 'Bob',
+        );
+        const exchange = BasketExchange(
+          basketExchangeId: 'bx-1',
+          organizationId: 'org-1',
+          deliveryId: 'd-21',
+          contractId: 'c-veg',
+          offeringMemberId: 'sub-001',
+          status: BasketExchangeStatus.open,
+          createdAt: '2026-10-01T12:00:00Z',
+        );
+        when(() => orgRepo.watch(any())).thenAnswer((_) => Stream.value(org));
+        when(
+          () => memberRepo.watchMyMember(any()),
+        ).thenAnswer((_) => Stream.value(me));
+        when(
+          () => exchangeRepo.watch(any()),
+        ).thenAnswer((_) => Stream.value([exchange]));
+        when(() => contractRepo.watch(any())).thenAnswer(
+          (_) => Stream.value(const [
+            Contract(
+              contractId: 'c-veg',
+              name: 'Légumes 2026/2027',
+              organizationId: 'org-1',
+              producerAccountId: 'pa-1',
+              minDeliveryDate: '2026-04-08',
+              maxDeliveryDate: '2099-12-31',
+              deliveryCount: 37,
+              seasonYear: 2026,
+            ),
+          ]),
+        );
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          exchangeRepo: exchangeRepo,
+          contractRepo: contractRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.textContaining('Légumes 2026/2027'), findsOneWidget);
+        expect(find.textContaining('c-veg'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'cancelling my offer asks for confirmation and only cancels once '
+      'confirmed',
+      (tester) async {
+        const org = Organization(
+          organizationId: 'org-1',
+          name: 'Test AMAP',
+          contactEmail: 'contact@test.com',
+        );
+        const me = Member(
+          memberId: 'sub-001',
+          organizationId: 'org-1',
+          firstName: 'Bob',
+        );
+        const exchange = BasketExchange(
+          basketExchangeId: 'bx-1',
+          organizationId: 'org-1',
+          deliveryId: 'd-21',
+          contractId: 'c-veg',
+          offeringMemberId: 'sub-001',
+          status: BasketExchangeStatus.open,
+          createdAt: '2026-10-01T12:00:00Z',
+        );
+        when(() => orgRepo.watch(any())).thenAnswer((_) => Stream.value(org));
+        when(
+          () => memberRepo.watchMyMember(any()),
+        ).thenAnswer((_) => Stream.value(me));
+        when(
+          () => exchangeRepo.watch(any()),
+        ).thenAnswer((_) => Stream.value([exchange]));
+        when(
+          () => exchangeRepo.cancelOffer(
+            basketExchange: any(named: 'basketExchange'),
+            decidedAt: any(named: 'decidedAt'),
+          ),
+        ).thenAnswer((_) async {});
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          exchangeRepo: exchangeRepo,
+          contractRepo: contractRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+        );
+        await tester.pumpAndSettle();
+
+        final cancelOffer = find.widgetWithText(OutlinedButton, 'ANNULER');
+        await tester.tap(cancelOffer);
+        await tester.pumpAndSettle();
+        expect(find.text('Annuler cette proposition ?'), findsOneWidget);
+        await tester.tap(find.text('NON'));
+        await tester.pumpAndSettle();
+        verifyNever(
+          () => exchangeRepo.cancelOffer(
+            basketExchange: any(named: 'basketExchange'),
+            decidedAt: any(named: 'decidedAt'),
+          ),
+        );
+
+        await tester.tap(cancelOffer);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('ANNULER LA PROPOSITION'));
+        await tester.pumpAndSettle();
+        verify(
+          () => exchangeRepo.cancelOffer(
+            basketExchange: any(named: 'basketExchange'),
+            decidedAt: any(named: 'decidedAt'),
+          ),
+        ).called(1);
+      },
+    );
+
+    testWidgets(
+      'the history summary says a cancelled offer was cancelled, not just its '
+      'date behind a pause icon',
+      (tester) async {
+        final org = Organization(
+          organizationId: 'org-1',
+          name: 'Test AMAP',
+          contactEmail: 'contact@test.com',
+          deliveries: [
+            Delivery(
+              deliveryId: 'd-21',
+              organizationId: 'org-1',
+              scheduledDate: '${DateTime.now().year}-10-21T19:00:00',
+              status: DeliveryStatus.planned,
+              minVolunteersRequired: 1,
+            ),
+          ],
+        );
+        const me = Member(
+          memberId: 'sub-001',
+          organizationId: 'org-1',
+          firstName: 'Bob',
+        );
+        final exchange = BasketExchange(
+          basketExchangeId: 'bx-1',
+          organizationId: 'org-1',
+          deliveryId: 'd-21',
+          contractId: 'c-veg',
+          offeringMemberId: 'sub-001',
+          status: BasketExchangeStatus.cancelled,
+          createdAt: '${DateTime.now().year}-01-02T12:00:00Z',
+          decidedAt: '${DateTime.now().year}-01-03T12:00:00Z',
+        );
+        when(() => orgRepo.watch(any())).thenAnswer((_) => Stream.value(org));
+        when(
+          () => memberRepo.watchMyMember(any()),
+        ).thenAnswer((_) => Stream.value(me));
+        when(
+          () => exchangeRepo.watch(any()),
+        ).thenAnswer((_) => Stream.value([exchange]));
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          exchangeRepo: exchangeRepo,
+          contractRepo: contractRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.textContaining('— Annulé par moi'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'an accepted exchange whose baskets are still to come is counted as '
+      'concluded, not as successful',
+      (tester) async {
+        const org = Organization(
+          organizationId: 'org-1',
+          name: 'Test AMAP',
+          contactEmail: 'contact@test.com',
+        );
+        const me = Member(
+          memberId: 'sub-001',
+          organizationId: 'org-1',
+          firstName: 'Bob',
+        );
+        final exchange = BasketExchange(
+          basketExchangeId: 'bx-1',
+          organizationId: 'org-1',
+          deliveryId: 'd-15',
+          contractId: 'c-1',
+          offeringMemberId: 'sub-001',
+          status: BasketExchangeStatus.accepted,
+          createdAt: '${DateTime.now().year}-01-02T12:00:00Z',
+          decidedAt: '${DateTime.now().year}-01-03T12:00:00Z',
+        );
+        when(() => orgRepo.watch(any())).thenAnswer((_) => Stream.value(org));
+        when(
+          () => memberRepo.watchMyMember(any()),
+        ).thenAnswer((_) => Stream.value(me));
+        when(
+          () => exchangeRepo.watch(any()),
+        ).thenAnswer((_) => Stream.value([exchange]));
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          exchangeRepo: exchangeRepo,
+          contractRepo: contractRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.textContaining('Échanges conclus cette année : 1'),
+          findsOneWidget,
+        );
+        expect(find.textContaining('réussis'), findsNothing);
       },
     );
 

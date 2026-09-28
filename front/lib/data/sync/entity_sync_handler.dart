@@ -15,6 +15,7 @@ import 'package:amap_en_ligne/data/sync/handlers/owner_invitation_sync_handler.d
 import 'package:amap_en_ligne/data/sync/handlers/owner_sync_handler.dart';
 import 'package:amap_en_ligne/data/sync/handlers/producer_account_sync_handler.dart';
 import 'package:amap_en_ligne/data/sync/handlers/producer_request_sync_handler.dart';
+import 'package:amap_en_ligne/data/sync/handlers/producer_schedule_sync_handler.dart';
 import 'package:amap_en_ligne/data/sync/handlers/product_type_sync_handler.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
 import 'package:amap_en_ligne/domain/sync/entity_payload.dart';
@@ -36,6 +37,7 @@ export 'package:amap_en_ligne/data/sync/handlers/owner_invitation_sync_handler.d
 export 'package:amap_en_ligne/data/sync/handlers/owner_sync_handler.dart';
 export 'package:amap_en_ligne/data/sync/handlers/producer_account_sync_handler.dart';
 export 'package:amap_en_ligne/data/sync/handlers/producer_request_sync_handler.dart';
+export 'package:amap_en_ligne/data/sync/handlers/producer_schedule_sync_handler.dart';
 export 'package:amap_en_ligne/data/sync/handlers/product_type_sync_handler.dart';
 
 abstract interface class EntitySyncHandler {
@@ -81,6 +83,7 @@ Map<EntityType, EntitySyncHandler> buildEntitySyncHandlers([
     DeviceTokenSyncHandler(),
     AttendanceEmailRequestSyncHandler(),
     ErrorReportSyncHandler(),
+    ProducerScheduleSyncHandler(),
   ],
 ]) {
   final indexed = <EntityType, EntitySyncHandler>{};

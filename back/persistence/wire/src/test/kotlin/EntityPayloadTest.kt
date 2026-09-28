@@ -6,6 +6,7 @@ import id.toId
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.serialization.json.Json
 import persistence.model.ActivityType
 import persistence.model.BasketExchange
 import persistence.model.BasketExchangeRequest
@@ -14,6 +15,7 @@ import persistence.model.BasketExchangeStatus
 import persistence.model.BasketSize
 import persistence.model.Contract
 import persistence.model.ContractMember
+import persistence.model.ContractStatus
 import persistence.model.DeliveryContract
 import persistence.model.DeliveryContractStatus
 import persistence.model.DeliveryStatus
@@ -32,6 +34,9 @@ import persistence.model.OwnerInvitation
 import persistence.model.OwnerInvitationStatus
 import persistence.model.ProducerAccount
 import persistence.model.ProducerManagementMode
+import persistence.model.ProducerSchedule
+import persistence.model.ProducerScheduleContract
+import persistence.model.ProducerScheduleDelivery
 import persistence.model.Product
 import persistence.model.ProductType
 import persistence.model.RegistrationStatus
@@ -729,5 +734,45 @@ internal class EntityPayloadTest {
                     ),
             )
         assertNull(payload.extractTmpId())
+    }
+
+    @Test
+    fun `GIVEN a ProducerSchedulePayload WHEN serialized THEN it matches the front wire contract`() {
+        val payload: EntityPayload =
+            ProducerSchedulePayload(
+                ProducerSchedule(
+                    organizationId = ORG_ID.toId(),
+                    producerAccountId = "pa-1".toId(),
+                    organizationName = "AMAP des Collines",
+                    deliveries =
+                        listOf(
+                            ProducerScheduleDelivery(
+                                deliveryId = "d-1".toId(),
+                                scheduledDate = LocalDateTime.parse("2026-10-01T18:00"),
+                                status = DeliveryStatus.PLANNED,
+                                contracts =
+                                    listOf(
+                                        ProducerScheduleContract(
+                                            contractId = "c-1".toId(),
+                                            contractName = "Fromages 2026",
+                                            basketQuantity = 12,
+                                            status = DeliveryContractStatus.PENDING,
+                                            contractStatus = ContractStatus.ACTIVE,
+                                        ),
+                                    ),
+                            ),
+                        ),
+                ),
+            )
+
+        // Same sample as front/test/domain/sync_wire_format_test.dart (ProducerSchedule group).
+        assertEquals(
+            """{"type":"ProducerSchedule","producerSchedule":{"organization_id":"org-1","producer_account_id":"pa-1",""" +
+                """"organization_name":"AMAP des Collines","deliveries":[{"delivery_id":"d-1",""" +
+                """"scheduled_date":"2026-10-01T18:00","status":"PLANNED","contracts":[{"contract_id":"c-1",""" +
+                """"contract_name":"Fromages 2026","basket_quantity":12,"status":"PENDING",""" +
+                """"contract_status":"ACTIVE"}]}]}}""",
+            Json.encodeToString(payload),
+        )
     }
 }

@@ -10,6 +10,7 @@ import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/coordinator/attendance/attendance_sheets_bloc.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
@@ -41,6 +42,14 @@ String attendanceSheetFilename(Delivery delivery) {
   return 'emargement-$day.pdf';
 }
 
+const _kNoVolunteerRegistered = 'Aucun bénévole inscrit.';
+
+/// Replaces the volunteer table of the PDF when nobody registered (a bare
+/// header row reads like a printing error); null otherwise.
+@visibleForTesting
+String? attendanceVolunteerSheetEmptyNote(int volunteerCount) =>
+    volunteerCount == 0 ? _kNoVolunteerRegistered : null;
+
 /// Header of the volunteer attendance PDF page.
 @visibleForTesting
 String attendanceVolunteerSheetTitle(Delivery delivery) =>
@@ -56,7 +65,7 @@ String attendanceBasketSheetTitle(String groupLabel, Delivery delivery) =>
 
 String _formatPdfDate(String isoDate) {
   final date = DateTime.tryParse(isoDate);
-  return date == null ? isoDate : DateFormat('d MMMM yyyy', 'fr').format(date);
+  return date == null ? isoDate : frenchDateFormat('d MMMM yyyy').format(date);
 }
 
 /// The default PDF font (Helvetica, Latin-1) has no em/en dash: the glyph
@@ -90,9 +99,24 @@ class _AttendanceSheetsBloc
   }
 
   Organization? _org;
+  bool _defaultSelected = false;
 
   void setOrg(Organization org) {
     _org = org;
+    // Open on the delivery the coordinator most likely wants: a season holds
+    // dozens of deliveries and the list starts with the oldest one.
+    if (!_defaultSelected && state is AttendanceSheetsIdle) {
+      _defaultSelected = true;
+      final initial = _defaultDelivery(org.deliveries, DateTime.now());
+      if (initial != null) {
+        add(
+          AttendanceSheetsEvent.deliverySelected(
+            deliveryId: initial.deliveryId,
+          ),
+        );
+        return;
+      }
+    }
     // If a delivery was selected and the org changed, keep the selection
     // up to date.
     final current = state;
@@ -108,6 +132,22 @@ class _AttendanceSheetsBloc
         );
       }
     }
+  }
+
+  /// The next non-cancelled delivery from today on, else the most recent one.
+  static Delivery? _defaultDelivery(List<Delivery> deliveries, DateTime now) {
+    final today = DateTime(now.year, now.month, now.day);
+    final sorted =
+        deliveries.where((d) => d.status != DeliveryStatus.cancelled).toList()
+          ..sort(
+            (a, b) => DateTime.parse(
+              a.scheduledDate,
+            ).compareTo(DateTime.parse(b.scheduledDate)),
+          );
+    return sorted
+            .where((d) => !DateTime.parse(d.scheduledDate).isBefore(today))
+            .firstOrNull ??
+        sorted.lastOrNull;
   }
 
   Future<void> _onDeliverySelected(
@@ -271,8 +311,9 @@ class _AttendanceActionBar extends StatelessWidget {
       for (final slot in contract.slots) {
         for (final reg in slot.registrations) {
           if (coordinatorIds.contains(reg.memberId)) continue;
-          if (reg.status == RegistrationStatus.confirmed ||
-              reg.status == RegistrationStatus.registered) {
+          // Absent volunteers (CANCELLED) are left out; registered, present
+          // (CONFIRMED) and imported/legacy COMPLETED ones are listed.
+          if (reg.status != RegistrationStatus.cancelled) {
             rows.add(
               _VolunteerEntry(registration: reg, slotStartTime: slot.startTime),
             );
@@ -297,23 +338,27 @@ class _AttendanceActionBar extends StatelessWidget {
         build: (ctx) => [
           pw.Header(level: 0, text: attendanceVolunteerSheetTitle(delivery)),
           pw.SizedBox(height: 8),
-          pw.TableHelper.fromTextArray(
-            headers: ['Nom', 'Email', 'Arrivée'],
-            data: volunteerRows
-                .map(
-                  (e) => [
-                    e.registration.displayName,
-                    e.registration.memberEmail,
-                    _formatTime(e.slotStartTime),
-                  ],
-                )
-                .toList(),
-            cellAlignments: {
-              0: pw.Alignment.centerLeft,
-              1: pw.Alignment.centerLeft,
-              2: pw.Alignment.center,
-            },
-          ),
+          if (attendanceVolunteerSheetEmptyNote(volunteerRows.length)
+              case final note?)
+            pw.Text(note)
+          else
+            pw.TableHelper.fromTextArray(
+              headers: ['Nom', 'Email', 'Arrivée'],
+              data: volunteerRows
+                  .map(
+                    (e) => [
+                      e.registration.displayName,
+                      e.registration.memberEmail,
+                      _formatTime(e.slotStartTime),
+                    ],
+                  )
+                  .toList(),
+              cellAlignments: {
+                0: pw.Alignment.centerLeft,
+                1: pw.Alignment.centerLeft,
+                2: pw.Alignment.center,
+              },
+            ),
         ],
       ),
     );
@@ -460,7 +505,7 @@ class _DeliverySelector extends StatelessWidget {
         initialValue: selectedDeliveryId,
         items: deliveries.map((d) {
           final date = DateTime.parse(d.scheduledDate);
-          final label = DateFormat("d MMMM yyyy • HH'h'mm", 'fr').format(date);
+          final label = frenchDateFormat("d MMMM yyyy • HH'h'mm").format(date);
           return DropdownMenuItem(value: d.deliveryId, child: Text(label));
         }).toList(),
         onChanged: (id) {
@@ -539,8 +584,9 @@ class _VolunteersTab extends StatelessWidget {
       for (final slot in contract.slots) {
         for (final reg in slot.registrations) {
           if (coordinatorIds.contains(reg.memberId)) continue;
-          if (reg.status == RegistrationStatus.confirmed ||
-              reg.status == RegistrationStatus.registered) {
+          // Absent volunteers (CANCELLED) are left out; registered, present
+          // (CONFIRMED) and imported/legacy COMPLETED ones are listed.
+          if (reg.status != RegistrationStatus.cancelled) {
             entries.add(
               _VolunteerEntry(registration: reg, slotStartTime: slot.startTime),
             );
@@ -565,7 +611,7 @@ class _VolunteersTab extends StatelessWidget {
     final entries = _buildEntries();
 
     if (entries.isEmpty) {
-      return const Center(child: Text('Aucun bénévole inscrit.'));
+      return const Center(child: Text(_kNoVolunteerRegistered));
     }
 
     return ListView.separated(
@@ -766,7 +812,6 @@ List<_BasketGroup> _groupByBasketType(
   final productNameById = {
     for (final p in org.products) p.productTypeId: p.name,
   };
-  final pickups = basketPickupsForDelivery(exchanges, delivery.deliveryId);
   final groups = <String, _BasketGroup>{};
 
   for (final dc in delivery.contracts) {
@@ -781,7 +826,12 @@ List<_BasketGroup> _groupByBasketType(
       fallbackName,
       productNameById,
       membersById,
-      pickups,
+      // An exchange swaps the basket of one contract only.
+      basketPickupsForDelivery(
+        exchanges,
+        delivery.deliveryId,
+        contract.contractId,
+      ),
       groups,
     );
   }
@@ -822,6 +872,7 @@ class _RecipientEmailDialogState extends State<_RecipientEmailDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Envoyer par email'),
+    semanticLabel: 'Envoyer par email',
     content: Form(
       key: _formKey,
       child: TextFormField(

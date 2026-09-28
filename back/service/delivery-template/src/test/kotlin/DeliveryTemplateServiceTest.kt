@@ -8,6 +8,8 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
 import persistence.changes.ClientMutation
 import persistence.changes.Delete
 import persistence.changes.DeliveryTemplatePayload
@@ -15,12 +17,17 @@ import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
 import persistence.changes.Upsert
 import persistence.dao.DeliveryTemplateSyncDAO
+import persistence.dao.OrganizationSyncDAO
+import persistence.model.Delivery
+import persistence.model.DeliveryStatus
 import persistence.model.DeliveryTemplate
 import persistence.model.EarlySlot
 import persistence.model.EntityType
+import persistence.model.Organization
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.time.Instant
 
 internal class DeliveryTemplateServiceTest {
     private val organizationId = "org-1"
@@ -78,7 +85,7 @@ internal class DeliveryTemplateServiceTest {
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>(relaxed = true)
             coEvery { dao.getByOrganizationId(any()) } returns emptyList()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val template = buildDeliveryTemplate(id = "tmp_123")
             val stored = slot<DeliveryTemplate>()
 
@@ -97,7 +104,7 @@ internal class DeliveryTemplateServiceTest {
             val dao = mockk<DeliveryTemplateSyncDAO>(relaxed = true)
             val legacy = buildDeliveryTemplate(id = "tmp_123")
             coEvery { dao.getByOrganizationId(any()) } returns listOf(legacy)
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val edited = legacy.copy(name = "Renamed")
 
             val outcome = service.applyUpsert(adminAuth, buildMutation(edited), DeliveryTemplatePayload(edited))
@@ -111,7 +118,7 @@ internal class DeliveryTemplateServiceTest {
     fun `GIVEN caller without organization id WHEN upsert THEN REJECTED FORBIDDEN`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val template = buildDeliveryTemplate()
 
             val outcome = service.applyUpsert(noOrgAuth, buildMutation(template), DeliveryTemplatePayload(template))
@@ -125,7 +132,7 @@ internal class DeliveryTemplateServiceTest {
     fun `GIVEN organization id mismatch WHEN upsert THEN REJECTED FORBIDDEN`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val template = buildDeliveryTemplate(orgId = "other-org")
 
             val outcome = service.applyUpsert(adminAuth, buildMutation(template), DeliveryTemplatePayload(template))
@@ -139,7 +146,7 @@ internal class DeliveryTemplateServiceTest {
     fun `GIVEN valid upsert WHEN applyUpsert THEN APPLIED and DAO is called`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val template = buildDeliveryTemplate()
             coEvery { dao.put(any(), any()) } returns Unit
 
@@ -154,7 +161,7 @@ internal class DeliveryTemplateServiceTest {
     fun `GIVEN caller without organization id WHEN delete THEN REJECTED FORBIDDEN`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val op = Delete(EntityType.DeliveryTemplate, deliveryTemplateId)
             val mutation = ClientMutation(clientOpId = "op-del", op = op)
 
@@ -165,11 +172,67 @@ internal class DeliveryTemplateServiceTest {
             coVerify(exactly = 0) { dao.delete(any(), any(), any()) }
         }
 
+    private val noOrganization = mockk<OrganizationSyncDAO> { coEvery { getById(any()) } returns null }
+
+    private fun organizationWithDelivery(scheduledDate: String): OrganizationSyncDAO {
+        val organization =
+            Organization(
+                organizationId = "org-1".toId(),
+                name = "AMAP",
+                contactEmail = "amap@example.com",
+                activeStatus = true,
+                timezone = TimeZone.of("Europe/Paris"),
+                defaultLanguage = "fr",
+                createdInstant = Instant.fromEpochMilliseconds(0),
+                lastUpdatedInstant = Instant.fromEpochMilliseconds(0),
+                deliveries =
+                    listOf(
+                        Delivery(
+                            deliveryId = "d-1".toId(),
+                            organizationId = "org-1".toId(),
+                            deliveryTemplateId = deliveryTemplateId.toId(),
+                            scheduledDate = LocalDateTime.parse(scheduledDate),
+                            status = DeliveryStatus.PLANNED,
+                            minVolunteersRequired = 2,
+                        ),
+                    ),
+            )
+        return mockk { coEvery { getById(any()) } returns organization }
+    }
+
+    @Test
+    fun `GIVEN a template still used by a future delivery WHEN applyDelete THEN REJECTED CONFLICT`() =
+        runTest {
+            // Mirrors the admin list screen, which refuses the deletion too.
+            val dao = mockk<DeliveryTemplateSyncDAO>()
+            val service = DeliveryTemplateService(dao, organizationWithDelivery("2999-01-15T18:00:00"))
+            val op = Delete(EntityType.DeliveryTemplate, deliveryTemplateId)
+
+            val outcome = service.applyDelete(adminAuth, ClientMutation(clientOpId = "op-del", op = op), op)
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.CONFLICT, outcome.error?.code)
+            coVerify(exactly = 0) { dao.delete(any(), any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN a template only used by past deliveries WHEN applyDelete THEN APPLIED`() =
+        runTest {
+            val dao = mockk<DeliveryTemplateSyncDAO>()
+            coEvery { dao.delete(any(), any(), any()) } returns Unit
+            val service = DeliveryTemplateService(dao, organizationWithDelivery("2000-01-15T18:00:00"))
+            val op = Delete(EntityType.DeliveryTemplate, deliveryTemplateId)
+
+            val outcome = service.applyDelete(adminAuth, ClientMutation(clientOpId = "op-del", op = op), op)
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
     @Test
     fun `GIVEN valid delete WHEN applyDelete THEN APPLIED and DAO is called`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val op = Delete(EntityType.DeliveryTemplate, deliveryTemplateId)
             val mutation = ClientMutation(clientOpId = "op-del", op = op)
             coEvery { dao.delete(any(), any(), any()) } returns Unit
@@ -185,7 +248,7 @@ internal class DeliveryTemplateServiceTest {
     fun `GIVEN caller without organization id WHEN snapshot THEN returns empty list`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
 
             val result = service.snapshot(noOrgAuth)
 
@@ -197,7 +260,7 @@ internal class DeliveryTemplateServiceTest {
     fun `GIVEN templates in DAO WHEN snapshot THEN returns all as DeliveryTemplatePayload`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val template = buildDeliveryTemplate()
             coEvery { dao.getByOrganizationId(any()) } returns listOf(template)
 
@@ -211,7 +274,7 @@ internal class DeliveryTemplateServiceTest {
     fun `GIVEN volunteer caller WHEN upsert THEN REJECTED FORBIDDEN`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val template = buildDeliveryTemplate()
 
             val outcome = service.applyUpsert(volunteerAuth, buildMutation(template), DeliveryTemplatePayload(template))
@@ -225,7 +288,7 @@ internal class DeliveryTemplateServiceTest {
     fun `GIVEN volunteer caller WHEN delete THEN REJECTED FORBIDDEN`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val op = Delete(EntityType.DeliveryTemplate, deliveryTemplateId)
             val mutation = ClientMutation(clientOpId = "op-del", op = op)
 
@@ -240,7 +303,7 @@ internal class DeliveryTemplateServiceTest {
     fun `GIVEN templates breaking the form rules WHEN upsert THEN REJECTED INVALID_PAYLOAD and nothing persisted`() =
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val valid = buildDeliveryTemplate()
             val invalidTemplates =
                 listOf(
@@ -269,7 +332,7 @@ internal class DeliveryTemplateServiceTest {
         runTest {
             val dao = mockk<DeliveryTemplateSyncDAO>()
             coEvery { dao.put(any(), any()) } returns Unit
-            val service = DeliveryTemplateService(dao)
+            val service = DeliveryTemplateService(dao, noOrganization)
             val template = buildDeliveryTemplate().copy(earlySlot = EarlySlot(arrivalTime = "17:00", maxVolunteers = 2))
 
             val outcome = service.applyUpsert(adminAuth, buildMutation(template), DeliveryTemplatePayload(template))

@@ -6,11 +6,13 @@ import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/edit_producer_products_screen.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/producer_management_bloc.dart';
 import 'package:amap_en_ligne/presentation/admin/producers/producer_ui_helpers.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
+import 'package:amap_en_ligne/presentation/common/status_badge.dart';
+import 'package:amap_en_ligne/presentation/nav/back_navigation.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 /// Screen that shows the detail of a single producer in an organization.
 ///
@@ -130,7 +132,7 @@ class _DetailBody extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextButton.icon(
-              onPressed: () => context.pop(),
+              onPressed: () => popOrGo(context, '/admin/producers'),
               icon: const Icon(Icons.arrow_back),
               label: const Text('Retour'),
             ),
@@ -186,12 +188,8 @@ class _DetailBody extends StatelessWidget {
           const SizedBox(height: 8),
           _InfoRow(
             label: 'Inscrit le',
-            value: DateTime.parse(
-              producer.associationInstant,
-            ).toLocal().toString().substring(0, 10),
+            value: _formatDate(producer.associationInstant),
           ),
-          const SizedBox(height: 8),
-          _InfoRow(label: 'Identifiant', value: producerAccountId),
           if (producerProfile?.linkedProducerAccount != null) ...[
             const SizedBox(height: 8),
             _InfoRow(
@@ -211,8 +209,12 @@ class _DetailBody extends StatelessWidget {
     final products = organization.products
         .where((p) => p.producerAccountId == producerAccountId)
         .toList();
+    // Spec screen-admin-04: account-backed producers get [Modifier] (pick
+    // their catalog products for this AMAP); no-account ones edit their own.
+    // A terminated association is read-only.
     final canEditProducts =
-        producerProfile?.managementMode == ProducerManagementMode.noAccount;
+        producerProfile != null &&
+        producer.status != OrganizationProducerStatus.terminated;
     final colorScheme = Theme.of(context).colorScheme;
     return [
       Row(
@@ -249,7 +251,7 @@ class _DetailBody extends StatelessWidget {
         ...products.map(
           (p) => ListTile(
             title: Text(p.name),
-            subtitle: p.description != null ? Text(p.description!) : null,
+            subtitle: _productSubtitle(p),
             dense: true,
           ),
         ),
@@ -296,6 +298,7 @@ class _DetailBody extends StatelessWidget {
       useRootNavigator: true,
       builder: (dialogContext) => AlertDialog(
         title: Text(title),
+        semanticLabel: title,
         content: Text(content),
         actions: [
           TextButton(
@@ -382,14 +385,10 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = _statusColors(context, status);
-    return Chip(
-      label: Text(
-        _statusLabel(status),
-        style: TextStyle(color: colors.text, fontSize: 12),
-      ),
+    return StatusBadge(
+      _statusLabel(status),
+      labelStyle: TextStyle(color: colors.text, fontSize: 12),
       backgroundColor: colors.background,
-      padding: EdgeInsets.zero,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }
@@ -444,4 +443,22 @@ String _statusLabel(OrganizationProducerStatus status) => switch (status) {
       text: colorScheme.onError,
     ),
   };
+}
+
+/// "1 janv. 2025" — never the raw ISO string.
+String _formatDate(String iso) {
+  final instant = DateTime.tryParse(iso);
+  if (instant == null) return iso;
+  return frenchDateFormat('d MMM yyyy').format(instant.toLocal());
+}
+
+/// Basket sizes offered in the AMAP (spec wireframe "Paniers : …"), then the
+/// optional description.
+Widget? _productSubtitle(OrgProduct product) {
+  final lines = [
+    if (product.supportedBasketSizes.isNotEmpty)
+      'Paniers : ${product.supportedBasketSizes.map((s) => s.name).join(' · ')}',
+    if (product.description != null) product.description!,
+  ];
+  return lines.isEmpty ? null : Text(lines.join('\n'));
 }

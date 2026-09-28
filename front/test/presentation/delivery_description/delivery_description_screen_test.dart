@@ -115,6 +115,21 @@ void main() {
     expect(find.text('Enregistrer'), findsOneWidget);
   });
 
+  testWidgets('on a phone the title wraps instead of hiding the date', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pump(tester);
+
+    final title = tester.widget<Text>(
+      find.text('Composition du samedi 14 juin'),
+    );
+    expect(title.maxLines, 2);
+    expect(title.overflow, isNot(TextOverflow.ellipsis));
+  });
+
   testWidgets('only offers the products present in the delivery', (
     tester,
   ) async {
@@ -157,6 +172,20 @@ void main() {
     expect(tester.getTopLeft(find.text('Medium')).dx, 16);
   });
 
+  testWidgets('each Ajouter button names its product and basket size', (
+    tester,
+  ) async {
+    await pump(tester);
+
+    await tester.tap(find.text('Légumes'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byTooltip('Ajouter un composant (Légumes — Medium)'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('adding a component from the picker lists it with its weight '
       'field and removing it clears the list', (tester) async {
     await pump(tester);
@@ -178,7 +207,8 @@ void main() {
     await tester.enterText(find.widgetWithText(TextFormField, 'Poids'), '500g');
     await tester.pump();
 
-    await tester.tap(find.byIcon(Icons.remove_circle_outline));
+    // The remove button is labelled for screen readers.
+    await tester.tap(find.byTooltip('Retirer carottes'));
     await tester.pumpAndSettle();
     expect(find.text('carottes'), findsNothing);
   });

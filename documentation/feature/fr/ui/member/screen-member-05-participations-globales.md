@@ -50,7 +50,7 @@ Aucune autre action n'est disponible sur cet écran.
 - Le classement utilise un **classement standard** : les membres ayant le même nombre de participations partagent le même rang.
 - Affichage sans ex-aequo : « Vous êtes 3ème / 7 membres actifs »
 - Affichage avec ex-aequo : « Vous êtes 3ème ex-aequo / 7 membres actifs »
-- Cas où personne n'a participé : « Vous êtes 1er ex-aequo / N membres actifs »
+- Tant que l'amapien n'a aucune participation sur la saison, aucun rang n'est affiché : « Pas encore de participation cette saison » (un « 1er ex-aequo » à zéro ne voudrait rien dire).
 
 ### Paliers de la répartition
 Les membres actifs (*ACTIVE*) sont répartis en trois catégories selon le nombre de participations confirmées sur la saison courante :

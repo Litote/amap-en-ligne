@@ -42,57 +42,9 @@ cp back/deploy/jvm/.env.example back/deploy/jvm/.env
 ./gradlew :deploy:jvm:run
 ```
 
-### 1. Create a local GoTrue user
+### 1. Mint a GoTrue admin token
 
-```bash
-SIGNUP_RESPONSE=$(curl -s -X POST http://localhost:9999/signup \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"test@example.com","password":"password123"}')
-
-echo "$SIGNUP_RESPONSE" | jq
-```
-
-GoTrue returns an `access_token` right away because email confirmation is disabled in local dev.
-
-### 2. Verify password login
-
-```bash
-curl -s -X POST 'http://localhost:9999/token?grant_type=password' \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"test@example.com","password":"password123"}' \
-  | jq
-```
-
-If this returns a JSON payload containing `access_token`, the same `POST /token` flow used by Flutter web is working.
-
-### 3. Extract the GoTrue user id
-
-The admin API needs the GoTrue user id. The easiest local-dev path is to read the JWT `sub` claim from the signup token:
-
-```bash
-ACCESS_TOKEN=$(echo "$SIGNUP_RESPONSE" | jq -r '.access_token')
-
-USER_ID=$(python - <<'PY' "$ACCESS_TOKEN"
-import base64
-import json
-import sys
-
-token = sys.argv[1]
-payload = token.split(".")[1]
-payload += "=" * (-len(payload) % 4)
-claims = json.loads(base64.urlsafe_b64decode(payload))
-print(claims["sub"])
-PY
-)
-
-echo "$USER_ID"
-```
-
-### 4. Set `app_metadata.producer_account_id`
-
-The JVM backend resolves the tenant from `app_metadata.producer_account_id`, so a freshly created GoTrue user is not enough on its own.
-
-`/admin/users/*` expects an admin JWT signed with `GOTRUE_JWT_SECRET`. `GOTRUE_OPERATOR_TOKEN` is not the right bearer token for this endpoint.
+Public sign-up is disabled (`GOTRUE_DISABLE_SIGNUP: "true"` in `docker-compose.yml`): users are created through the admin API, like the back does on account activation. `/admin/users/*` expects an admin JWT signed with `GOTRUE_JWT_SECRET` (`GOTRUE_OPERATOR_TOKEN` is not the right bearer token for this endpoint).
 
 ```bash
 export GOTRUE_JWT_SECRET=dev-jwt-secret-change-me-dev-jwt-secret-change-me
@@ -118,24 +70,33 @@ token = signing_input + b"." + base64.urlsafe_b64encode(signature).rstrip(b"=")
 print(token.decode())
 PY
 )
+```
 
-curl -s -X PUT "http://localhost:9999/admin/users/$USER_ID" \
+### 2. Create a local GoTrue user
+
+The JVM backend resolves the tenant from `app_metadata.producer_account_id`, so set it (with the roles) at creation. `email_confirm: true` confirms the email (the stack requires confirmation, `GOTRUE_MAILER_AUTOCONFIRM: "false"`).
+
+```bash
+USER_ID=$(curl -s -X POST http://localhost:9999/admin/users \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{
+    "email": "test@example.com",
+    "password": "password123",
+    "email_confirm": true,
     "app_metadata": {
       "producer_account_id": "producer-dev",
       "roles": ["PRODUCER"]
     }
   }' \
-  | jq
+  | jq -r '.id')
+
+echo "$USER_ID"
 ```
 
-Use a `producer_account_id` that matches the tenant you expect to hit in the backend.
+Use a `producer_account_id` that matches the tenant you expect to hit in the backend. To change the claims later, `PUT /admin/users/$USER_ID` with the same admin token, then sign in again.
 
-### 5. Mint a fresh token with the new claims
-
-Update the user first, then sign in again so the new access token contains the updated `app_metadata`:
+### 3. Sign in
 
 ```bash
 curl -s -X POST 'http://localhost:9999/token?grant_type=password' \
@@ -143,6 +104,8 @@ curl -s -X POST 'http://localhost:9999/token?grant_type=password' \
   -d '{"email":"test@example.com","password":"password123"}' \
   | jq
 ```
+
+If this returns a JSON payload containing `access_token`, the same `POST /token` flow used by Flutter web is working.
 
 At that point:
 

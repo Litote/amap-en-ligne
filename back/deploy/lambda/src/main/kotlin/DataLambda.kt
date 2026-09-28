@@ -13,16 +13,19 @@ import provisioning.cognito.ProvisioningCognitoModule
 import routing.dataRoutingModule
 import sync.SyncModule
 
+/** Koin modules of the data Lambda, shared with the scheduled volunteer shortage Lambda. */
+internal fun startDataKoin(): KoinApplication =
+    startKoin(
+        SyncModule().module,
+        DynamoModule().module,
+        CognitoAuthenticationModule().module,
+        CognitoInstanceConfigModule().module,
+        HttpModule().module,
+        LambdaEmailModule().module,
+        EmailDeliveryModule().module,
+        ProvisioningCognitoModule().module,
+    )
+
 class DataLambda(
-    koin: KoinApplication =
-        startKoin(
-            SyncModule().module,
-            DynamoModule().module,
-            CognitoAuthenticationModule().module,
-            CognitoInstanceConfigModule().module,
-            HttpModule().module,
-            LambdaEmailModule().module,
-            EmailDeliveryModule().module,
-            ProvisioningCognitoModule().module,
-        ),
+    koin: KoinApplication = startDataKoin(),
 ) : APIGatewayLambdaBase(koin, { koinApp -> dataRoutingModule(koinApp) })

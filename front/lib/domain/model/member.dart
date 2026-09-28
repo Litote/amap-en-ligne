@@ -62,6 +62,10 @@ abstract class Member with _$Member {
     @JsonKey(name: 'member_preferences') MemberPreferences? memberPreferences,
     @JsonKey(name: 'user_preferences') UserPreferences? userPreferences,
     @JsonKey(name: 'user_settings') Map<String, dynamic>? userSettings,
+
+    /// When the member joined the instance (ISO-8601). Server-authoritative;
+    /// null for members created before the field existed.
+    @JsonKey(name: 'registered_at') String? registeredAt,
   }) = _Member;
 
   factory Member.fromJson(Map<String, Object?> json) => _$MemberFromJson(json);

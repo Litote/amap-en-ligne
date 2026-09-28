@@ -32,7 +32,7 @@ Each file is a `.json` document. The test runner (`AcceptanceScenariosTest`) dis
 - Include both unless the scenario is specific to one side
 
 ### `given`
-Currently only `"backendState": "empty"` and `"appState": "fresh"` are supported. The test runner resets the DB before each scenario.
+Supported `backendState` values: `"empty"`, or `"organization {organizationId}"` (inserts that AMAP before the first step). Only `"appState": "fresh"` is supported. The test runner resets the DB before each scenario.
 
 ## Steps (`when` array)
 
@@ -54,6 +54,7 @@ Each step is a sync call:
 ```
 
 - `actor` must be `"client"`, `action` must be `"sync"`
+- `as` (optional) — caller identity the step's token is minted for: `"producer"` (default, subject `producerAccountId`), `"owner"` (subject `acceptance-owner`, so its private feed is `owner:acceptance-owner`) or `"admin:{organizationId}"` (an ADMIN member row of that AMAP is inserted on first use)
 - `cursors`: map of `EntityType → cursor string` (or `{}` for bootstrap)
 - `mutations`: list of `ClientMutation` objects (see below)
 - `save.cursorRefs`: after the step, save the returned cursor for `EntityType` under `myRefName` for use in later steps via `"$ref:myRefName"`

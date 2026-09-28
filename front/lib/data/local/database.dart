@@ -20,6 +20,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
 import 'package:amap_en_ligne/domain/model/owner_invitation.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
+import 'package:amap_en_ligne/domain/model/producer_schedule.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/model/user_preferences.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
@@ -49,6 +50,7 @@ part 'database/feed_queries.dart';
     ProductTypes,
     SyncCursors,
     PendingMutations,
+    CacheOwners,
     Organizations,
     ProducerAccounts,
     Members,
@@ -65,6 +67,7 @@ part 'database/feed_queries.dart';
     DeviceTokens,
     AttendanceEmailRequests,
     ErrorReports,
+    ProducerSchedules,
   ],
 )
 class AppDatabase extends _$AppDatabase
@@ -78,14 +81,20 @@ class AppDatabase extends _$AppDatabase
         _FeedQueries {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
-  // v2: product_types.item_types (component catalog). Any version change
-  // rebuilds the cache (see [_rebuildOnVersionMismatch]).
+  // v2: product_types.item_types (component catalog). v3: producer_schedules.
+  // v4: cache_owners. Any other version change rebuilds the cache (see
+  // [_rebuildOnVersionMismatch]).
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
-  MigrationStrategy get migration =>
-      MigrationStrategy(onUpgrade: _rebuildOnVersionMismatch);
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      // Purely additive: keeps the queued offline mutations of the upgrade.
+      if (from == 3 && to == 4) return m.createTable(cacheOwners);
+      return _rebuildOnVersionMismatch(m, from, to);
+    },
+  );
 
   /// The local database is a server-authoritative cache, so any schema version
   /// mismatch (e.g. a database created before migrations were squashed) is
@@ -111,9 +120,11 @@ class AppDatabase extends _$AppDatabase
       case ProducerAccountSyncScope(:final producerAccountId):
         await clearProductTypesForTenant(producerAccountId);
         await clearProducerAccountsForTenant(producerAccountId);
-        // Producers' private feed also carries their notifications + device tokens (ADR-005).
+        // Producers' private feed also carries their notifications + device tokens (ADR-005)
+        // and the read-only schedules of their AMAPs.
         await clearNotificationsForScope(scope.key);
         await clearDeviceTokensForScope(scope.key);
+        await clearProducerSchedulesForProducer(producerAccountId);
       case OrganizationSyncScope(:final organizationId):
         // The organization scope also carries its producers' catalogs
         // (read-only ProductTypes): drop them before the org row goes.
@@ -146,7 +157,8 @@ class AppDatabase extends _$AppDatabase
         await clearDeviceTokensForScope(scope.key);
       case InstanceOwnerSyncScope():
         // OWNER instance-wide feed carries Organization + OrganizationRequest
-        // + ProducerRequest + Owner + Member + ProducerAccount. Re-bootstrap clears every
+        // + ProducerRequest + Owner + OwnerInvitation + Member +
+        // MemberInvitation + ProducerAccount. Re-bootstrap clears every
         // table that participates in that scope to avoid stale rows.
         await clearOrganizationRequests();
         await clearProducerRequests();
@@ -154,6 +166,7 @@ class AppDatabase extends _$AppDatabase
         await clearOwnerInvitations();
         await delete(organizations).go();
         await delete(members).go();
+        await delete(memberInvitations).go();
         await delete(producerAccounts).go();
     }
   }
@@ -162,6 +175,7 @@ class AppDatabase extends _$AppDatabase
     await delete(productTypes).go();
     await delete(syncCursors).go();
     await delete(pendingMutations).go();
+    await delete(cacheOwners).go();
     await delete(organizations).go();
     await delete(producerAccounts).go();
     await delete(members).go();
@@ -178,5 +192,6 @@ class AppDatabase extends _$AppDatabase
     await delete(deviceTokens).go();
     await delete(attendanceEmailRequests).go();
     await delete(errorReports).go();
+    await delete(producerSchedules).go();
   });
 }
