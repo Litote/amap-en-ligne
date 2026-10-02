@@ -14,6 +14,7 @@ import persistence.dao.AccountDeletionLogDAO
 import persistence.dao.ProducerAccountSyncDAO
 import persistence.model.AccountDeletionLog
 import persistence.model.DeletedAccountRole
+import persistence.model.DeletionActorRole
 import persistence.model.ProducerAccount
 import persistence.model.UserPreferences
 
@@ -108,7 +109,8 @@ class ProducerAccountLifecycleService(
                         deletedSubHash = sha256(sub),
                         deletedRole = DeletedAccountRole.PRODUCER,
                         deletedAt = now,
-                        actorOwnerId = actorSub.toId(),
+                        actorId = actorSub,
+                        actorRole = DeletionActorRole.OWNER,
                     ),
                 )
             }.onFailure { e -> logger.error(e) { "audit log append failed for producer $producerAccountId" } }

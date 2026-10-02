@@ -1,6 +1,7 @@
 package member
 
 import authentication.AuthenticatedInfo
+import authentication.Role
 import core.UserProvisioningPort
 import email.AccountLifecycleEmailPort
 import email.AccountLifecycleRole
@@ -12,6 +13,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import persistence.dao.AccountDeletionLogDAO
 import persistence.model.AccountDeletionLog
 import persistence.model.DeletedAccountRole
+import persistence.model.DeletionActorRole
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
 import java.security.MessageDigest
@@ -86,7 +88,8 @@ internal class MemberLifecycleSideEffects(
                         deletedSubHash = deletedSubHash,
                         deletedRole = DeletedAccountRole.AMAP_MEMBER,
                         deletedAt = Clock.System.now(),
-                        actorOwnerId = Id(auth.memberId),
+                        actorId = auth.memberId,
+                        actorRole = if (auth.roles.contains(Role.OWNER)) DeletionActorRole.OWNER else DeletionActorRole.ADMIN,
                     ),
                 )
             }.onFailure { error ->

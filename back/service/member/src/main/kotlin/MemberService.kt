@@ -314,18 +314,42 @@ class MemberService(
             val member =
                 findMemberById(op.entityId)
                     ?: return rejected(mutation, MutationErrorCode.NOT_FOUND, MEMBER_NOT_FOUND)
-            // Since memberId == sub for account-backed members, use memberId.id as the sub.
-            // A member with a real (non-tmp) id is always account-backed at delete time.
-            if (!op.entityId.startsWith(ClientMutation.TMP_ID_PREFIX)) {
-                return applyOwnerDelete(auth, mutation, member.memberId.id, op.entityId)
-            }
-            return hardDelete(mutation, op, member.organizationId.id)
+            return deleteMember(auth, mutation, op, member)
         }
 
+        if (auth.roles.none { it == Role.ADMIN }) {
+            return rejected(mutation, MutationErrorCode.FORBIDDEN, "only admins can delete members")
+        }
         val organizationId: String =
             auth.organizationId
                 ?: return rejected(mutation, MutationErrorCode.FORBIDDEN, "missing organization id")
-        return hardDelete(mutation, op, organizationId)
+        // Scoped to the caller's organization: a member of another one is not visible.
+        val member =
+            memberSyncDAO.getByOrganizationId(organizationId.toId()).find { it.memberId.id == op.entityId }
+                ?: return rejected(mutation, MutationErrorCode.NOT_FOUND, MEMBER_NOT_FOUND)
+        return deleteMember(auth, mutation, op, member)
+    }
+
+    /**
+     * A synced member is anonymised and its auth user deleted (best-effort: a member imported
+     * and never activated has none). A never-synced `tmp_*` row has no identity to erase and is
+     * hard-deleted.
+     */
+    private suspend fun deleteMember(
+        auth: AuthenticatedInfo,
+        mutation: ClientMutation,
+        op: Delete,
+        member: Member,
+    ): MutationOutcome {
+        if (auth.memberId == member.memberId.id) {
+            return rejected(mutation, MutationErrorCode.SELF_ACTION_FORBIDDEN, "a member cannot delete their own account")
+        }
+        return if (op.entityId.startsWith(ClientMutation.TMP_ID_PREFIX)) {
+            hardDelete(mutation, op, member.organizationId.id)
+        } else {
+            // memberId == sub for account-backed members.
+            applyAccountDelete(auth, mutation, member.memberId.id, op.entityId)
+        }
     }
 
     private suspend fun hardDelete(
@@ -346,20 +370,12 @@ class MemberService(
         return applied(mutation, op.entityId)
     }
 
-    private suspend fun applyOwnerDelete(
+    private suspend fun applyAccountDelete(
         auth: AuthenticatedInfo,
         mutation: ClientMutation,
         targetSub: String,
         memberId: String,
     ): MutationOutcome {
-        if (auth.memberId == targetSub) {
-            return rejected(
-                mutation,
-                MutationErrorCode.SELF_ACTION_FORBIDDEN,
-                "an OWNER cannot delete their own account via the AMAP path",
-            )
-        }
-
         val members = memberSyncDAO.getMembersBySub(targetSub)
         if (members.isEmpty()) return rejected(mutation, MutationErrorCode.NOT_FOUND, MEMBER_NOT_FOUND)
         val lastAdminFor = checkLastAdminOrgs(members)

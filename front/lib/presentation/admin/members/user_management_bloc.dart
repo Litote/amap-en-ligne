@@ -30,6 +30,8 @@ class _UserManagementSnapshot {
 }
 
 const _kLastAdminMessage = 'Cette AMAP doit conserver au moins un Admin.';
+const _kSelfDeleteMessage = 'Vous ne pouvez pas supprimer votre propre compte.';
+const _kDeleteFailedMessage = 'La suppression a échoué. Veuillez réessayer.';
 
 class UserManagementBloc
     extends Bloc<UserManagementEvent, UserManagementState> {
@@ -40,7 +42,9 @@ class UserManagementBloc
     required AppDatabase database,
     required String organizationId,
     required this.canEditAdminRole,
-  }) : _memberRepo = memberRepository,
+    required String currentMemberId,
+  }) : _currentMemberId = currentMemberId,
+       _memberRepo = memberRepository,
        _memberInvitationRepo = memberInvitationRepository,
        _syncRepository = syncRepository,
        _database = database,
@@ -57,6 +61,7 @@ class UserManagementBloc
     on<_SaveRolesRequested>(_onSaveRolesRequested);
     on<_EditCancelled>(_onEditCancelled);
     on<_DeleteInvitationRequested>(_onDeleteInvitationRequested);
+    on<_DeleteMemberRequested>(_onDeleteMemberRequested);
     on<_ShowInviteForm>(_onShowInviteForm);
     on<_InviteFirstNameChanged>(_onInviteFirstNameChanged);
     on<_InviteLastNameChanged>(_onInviteLastNameChanged);
@@ -70,6 +75,9 @@ class UserManagementBloc
   }
 
   final MemberRepository _memberRepo;
+
+  /// Auth `sub` of the caller — equal to their member id (memberId == sub).
+  final String _currentMemberId;
   final MemberInvitationRepository _memberInvitationRepo;
   final SyncRepository _syncRepository;
   final AppDatabase _database;
@@ -545,7 +553,7 @@ class UserManagementBloc
               latest,
               event.invitation.invitationId,
             ),
-            feedbackMessage: 'La suppression a échoué. Veuillez réessayer.',
+            feedbackMessage: _kDeleteFailedMessage,
             feedbackIsError: true,
           ),
         );
@@ -571,7 +579,7 @@ class UserManagementBloc
             latest,
             event.invitation.invitationId,
           ),
-          feedbackMessage: 'La suppression a échoué. Veuillez réessayer.',
+          feedbackMessage: _kDeleteFailedMessage,
           feedbackIsError: true,
         ),
       );
@@ -713,6 +721,58 @@ class UserManagementBloc
     emit(current.copyWith(feedbackMessage: null, feedbackIsError: false));
   }
 
+  Future<void> _onDeleteMemberRequested(
+    _DeleteMemberRequested event,
+    Emitter<UserManagementState> emit,
+  ) async {
+    final current = state;
+    if (current is! UserManagementLoaded) return;
+    final member = event.member;
+    // Same rules as the back (SELF_ACTION_FORBIDDEN, LAST_ADMIN).
+    final localError = _localDeleteError(current.members, member);
+    if (localError != null) {
+      emit(
+        current.copyWith(feedbackMessage: localError, feedbackIsError: true),
+      );
+      return;
+    }
+    emit(
+      current.copyWith(
+        deletingMemberIds: {...current.deletingMemberIds, member.memberId},
+      ),
+    );
+    String? errorMessage;
+    try {
+      final clientOpId = await _memberRepo.delete(
+        memberId: member.memberId,
+        organizationId: _organizationId,
+      );
+      // A refusal is rolled back by the sync (the scope is re-bootstrapped).
+      final outcome = await _syncRepository.sync(tenantId: _organizationId);
+      if (outcome case SyncSuccess()) {
+        final rejected = _findRejectedMutation(outcome, clientOpId);
+        if (rejected != null) {
+          errorMessage = _deleteErrorMessage(rejected.error);
+        }
+      } else {
+        errorMessage = _kDeleteFailedMessage;
+      }
+    } on Exception catch (e, stackTrace) {
+      unawaited(Sentry.captureException(e, stackTrace: stackTrace));
+      errorMessage = _kDeleteFailedMessage;
+    }
+    final latest = state;
+    if (latest is! UserManagementLoaded) return;
+    emit(
+      latest.copyWith(
+        deletingMemberIds: Set<String>.from(latest.deletingMemberIds)
+          ..remove(member.memberId),
+        feedbackMessage: errorMessage ?? 'Membre supprimé.',
+        feedbackIsError: errorMessage != null,
+      ),
+    );
+  }
+
   MutationOutcome? _findRejectedMutation(
     SyncSuccess outcome,
     String clientOpId,
@@ -747,6 +807,18 @@ class UserManagementBloc
     MutationErrorCode.lastAdmin => _kLastAdminMessage,
     MutationErrorCode.mixedRoles => 'Ce compte ne peut pas cumuler ces rôles.',
     _ => 'La modification des rôles a été refusée par le serveur.',
+  };
+
+  String? _localDeleteError(List<Member> members, Member member) {
+    if (member.memberId == _currentMemberId) return _kSelfDeleteMessage;
+    if (_removesLastAdmin(members, member, const {})) return _kLastAdminMessage;
+    return null;
+  }
+
+  String _deleteErrorMessage(MutationError? error) => switch (error?.code) {
+    MutationErrorCode.lastAdmin => _kLastAdminMessage,
+    MutationErrorCode.selfActionForbidden => _kSelfDeleteMessage,
+    _ => 'La suppression du membre a été refusée par le serveur.',
   };
 
   String _mutationErrorMessage(MutationError? error) {

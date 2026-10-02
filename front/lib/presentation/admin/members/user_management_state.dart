@@ -27,6 +27,7 @@ sealed class UserManagementState with _$UserManagementState {
     @Default(false) bool inviting,
     @Default(<String>{}) Set<String> resendingInvitationIds,
     @Default(<String>{}) Set<String> deletingInvitationIds,
+    @Default(<String>{}) Set<String> deletingMemberIds,
     @Default(false) bool resendingAllPending,
     String? inviteError,
     @Default(false) bool inviteSuccess,

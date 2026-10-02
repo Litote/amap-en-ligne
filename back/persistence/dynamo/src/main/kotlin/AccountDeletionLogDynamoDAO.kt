@@ -12,6 +12,7 @@ import org.koin.core.annotation.Single
 import persistence.dao.AccountDeletionLogDAO
 import persistence.model.AccountDeletionLog
 import persistence.model.DeletedAccountRole
+import persistence.model.DeletionActorRole
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -66,7 +67,8 @@ private fun AccountDeletionLog.toAttributeValueMap(): Map<String, AttributeValue
         "deleted_sub_hash" to AttributeValue.S(deletedSubHash),
         "deleted_role" to AttributeValue.S(deletedRole.name),
         "deleted_at" to AttributeValue.N(deletedAt.toEpochMilliseconds().toString()),
-        "actor_owner_id" to AttributeValue.S(actorOwnerId.id),
+        "actor_id" to AttributeValue.S(actorId),
+        "actor_role" to AttributeValue.S(actorRole.name),
     )
 
 private fun Map<String, AttributeValue>.toAccountDeletionLog(): AccountDeletionLog =
@@ -75,5 +77,7 @@ private fun Map<String, AttributeValue>.toAccountDeletionLog(): AccountDeletionL
         deletedSubHash = getValue("deleted_sub_hash").asS(),
         deletedRole = DeletedAccountRole.valueOf(getValue("deleted_role").asS()),
         deletedAt = Instant.fromEpochMilliseconds(getValue("deleted_at").asN().toLong()),
-        actorOwnerId = getValue("actor_owner_id").asS().toId(),
+        // Entries written before the admin deletion path only carry `actor_owner_id`.
+        actorId = (get("actor_id") ?: getValue("actor_owner_id")).asS(),
+        actorRole = get("actor_role")?.asS()?.let { DeletionActorRole.valueOf(it) } ?: DeletionActorRole.OWNER,
     )

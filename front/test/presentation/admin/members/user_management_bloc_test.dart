@@ -68,15 +68,18 @@ void main() {
     database = _MockAppDatabase();
   });
 
-  UserManagementBloc buildBloc({bool canEditAdminRole = true}) =>
-      UserManagementBloc(
-        memberRepository: memberRepo,
-        memberInvitationRepository: memberInvitationRepo,
-        syncRepository: syncRepository,
-        database: database,
-        organizationId: _testOrgId,
-        canEditAdminRole: canEditAdminRole,
-      );
+  UserManagementBloc buildBloc({
+    bool canEditAdminRole = true,
+    String currentMemberId = 'caller-admin',
+  }) => UserManagementBloc(
+    memberRepository: memberRepo,
+    memberInvitationRepository: memberInvitationRepo,
+    syncRepository: syncRepository,
+    database: database,
+    organizationId: _testOrgId,
+    canEditAdminRole: canEditAdminRole,
+    currentMemberId: currentMemberId,
+  );
 
   group('UserManagementBloc', () {
     blocTest<UserManagementBloc, UserManagementState>(
@@ -814,6 +817,137 @@ void main() {
           ),
         ).called(1);
       },
+    );
+  });
+
+  group('deleteMemberRequested', () {
+    void stubDelete(String clientOpId) => when(
+      () => memberRepo.delete(
+        memberId: any(named: 'memberId'),
+        organizationId: any(named: 'organizationId'),
+      ),
+    ).thenAnswer((_) async => clientOpId);
+
+    blocTest<UserManagementBloc, UserManagementState>(
+      'deletes the member, syncs and confirms',
+      setUp: () {
+        stubDelete('op-del');
+        when(
+          () => syncRepository.sync(tenantId: any(named: 'tenantId')),
+        ).thenAnswer((_) async => const SyncOutcome.success());
+      },
+      build: buildBloc,
+      seed: () => UserManagementState.loaded(members: _members),
+      act: (bloc) =>
+          bloc.add(const UserManagementEvent.deleteMemberRequested(_member1)),
+      expect: () => [
+        isA<UserManagementLoaded>().having(
+          (s) => s.deletingMemberIds,
+          'deletingMemberIds',
+          {'member-1'},
+        ),
+        isA<UserManagementLoaded>()
+            .having((s) => s.deletingMemberIds, 'deletingMemberIds', isEmpty)
+            .having(
+              (s) => s.feedbackMessage,
+              'feedbackMessage',
+              'Membre supprimé.',
+            )
+            .having((s) => s.feedbackIsError, 'feedbackIsError', isFalse),
+      ],
+      verify: (_) {
+        verify(
+          () => memberRepo.delete(
+            memberId: 'member-1',
+            organizationId: _testOrgId,
+          ),
+        ).called(1);
+        verify(() => syncRepository.sync(tenantId: _testOrgId)).called(1);
+      },
+    );
+
+    blocTest<UserManagementBloc, UserManagementState>(
+      'deleting the last admin is refused before sending',
+      build: buildBloc,
+      seed: () => UserManagementState.loaded(members: _members),
+      act: (bloc) =>
+          bloc.add(const UserManagementEvent.deleteMemberRequested(_member2)),
+      expect: () => [
+        isA<UserManagementLoaded>()
+            .having(
+              (s) => s.feedbackMessage,
+              'feedbackMessage',
+              'Cette AMAP doit conserver au moins un Admin.',
+            )
+            .having((s) => s.feedbackIsError, 'feedbackIsError', isTrue),
+      ],
+      verify: (_) => verifyNever(
+        () => memberRepo.delete(
+          memberId: any(named: 'memberId'),
+          organizationId: any(named: 'organizationId'),
+        ),
+      ),
+    );
+
+    blocTest<UserManagementBloc, UserManagementState>(
+      'deleting your own account is refused before sending',
+      build: () => buildBloc(currentMemberId: 'member-1'),
+      seed: () => UserManagementState.loaded(members: _members),
+      act: (bloc) =>
+          bloc.add(const UserManagementEvent.deleteMemberRequested(_member1)),
+      expect: () => [
+        isA<UserManagementLoaded>()
+            .having(
+              (s) => s.feedbackMessage,
+              'feedbackMessage',
+              'Vous ne pouvez pas supprimer votre propre compte.',
+            )
+            .having((s) => s.feedbackIsError, 'feedbackIsError', isTrue),
+      ],
+      verify: (_) => verifyNever(
+        () => memberRepo.delete(
+          memberId: any(named: 'memberId'),
+          organizationId: any(named: 'organizationId'),
+        ),
+      ),
+    );
+
+    blocTest<UserManagementBloc, UserManagementState>(
+      'a deletion refused by the server is reported to the admin',
+      setUp: () {
+        stubDelete('op-del');
+        when(
+          () => syncRepository.sync(tenantId: any(named: 'tenantId')),
+        ).thenAnswer(
+          (_) async => const SyncOutcome.success(
+            rejectedMutations: [
+              MutationOutcome(
+                clientOpId: 'op-del',
+                status: MutationStatus.rejected,
+                error: MutationError(
+                  code: MutationErrorCode.forbidden,
+                  message: 'forbidden',
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      build: buildBloc,
+      seed: () => UserManagementState.loaded(members: _members),
+      act: (bloc) =>
+          bloc.add(const UserManagementEvent.deleteMemberRequested(_member1)),
+      skip: 1,
+      expect: () => [
+        isA<UserManagementLoaded>()
+            .having((s) => s.deletingMemberIds, 'deletingMemberIds', isEmpty)
+            .having(
+              (s) => s.feedbackMessage,
+              'feedbackMessage',
+              'La suppression du membre a été refusée par le serveur.',
+            )
+            .having((s) => s.feedbackIsError, 'feedbackIsError', isTrue),
+      ],
     );
   });
 }

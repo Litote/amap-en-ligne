@@ -23,7 +23,8 @@ enum class DeletedAccountRole {
  * non-identifying data:
  *  - [deletedSubHash] is `SHA-256(sub)` so the original sub is not retained.
  *  - No name, email, phone, address, or org affiliation.
- *  - [actorOwnerId] is kept verbatim — the Owner who performed the action is
+ *  - [actorId] (the auth `sub` of whoever performed the action — an instance Owner or an
+ *    organization Admin, see [actorRole]) is kept verbatim: the actor is
  *    not the subject of the right-to-erasure here.
  */
 @Serializable
@@ -32,5 +33,12 @@ data class AccountDeletionLog(
     @SerialName("deleted_sub_hash") val deletedSubHash: String,
     @SerialName("deleted_role") val deletedRole: DeletedAccountRole,
     @SerialName("deleted_at") val deletedAt: Instant,
-    @SerialName("actor_owner_id") val actorOwnerId: Id<Owner>,
+    @SerialName("actor_id") val actorId: String,
+    @SerialName("actor_role") val actorRole: DeletionActorRole,
 )
+
+/** Who performed an account deletion: an instance Owner or the Admin of the member's organization. */
+enum class DeletionActorRole {
+    OWNER,
+    ADMIN,
+}

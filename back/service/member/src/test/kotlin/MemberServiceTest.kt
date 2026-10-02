@@ -31,6 +31,7 @@ import persistence.dao.OrganizationSyncDAO
 import persistence.dao.OwnerSyncDAO
 import persistence.model.Contract
 import persistence.model.ContractStatus
+import persistence.model.DeletionActorRole
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
@@ -481,7 +482,11 @@ internal class MemberServiceTest {
             assertEquals(MutationStatus.APPLIED, outcome.status)
             coVerify(exactly = 1) { memberSyncDAO.anonymiseBySub("sub-target", any()) }
             coVerify(exactly = 1) { userProvisioningPort.deleteUser("sub-target") }
-            coVerify(exactly = 1) { accountDeletionLogDAO.append(any()) }
+            coVerify(exactly = 1) {
+                accountDeletionLogDAO.append(
+                    match { it.actorId == ownerAuth.memberId && it.actorRole == DeletionActorRole.OWNER },
+                )
+            }
             coVerify(exactly = 0) { memberSyncDAO.delete(any(), any(), any()) }
         }
 
@@ -814,5 +819,103 @@ internal class MemberServiceTest {
             val outcome = service.applyUpsert(adminAuth, buildMutation(updated), MemberPayload(updated))
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    // ── Delete authorization ────────────────────────────────────────────────
+
+    private val coordinatorAuth = volunteerAuth.copy(memberId = "coordinator-sub", roles = listOf(Role.COORDINATOR, Role.VOLUNTEER))
+
+    @Test
+    fun `GIVEN non-admin callers WHEN deleting another member THEN REJECTED FORBIDDEN and nothing is written`() =
+        runTest {
+            listOf(volunteerAuth, coordinatorAuth, nonAdminAuth).forEach { caller ->
+                val memberSyncDAO = mockk<MemberSyncDAO>()
+                val service = buildService(memberSyncDAO)
+                coEvery { memberSyncDAO.getByOrganizationId(any()) } returns listOf(buildMember(id = "target-sub"))
+
+                val outcome =
+                    service.applyDelete(caller, buildDeleteMutation("target-sub"), Delete(EntityType.Member, "target-sub"))
+
+                assertEquals(MutationStatus.REJECTED, outcome.status, "caller ${caller.roles}")
+                assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code, "caller ${caller.roles}")
+                coVerify(exactly = 0) { memberSyncDAO.delete(any(), any(), any()) }
+                coVerify(exactly = 0) { memberSyncDAO.anonymiseBySub(any(), any()) }
+            }
+        }
+
+    @Test
+    fun `GIVEN ADMIN WHEN deleting an account-backed member of the org THEN anonymises it and deletes the auth user`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val service = buildService(memberSyncDAO)
+            val target = buildMember(id = "target-sub")
+            val admin = buildMember(id = adminAuth.memberId, roles = setOf(Role.ADMIN))
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(admin, target)
+            coEvery { memberSyncDAO.getMembersBySub("target-sub") } returns listOf(target)
+            coEvery { memberSyncDAO.anonymiseBySub(any(), any()) } returns Unit
+
+            val outcome = service.applyDelete(adminAuth, buildDeleteMutation("target-sub"), Delete(EntityType.Member, "target-sub"))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            coVerify(exactly = 1) { memberSyncDAO.anonymiseBySub("target-sub", any()) }
+            coVerify(exactly = 1) { userProvisioningPort.deleteUser("target-sub") }
+            coVerify(exactly = 1) {
+                accountDeletionLogDAO.append(
+                    match { it.actorId == adminAuth.memberId && it.actorRole == DeletionActorRole.ADMIN },
+                )
+            }
+            coVerify(exactly = 0) { memberSyncDAO.delete(any(), any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN ADMIN WHEN deleting a never-synced tmp member THEN the row is hard-deleted`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val service = buildService(memberSyncDAO)
+            val target = buildMember(id = "tmp_member")
+            val admin = buildMember(id = adminAuth.memberId, roles = setOf(Role.ADMIN))
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(admin, target)
+            coEvery { memberSyncDAO.delete(any(), any(), any()) } returns Unit
+
+            val outcome = service.applyDelete(adminAuth, buildDeleteMutation("tmp_member"), Delete(EntityType.Member, "tmp_member"))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            coVerify(exactly = 1) { memberSyncDAO.delete("tmp_member".toId(), organizationId.toId(), any()) }
+            coVerify(exactly = 0) { userProvisioningPort.deleteUser(any()) }
+        }
+
+    @Test
+    fun `GIVEN ADMIN WHEN deleting a member of another organization THEN REJECTED NOT_FOUND`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val service = buildService(memberSyncDAO)
+            val admin = buildMember(id = adminAuth.memberId, roles = setOf(Role.ADMIN))
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(admin)
+
+            val outcome =
+                service.applyDelete(adminAuth, buildDeleteMutation("other-org-member"), Delete(EntityType.Member, "other-org-member"))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.NOT_FOUND, outcome.error?.code)
+            coVerify(exactly = 0) { memberSyncDAO.delete(any(), any(), any()) }
+            coVerify(exactly = 0) { memberSyncDAO.anonymiseBySub(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN ADMIN WHEN deleting their own member row THEN REJECTED SELF_ACTION_FORBIDDEN`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val service = buildService(memberSyncDAO)
+            val admin = buildMember(id = adminAuth.memberId, roles = setOf(Role.ADMIN))
+            val otherAdmin = buildMember(id = "other-admin", roles = setOf(Role.ADMIN))
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(admin, otherAdmin)
+
+            val outcome =
+                service.applyDelete(adminAuth, buildDeleteMutation(adminAuth.memberId), Delete(EntityType.Member, adminAuth.memberId))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.SELF_ACTION_FORBIDDEN, outcome.error?.code)
+            coVerify(exactly = 0) { memberSyncDAO.delete(any(), any(), any()) }
+            coVerify(exactly = 0) { memberSyncDAO.anonymiseBySub(any(), any()) }
         }
 }

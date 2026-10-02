@@ -23,11 +23,16 @@ class UserManagementScreen extends StatelessWidget {
   const UserManagementScreen({
     required this.organizationId,
     required this.canEditAdminRole,
+    required this.currentMemberId,
     super.key,
   });
 
   final String organizationId;
   final bool canEditAdminRole;
+
+  /// Auth `sub` of the caller (== their member id): their own row offers no
+  /// delete action.
+  final String currentMemberId;
 
   @override
   Widget build(BuildContext context) => BlocProvider(
@@ -38,13 +43,16 @@ class UserManagementScreen extends StatelessWidget {
       database: context.read<AppDatabase>(),
       organizationId: organizationId,
       canEditAdminRole: canEditAdminRole,
+      currentMemberId: currentMemberId,
     )..add(const UserManagementEvent.loadRequested()),
-    child: const _UserManagementView(),
+    child: _UserManagementView(currentMemberId: currentMemberId),
   );
 }
 
 class _UserManagementView extends StatelessWidget {
-  const _UserManagementView();
+  const _UserManagementView({required this.currentMemberId});
+
+  final String currentMemberId;
 
   static bool _listenWhen(
     UserManagementState previous,
@@ -118,7 +126,10 @@ class _UserManagementView extends StatelessWidget {
                     const UserManagementEvent.loadRequested(),
                   ),
                 ),
-                UserManagementLoaded() => _LoadedBody(state: state),
+                UserManagementLoaded() => _LoadedBody(
+                  state: state,
+                  currentMemberId: currentMemberId,
+                ),
               },
             );
           },
@@ -155,9 +166,10 @@ class _UserManagementView extends StatelessWidget {
 }
 
 class _LoadedBody extends StatelessWidget {
-  const _LoadedBody({required this.state});
+  const _LoadedBody({required this.state, required this.currentMemberId});
 
   final UserManagementLoaded state;
+  final String currentMemberId;
 
   @override
   Widget build(BuildContext context) {
@@ -240,6 +252,10 @@ class _LoadedBody extends StatelessWidget {
                       Member() => _MemberTile(
                         member: item,
                         searchQuery: state.searchQuery,
+                        canDelete: item.memberId != currentMemberId,
+                        deleting: state.deletingMemberIds.contains(
+                          item.memberId,
+                        ),
                       ),
                       _ => const SizedBox.shrink(),
                     };
@@ -472,10 +488,19 @@ class _SearchAndFilterBar extends StatelessWidget {
 }
 
 class _MemberTile extends StatelessWidget {
-  const _MemberTile({required this.member, required this.searchQuery});
+  const _MemberTile({
+    required this.member,
+    required this.searchQuery,
+    required this.canDelete,
+    required this.deleting,
+  });
 
   final Member member;
   final String searchQuery;
+
+  /// False on the caller's own row: an admin cannot delete their own account.
+  final bool canDelete;
+  final bool deleting;
 
   @override
   Widget build(BuildContext context) {
@@ -509,14 +534,38 @@ class _MemberTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: subtitleLines,
             ),
-      trailing: IconButton(
-        icon: const Icon(Icons.settings),
-        tooltip: _kEditRolesTitle,
-        onPressed: () => context.read<UserManagementBloc>().add(
-          UserManagementEvent.editRolesRequested(member),
-        ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: _kEditRolesTitle,
+            onPressed: () => context.read<UserManagementBloc>().add(
+              UserManagementEvent.editRolesRequested(member),
+            ),
+          ),
+          if (canDelete)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: _kDeleteMemberTooltip,
+              onPressed: deleting ? null : () => _confirmDelete(context),
+            ),
+        ],
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final bloc = context.read<UserManagementBloc>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      useRootNavigator: true,
+      builder: (_) =>
+          _ConfirmDeleteMemberDialog(displayName: _formatMemberName(member)),
+    );
+    if (confirmed == true) {
+      bloc.add(UserManagementEvent.deleteMemberRequested(member));
+    }
   }
 
   String _formatMemberName(Member member) {
@@ -566,6 +615,55 @@ class _HighlightedText extends StatelessWidget {
     }
     if (start < text.length) spans.add(TextSpan(text: text.substring(start)));
     return Text.rich(TextSpan(children: spans), style: style);
+  }
+}
+
+class _ConfirmDeleteMemberDialog extends StatelessWidget {
+  const _ConfirmDeleteMemberDialog({required this.displayName});
+
+  final String displayName;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return AlertDialog(
+      title: const Text(_kDeleteMemberTitle),
+      semanticLabel: _kDeleteMemberTitle,
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Membre : $displayName'),
+          const SizedBox(height: 12),
+          Text(
+            'Action irréversible',
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.error,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Le compte de connexion du membre est supprimé et ses données '
+            'personnelles (nom, email, téléphone) sont effacées. '
+            "L'historique des contrats et des livraisons est conservé.",
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('ANNULER'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: theme.colorScheme.error,
+            foregroundColor: theme.colorScheme.onError,
+          ),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('SUPPRIMER'),
+        ),
+      ],
+    );
   }
 }
 
@@ -960,6 +1058,8 @@ String _roleLabel(Role role) => switch (role) {
 /// Leaving a field empty keeps the per-member default copy server-side.
 const _kInviteMemberTitle = 'Inviter un membre';
 const _kEditRolesTitle = 'Modifier les rôles';
+const _kDeleteMemberTooltip = 'Supprimer le membre';
+const _kDeleteMemberTitle = 'Supprimer ce membre ?';
 
 /// Bottom padding of the list: FAB height (56) + its margins (2 × 16).
 const _kFabClearance = 88.0;

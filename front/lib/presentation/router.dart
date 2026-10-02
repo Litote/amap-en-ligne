@@ -576,6 +576,8 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
               (tenantId) => UserManagementScreen(
                 organizationId: tenantId,
                 canEditAdminRole: authBloc.state.isAdmin,
+                // memberId == sub (`producerId` holds the JWT sub).
+                currentMemberId: authBloc.state.producerId ?? '',
               ),
             ),
           ),

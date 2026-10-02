@@ -5,18 +5,25 @@ package activation
 import authentication.Role
 import core.UserProvisioningPort
 import core.memberInvitationChanges
+import core.withMemberIdReplaced
 import id.Id
 import id.toId
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
+import persistence.changes.BasketExchangePayload
 import persistence.changes.Change
 import persistence.changes.ChangeOp
+import persistence.changes.ContractPayload
 import persistence.changes.Cursor
+import persistence.changes.EntityPayload
 import persistence.changes.MemberPayload
+import persistence.changes.OrganizationPayload
 import persistence.changes.ProducerAccountPayload
 import persistence.changes.ProducerPayload
 import persistence.changes.SyncScope
 import persistence.dao.ActivationTokenDAO
+import persistence.dao.BasketExchangeSyncDAO
+import persistence.dao.ContractSyncDAO
 import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationRequestDAO
@@ -30,6 +37,7 @@ import persistence.dao.ServerDAO
 import persistence.model.AccountStatus
 import persistence.model.ActivateResponse
 import persistence.model.ActivationKind
+import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
 import persistence.model.MemberInvitation
@@ -62,6 +70,8 @@ class ActivationService(
     private val memberSyncDAO: MemberSyncDAO,
     private val ownerInvitationDAO: OwnerInvitationSyncDAO,
     private val ownerDAO: OwnerSyncDAO,
+    private val contractSyncDAO: ContractSyncDAO,
+    private val basketExchangeSyncDAO: BasketExchangeSyncDAO,
 ) {
     /**
      * Read-only preview of [token] for the activation screen: which account (email, kind,
@@ -314,9 +324,25 @@ class ActivationService(
                         organizationId = invitation.organizationId.id,
                         roles = invitation.roles,
                     )
+                // A member imported without auth account (same email, letter case ignored) is
+                // re-keyed below instead of being duplicated: its subscriptions and history follow.
+                val imported =
+                    memberSyncDAO
+                        .getByOrganizationId(invitation.organizationId)
+                        .find { it.memberId.id != sub && it.email.equals(invitation.email, ignoreCase = true) }
                 // memberId == sub: the auth subject is used directly as the member id.
                 val member =
-                    Member(
+                    imported?.copy(
+                        memberId = sub.toId(),
+                        // The roles granted to the auth user, so the JWT and the row agree.
+                        roles = invitation.roles,
+                        firstName = imported.firstName ?: invitation.firstName,
+                        lastName = imported.lastName ?: invitation.lastName,
+                        email = invitation.email,
+                        accountStatus = MemberAccountStatus.ACTIVE,
+                        registeredAt = now,
+                        userSettings = imported.userSettings.copy(serverId = serverId),
+                    ) ?: Member(
                         memberId = sub.toId(),
                         organizationId = invitation.organizationId,
                         roles = invitation.roles,
@@ -346,6 +372,7 @@ class ActivationService(
                             ),
                     )
                 memberSyncDAO.put(member, buildMemberChanges(member))
+                if (imported != null) rekeyImportedMember(imported, member)
 
                 val updatedInvitation =
                     invitation.copy(
@@ -426,6 +453,83 @@ class ActivationService(
             scopeKey = SyncScope.InstanceOwner.key,
             op = ChangeOp.UPSERT,
             payload = persistence.changes.OwnerInvitationPayload(invitation),
+            producedAt = System.currentTimeMillis(),
+        )
+
+    /**
+     * Moves every reference to the [imported] member onto [activated] (its new `memberId == sub`),
+     * then removes the imported row. The new row is written first so the member is never missing.
+     */
+    private suspend fun rekeyImportedMember(
+        imported: Member,
+        activated: Member,
+    ) {
+        val organizationId = imported.organizationId
+        val scopeKey = SyncScope.Organization(organizationId.id).key
+        val from = imported.memberId
+        val to = activated.memberId
+        organizationSyncDAO.getById(organizationId)?.let { organization ->
+            val rewritten = organization.withMemberIdReplaced(from, to)
+            if (rewritten !== organization) {
+                organizationSyncDAO.put(
+                    rewritten,
+                    upsertChange(EntityType.Organization, organizationId.id, scopeKey, OrganizationPayload(rewritten)),
+                )
+            }
+        }
+        contractSyncDAO.getByOrganizationId(organizationId).forEach { contract ->
+            val rewritten = contract.withMemberIdReplaced(from, to)
+            if (rewritten !== contract) {
+                contractSyncDAO.put(
+                    rewritten,
+                    upsertChange(EntityType.Contract, rewritten.contractId.id, scopeKey, ContractPayload(rewritten)),
+                )
+            }
+        }
+        basketExchangeSyncDAO.getByOrganizationId(organizationId).forEach { exchange ->
+            val rewritten = exchange.withMemberIdReplaced(from, to)
+            if (rewritten !== exchange) {
+                basketExchangeSyncDAO.put(
+                    rewritten,
+                    upsertChange(
+                        EntityType.BasketExchange,
+                        rewritten.basketExchangeId.id,
+                        scopeKey,
+                        BasketExchangePayload(rewritten),
+                    ),
+                )
+            }
+        }
+        memberSyncDAO.delete(
+            from,
+            organizationId,
+            listOf(scopeKey, SyncScope.InstanceOwner.key).map { key ->
+                Change(
+                    cursor = Cursor.next(),
+                    entityType = EntityType.Member,
+                    entityId = from.id,
+                    scopeKey = key,
+                    op = ChangeOp.DELETE,
+                    payload = null,
+                    producedAt = System.currentTimeMillis(),
+                )
+            },
+        )
+    }
+
+    private fun upsertChange(
+        entityType: EntityType,
+        entityId: String,
+        scopeKey: String,
+        payload: EntityPayload,
+    ): Change =
+        Change(
+            cursor = Cursor.next(),
+            entityType = entityType,
+            entityId = entityId,
+            scopeKey = scopeKey,
+            op = ChangeOp.UPSERT,
+            payload = payload,
             producedAt = System.currentTimeMillis(),
         )
 

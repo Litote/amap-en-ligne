@@ -63,10 +63,30 @@ d'activation est envoyé.
 Touchez **[MODIFIER]** pour ouvrir la fiche du membre. Vous pouvez :
 
 - corriger ses informations (prénom, nom, téléphone) ;
-- changer son **statut** : **Actif**, **Suspendu**, ou **Supprimer de l'organisation** ;
 - ajuster ses **rôles** (plusieurs rôles possibles simultanément).
 
 Touchez **[SAUVEGARDER]**.
+
+## Supprimer un membre
+
+Sur la ligne du membre, touchez l'icône 🗑 **Supprimer le membre**, puis confirmez avec
+**[SUPPRIMER]**. L'icône n'apparaît pas sur votre propre ligne.
+
+Ce que fait la suppression :
+
+- le membre **ne peut plus se connecter** : son compte est supprimé ;
+- ses **nom, prénom, e-mail et téléphone sont effacés** de sa fiche ;
+- son **historique est conservé** sans son nom (contrats, paniers, participations), pour
+  que les comptes de l'AMAP restent justes ;
+- il reçoit un e-mail l'informant de la suppression.
+
+La suppression est **définitive**. Pour une absence ou une pause, préférez la
+suspension. Vous pourrez réinviter la même adresse plus tard : la personne repartira
+d'un compte neuf, sans son ancien historique.
+
+> Certaines traces ne sont pas effacées automatiquement (nom recopié sur les feuilles
+> d'émargement passées, ancienne invitation, notifications déjà reçues). Pour une
+> demande d'effacement complet, contactez l'administrateur de votre instance.
 
 ## Règles importantes sur les rôles
 

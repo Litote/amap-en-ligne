@@ -41,6 +41,11 @@ sealed class UserManagementEvent with _$UserManagementEvent {
     MemberInvitation invitation,
   ) = _DeleteInvitationRequested;
 
+  /// Deletes an existing member: the back anonymises an account-backed member
+  /// and deletes its auth user, or removes a member without account.
+  const factory UserManagementEvent.deleteMemberRequested(Member member) =
+      _DeleteMemberRequested;
+
   /// Re-sends the connection/invitation email to every still-pending invitation,
   /// optionally overriding the default email subject/body for this send.
   const factory UserManagementEvent.resendAllPendingRequested({

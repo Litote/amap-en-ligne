@@ -56,7 +56,7 @@ extension UserManagementEventPatterns on UserManagementEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadRequested value)?  loadRequested,TResult Function( _SearchChanged value)?  searchChanged,TResult Function( _RoleFilterChanged value)?  roleFilterChanged,TResult Function( _InvitationStatusFilterChanged value)?  invitationStatusFilterChanged,TResult Function( _UserStatusFilterChanged value)?  userStatusFilterChanged,TResult Function( _EditRolesRequested value)?  editRolesRequested,TResult Function( _RoleToggled value)?  roleToggled,TResult Function( _SaveRolesRequested value)?  saveRolesRequested,TResult Function( _EditCancelled value)?  editCancelled,TResult Function( _ShowInviteForm value)?  showInviteForm,TResult Function( _InviteFirstNameChanged value)?  inviteFirstNameChanged,TResult Function( _InviteLastNameChanged value)?  inviteLastNameChanged,TResult Function( _InviteEmailChanged value)?  inviteEmailChanged,TResult Function( _InviteRoleToggled value)?  inviteRoleToggled,TResult Function( _ResendInvitationRequested value)?  resendInvitationRequested,TResult Function( _DeleteInvitationRequested value)?  deleteInvitationRequested,TResult Function( _ResendAllPendingRequested value)?  resendAllPendingRequested,TResult Function( _SubmitInvitation value)?  submitInvitation,TResult Function( _DismissInviteForm value)?  dismissInviteForm,TResult Function( _FeedbackDismissed value)?  feedbackDismissed,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadRequested value)?  loadRequested,TResult Function( _SearchChanged value)?  searchChanged,TResult Function( _RoleFilterChanged value)?  roleFilterChanged,TResult Function( _InvitationStatusFilterChanged value)?  invitationStatusFilterChanged,TResult Function( _UserStatusFilterChanged value)?  userStatusFilterChanged,TResult Function( _EditRolesRequested value)?  editRolesRequested,TResult Function( _RoleToggled value)?  roleToggled,TResult Function( _SaveRolesRequested value)?  saveRolesRequested,TResult Function( _EditCancelled value)?  editCancelled,TResult Function( _ShowInviteForm value)?  showInviteForm,TResult Function( _InviteFirstNameChanged value)?  inviteFirstNameChanged,TResult Function( _InviteLastNameChanged value)?  inviteLastNameChanged,TResult Function( _InviteEmailChanged value)?  inviteEmailChanged,TResult Function( _InviteRoleToggled value)?  inviteRoleToggled,TResult Function( _ResendInvitationRequested value)?  resendInvitationRequested,TResult Function( _DeleteInvitationRequested value)?  deleteInvitationRequested,TResult Function( _DeleteMemberRequested value)?  deleteMemberRequested,TResult Function( _ResendAllPendingRequested value)?  resendAllPendingRequested,TResult Function( _SubmitInvitation value)?  submitInvitation,TResult Function( _DismissInviteForm value)?  dismissInviteForm,TResult Function( _FeedbackDismissed value)?  feedbackDismissed,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadRequested() when loadRequested != null:
@@ -75,7 +75,8 @@ return inviteLastNameChanged(_that);case _InviteEmailChanged() when inviteEmailC
 return inviteEmailChanged(_that);case _InviteRoleToggled() when inviteRoleToggled != null:
 return inviteRoleToggled(_that);case _ResendInvitationRequested() when resendInvitationRequested != null:
 return resendInvitationRequested(_that);case _DeleteInvitationRequested() when deleteInvitationRequested != null:
-return deleteInvitationRequested(_that);case _ResendAllPendingRequested() when resendAllPendingRequested != null:
+return deleteInvitationRequested(_that);case _DeleteMemberRequested() when deleteMemberRequested != null:
+return deleteMemberRequested(_that);case _ResendAllPendingRequested() when resendAllPendingRequested != null:
 return resendAllPendingRequested(_that);case _SubmitInvitation() when submitInvitation != null:
 return submitInvitation(_that);case _DismissInviteForm() when dismissInviteForm != null:
 return dismissInviteForm(_that);case _FeedbackDismissed() when feedbackDismissed != null:
@@ -97,7 +98,7 @@ return feedbackDismissed(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadRequested value)  loadRequested,required TResult Function( _SearchChanged value)  searchChanged,required TResult Function( _RoleFilterChanged value)  roleFilterChanged,required TResult Function( _InvitationStatusFilterChanged value)  invitationStatusFilterChanged,required TResult Function( _UserStatusFilterChanged value)  userStatusFilterChanged,required TResult Function( _EditRolesRequested value)  editRolesRequested,required TResult Function( _RoleToggled value)  roleToggled,required TResult Function( _SaveRolesRequested value)  saveRolesRequested,required TResult Function( _EditCancelled value)  editCancelled,required TResult Function( _ShowInviteForm value)  showInviteForm,required TResult Function( _InviteFirstNameChanged value)  inviteFirstNameChanged,required TResult Function( _InviteLastNameChanged value)  inviteLastNameChanged,required TResult Function( _InviteEmailChanged value)  inviteEmailChanged,required TResult Function( _InviteRoleToggled value)  inviteRoleToggled,required TResult Function( _ResendInvitationRequested value)  resendInvitationRequested,required TResult Function( _DeleteInvitationRequested value)  deleteInvitationRequested,required TResult Function( _ResendAllPendingRequested value)  resendAllPendingRequested,required TResult Function( _SubmitInvitation value)  submitInvitation,required TResult Function( _DismissInviteForm value)  dismissInviteForm,required TResult Function( _FeedbackDismissed value)  feedbackDismissed,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadRequested value)  loadRequested,required TResult Function( _SearchChanged value)  searchChanged,required TResult Function( _RoleFilterChanged value)  roleFilterChanged,required TResult Function( _InvitationStatusFilterChanged value)  invitationStatusFilterChanged,required TResult Function( _UserStatusFilterChanged value)  userStatusFilterChanged,required TResult Function( _EditRolesRequested value)  editRolesRequested,required TResult Function( _RoleToggled value)  roleToggled,required TResult Function( _SaveRolesRequested value)  saveRolesRequested,required TResult Function( _EditCancelled value)  editCancelled,required TResult Function( _ShowInviteForm value)  showInviteForm,required TResult Function( _InviteFirstNameChanged value)  inviteFirstNameChanged,required TResult Function( _InviteLastNameChanged value)  inviteLastNameChanged,required TResult Function( _InviteEmailChanged value)  inviteEmailChanged,required TResult Function( _InviteRoleToggled value)  inviteRoleToggled,required TResult Function( _ResendInvitationRequested value)  resendInvitationRequested,required TResult Function( _DeleteInvitationRequested value)  deleteInvitationRequested,required TResult Function( _DeleteMemberRequested value)  deleteMemberRequested,required TResult Function( _ResendAllPendingRequested value)  resendAllPendingRequested,required TResult Function( _SubmitInvitation value)  submitInvitation,required TResult Function( _DismissInviteForm value)  dismissInviteForm,required TResult Function( _FeedbackDismissed value)  feedbackDismissed,}){
 final _that = this;
 switch (_that) {
 case _LoadRequested():
@@ -116,7 +117,8 @@ return inviteLastNameChanged(_that);case _InviteEmailChanged():
 return inviteEmailChanged(_that);case _InviteRoleToggled():
 return inviteRoleToggled(_that);case _ResendInvitationRequested():
 return resendInvitationRequested(_that);case _DeleteInvitationRequested():
-return deleteInvitationRequested(_that);case _ResendAllPendingRequested():
+return deleteInvitationRequested(_that);case _DeleteMemberRequested():
+return deleteMemberRequested(_that);case _ResendAllPendingRequested():
 return resendAllPendingRequested(_that);case _SubmitInvitation():
 return submitInvitation(_that);case _DismissInviteForm():
 return dismissInviteForm(_that);case _FeedbackDismissed():
@@ -134,7 +136,7 @@ return feedbackDismissed(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadRequested value)?  loadRequested,TResult? Function( _SearchChanged value)?  searchChanged,TResult? Function( _RoleFilterChanged value)?  roleFilterChanged,TResult? Function( _InvitationStatusFilterChanged value)?  invitationStatusFilterChanged,TResult? Function( _UserStatusFilterChanged value)?  userStatusFilterChanged,TResult? Function( _EditRolesRequested value)?  editRolesRequested,TResult? Function( _RoleToggled value)?  roleToggled,TResult? Function( _SaveRolesRequested value)?  saveRolesRequested,TResult? Function( _EditCancelled value)?  editCancelled,TResult? Function( _ShowInviteForm value)?  showInviteForm,TResult? Function( _InviteFirstNameChanged value)?  inviteFirstNameChanged,TResult? Function( _InviteLastNameChanged value)?  inviteLastNameChanged,TResult? Function( _InviteEmailChanged value)?  inviteEmailChanged,TResult? Function( _InviteRoleToggled value)?  inviteRoleToggled,TResult? Function( _ResendInvitationRequested value)?  resendInvitationRequested,TResult? Function( _DeleteInvitationRequested value)?  deleteInvitationRequested,TResult? Function( _ResendAllPendingRequested value)?  resendAllPendingRequested,TResult? Function( _SubmitInvitation value)?  submitInvitation,TResult? Function( _DismissInviteForm value)?  dismissInviteForm,TResult? Function( _FeedbackDismissed value)?  feedbackDismissed,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadRequested value)?  loadRequested,TResult? Function( _SearchChanged value)?  searchChanged,TResult? Function( _RoleFilterChanged value)?  roleFilterChanged,TResult? Function( _InvitationStatusFilterChanged value)?  invitationStatusFilterChanged,TResult? Function( _UserStatusFilterChanged value)?  userStatusFilterChanged,TResult? Function( _EditRolesRequested value)?  editRolesRequested,TResult? Function( _RoleToggled value)?  roleToggled,TResult? Function( _SaveRolesRequested value)?  saveRolesRequested,TResult? Function( _EditCancelled value)?  editCancelled,TResult? Function( _ShowInviteForm value)?  showInviteForm,TResult? Function( _InviteFirstNameChanged value)?  inviteFirstNameChanged,TResult? Function( _InviteLastNameChanged value)?  inviteLastNameChanged,TResult? Function( _InviteEmailChanged value)?  inviteEmailChanged,TResult? Function( _InviteRoleToggled value)?  inviteRoleToggled,TResult? Function( _ResendInvitationRequested value)?  resendInvitationRequested,TResult? Function( _DeleteInvitationRequested value)?  deleteInvitationRequested,TResult? Function( _DeleteMemberRequested value)?  deleteMemberRequested,TResult? Function( _ResendAllPendingRequested value)?  resendAllPendingRequested,TResult? Function( _SubmitInvitation value)?  submitInvitation,TResult? Function( _DismissInviteForm value)?  dismissInviteForm,TResult? Function( _FeedbackDismissed value)?  feedbackDismissed,}){
 final _that = this;
 switch (_that) {
 case _LoadRequested() when loadRequested != null:
@@ -153,7 +155,8 @@ return inviteLastNameChanged(_that);case _InviteEmailChanged() when inviteEmailC
 return inviteEmailChanged(_that);case _InviteRoleToggled() when inviteRoleToggled != null:
 return inviteRoleToggled(_that);case _ResendInvitationRequested() when resendInvitationRequested != null:
 return resendInvitationRequested(_that);case _DeleteInvitationRequested() when deleteInvitationRequested != null:
-return deleteInvitationRequested(_that);case _ResendAllPendingRequested() when resendAllPendingRequested != null:
+return deleteInvitationRequested(_that);case _DeleteMemberRequested() when deleteMemberRequested != null:
+return deleteMemberRequested(_that);case _ResendAllPendingRequested() when resendAllPendingRequested != null:
 return resendAllPendingRequested(_that);case _SubmitInvitation() when submitInvitation != null:
 return submitInvitation(_that);case _DismissInviteForm() when dismissInviteForm != null:
 return dismissInviteForm(_that);case _FeedbackDismissed() when feedbackDismissed != null:
@@ -174,7 +177,7 @@ return feedbackDismissed(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadRequested,TResult Function( String query)?  searchChanged,TResult Function( Role? role)?  roleFilterChanged,TResult Function( InvitationStatusFilter filter)?  invitationStatusFilterChanged,TResult Function( UserStatusFilter filter)?  userStatusFilterChanged,TResult Function( Member member)?  editRolesRequested,TResult Function( Role role,  bool isChecked)?  roleToggled,TResult Function()?  saveRolesRequested,TResult Function()?  editCancelled,TResult Function()?  showInviteForm,TResult Function( String value)?  inviteFirstNameChanged,TResult Function( String value)?  inviteLastNameChanged,TResult Function( String value)?  inviteEmailChanged,TResult Function( Role role,  bool isChecked)?  inviteRoleToggled,TResult Function( MemberInvitation invitation)?  resendInvitationRequested,TResult Function( MemberInvitation invitation)?  deleteInvitationRequested,TResult Function( String? customEmailSubject,  String? customEmailBody)?  resendAllPendingRequested,TResult Function()?  submitInvitation,TResult Function()?  dismissInviteForm,TResult Function()?  feedbackDismissed,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadRequested,TResult Function( String query)?  searchChanged,TResult Function( Role? role)?  roleFilterChanged,TResult Function( InvitationStatusFilter filter)?  invitationStatusFilterChanged,TResult Function( UserStatusFilter filter)?  userStatusFilterChanged,TResult Function( Member member)?  editRolesRequested,TResult Function( Role role,  bool isChecked)?  roleToggled,TResult Function()?  saveRolesRequested,TResult Function()?  editCancelled,TResult Function()?  showInviteForm,TResult Function( String value)?  inviteFirstNameChanged,TResult Function( String value)?  inviteLastNameChanged,TResult Function( String value)?  inviteEmailChanged,TResult Function( Role role,  bool isChecked)?  inviteRoleToggled,TResult Function( MemberInvitation invitation)?  resendInvitationRequested,TResult Function( MemberInvitation invitation)?  deleteInvitationRequested,TResult Function( Member member)?  deleteMemberRequested,TResult Function( String? customEmailSubject,  String? customEmailBody)?  resendAllPendingRequested,TResult Function()?  submitInvitation,TResult Function()?  dismissInviteForm,TResult Function()?  feedbackDismissed,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadRequested() when loadRequested != null:
 return loadRequested();case _SearchChanged() when searchChanged != null:
@@ -192,7 +195,8 @@ return inviteLastNameChanged(_that.value);case _InviteEmailChanged() when invite
 return inviteEmailChanged(_that.value);case _InviteRoleToggled() when inviteRoleToggled != null:
 return inviteRoleToggled(_that.role,_that.isChecked);case _ResendInvitationRequested() when resendInvitationRequested != null:
 return resendInvitationRequested(_that.invitation);case _DeleteInvitationRequested() when deleteInvitationRequested != null:
-return deleteInvitationRequested(_that.invitation);case _ResendAllPendingRequested() when resendAllPendingRequested != null:
+return deleteInvitationRequested(_that.invitation);case _DeleteMemberRequested() when deleteMemberRequested != null:
+return deleteMemberRequested(_that.member);case _ResendAllPendingRequested() when resendAllPendingRequested != null:
 return resendAllPendingRequested(_that.customEmailSubject,_that.customEmailBody);case _SubmitInvitation() when submitInvitation != null:
 return submitInvitation();case _DismissInviteForm() when dismissInviteForm != null:
 return dismissInviteForm();case _FeedbackDismissed() when feedbackDismissed != null:
@@ -214,7 +218,7 @@ return feedbackDismissed();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadRequested,required TResult Function( String query)  searchChanged,required TResult Function( Role? role)  roleFilterChanged,required TResult Function( InvitationStatusFilter filter)  invitationStatusFilterChanged,required TResult Function( UserStatusFilter filter)  userStatusFilterChanged,required TResult Function( Member member)  editRolesRequested,required TResult Function( Role role,  bool isChecked)  roleToggled,required TResult Function()  saveRolesRequested,required TResult Function()  editCancelled,required TResult Function()  showInviteForm,required TResult Function( String value)  inviteFirstNameChanged,required TResult Function( String value)  inviteLastNameChanged,required TResult Function( String value)  inviteEmailChanged,required TResult Function( Role role,  bool isChecked)  inviteRoleToggled,required TResult Function( MemberInvitation invitation)  resendInvitationRequested,required TResult Function( MemberInvitation invitation)  deleteInvitationRequested,required TResult Function( String? customEmailSubject,  String? customEmailBody)  resendAllPendingRequested,required TResult Function()  submitInvitation,required TResult Function()  dismissInviteForm,required TResult Function()  feedbackDismissed,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadRequested,required TResult Function( String query)  searchChanged,required TResult Function( Role? role)  roleFilterChanged,required TResult Function( InvitationStatusFilter filter)  invitationStatusFilterChanged,required TResult Function( UserStatusFilter filter)  userStatusFilterChanged,required TResult Function( Member member)  editRolesRequested,required TResult Function( Role role,  bool isChecked)  roleToggled,required TResult Function()  saveRolesRequested,required TResult Function()  editCancelled,required TResult Function()  showInviteForm,required TResult Function( String value)  inviteFirstNameChanged,required TResult Function( String value)  inviteLastNameChanged,required TResult Function( String value)  inviteEmailChanged,required TResult Function( Role role,  bool isChecked)  inviteRoleToggled,required TResult Function( MemberInvitation invitation)  resendInvitationRequested,required TResult Function( MemberInvitation invitation)  deleteInvitationRequested,required TResult Function( Member member)  deleteMemberRequested,required TResult Function( String? customEmailSubject,  String? customEmailBody)  resendAllPendingRequested,required TResult Function()  submitInvitation,required TResult Function()  dismissInviteForm,required TResult Function()  feedbackDismissed,}) {final _that = this;
 switch (_that) {
 case _LoadRequested():
 return loadRequested();case _SearchChanged():
@@ -232,7 +236,8 @@ return inviteLastNameChanged(_that.value);case _InviteEmailChanged():
 return inviteEmailChanged(_that.value);case _InviteRoleToggled():
 return inviteRoleToggled(_that.role,_that.isChecked);case _ResendInvitationRequested():
 return resendInvitationRequested(_that.invitation);case _DeleteInvitationRequested():
-return deleteInvitationRequested(_that.invitation);case _ResendAllPendingRequested():
+return deleteInvitationRequested(_that.invitation);case _DeleteMemberRequested():
+return deleteMemberRequested(_that.member);case _ResendAllPendingRequested():
 return resendAllPendingRequested(_that.customEmailSubject,_that.customEmailBody);case _SubmitInvitation():
 return submitInvitation();case _DismissInviteForm():
 return dismissInviteForm();case _FeedbackDismissed():
@@ -250,7 +255,7 @@ return feedbackDismissed();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadRequested,TResult? Function( String query)?  searchChanged,TResult? Function( Role? role)?  roleFilterChanged,TResult? Function( InvitationStatusFilter filter)?  invitationStatusFilterChanged,TResult? Function( UserStatusFilter filter)?  userStatusFilterChanged,TResult? Function( Member member)?  editRolesRequested,TResult? Function( Role role,  bool isChecked)?  roleToggled,TResult? Function()?  saveRolesRequested,TResult? Function()?  editCancelled,TResult? Function()?  showInviteForm,TResult? Function( String value)?  inviteFirstNameChanged,TResult? Function( String value)?  inviteLastNameChanged,TResult? Function( String value)?  inviteEmailChanged,TResult? Function( Role role,  bool isChecked)?  inviteRoleToggled,TResult? Function( MemberInvitation invitation)?  resendInvitationRequested,TResult? Function( MemberInvitation invitation)?  deleteInvitationRequested,TResult? Function( String? customEmailSubject,  String? customEmailBody)?  resendAllPendingRequested,TResult? Function()?  submitInvitation,TResult? Function()?  dismissInviteForm,TResult? Function()?  feedbackDismissed,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadRequested,TResult? Function( String query)?  searchChanged,TResult? Function( Role? role)?  roleFilterChanged,TResult? Function( InvitationStatusFilter filter)?  invitationStatusFilterChanged,TResult? Function( UserStatusFilter filter)?  userStatusFilterChanged,TResult? Function( Member member)?  editRolesRequested,TResult? Function( Role role,  bool isChecked)?  roleToggled,TResult? Function()?  saveRolesRequested,TResult? Function()?  editCancelled,TResult? Function()?  showInviteForm,TResult? Function( String value)?  inviteFirstNameChanged,TResult? Function( String value)?  inviteLastNameChanged,TResult? Function( String value)?  inviteEmailChanged,TResult? Function( Role role,  bool isChecked)?  inviteRoleToggled,TResult? Function( MemberInvitation invitation)?  resendInvitationRequested,TResult? Function( MemberInvitation invitation)?  deleteInvitationRequested,TResult? Function( Member member)?  deleteMemberRequested,TResult? Function( String? customEmailSubject,  String? customEmailBody)?  resendAllPendingRequested,TResult? Function()?  submitInvitation,TResult? Function()?  dismissInviteForm,TResult? Function()?  feedbackDismissed,}) {final _that = this;
 switch (_that) {
 case _LoadRequested() when loadRequested != null:
 return loadRequested();case _SearchChanged() when searchChanged != null:
@@ -268,7 +273,8 @@ return inviteLastNameChanged(_that.value);case _InviteEmailChanged() when invite
 return inviteEmailChanged(_that.value);case _InviteRoleToggled() when inviteRoleToggled != null:
 return inviteRoleToggled(_that.role,_that.isChecked);case _ResendInvitationRequested() when resendInvitationRequested != null:
 return resendInvitationRequested(_that.invitation);case _DeleteInvitationRequested() when deleteInvitationRequested != null:
-return deleteInvitationRequested(_that.invitation);case _ResendAllPendingRequested() when resendAllPendingRequested != null:
+return deleteInvitationRequested(_that.invitation);case _DeleteMemberRequested() when deleteMemberRequested != null:
+return deleteMemberRequested(_that.member);case _ResendAllPendingRequested() when resendAllPendingRequested != null:
 return resendAllPendingRequested(_that.customEmailSubject,_that.customEmailBody);case _SubmitInvitation() when submitInvitation != null:
 return submitInvitation();case _DismissInviteForm() when dismissInviteForm != null:
 return dismissInviteForm();case _FeedbackDismissed() when feedbackDismissed != null:
@@ -1258,6 +1264,83 @@ $MemberInvitationCopyWith<$Res> get invitation {
 /// @nodoc
 
 
+class _DeleteMemberRequested implements UserManagementEvent {
+  const _DeleteMemberRequested(this.member);
+  
+
+ final  Member member;
+
+/// Create a copy of UserManagementEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DeleteMemberRequestedCopyWith<_DeleteMemberRequested> get copyWith => __$DeleteMemberRequestedCopyWithImpl<_DeleteMemberRequested>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeleteMemberRequested&&(identical(other.member, member) || other.member == member));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,member);
+}
+
+@override
+String toString() {
+    return 'UserManagementEvent.deleteMemberRequested(member: $member)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DeleteMemberRequestedCopyWith<$Res> implements $UserManagementEventCopyWith<$Res> {
+  factory _$DeleteMemberRequestedCopyWith(_DeleteMemberRequested value, $Res Function(_DeleteMemberRequested) _then) = __$DeleteMemberRequestedCopyWithImpl;
+@useResult
+$Res call({
+ Member member
+});
+
+
+$MemberCopyWith<$Res> get member;
+
+}
+/// @nodoc
+class __$DeleteMemberRequestedCopyWithImpl<$Res>
+    implements _$DeleteMemberRequestedCopyWith<$Res> {
+  __$DeleteMemberRequestedCopyWithImpl(this._self, this._then);
+
+  final _DeleteMemberRequested _self;
+  final $Res Function(_DeleteMemberRequested) _then;
+
+/// Create a copy of UserManagementEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? member = null,}) {
+  return _then(_DeleteMemberRequested(
+null == member ? _self.member : member // ignore: cast_nullable_to_non_nullable
+as Member,
+  ));
+}
+
+/// Create a copy of UserManagementEvent
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$MemberCopyWith<$Res> get member {
+  
+  return $MemberCopyWith<$Res>(_self.member, (value) {
+    return _then(_self.copyWith(member: value));
+  });
+}
+}
+
+/// @nodoc
+
+
 class _ResendAllPendingRequested implements UserManagementEvent {
   const _ResendAllPendingRequested({this.customEmailSubject, this.customEmailBody});
   
@@ -1535,12 +1618,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Member> members,  List<MemberInvitation> memberInvitations,  String searchQuery,  Role? roleFilter,  InvitationStatusFilter invitationStatusFilter,  UserStatusFilter userStatusFilter,  Member? editingMember,  Set<Role> pendingRoles,  bool saving,  bool showingInviteForm,  String inviteFirstName,  String inviteLastName,  String inviteEmail,  Set<Role> inviteRoles,  bool inviting,  Set<String> resendingInvitationIds,  Set<String> deletingInvitationIds,  bool resendingAllPending,  String? inviteError,  bool inviteSuccess,  String? feedbackMessage,  bool feedbackIsError)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Member> members,  List<MemberInvitation> memberInvitations,  String searchQuery,  Role? roleFilter,  InvitationStatusFilter invitationStatusFilter,  UserStatusFilter userStatusFilter,  Member? editingMember,  Set<Role> pendingRoles,  bool saving,  bool showingInviteForm,  String inviteFirstName,  String inviteLastName,  String inviteEmail,  Set<Role> inviteRoles,  bool inviting,  Set<String> resendingInvitationIds,  Set<String> deletingInvitationIds,  Set<String> deletingMemberIds,  bool resendingAllPending,  String? inviteError,  bool inviteSuccess,  String? feedbackMessage,  bool feedbackIsError)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case UserManagementInitial() when initial != null:
 return initial();case UserManagementLoading() when loading != null:
 return loading();case UserManagementLoaded() when loaded != null:
-return loaded(_that.members,_that.memberInvitations,_that.searchQuery,_that.roleFilter,_that.invitationStatusFilter,_that.userStatusFilter,_that.editingMember,_that.pendingRoles,_that.saving,_that.showingInviteForm,_that.inviteFirstName,_that.inviteLastName,_that.inviteEmail,_that.inviteRoles,_that.inviting,_that.resendingInvitationIds,_that.deletingInvitationIds,_that.resendingAllPending,_that.inviteError,_that.inviteSuccess,_that.feedbackMessage,_that.feedbackIsError);case UserManagementError() when error != null:
+return loaded(_that.members,_that.memberInvitations,_that.searchQuery,_that.roleFilter,_that.invitationStatusFilter,_that.userStatusFilter,_that.editingMember,_that.pendingRoles,_that.saving,_that.showingInviteForm,_that.inviteFirstName,_that.inviteLastName,_that.inviteEmail,_that.inviteRoles,_that.inviting,_that.resendingInvitationIds,_that.deletingInvitationIds,_that.deletingMemberIds,_that.resendingAllPending,_that.inviteError,_that.inviteSuccess,_that.feedbackMessage,_that.feedbackIsError);case UserManagementError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -1559,12 +1642,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Member> members,  List<MemberInvitation> memberInvitations,  String searchQuery,  Role? roleFilter,  InvitationStatusFilter invitationStatusFilter,  UserStatusFilter userStatusFilter,  Member? editingMember,  Set<Role> pendingRoles,  bool saving,  bool showingInviteForm,  String inviteFirstName,  String inviteLastName,  String inviteEmail,  Set<Role> inviteRoles,  bool inviting,  Set<String> resendingInvitationIds,  Set<String> deletingInvitationIds,  bool resendingAllPending,  String? inviteError,  bool inviteSuccess,  String? feedbackMessage,  bool feedbackIsError)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Member> members,  List<MemberInvitation> memberInvitations,  String searchQuery,  Role? roleFilter,  InvitationStatusFilter invitationStatusFilter,  UserStatusFilter userStatusFilter,  Member? editingMember,  Set<Role> pendingRoles,  bool saving,  bool showingInviteForm,  String inviteFirstName,  String inviteLastName,  String inviteEmail,  Set<Role> inviteRoles,  bool inviting,  Set<String> resendingInvitationIds,  Set<String> deletingInvitationIds,  Set<String> deletingMemberIds,  bool resendingAllPending,  String? inviteError,  bool inviteSuccess,  String? feedbackMessage,  bool feedbackIsError)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case UserManagementInitial():
 return initial();case UserManagementLoading():
 return loading();case UserManagementLoaded():
-return loaded(_that.members,_that.memberInvitations,_that.searchQuery,_that.roleFilter,_that.invitationStatusFilter,_that.userStatusFilter,_that.editingMember,_that.pendingRoles,_that.saving,_that.showingInviteForm,_that.inviteFirstName,_that.inviteLastName,_that.inviteEmail,_that.inviteRoles,_that.inviting,_that.resendingInvitationIds,_that.deletingInvitationIds,_that.resendingAllPending,_that.inviteError,_that.inviteSuccess,_that.feedbackMessage,_that.feedbackIsError);case UserManagementError():
+return loaded(_that.members,_that.memberInvitations,_that.searchQuery,_that.roleFilter,_that.invitationStatusFilter,_that.userStatusFilter,_that.editingMember,_that.pendingRoles,_that.saving,_that.showingInviteForm,_that.inviteFirstName,_that.inviteLastName,_that.inviteEmail,_that.inviteRoles,_that.inviting,_that.resendingInvitationIds,_that.deletingInvitationIds,_that.deletingMemberIds,_that.resendingAllPending,_that.inviteError,_that.inviteSuccess,_that.feedbackMessage,_that.feedbackIsError);case UserManagementError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -1579,12 +1662,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Member> members,  List<MemberInvitation> memberInvitations,  String searchQuery,  Role? roleFilter,  InvitationStatusFilter invitationStatusFilter,  UserStatusFilter userStatusFilter,  Member? editingMember,  Set<Role> pendingRoles,  bool saving,  bool showingInviteForm,  String inviteFirstName,  String inviteLastName,  String inviteEmail,  Set<Role> inviteRoles,  bool inviting,  Set<String> resendingInvitationIds,  Set<String> deletingInvitationIds,  bool resendingAllPending,  String? inviteError,  bool inviteSuccess,  String? feedbackMessage,  bool feedbackIsError)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Member> members,  List<MemberInvitation> memberInvitations,  String searchQuery,  Role? roleFilter,  InvitationStatusFilter invitationStatusFilter,  UserStatusFilter userStatusFilter,  Member? editingMember,  Set<Role> pendingRoles,  bool saving,  bool showingInviteForm,  String inviteFirstName,  String inviteLastName,  String inviteEmail,  Set<Role> inviteRoles,  bool inviting,  Set<String> resendingInvitationIds,  Set<String> deletingInvitationIds,  Set<String> deletingMemberIds,  bool resendingAllPending,  String? inviteError,  bool inviteSuccess,  String? feedbackMessage,  bool feedbackIsError)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case UserManagementInitial() when initial != null:
 return initial();case UserManagementLoading() when loading != null:
 return loading();case UserManagementLoaded() when loaded != null:
-return loaded(_that.members,_that.memberInvitations,_that.searchQuery,_that.roleFilter,_that.invitationStatusFilter,_that.userStatusFilter,_that.editingMember,_that.pendingRoles,_that.saving,_that.showingInviteForm,_that.inviteFirstName,_that.inviteLastName,_that.inviteEmail,_that.inviteRoles,_that.inviting,_that.resendingInvitationIds,_that.deletingInvitationIds,_that.resendingAllPending,_that.inviteError,_that.inviteSuccess,_that.feedbackMessage,_that.feedbackIsError);case UserManagementError() when error != null:
+return loaded(_that.members,_that.memberInvitations,_that.searchQuery,_that.roleFilter,_that.invitationStatusFilter,_that.userStatusFilter,_that.editingMember,_that.pendingRoles,_that.saving,_that.showingInviteForm,_that.inviteFirstName,_that.inviteLastName,_that.inviteEmail,_that.inviteRoles,_that.inviting,_that.resendingInvitationIds,_that.deletingInvitationIds,_that.deletingMemberIds,_that.resendingAllPending,_that.inviteError,_that.inviteSuccess,_that.feedbackMessage,_that.feedbackIsError);case UserManagementError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -1661,7 +1744,7 @@ String toString() {
 
 
 class UserManagementLoaded implements UserManagementState {
-  const UserManagementLoaded({required  List<Member> members,  List<MemberInvitation> memberInvitations = const <MemberInvitation>[], this.searchQuery = '', this.roleFilter, this.invitationStatusFilter = InvitationStatusFilter.active, this.userStatusFilter = UserStatusFilter.active, this.editingMember,  Set<Role> pendingRoles = const <Role>{}, this.saving = false, this.showingInviteForm = false, this.inviteFirstName = '', this.inviteLastName = '', this.inviteEmail = '',  Set<Role> inviteRoles = const <Role>{}, this.inviting = false,  Set<String> resendingInvitationIds = const <String>{},  Set<String> deletingInvitationIds = const <String>{}, this.resendingAllPending = false, this.inviteError, this.inviteSuccess = false, this.feedbackMessage, this.feedbackIsError = false}): _members = members,_memberInvitations = memberInvitations,_pendingRoles = pendingRoles,_inviteRoles = inviteRoles,_resendingInvitationIds = resendingInvitationIds,_deletingInvitationIds = deletingInvitationIds;
+  const UserManagementLoaded({required  List<Member> members,  List<MemberInvitation> memberInvitations = const <MemberInvitation>[], this.searchQuery = '', this.roleFilter, this.invitationStatusFilter = InvitationStatusFilter.active, this.userStatusFilter = UserStatusFilter.active, this.editingMember,  Set<Role> pendingRoles = const <Role>{}, this.saving = false, this.showingInviteForm = false, this.inviteFirstName = '', this.inviteLastName = '', this.inviteEmail = '',  Set<Role> inviteRoles = const <Role>{}, this.inviting = false,  Set<String> resendingInvitationIds = const <String>{},  Set<String> deletingInvitationIds = const <String>{},  Set<String> deletingMemberIds = const <String>{}, this.resendingAllPending = false, this.inviteError, this.inviteSuccess = false, this.feedbackMessage, this.feedbackIsError = false}): _members = members,_memberInvitations = memberInvitations,_pendingRoles = pendingRoles,_inviteRoles = inviteRoles,_resendingInvitationIds = resendingInvitationIds,_deletingInvitationIds = deletingInvitationIds,_deletingMemberIds = deletingMemberIds;
   
 
  final  List<Member> _members;
@@ -1717,6 +1800,13 @@ class UserManagementLoaded implements UserManagementState {
   return EqualUnmodifiableSetView(_deletingInvitationIds);
 }
 
+ final  Set<String> _deletingMemberIds;
+@JsonKey() Set<String> get deletingMemberIds {
+  if (_deletingMemberIds is EqualUnmodifiableSetView) return _deletingMemberIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_deletingMemberIds);
+}
+
 @JsonKey() final  bool resendingAllPending;
  final  String? inviteError;
 @JsonKey() final  bool inviteSuccess;
@@ -1733,18 +1823,18 @@ $UserManagementLoadedCopyWith<UserManagementLoaded> get copyWith => _$UserManage
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementLoaded&&const DeepCollectionEquality().equals(other.members, _members)&&const DeepCollectionEquality().equals(other.memberInvitations, _memberInvitations)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.roleFilter, roleFilter) || other.roleFilter == roleFilter)&&(identical(other.invitationStatusFilter, invitationStatusFilter) || other.invitationStatusFilter == invitationStatusFilter)&&(identical(other.userStatusFilter, userStatusFilter) || other.userStatusFilter == userStatusFilter)&&(identical(other.editingMember, editingMember) || other.editingMember == editingMember)&&const DeepCollectionEquality().equals(other.pendingRoles, _pendingRoles)&&(identical(other.saving, saving) || other.saving == saving)&&(identical(other.showingInviteForm, showingInviteForm) || other.showingInviteForm == showingInviteForm)&&(identical(other.inviteFirstName, inviteFirstName) || other.inviteFirstName == inviteFirstName)&&(identical(other.inviteLastName, inviteLastName) || other.inviteLastName == inviteLastName)&&(identical(other.inviteEmail, inviteEmail) || other.inviteEmail == inviteEmail)&&const DeepCollectionEquality().equals(other.inviteRoles, _inviteRoles)&&(identical(other.inviting, inviting) || other.inviting == inviting)&&const DeepCollectionEquality().equals(other.resendingInvitationIds, _resendingInvitationIds)&&const DeepCollectionEquality().equals(other.deletingInvitationIds, _deletingInvitationIds)&&(identical(other.resendingAllPending, resendingAllPending) || other.resendingAllPending == resendingAllPending)&&(identical(other.inviteError, inviteError) || other.inviteError == inviteError)&&(identical(other.inviteSuccess, inviteSuccess) || other.inviteSuccess == inviteSuccess)&&(identical(other.feedbackMessage, feedbackMessage) || other.feedbackMessage == feedbackMessage)&&(identical(other.feedbackIsError, feedbackIsError) || other.feedbackIsError == feedbackIsError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is UserManagementLoaded&&const DeepCollectionEquality().equals(other.members, _members)&&const DeepCollectionEquality().equals(other.memberInvitations, _memberInvitations)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.roleFilter, roleFilter) || other.roleFilter == roleFilter)&&(identical(other.invitationStatusFilter, invitationStatusFilter) || other.invitationStatusFilter == invitationStatusFilter)&&(identical(other.userStatusFilter, userStatusFilter) || other.userStatusFilter == userStatusFilter)&&(identical(other.editingMember, editingMember) || other.editingMember == editingMember)&&const DeepCollectionEquality().equals(other.pendingRoles, _pendingRoles)&&(identical(other.saving, saving) || other.saving == saving)&&(identical(other.showingInviteForm, showingInviteForm) || other.showingInviteForm == showingInviteForm)&&(identical(other.inviteFirstName, inviteFirstName) || other.inviteFirstName == inviteFirstName)&&(identical(other.inviteLastName, inviteLastName) || other.inviteLastName == inviteLastName)&&(identical(other.inviteEmail, inviteEmail) || other.inviteEmail == inviteEmail)&&const DeepCollectionEquality().equals(other.inviteRoles, _inviteRoles)&&(identical(other.inviting, inviting) || other.inviting == inviting)&&const DeepCollectionEquality().equals(other.resendingInvitationIds, _resendingInvitationIds)&&const DeepCollectionEquality().equals(other.deletingInvitationIds, _deletingInvitationIds)&&const DeepCollectionEquality().equals(other.deletingMemberIds, _deletingMemberIds)&&(identical(other.resendingAllPending, resendingAllPending) || other.resendingAllPending == resendingAllPending)&&(identical(other.inviteError, inviteError) || other.inviteError == inviteError)&&(identical(other.inviteSuccess, inviteSuccess) || other.inviteSuccess == inviteSuccess)&&(identical(other.feedbackMessage, feedbackMessage) || other.feedbackMessage == feedbackMessage)&&(identical(other.feedbackIsError, feedbackIsError) || other.feedbackIsError == feedbackIsError));
 }
 
 
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,const DeepCollectionEquality().hash(_members),const DeepCollectionEquality().hash(_memberInvitations),searchQuery,roleFilter,invitationStatusFilter,userStatusFilter,editingMember,const DeepCollectionEquality().hash(_pendingRoles),saving,showingInviteForm,inviteFirstName,inviteLastName,inviteEmail,const DeepCollectionEquality().hash(_inviteRoles),inviting,const DeepCollectionEquality().hash(_resendingInvitationIds),const DeepCollectionEquality().hash(_deletingInvitationIds),resendingAllPending,inviteError,inviteSuccess,feedbackMessage,feedbackIsError]);
+    return Object.hashAll([runtimeType,const DeepCollectionEquality().hash(_members),const DeepCollectionEquality().hash(_memberInvitations),searchQuery,roleFilter,invitationStatusFilter,userStatusFilter,editingMember,const DeepCollectionEquality().hash(_pendingRoles),saving,showingInviteForm,inviteFirstName,inviteLastName,inviteEmail,const DeepCollectionEquality().hash(_inviteRoles),inviting,const DeepCollectionEquality().hash(_resendingInvitationIds),const DeepCollectionEquality().hash(_deletingInvitationIds),const DeepCollectionEquality().hash(_deletingMemberIds),resendingAllPending,inviteError,inviteSuccess,feedbackMessage,feedbackIsError]);
 }
 
 @override
 String toString() {
-    return 'UserManagementState.loaded(members: $members, memberInvitations: $memberInvitations, searchQuery: $searchQuery, roleFilter: $roleFilter, invitationStatusFilter: $invitationStatusFilter, userStatusFilter: $userStatusFilter, editingMember: $editingMember, pendingRoles: $pendingRoles, saving: $saving, showingInviteForm: $showingInviteForm, inviteFirstName: $inviteFirstName, inviteLastName: $inviteLastName, inviteEmail: $inviteEmail, inviteRoles: $inviteRoles, inviting: $inviting, resendingInvitationIds: $resendingInvitationIds, deletingInvitationIds: $deletingInvitationIds, resendingAllPending: $resendingAllPending, inviteError: $inviteError, inviteSuccess: $inviteSuccess, feedbackMessage: $feedbackMessage, feedbackIsError: $feedbackIsError)';
+    return 'UserManagementState.loaded(members: $members, memberInvitations: $memberInvitations, searchQuery: $searchQuery, roleFilter: $roleFilter, invitationStatusFilter: $invitationStatusFilter, userStatusFilter: $userStatusFilter, editingMember: $editingMember, pendingRoles: $pendingRoles, saving: $saving, showingInviteForm: $showingInviteForm, inviteFirstName: $inviteFirstName, inviteLastName: $inviteLastName, inviteEmail: $inviteEmail, inviteRoles: $inviteRoles, inviting: $inviting, resendingInvitationIds: $resendingInvitationIds, deletingInvitationIds: $deletingInvitationIds, deletingMemberIds: $deletingMemberIds, resendingAllPending: $resendingAllPending, inviteError: $inviteError, inviteSuccess: $inviteSuccess, feedbackMessage: $feedbackMessage, feedbackIsError: $feedbackIsError)';
 }
 
 
@@ -1755,7 +1845,7 @@ abstract mixin class $UserManagementLoadedCopyWith<$Res> implements $UserManagem
   factory $UserManagementLoadedCopyWith(UserManagementLoaded value, $Res Function(UserManagementLoaded) _then) = _$UserManagementLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<Member> members, List<MemberInvitation> memberInvitations, String searchQuery, Role? roleFilter, InvitationStatusFilter invitationStatusFilter, UserStatusFilter userStatusFilter, Member? editingMember, Set<Role> pendingRoles, bool saving, bool showingInviteForm, String inviteFirstName, String inviteLastName, String inviteEmail, Set<Role> inviteRoles, bool inviting, Set<String> resendingInvitationIds, Set<String> deletingInvitationIds, bool resendingAllPending, String? inviteError, bool inviteSuccess, String? feedbackMessage, bool feedbackIsError
+ List<Member> members, List<MemberInvitation> memberInvitations, String searchQuery, Role? roleFilter, InvitationStatusFilter invitationStatusFilter, UserStatusFilter userStatusFilter, Member? editingMember, Set<Role> pendingRoles, bool saving, bool showingInviteForm, String inviteFirstName, String inviteLastName, String inviteEmail, Set<Role> inviteRoles, bool inviting, Set<String> resendingInvitationIds, Set<String> deletingInvitationIds, Set<String> deletingMemberIds, bool resendingAllPending, String? inviteError, bool inviteSuccess, String? feedbackMessage, bool feedbackIsError
 });
 
 
@@ -1772,7 +1862,7 @@ class _$UserManagementLoadedCopyWithImpl<$Res>
 
 /// Create a copy of UserManagementState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? members = null,Object? memberInvitations = null,Object? searchQuery = null,Object? roleFilter = freezed,Object? invitationStatusFilter = null,Object? userStatusFilter = null,Object? editingMember = freezed,Object? pendingRoles = null,Object? saving = null,Object? showingInviteForm = null,Object? inviteFirstName = null,Object? inviteLastName = null,Object? inviteEmail = null,Object? inviteRoles = null,Object? inviting = null,Object? resendingInvitationIds = null,Object? deletingInvitationIds = null,Object? resendingAllPending = null,Object? inviteError = freezed,Object? inviteSuccess = null,Object? feedbackMessage = freezed,Object? feedbackIsError = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? members = null,Object? memberInvitations = null,Object? searchQuery = null,Object? roleFilter = freezed,Object? invitationStatusFilter = null,Object? userStatusFilter = null,Object? editingMember = freezed,Object? pendingRoles = null,Object? saving = null,Object? showingInviteForm = null,Object? inviteFirstName = null,Object? inviteLastName = null,Object? inviteEmail = null,Object? inviteRoles = null,Object? inviting = null,Object? resendingInvitationIds = null,Object? deletingInvitationIds = null,Object? deletingMemberIds = null,Object? resendingAllPending = null,Object? inviteError = freezed,Object? inviteSuccess = null,Object? feedbackMessage = freezed,Object? feedbackIsError = null,}) {
   return _then(UserManagementLoaded(
 members: null == members ? _self._members : members // ignore: cast_nullable_to_non_nullable
 as List<Member>,memberInvitations: null == memberInvitations ? _self._memberInvitations : memberInvitations // ignore: cast_nullable_to_non_nullable
@@ -1791,6 +1881,7 @@ as String,inviteRoles: null == inviteRoles ? _self._inviteRoles : inviteRoles //
 as Set<Role>,inviting: null == inviting ? _self.inviting : inviting // ignore: cast_nullable_to_non_nullable
 as bool,resendingInvitationIds: null == resendingInvitationIds ? _self._resendingInvitationIds : resendingInvitationIds // ignore: cast_nullable_to_non_nullable
 as Set<String>,deletingInvitationIds: null == deletingInvitationIds ? _self._deletingInvitationIds : deletingInvitationIds // ignore: cast_nullable_to_non_nullable
+as Set<String>,deletingMemberIds: null == deletingMemberIds ? _self._deletingMemberIds : deletingMemberIds // ignore: cast_nullable_to_non_nullable
 as Set<String>,resendingAllPending: null == resendingAllPending ? _self.resendingAllPending : resendingAllPending // ignore: cast_nullable_to_non_nullable
 as bool,inviteError: freezed == inviteError ? _self.inviteError : inviteError // ignore: cast_nullable_to_non_nullable
 as String?,inviteSuccess: null == inviteSuccess ? _self.inviteSuccess : inviteSuccess // ignore: cast_nullable_to_non_nullable

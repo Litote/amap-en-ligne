@@ -70,7 +70,17 @@ Dans la zone sensible de la fiche :
 - **[SUSPENDRE LE COMPTE]** — bloque la connexion ; les rôles sont conservés. Le libellé
   devient **[RÉACTIVER LE COMPTE]** si le compte est déjà suspendu.
 - **[SUPPRIMER DE L'INSTANCE]** — action destructive, derrière une confirmation
-  renforcée.
+  renforcée. Le compte de connexion est supprimé dans tous les cas, puis :
+  - **membre d'AMAP** : nom, prénom, e-mail et téléphone sont effacés de sa fiche ; son
+    historique (contrats, paniers, participations) est conservé sans son nom ;
+  - **administrateur d'instance** : sa fiche est entièrement retirée ;
+  - **producteur** : sa fiche est conservée mais désactivée (nom, coordonnées et
+    catalogue restent), pour pouvoir la rattacher plus tard à un autre utilisateur.
+
+  Chaque suppression est tracée dans un journal d'audit qui ne garde aucune donnée
+  personnelle de la personne supprimée. Quelques traces restent à effacer à la main
+  pour une demande d'effacement complet (nom recopié sur les feuilles d'émargement
+  passées, anciennes invitations, notifications déjà reçues).
 
 > Vous ne pouvez pas suspendre ni supprimer **votre propre compte**.
 > Vous ne pouvez pas supprimer le **dernier administrateur d'instance**, ni laisser une

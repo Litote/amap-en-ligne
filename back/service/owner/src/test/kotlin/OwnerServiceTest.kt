@@ -19,6 +19,7 @@ import persistence.dao.OwnerSyncDAO
 import persistence.model.AccountDeletionLog
 import persistence.model.AccountStatus
 import persistence.model.DeletedAccountRole
+import persistence.model.DeletionActorRole
 import persistence.model.Owner
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -232,7 +233,8 @@ internal class OwnerServiceTest {
             coVerify(exactly = 1) { userProvisioningPort.deleteUser("owner-1") }
             coVerify(exactly = 1) { accountLifecycleEmailPort.notifyAccountDeleted(any()) }
             assertEquals(DeletedAccountRole.OWNER, auditSlot.captured.deletedRole)
-            assertEquals(actorOwner.ownerId, auditSlot.captured.actorOwnerId)
+            assertEquals(actorOwner.ownerId.id, auditSlot.captured.actorId)
+            assertEquals(DeletionActorRole.OWNER, auditSlot.captured.actorRole)
             // hash must not equal the cleartext ownerId (= sub after unification)
             assert(auditSlot.captured.deletedSubHash != "owner-1")
             // SHA-256 hash is 64 hex chars — verify we hash, not store cleartext

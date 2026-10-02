@@ -8,6 +8,7 @@ import org.koin.core.annotation.Single
 import persistence.dao.AccountDeletionLogDAO
 import persistence.model.AccountDeletionLog
 import persistence.model.DeletedAccountRole
+import persistence.model.DeletionActorRole
 import java.sql.ResultSet
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -21,15 +22,16 @@ internal class AccountDeletionLogPostgresDAO(
             conn
                 .prepareStatement(
                     """
-                    INSERT INTO account_deletion_log(id, deleted_sub_hash, deleted_role, deleted_at, actor_owner_id)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO account_deletion_log(id, deleted_sub_hash, deleted_role, deleted_at, actor_id, actor_role)
+                    VALUES (?, ?, ?, ?, ?, ?)
                     """.trimIndent(),
                 ).use { stmt ->
                     stmt.setString(1, entry.id.id)
                     stmt.setString(2, entry.deletedSubHash)
                     stmt.setString(3, entry.deletedRole.name)
                     stmt.setLong(4, entry.deletedAt.toEpochMilliseconds())
-                    stmt.setString(5, entry.actorOwnerId.id)
+                    stmt.setString(5, entry.actorId)
+                    stmt.setString(6, entry.actorRole.name)
                     stmt.executeUpdate()
                 }
         }
@@ -40,7 +42,7 @@ internal class AccountDeletionLogPostgresDAO(
             conn
                 .prepareStatement(
                     """
-                    SELECT id, deleted_sub_hash, deleted_role, deleted_at, actor_owner_id
+                    SELECT id, deleted_sub_hash, deleted_role, deleted_at, actor_id, actor_role
                     FROM account_deletion_log
                     """.trimIndent(),
                 ).use { stmt ->
@@ -57,7 +59,7 @@ internal class AccountDeletionLogPostgresDAO(
             conn
                 .prepareStatement(
                     """
-                    SELECT id, deleted_sub_hash, deleted_role, deleted_at, actor_owner_id
+                    SELECT id, deleted_sub_hash, deleted_role, deleted_at, actor_id, actor_role
                     FROM account_deletion_log
                     WHERE id = ?
                     """.trimIndent(),
@@ -76,5 +78,6 @@ private fun ResultSet.toAccountDeletionLog(): AccountDeletionLog =
         deletedSubHash = getString("deleted_sub_hash"),
         deletedRole = DeletedAccountRole.valueOf(getString("deleted_role")),
         deletedAt = Instant.fromEpochMilliseconds(getLong("deleted_at")),
-        actorOwnerId = getString("actor_owner_id").toId(),
+        actorId = getString("actor_id"),
+        actorRole = DeletionActorRole.valueOf(getString("actor_role")),
     )

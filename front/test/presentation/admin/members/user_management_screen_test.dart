@@ -81,6 +81,7 @@ Future<void> _pumpScreen(
   required _MockMemberInvitationRepository invitationRepo,
   _MockSyncRepository? syncRepo,
   _MockAppDatabase? database,
+  String currentMemberId = 'caller-admin',
 }) async {
   await tester.pumpWidget(
     MultiRepositoryProvider(
@@ -98,10 +99,11 @@ Future<void> _pumpScreen(
       ],
       child: BlocProvider<SyncBloc>.value(
         value: _makeSyncBloc(),
-        child: const MaterialApp(
+        child: MaterialApp(
           home: UserManagementScreen(
             organizationId: _orgId,
             canEditAdminRole: true,
+            currentMemberId: currentMemberId,
           ),
         ),
       ),
@@ -869,6 +871,117 @@ void main() {
       final actionRect = tester.getRect(lastAction);
       final fabRect = tester.getRect(find.byType(FloatingActionButton));
       expect(actionRect.overlaps(fabRect), isFalse);
+    });
+  });
+
+  group('UserManagementScreen — member deletion', () {
+    const self = Member(
+      memberId: 'caller-admin',
+      organizationId: _orgId,
+      firstName: 'Moi',
+      lastName: 'Admin',
+      roles: {Role.admin},
+    );
+    const other = Member(
+      memberId: 'other-1',
+      organizationId: _orgId,
+      firstName: 'Olga',
+      lastName: 'Autre',
+      roles: {Role.volunteer},
+    );
+
+    testWidgets('GIVEN the members list '
+        'THEN every member but the caller offers a delete action', (
+      tester,
+    ) async {
+      when(
+        () => memberRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const [self, other]));
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const []));
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+
+      Finder deleteActionOf(String name) => find.descendant(
+        of: find.ancestor(of: find.text(name), matching: find.byType(ListTile)),
+        matching: find.byTooltip('Supprimer le membre'),
+      );
+      expect(deleteActionOf('Olga Autre'), findsOneWidget);
+      expect(deleteActionOf('Moi Admin'), findsNothing);
+    });
+
+    testWidgets('GIVEN a delete action '
+        'WHEN the admin confirms '
+        'THEN the member is deleted and synced', (tester) async {
+      final syncRepo = _MockSyncRepository();
+      when(
+        () => syncRepo.sync(tenantId: any(named: 'tenantId')),
+      ).thenAnswer((_) async => const SyncOutcome.success());
+      when(
+        () => memberRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const [self, other]));
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const []));
+      when(
+        () => memberRepo.delete(
+          memberId: any(named: 'memberId'),
+          organizationId: any(named: 'organizationId'),
+        ),
+      ).thenAnswer((_) async => 'op-del');
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+        syncRepo: syncRepo,
+      );
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('Supprimer le membre'));
+      await tester.pumpAndSettle();
+      expect(find.text('Supprimer ce membre ?'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'SUPPRIMER'));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => memberRepo.delete(memberId: 'other-1', organizationId: _orgId),
+      ).called(1);
+      verify(() => syncRepo.sync(tenantId: _orgId)).called(1);
+    });
+
+    testWidgets('GIVEN a delete action '
+        'WHEN the admin cancels '
+        'THEN nothing is deleted', (tester) async {
+      when(
+        () => memberRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const [self, other]));
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const []));
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('Supprimer le membre'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('ANNULER'));
+      await tester.pumpAndSettle();
+
+      verifyNever(
+        () => memberRepo.delete(
+          memberId: any(named: 'memberId'),
+          organizationId: any(named: 'organizationId'),
+        ),
+      );
     });
   });
 }

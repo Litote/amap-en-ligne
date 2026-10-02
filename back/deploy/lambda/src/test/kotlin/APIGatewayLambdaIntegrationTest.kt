@@ -34,6 +34,8 @@ import org.koin.dsl.module
 import owner.OwnerInvitationService
 import persistence.changes.SyncResponse
 import persistence.dao.ActivationTokenDAO
+import persistence.dao.BasketExchangeSyncDAO
+import persistence.dao.ContractSyncDAO
 import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberJoinRequestDAO
 import persistence.dao.MemberJoinRequestSyncDAO
@@ -498,6 +500,8 @@ internal class APIGatewayLambdaIntegrationTest {
                                         memberChanges: List<persistence.changes.Change>,
                                     ) = Unit
                                 },
+                                mockk<ContractSyncDAO>(relaxed = true),
+                                mockk<BasketExchangeSyncDAO>(relaxed = true),
                             )
                         }
                         single {

@@ -23,6 +23,7 @@ import persistence.dao.OwnerSyncDAO
 import persistence.model.AccountDeletionLog
 import persistence.model.AccountStatus
 import persistence.model.DeletedAccountRole
+import persistence.model.DeletionActorRole
 import persistence.model.EntityType
 import persistence.model.Owner
 import persistence.model.UserPreferences
@@ -123,7 +124,8 @@ class OwnerService(
                             deletedSubHash = sha256(owner.ownerId.id),
                             deletedRole = DeletedAccountRole.OWNER,
                             deletedAt = Clock.System.now(),
-                            actorOwnerId = actorOwner.ownerId,
+                            actorId = actorOwner.ownerId.id,
+                            actorRole = DeletionActorRole.OWNER,
                         ),
                     )
                 } else {

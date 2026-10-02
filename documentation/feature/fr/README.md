@@ -108,6 +108,7 @@ L'interface s'organise autour de plusieurs vues principales :
 - **Catalogue de composants** : Définition des composants (*ItemType*) composant les paniers d'un type de produit — voir [`ui/producer/screen-producer-03-item-catalog.md`](ui/producer/screen-producer-03-item-catalog.md)
 - **Description de livraison** : Consultation et saisie du contenu d'une livraison par taille de panier, accessible depuis les perspectives producteur et coordinateur — voir [`ui/common/screen-common-03-delivery-description.md`](ui/common/screen-common-03-delivery-description.md)
 - **Configuration de l'organisation** : Formulaire d'édition de l'identité de l'AMAP (nom, email de contact, fuseau horaire, langue, site web), accessible à l'ADMIN uniquement — voir [`ui/admin/screen-admin-02-organization-config.md`](ui/admin/screen-admin-02-organization-config.md)
+- **Suppression de compte** : Ce qu'une suppression efface, conserve ou laisse en base, par type de compte (membre, Owner, producteur) — voir [`suppression-de-compte.md`](suppression-de-compte.md)
 - **Aide** : Écran statique d'aide centralisant le guide utilisateur, les contacts utiles, la FAQ et le numéro de version, accessible à tous les rôles connectés — voir [`ui/common/screen-common-05-help.md`](ui/common/screen-common-05-help.md)
 
 ### Références

@@ -8,14 +8,19 @@ import id.generateId
 import id.toId
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import persistence.changes.Change
 import persistence.changes.ProducerAccountPayload
 import persistence.changes.SyncScope
 import persistence.dao.ActivationTokenDAO
+import persistence.dao.BasketExchangeSyncDAO
+import persistence.dao.ContractSyncDAO
 import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationRequestDAO
@@ -27,9 +32,24 @@ import persistence.dao.ProducerRequestDAO
 import persistence.dao.ServerDAO
 import persistence.model.ActivationKind
 import persistence.model.ActivationToken
+import persistence.model.ActivityType
+import persistence.model.BasketExchange
+import persistence.model.BasketExchangeStatus
+import persistence.model.Contract
+import persistence.model.ContractMember
+import persistence.model.Delivery
+import persistence.model.DeliveryContract
+import persistence.model.DeliveryContractStatus
+import persistence.model.DeliveryStatus
+import persistence.model.Member
 import persistence.model.MemberAccountStatus
+import persistence.model.MemberContract
+import persistence.model.MemberContractStatus
 import persistence.model.MemberInvitation
 import persistence.model.MemberInvitationStatus
+import persistence.model.MemberPreferences
+import persistence.model.MemberRegistration
+import persistence.model.MemberSlot
 import persistence.model.Organization
 import persistence.model.OrganizationProducerStatus
 import persistence.model.OrganizationRequest
@@ -41,14 +61,20 @@ import persistence.model.ProducerAccount
 import persistence.model.ProducerOrganization
 import persistence.model.ProducerRequest
 import persistence.model.ProducerRequestStatus
+import persistence.model.RegistrationStatus
 import persistence.model.Server
+import persistence.model.SlotStatus
+import persistence.model.UserPreferences
+import persistence.model.UserSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 internal class ActivationServiceTest {
     private val activationTokenDAO = mockk<ActivationTokenDAO>(relaxed = true)
@@ -62,6 +88,8 @@ internal class ActivationServiceTest {
     private val memberSyncDAO = mockk<MemberSyncDAO>(relaxed = true)
     private val ownerInvitationDAO = mockk<OwnerInvitationSyncDAO>(relaxed = true)
     private val ownerDAO = mockk<OwnerSyncDAO>(relaxed = true)
+    private val contractSyncDAO = mockk<ContractSyncDAO>(relaxed = true)
+    private val basketExchangeSyncDAO = mockk<BasketExchangeSyncDAO>(relaxed = true)
 
     private val service =
         ActivationService(
@@ -77,6 +105,8 @@ internal class ActivationServiceTest {
             memberSyncDAO = memberSyncDAO,
             ownerInvitationDAO = ownerInvitationDAO,
             ownerDAO = ownerDAO,
+            contractSyncDAO = contractSyncDAO,
+            basketExchangeSyncDAO = basketExchangeSyncDAO,
         )
 
     private fun buildOrganizationAdminToken(
@@ -414,6 +444,181 @@ internal class ActivationServiceTest {
             coVerify { memberSyncDAO.put(match { it.registeredAt != null }, any()) }
             coVerify { memberInvitationDAO.put(match { it.status == MemberInvitationStatus.ACTIVATED }, any()) }
             coVerify { activationTokenDAO.markActivated(token.token, any()) }
+        }
+
+    @Test
+    fun `GIVEN a member imported without account WHEN its invitation is activated THEN the imported row is re-keyed to the new sub`() =
+        runTest {
+            val token = buildMemberToken()
+            val invitation = buildMemberInvitation(token.memberInvitationId!!)
+            val epoch = Instant.fromEpochMilliseconds(0)
+            val importedId = "imported-1".toId<Member>()
+            val imported =
+                Member(
+                    memberId = importedId,
+                    organizationId = invitation.organizationId,
+                    roles = setOf(Role.VOLUNTEER),
+                    firstName = "Jane",
+                    lastName = "Doe",
+                    // Letter case differs from the invitation email.
+                    email = "Member@Example.com",
+                    phone = "06 12 34 56 78",
+                    contracts = listOf(MemberContract("contract-1".toId(), epoch, MemberContractStatus.ACTIVE)),
+                    memberPreferences = MemberPreferences(true, true, epoch),
+                    userPreferences = UserPreferences(true, false, epoch),
+                    userSettings = UserSettings("fr", TimeZone.of("Europe/Paris"), "default".toId(), epoch),
+                )
+            val contract =
+                Contract(
+                    contractId = "contract-1".toId(),
+                    name = "Légumes",
+                    organizationId = invitation.organizationId,
+                    producerAccountId = "producer-1".toId(),
+                    minDeliveryDate = LocalDate.parse("2026-01-01"),
+                    maxDeliveryDate = LocalDate.parse("2026-12-31"),
+                    deliveryCount = 40,
+                    seasonYear = 2026,
+                    members = listOf(ContractMember(importedId, epoch, MemberContractStatus.ACTIVE)),
+                )
+            val unrelatedContract = contract.copy(contractId = "contract-2".toId(), members = emptyList())
+            val organization =
+                Organization(
+                    organizationId = invitation.organizationId,
+                    name = "Org 1",
+                    contactEmail = "org@example.com",
+                    activeStatus = true,
+                    timezone = TimeZone.of("Europe/Paris"),
+                    defaultLanguage = "fr",
+                    createdInstant = epoch,
+                    lastUpdatedInstant = epoch,
+                    deliveries =
+                        listOf(
+                            Delivery(
+                                deliveryId = "delivery-1".toId(),
+                                organizationId = invitation.organizationId,
+                                scheduledDate = LocalDateTime.parse("2026-03-01T18:00"),
+                                status = DeliveryStatus.COMPLETED,
+                                minVolunteersRequired = 1,
+                                contracts =
+                                    listOf(
+                                        DeliveryContract(
+                                            contractId = "contract-1".toId(),
+                                            basketQuantity = 10,
+                                            deliveryDescription = "Légumes",
+                                            status = DeliveryContractStatus.DISTRIBUTED,
+                                            slots =
+                                                listOf(
+                                                    MemberSlot(
+                                                        startTime = LocalDateTime.parse("2026-03-01T18:00"),
+                                                        endTime = LocalDateTime.parse("2026-03-01T20:00"),
+                                                        activityType = ActivityType.DISTRIBUTION,
+                                                        requiredVolunteers = 1,
+                                                        currentRegistrations = 1,
+                                                        status = SlotStatus.CLOSED,
+                                                        registrations =
+                                                            listOf(
+                                                                MemberRegistration(
+                                                                    importedId,
+                                                                    "Jane Doe",
+                                                                    "member@example.com",
+                                                                    epoch,
+                                                                    RegistrationStatus.CONFIRMED,
+                                                                ),
+                                                            ),
+                                                    ),
+                                                ),
+                                        ),
+                                    ),
+                            ),
+                        ),
+                )
+            val exchange =
+                BasketExchange(
+                    basketExchangeId = "exchange-1".toId(),
+                    organizationId = invitation.organizationId,
+                    deliveryId = "delivery-1".toId(),
+                    contractId = "contract-1".toId(),
+                    offeringMemberId = importedId,
+                    status = BasketExchangeStatus.OPEN,
+                    createdAt = epoch,
+                )
+            coEvery { activationTokenDAO.findByToken(token.token) } returns token
+            coEvery { memberInvitationDAO.findById(token.memberInvitationId!!.id) } returns invitation
+            coEvery { organizationSyncDAO.getById(invitation.organizationId) } returns organization
+            coEvery { serverDAO.list() } returns listOf(Server("server-1".toId(), "Test", "https://example.com"))
+            coEvery { userProvisioningPort.createMemberUser(any(), any(), any(), any(), any(), any()) } returns "member-sub-1"
+            coEvery { memberSyncDAO.getByOrganizationId(invitation.organizationId) } returns listOf(imported)
+            coEvery { contractSyncDAO.getByOrganizationId(invitation.organizationId) } returns listOf(contract, unrelatedContract)
+            coEvery { basketExchangeSyncDAO.getByOrganizationId(invitation.organizationId) } returns listOf(exchange)
+
+            val result = service.activate(token.token, "password789")
+
+            assertIs<ActivationOutcome.Success>(result)
+            val newId = "member-sub-1".toId<Member>()
+            val activated = slot<Member>()
+            coVerifyOrder {
+                memberSyncDAO.put(capture(activated), any())
+                memberSyncDAO.delete(importedId, invitation.organizationId, any())
+            }
+            assertEquals(newId, activated.captured.memberId)
+            assertEquals(imported.contracts, activated.captured.contracts)
+            assertEquals("06 12 34 56 78", activated.captured.phone)
+            assertEquals(invitation.roles, activated.captured.roles)
+            assertEquals(MemberAccountStatus.ACTIVE, activated.captured.accountStatus)
+            assertEquals("server-1".toId(), activated.captured.userSettings.serverId)
+            assertTrue(activated.captured.registeredAt != null)
+            coVerify(exactly = 1) {
+                contractSyncDAO.put(match { it.contractId.id == "contract-1" && it.members.single().memberId == newId }, any(), any())
+            }
+            coVerify(exactly = 0) { contractSyncDAO.put(match { it.contractId.id == "contract-2" }, any(), any()) }
+            coVerify(exactly = 1) {
+                organizationSyncDAO.put(
+                    match { org ->
+                        org.deliveries
+                            .single()
+                            .contracts
+                            .single()
+                            .slots
+                            .single()
+                            .registrations
+                            .single()
+                            .memberId == newId
+                    },
+                    any(),
+                    any(),
+                )
+            }
+            coVerify(exactly = 1) { basketExchangeSyncDAO.put(match { it.offeringMemberId == newId }, any()) }
+        }
+
+    @Test
+    fun `GIVEN no imported member with the invitation email WHEN activate THEN no member row is deleted`() =
+        runTest {
+            val token = buildMemberToken()
+            val invitation = buildMemberInvitation(token.memberInvitationId!!)
+            coEvery { activationTokenDAO.findByToken(token.token) } returns token
+            coEvery { memberInvitationDAO.findById(token.memberInvitationId!!.id) } returns invitation
+            coEvery { organizationSyncDAO.getById(invitation.organizationId) } returns
+                Organization(
+                    organizationId = invitation.organizationId,
+                    name = "Org 1",
+                    contactEmail = "org@example.com",
+                    activeStatus = true,
+                    timezone = TimeZone.of("Europe/Paris"),
+                    defaultLanguage = "fr",
+                    createdInstant = Clock.System.now(),
+                    lastUpdatedInstant = Clock.System.now(),
+                )
+            coEvery { serverDAO.list() } returns listOf(Server("server-1".toId(), "Test", "https://example.com"))
+            coEvery { userProvisioningPort.createMemberUser(any(), any(), any(), any(), any(), any()) } returns "member-sub-1"
+            coEvery { memberSyncDAO.getByOrganizationId(invitation.organizationId) } returns emptyList()
+
+            val result = service.activate(token.token, "password789")
+
+            assertIs<ActivationOutcome.Success>(result)
+            coVerify(exactly = 1) { memberSyncDAO.put(match { it.memberId.id == "member-sub-1" }, any()) }
+            coVerify(exactly = 0) { memberSyncDAO.delete(any(), any(), any()) }
+            coVerify(exactly = 0) { contractSyncDAO.put(any(), any(), any()) }
         }
 
     @Test

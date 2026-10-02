@@ -9,6 +9,7 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import persistence.model.AccountDeletionLog
 import persistence.model.DeletedAccountRole
+import persistence.model.DeletionActorRole
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -19,13 +20,17 @@ import kotlin.time.Instant
 abstract class AccountDeletionLogDAOContractTest {
     protected abstract val accountDeletionLogDAO: AccountDeletionLogDAO
 
-    private fun newEntry(deletedRole: DeletedAccountRole = DeletedAccountRole.AMAP_MEMBER): AccountDeletionLog =
+    private fun newEntry(
+        deletedRole: DeletedAccountRole = DeletedAccountRole.AMAP_MEMBER,
+        actorRole: DeletionActorRole = DeletionActorRole.OWNER,
+    ): AccountDeletionLog =
         AccountDeletionLog(
             id = UUID.randomUUID().toString().toId(),
             deletedSubHash = "hash-${UUID.randomUUID()}",
             deletedRole = deletedRole,
             deletedAt = Instant.fromEpochMilliseconds(1_700_000_000_000L),
-            actorOwnerId = "owner-1".toId(),
+            actorId = "actor-1",
+            actorRole = actorRole,
         )
 
     @Test
@@ -40,7 +45,17 @@ abstract class AccountDeletionLogDAOContractTest {
             assertEquals(entry.deletedSubHash, found.deletedSubHash)
             assertEquals(entry.deletedRole, found.deletedRole)
             assertEquals(entry.deletedAt, found.deletedAt)
-            assertEquals(entry.actorOwnerId, found.actorOwnerId)
+            assertEquals(entry.actorId, found.actorId)
+            assertEquals(entry.actorRole, found.actorRole)
+        }
+
+    @Test
+    fun `GIVEN an entry written by an organization admin WHEN findById THEN the actor role is kept`() =
+        runTest {
+            val entry = newEntry(actorRole = DeletionActorRole.ADMIN)
+            accountDeletionLogDAO.append(entry)
+
+            assertEquals(DeletionActorRole.ADMIN, accountDeletionLogDAO.findById(entry.id)?.actorRole)
         }
 
     @Test
