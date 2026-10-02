@@ -161,12 +161,18 @@ class _LoadedBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filteredInvitations = _filteredInvitations(
-      state.memberInvitations,
-      state.searchQuery,
-      state.roleFilter,
-      state.invitationStatusFilter,
-    );
+    // Invitations are not user accounts: the former users view lists
+    // suspended members only.
+    final showsFormerUsers =
+        state.userStatusFilter == UserStatusFilter.suspended;
+    final filteredInvitations = showsFormerUsers
+        ? const <MemberInvitation>[]
+        : _filteredInvitations(
+            state.memberInvitations,
+            state.searchQuery,
+            state.roleFilter,
+            state.invitationStatusFilter,
+          );
 
     // A member and a still-pending invitation can describe the same person
     // (e.g. after an organization import, which creates both a Member row and
@@ -204,6 +210,7 @@ class _LoadedBody extends StatelessWidget {
           userStatusFilter: state.userStatusFilter,
         ),
         if (state.invitationStatusFilter == InvitationStatusFilter.active &&
+            !showsFormerUsers &&
             pendingCount > 0)
           _PendingConnectionBanner(
             pendingCount: pendingCount,
@@ -213,6 +220,8 @@ class _LoadedBody extends StatelessWidget {
           child: items.isEmpty
               ? const Center(child: Text('Aucun membre ou invitation trouvé.'))
               : ListView.separated(
+                  // Keeps the last row's actions clear of the add button.
+                  padding: const EdgeInsets.only(bottom: _kFabClearance),
                   itemCount: items.length,
                   separatorBuilder: (_, index) => const Divider(height: 1),
                   itemBuilder: (context, index) {
@@ -226,8 +235,12 @@ class _LoadedBody extends StatelessWidget {
                         deleting: state.deletingInvitationIds.contains(
                           item.invitationId,
                         ),
+                        searchQuery: state.searchQuery,
                       ),
-                      Member() => _MemberTile(member: item),
+                      Member() => _MemberTile(
+                        member: item,
+                        searchQuery: state.searchQuery,
+                      ),
                       _ => const SizedBox.shrink(),
                     };
                   },
@@ -367,7 +380,8 @@ class _SearchAndFilterBar extends StatelessWidget {
                 label: const Text('Tous'),
                 selected:
                     roleFilter == null &&
-                    invitationStatusFilter == InvitationStatusFilter.active,
+                    invitationStatusFilter == InvitationStatusFilter.active &&
+                    userStatusFilter == UserStatusFilter.active,
                 onSelected: (_) {
                   context.read<UserManagementBloc>().add(
                     const UserManagementEvent.roleFilterChanged(null),
@@ -375,6 +389,11 @@ class _SearchAndFilterBar extends StatelessWidget {
                   context.read<UserManagementBloc>().add(
                     const UserManagementEvent.invitationStatusFilterChanged(
                       InvitationStatusFilter.active,
+                    ),
+                  );
+                  context.read<UserManagementBloc>().add(
+                    const UserManagementEvent.userStatusFilterChanged(
+                      UserStatusFilter.active,
                     ),
                   );
                 },
@@ -418,6 +437,11 @@ class _SearchAndFilterBar extends StatelessWidget {
                       newFilter,
                     ),
                   );
+                  context.read<UserManagementBloc>().add(
+                    const UserManagementEvent.userStatusFilterChanged(
+                      UserStatusFilter.active,
+                    ),
+                  );
                 },
               ),
               const SizedBox(width: 8),
@@ -432,6 +456,11 @@ class _SearchAndFilterBar extends StatelessWidget {
                   context.read<UserManagementBloc>().add(
                     UserManagementEvent.userStatusFilterChanged(newFilter),
                   );
+                  context.read<UserManagementBloc>().add(
+                    const UserManagementEvent.invitationStatusFilterChanged(
+                      InvitationStatusFilter.active,
+                    ),
+                  );
                 },
               ),
             ],
@@ -443,9 +472,10 @@ class _SearchAndFilterBar extends StatelessWidget {
 }
 
 class _MemberTile extends StatelessWidget {
-  const _MemberTile({required this.member});
+  const _MemberTile({required this.member, required this.searchQuery});
 
   final Member member;
+  final String searchQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -453,7 +483,7 @@ class _MemberTile extends StatelessWidget {
     final subtitleLines = <Widget>[];
 
     if (member.email != null && member.email!.isNotEmpty) {
-      subtitleLines.add(Text(member.email!));
+      subtitleLines.add(_HighlightedText(member.email!, query: searchQuery));
     }
 
     if (subtitleLines.isNotEmpty && member.roles.isNotEmpty) {
@@ -472,7 +502,7 @@ class _MemberTile extends StatelessWidget {
     }
 
     return ListTile(
-      title: Text(displayName),
+      title: _HighlightedText(displayName, query: searchQuery),
       subtitle: subtitleLines.length == 1
           ? subtitleLines[0]
           : Column(
@@ -496,6 +526,49 @@ class _MemberTile extends StatelessWidget {
   }
 }
 
+/// Displays [text] with every case-insensitive occurrence of [query]
+/// highlighted — the same matching rule as the search filter.
+class _HighlightedText extends StatelessWidget {
+  const _HighlightedText(this.text, {required this.query, this.style});
+
+  final String text;
+  final String query;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final lowerText = text.toLowerCase();
+    final lowerQuery = query.toLowerCase();
+    // Lower-casing may change the length of some characters: offsets would no
+    // longer map onto [text], so fall back to plain text.
+    if (lowerQuery.isEmpty || lowerText.length != text.length) {
+      return Text(text, style: style);
+    }
+    final colorScheme = Theme.of(context).colorScheme;
+    final highlightStyle = TextStyle(
+      backgroundColor: colorScheme.tertiaryContainer,
+      color: colorScheme.onTertiaryContainer,
+      fontWeight: FontWeight.bold,
+    );
+    final spans = <TextSpan>[];
+    var start = 0;
+    var index = lowerText.indexOf(lowerQuery);
+    while (index >= 0) {
+      if (index > start) {
+        spans.add(TextSpan(text: text.substring(start, index)));
+      }
+      final end = index + lowerQuery.length;
+      spans.add(
+        TextSpan(text: text.substring(index, end), style: highlightStyle),
+      );
+      start = end;
+      index = lowerText.indexOf(lowerQuery, start);
+    }
+    if (start < text.length) spans.add(TextSpan(text: text.substring(start)));
+    return Text.rich(TextSpan(children: spans), style: style);
+  }
+}
+
 class _RoleBadge extends StatelessWidget {
   const _RoleBadge({required this.role});
 
@@ -514,11 +587,13 @@ class _MemberInvitationTile extends StatelessWidget {
     required this.invitation,
     required this.resending,
     required this.deleting,
+    required this.searchQuery,
   });
 
   final MemberInvitation invitation;
   final bool resending;
   final bool deleting;
+  final String searchQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -526,7 +601,7 @@ class _MemberInvitationTile extends StatelessWidget {
     final lastSentLabel = _formatLastSent(invitation);
     final statusLabel = _formatInvitationStatus(invitation);
     final subtitleLines = <Widget>[
-      Text(invitation.email),
+      _HighlightedText(invitation.email, query: searchQuery),
       const SizedBox(height: 4),
       Wrap(
         spacing: 4,
@@ -589,8 +664,9 @@ class _MemberInvitationTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  _HighlightedText(
                     title.isEmpty ? invitation.email : title,
+                    query: searchQuery,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 4),
@@ -884,6 +960,9 @@ String _roleLabel(Role role) => switch (role) {
 /// Leaving a field empty keeps the per-member default copy server-side.
 const _kInviteMemberTitle = 'Inviter un membre';
 const _kEditRolesTitle = 'Modifier les rôles';
+
+/// Bottom padding of the list: FAB height (56) + its margins (2 × 16).
+const _kFabClearance = 88.0;
 const _kAskToConnectTitle = 'Demander la connexion';
 const String _defaultInvitationSubject = "Invitation à rejoindre l'AMAP";
 const String _defaultInvitationBody =

@@ -110,6 +110,13 @@ Future<void> _pumpScreen(
   await tester.pump();
 }
 
+Future<void> tapChip(WidgetTester tester, String label) async {
+  final chip = find.widgetWithText(FilterChip, label);
+  await tester.ensureVisible(chip);
+  await tester.pumpAndSettle();
+  await tester.tap(chip);
+}
+
 void main() {
   late _MockMemberRepository memberRepo;
   late _MockMemberInvitationRepository invitationRepo;
@@ -659,6 +666,209 @@ void main() {
         ),
       ).called(1);
       verify(() => syncRepo.sync(tenantId: _orgId)).called(1);
+    });
+  });
+
+  group('UserManagementScreen — former users filter', () {
+    const activeMember = Member(
+      memberId: 'active-1',
+      organizationId: _orgId,
+      firstName: 'Anna',
+      lastName: 'Active',
+      roles: {Role.volunteer},
+    );
+    const suspendedMember = Member(
+      memberId: 'suspended-1',
+      organizationId: _orgId,
+      firstName: 'Sam',
+      lastName: 'Suspendu',
+      roles: {Role.volunteer},
+      accountStatus: MemberAccountStatus.suspended,
+    );
+
+    Future<void> pumpWithMembersAndInvitation(WidgetTester tester) async {
+      when(
+        () => memberRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value([activeMember, suspendedMember]));
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const [_invitation1]));
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+    }
+
+    testWidgets('GIVEN active, suspended members and a pending invitation '
+        'WHEN "Anciens utilisateurs" is selected '
+        'THEN only the suspended member is listed', (tester) async {
+      await pumpWithMembersAndInvitation(tester);
+
+      expect(find.text('Anna Active'), findsOneWidget);
+      expect(find.text('Alice Martin'), findsOneWidget);
+      expect(find.text('Sam Suspendu'), findsNothing);
+
+      await tapChip(tester, 'Anciens utilisateurs');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Sam Suspendu'), findsOneWidget);
+      expect(find.text('Anna Active'), findsNothing);
+      expect(find.text('Alice Martin'), findsNothing);
+      expect(
+        find.textContaining('ne se sont pas encore connectés'),
+        findsNothing,
+      );
+      final allChip = tester.widget<FilterChip>(
+        find.widgetWithText(FilterChip, 'Tous'),
+      );
+      expect(allChip.selected, isFalse);
+    });
+
+    testWidgets('GIVEN "Anciens utilisateurs" selected '
+        'WHEN "Tous" is tapped '
+        'THEN active members and pending invitations are listed again', (
+      tester,
+    ) async {
+      await pumpWithMembersAndInvitation(tester);
+      await tapChip(tester, 'Anciens utilisateurs');
+      await tester.pumpAndSettle();
+
+      await tapChip(tester, 'Tous');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Anna Active'), findsOneWidget);
+      expect(find.text('Alice Martin'), findsOneWidget);
+      expect(find.text('Sam Suspendu'), findsNothing);
+    });
+
+    testWidgets('GIVEN "Anciens utilisateurs" selected '
+        'WHEN "Invitations passées" is tapped '
+        'THEN "Anciens utilisateurs" is deselected', (tester) async {
+      await pumpWithMembersAndInvitation(tester);
+      await tapChip(tester, 'Anciens utilisateurs');
+      await tester.pumpAndSettle();
+
+      await tapChip(tester, 'Invitations passées');
+      await tester.pumpAndSettle();
+
+      final formerChip = tester.widget<FilterChip>(
+        find.widgetWithText(FilterChip, 'Anciens utilisateurs'),
+      );
+      expect(formerChip.selected, isFalse);
+      expect(find.text('Sam Suspendu'), findsNothing);
+    });
+  });
+
+  group('UserManagementScreen — search highlighting', () {
+    List<TextSpan> highlightedSpans(WidgetTester tester) =>
+        tester.widgetList<RichText>(find.byType(RichText)).expand((rich) {
+          final spans = <TextSpan>[];
+          rich.text.visitChildren((span) {
+            if (span is TextSpan &&
+                span.text != null &&
+                span.style?.backgroundColor != null) {
+              spans.add(span);
+            }
+            return true;
+          });
+          return spans;
+        }).toList();
+
+    testWidgets('GIVEN a search query '
+        'THEN the matching parts of names and emails are highlighted', (
+      tester,
+    ) async {
+      when(() => memberRepo.watch(_orgId)).thenAnswer(
+        (_) => Stream.value(const [
+          Member(
+            memberId: 'claire-1',
+            organizationId: _orgId,
+            firstName: 'Claire',
+            lastName: 'Bernard',
+            email: 'claire.bernard@example.com',
+            roles: {Role.volunteer},
+          ),
+        ]),
+      );
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const [_invitation1]));
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+
+      expect(highlightedSpans(tester), isEmpty);
+
+      await tester.enterText(find.byType(TextField), 'BERN');
+      await tester.pumpAndSettle();
+
+      expect(
+        highlightedSpans(tester).map((s) => s.text),
+        containsAll(<String>['Bern', 'bern']),
+      );
+      expect(find.text('Claire Bernard'), findsOneWidget);
+      expect(find.text('Alice Martin'), findsNothing);
+
+      await tester.enterText(find.byType(TextField), 'alice');
+      await tester.pumpAndSettle();
+
+      expect(
+        highlightedSpans(tester).map((s) => s.text),
+        containsAll(<String>['Alice', 'alice']),
+      );
+    });
+  });
+
+  group('UserManagementScreen — floating action button clearance', () {
+    testWidgets('GIVEN a list scrolled to its end '
+        'THEN the last member action is not covered by the add button', (
+      tester,
+    ) async {
+      when(() => memberRepo.watch(_orgId)).thenAnswer(
+        (_) => Stream.value([
+          for (var i = 0; i < 30; i++)
+            Member(
+              memberId: 'm-$i',
+              organizationId: _orgId,
+              firstName: 'Membre',
+              lastName: 'N$i',
+              roles: const {Role.volunteer},
+            ),
+        ]),
+      );
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const []));
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+
+      await tester.dragUntilVisible(
+        find.text('Membre N29'),
+        find.byType(ListView),
+        const Offset(0, -300),
+      );
+      await tester.drag(find.byType(ListView), const Offset(0, -2000));
+      await tester.pumpAndSettle();
+
+      final lastAction = find.descendant(
+        of: find.ancestor(
+          of: find.text('Membre N29'),
+          matching: find.byType(ListTile),
+        ),
+        matching: find.byTooltip('Modifier les rôles'),
+      );
+      final actionRect = tester.getRect(lastAction);
+      final fabRect = tester.getRect(find.byType(FloatingActionButton));
+      expect(actionRect.overlaps(fabRect), isFalse);
     });
   });
 }
