@@ -74,8 +74,8 @@ internal class CrossComponentOrganizationBackupTest : E2eTestSupport() {
 
         // Alice landed in the target org (id preserved, organization rewritten to the target).
         assertEquals(targetOrgId, readMemberOrganizationId(aliceId))
-        // The target org took the source org's name.
-        assertEquals("AMAP Source $unique", readOrganizationName(targetOrgId))
+        // The target org keeps its own name (the export's name never overwrites it).
+        assertEquals("Coquille vide $unique", readOrganizationName(targetOrgId))
     }
 
     private fun readMemberOrganizationId(memberId: String): String? =
