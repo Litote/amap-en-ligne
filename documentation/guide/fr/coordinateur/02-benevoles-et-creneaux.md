@@ -2,46 +2,60 @@
 
 ## À quoi ça sert
 
-Suivre les créneaux existants, voir le nombre de bénévoles inscrits, modifier ou
-supprimer un créneau, et relancer les membres lorsqu'il manque des bénévoles.
+Suivre les livraisons et leurs créneaux, voir le nombre de bénévoles inscrits, modifier ou
+supprimer une livraison ou un créneau, et savoir comment les membres sont relancés lorsqu'il
+manque des bénévoles.
 
 ## Y accéder
 
 Ouvrez le **[Menu]**, puis **[Gestion des livraisons]**.
 
-## La liste des créneaux
+## La liste des livraisons
 
-Chaque créneau affiche sa date, ses horaires, le nombre de bénévoles inscrits sur le
-nombre requis, et un indicateur d'état :
+Les livraisons sont regroupées en trois sections : **En cours**, **À venir** et
+**Passées**. Chaque ligne affiche la date, les horaires, le nombre de bénévoles inscrits
+sur le nombre requis (« 2/5 bénévoles », ou « Aucun bénévole requis »), les produits
+présents et un indicateur d'état :
 
 ```
-┌──────────────────────────────────────────────┐
-│ 📋 Créneaux existants                           │
-│   17 Jan • 18h-20h  👥 2/5  🔴 CRITIQUE         │
-│      [MODIFIER] [SUPPRIMER] [RELANCER]          │
-│   24 Jan • 18h-20h  👥 3/5  ⚠️ À surveiller     │
-│      [MODIFIER] [SUPPRIMER] [ENVOYER RAPPEL]    │
-│   31 Jan • 18h-20h  👥 0/5  ⭕ Nouveau          │
-│      [MODIFIER] [SUPPRIMER] [PUBLIER]           │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│ À venir
+│   17 Jan • 18h-20h  2/5 bénévoles  🟠 Critique
+│      Produits : Légumes + Œufs
+│      [MODIFIER] [SUIVRE]
+│   24 Jan • 18h-20h  5/5 bénévoles  🔵 Complet
+│      [MODIFIER] [SUIVRE]
+└──────────────────────────────────────────────
 ```
 
-### Les états d'un créneau
+### Les états d'une livraison
 
 | Indicateur | Signification |
 |------------|---------------|
-| 🔴 **CRITIQUE** | Moins de la moitié des bénévoles requis |
-| ⚠️ **À surveiller** | Entre la moitié et 80 % des bénévoles |
-| ⭕ **Nouveau** | Créneau créé mais pas encore publié |
-| ✅ **Complet** | Tous les bénévoles requis sont inscrits |
+| 🟢 **Ouvert** | Des places restent à pourvoir, sans urgence (ou aucun bénévole requis) |
+| 🟠 **Critique** | Moins de la moitié des bénévoles requis, et la livraison a lieu dans 3 jours ou moins |
+| 🔵 **Complet** | Tous les bénévoles requis sont inscrits |
+| ⚪ **Fermé** | Livraison terminée ou annulée |
+| 🔴 **Annulé** | Créneau annulé |
 
-## Les actions sur un créneau
+Le compteur ne tient compte que des créneaux des **contrats principaux** ; les
+coordinateurs de la livraison n'y sont pas comptés.
 
-- **[MODIFIER]** — ajuster la date, les horaires, les bénévoles requis, les producteurs.
-- **[SUPPRIMER]** — supprimer le créneau (avec confirmation).
-- **[PUBLIER]** — rendre visible un créneau nouvellement créé.
-- **[RELANCER]** / **[ENVOYER RAPPEL]** — solliciter les membres pour un créneau qui
-  manque de bénévoles.
+## Les actions sur une livraison
+
+- **[MODIFIER]** — ouvre le formulaire « Modifier la livraison » : date, horaires, contrats
+  présents, bénévoles requis, créneaux, coordinateurs. Un bouton **Supprimer la
+  livraison** y est aussi disponible.
+- **[SUIVRE]** — ouvre le suivi en direct (voir
+  [Le jour de la livraison](05-jour-de-livraison.md)).
+
+## Les rappels aux bénévoles
+
+Il n'y a pas d'envoi manuel de rappel : lorsqu'une livraison manque de bénévoles,
+l'application envoie **automatiquement** une alerte aux membres de l'AMAP qui ne sont ni
+inscrits ni coordinateurs de la livraison — trois jours avant, puis la veille si le
+besoin persiste. Chaque membre peut désactiver ces alertes dans ses préférences. Les
+administrateurs peuvent personnaliser le texte de ces alertes.
 
 ## Annuler ou supprimer un créneau bénévole
 

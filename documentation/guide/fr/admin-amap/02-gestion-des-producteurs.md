@@ -12,72 +12,66 @@ cas sont possibles :
 
 ## Y accéder
 
-Ouvrez le **[Menu]**, puis **[PRODUCTEURS]** (ou l'accès rapide « Producteurs »).
+Ouvrez le **[Menu]**, puis **[Producteurs]** (ou l'accès rapide « Producteurs »).
 
 ## La liste des producteurs
 
-```
-┌──────────────────────────────────────────────────────┐
-│ Statut : [ACTIFS ▼]  Mode : [TOUS ▼]  [+ Ajouter…]    │
-│ Ferme des Lilas   AVEC COMPTE   3 produits  ACTIF     │
-│ Verger du Bourg   SANS COMPTE   2 produits  ACTIF     │
-│ Boulangerie Bio   AVEC COMPTE   1 produit   SUSPENDU  │
-└──────────────────────────────────────────────────────┘
-```
+Chaque producteur apparaît avec son nom, son mode (**Avec compte** / **Sans compte**),
+le nombre de produits proposés et son statut. Les filtres **Tous**, **Actifs**,
+**Suspendus** et **Terminés** permettent de trier par statut.
 
-Les filtres permettent de trier par **statut** (actif, suspendu, terminé) et par
-**mode** (avec compte / sans compte).
+Le menu **Actions** de chaque ligne propose **Voir la fiche** et **Modifier les
+produits**.
 
 ### Les statuts
 
 | Indicateur | Signification |
 |------------|---------------|
-| 🟢 **ACTIF** | Association en cours |
-| 🟡 **SUSPENDU** | Association temporairement suspendue |
-| 🔴 **TERMINÉ** | Association terminée (lecture seule) |
+| 🟢 **Actif** | Association en cours |
+| 🟡 **Suspendu** | Association temporairement suspendue |
+| 🔴 **Terminé** | Association terminée (lecture seule) |
 
 ## Ajouter un producteur
 
-L'ajout se fait toujours en **deux étapes** : d'abord l'identité du producteur, puis ses
-produits.
+Touchez **[Ajouter un producteur]**, puis choisissez l'un des deux cas.
 
-### Étape 1 — Identité
+### Producteur avec compte
 
-Touchez **[+ Ajouter un producteur]**, puis choisissez :
+1. **Étape 1** (« Inscrire un producteur — Étape 1 ») : recherchez le producteur par nom
+   ou e-mail dans **« Rechercher un producteur »**, puis touchez sa ligne.
+2. **Étape 2** : cochez les produits de son catalogue à proposer dans votre AMAP et, pour
+   chacun, les **tailles de panier** à activer.
+3. Touchez **[Confirmer l'inscription]**.
 
-- **Associer un producteur avec compte** : recherchez-le par nom ou e-mail, puis touchez
-  **[Choisir ce producteur]** ;
-- **ou créer un producteur sans compte** : renseignez son nom (et, en option, e-mail,
-  téléphone, site web), puis touchez **[Continuer sans compte]**.
+### Producteur sans compte
 
-### Étape 2 — Produits
-
-- **Producteur avec compte** : cochez les produits de son catalogue à proposer dans
-  votre AMAP, et pour chacun les **tailles de panier** à activer. Au moins un produit
-  est requis.
-- **Producteur sans compte** : touchez **[Ajouter un produit]** pour créer chaque
-  produit (nom + une ou plusieurs tailles de panier). Ces produits sont propres à votre
-  AMAP.
-
-Validez avec **[CONFIRMER L'AJOUT DU PRODUCTEUR]**.
+1. Touchez **[Créer un producteur sans compte]** (en bas de l'étape 1).
+2. Dans « Créer un producteur sans compte — Étape 2 », renseignez le **nom** (obligatoire)
+   et, en option, l'e-mail de contact, l'adresse et le site web.
+3. Dans **« Produits AMAP »**, touchez **[Ajouter]** pour créer chaque produit (nom + une
+   ou plusieurs tailles de panier). Au moins un produit est requis.
+4. Touchez **[Créer le producteur]**.
 
 ## Consulter et modifier un producteur
 
-Touchez **[Voir →]** pour ouvrir la fiche d'un producteur.
+Ouvrez la fiche d'un producteur (**Voir la fiche**). Le bouton **[Modifier]**, à côté de
+la liste des produits, permet de revoir ses produits :
 
-- **Producteur avec compte** : le bouton **[Modifier]** permet de revoir la sélection de
-  produits et de tailles de panier.
-- **Producteur sans compte** : après création, sa fiche et ses produits sont en
-  **lecture seule**. Vous pouvez seulement gérer son statut.
+- **Producteur avec compte** : changez la sélection de produits et de tailles de panier
+  parmi son catalogue ;
+- **Producteur sans compte** : ajoutez, modifiez ou supprimez ses produits.
+
+Touchez **[Enregistrer]** pour valider. Une association **terminée** est en lecture
+seule.
 
 ## Suspendre, réactiver ou terminer une association
 
-Depuis la fiche du producteur (ou le menu **[···]** de la liste) :
+Depuis la fiche du producteur :
 
-- **[SUSPENDRE]** — suspend temporairement l'association ;
-- **[RÉACTIVER]** — réactive une association suspendue ;
-- **[METTRE FIN À L'ASSOCIATION]** — termine définitivement l'association (les produits
-  restent visibles en lecture seule).
+- **[Suspendre]** — suspend temporairement l'association (confirmation demandée) ;
+- **[Réactiver]** — réactive une association suspendue ;
+- **[Mettre fin]** — termine définitivement l'association (« Mettre fin à
+  l'association » : action irréversible, confirmation demandée).
 
 > Une association ne se supprime pas physiquement : son statut passe à « terminé ».
 

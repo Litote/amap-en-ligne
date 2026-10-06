@@ -1050,7 +1050,7 @@ String _roleLabel(Role role) => switch (role) {
   Role.admin => 'Admin',
   Role.coordinator => 'Coordinateur',
   Role.volunteer => 'Amapien',
-  Role.owner => 'Owner',
+  Role.owner => 'Propriétaire',
   Role.producer => 'Producteur',
 };
 

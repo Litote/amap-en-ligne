@@ -5,6 +5,7 @@ import authentication.Role
 import core.BasketComposition
 import core.EntityTypeService
 import core.ProducerScheduleProjection
+import core.organizationInstanceOwnerChanges
 import core.toFrenchLongDate
 import core.toFrenchTime
 import id.toId
@@ -131,7 +132,8 @@ class OrganizationService(
         organizationSyncDAO.put(
             finalOrg,
             buildUpsertChange(organizationId, finalOrg),
-            producerScheduleChanges(organizationId, persistedOrg, finalOrg),
+            producerScheduleChanges(organizationId, persistedOrg, finalOrg) +
+                organizationInstanceOwnerChanges(persistedOrg, finalOrg),
         )
         producerLinker.syncLinks(persistedOrg, finalOrg)
         notifySlotEvents(organizationId, slotEvents, finalOrg.notificationOverrides, finalOrg.name)

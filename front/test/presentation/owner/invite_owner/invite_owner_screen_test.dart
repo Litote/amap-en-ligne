@@ -158,7 +158,7 @@ void main() {
       expect(find.byKey(const Key('send_invitation_button')), findsNothing);
     });
 
-    testWidgets('resets to form when [INVITER UN AUTRE OWNER] is tapped', (
+    testWidgets('resets to form when [INVITER UN AUTRE PROPRIÉTAIRE] is tapped', (
       tester,
     ) async {
       when(

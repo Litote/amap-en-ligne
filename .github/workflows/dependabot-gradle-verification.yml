@@ -5,21 +5,26 @@ on:
     branches: [ main ]
     paths:
       - 'gradle/libs.versions.toml'
+      - 'gradle/wrapper/gradle-wrapper.properties'
       - 'back/build.gradle.kts'
       - 'back/**/*.gradle.kts'
       - 'front/android/build.gradle.kts'
       - 'front/android/**/*.gradle.kts'
 
-# Keep commit-backs on the same PR branch from racing on the ref.
-concurrency:
-  group: dependabot-gradle-verification-${{ github.head_ref }}
-  cancel-in-progress: false
-
 jobs:
   update-verification-metadata:
     name: Regenerate Gradle verification metadata
     if: github.actor == 'dependabot[bot]'
+    # Pushes a commit to the PR branch on top of its current HEAD, so two runs in parallel
+    # make the second ref update fail with "Update is not a fast forward". Declared at job
+    # level so that runs skipped by the `if` above (triggered by our own bot commits) stay
+    # out of the group; `queue: max` keeps every pending job instead of replacing it.
+    concurrency:
+      group: dependabot-branch-update-${{ github.head_ref }}
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
 
@@ -46,7 +51,7 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
         run: |
           git fetch origin "$HEAD_REF"
-          git checkout FETCH_HEAD -- gradle/libs.versions.toml back/ front/android/
+          git checkout FETCH_HEAD -- gradle/libs.versions.toml gradle/wrapper/gradle-wrapper.properties gradle/verification-metadata.xml back/ front/android/
 
       - name: Set up JDK 25
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -60,8 +65,13 @@ jobs:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
           build-scan-publish: false
 
+      # sha256 only, like the committed file: `pgp` would flip `verify-signatures` to true
+      # without exporting any key, and every CI job then fails dependency verification.
+      # Run from the root build (the one that owns gradle/verification-metadata.xml) and
+      # execute `:back:check` so dependencies resolved at task execution time are recorded
+      # too; the root `check` would also run the front's Flutter tasks.
       - name: Regenerate verification metadata
-        run: ./gradlew --write-verification-metadata pgp,sha256
+        run: ./gradlew --write-verification-metadata sha256 --no-configuration-cache :back:check
 
       - name: Commit updated verification metadata
         env:

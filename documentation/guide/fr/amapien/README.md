@@ -22,7 +22,8 @@ Après connexion, votre **accueil** affiche :
 - un résumé de votre **historique**.
 
 Le **[Menu]** (en haut de l'écran) donne accès à l'accueil, à vos contrats, à votre
-historique, à vos préférences et à la déconnexion.
+historique, au **Planning des livraisons**, aux échanges de paniers, à vos
+notifications, à vos préférences, à l'aide et à la déconnexion.
 
 ## Voir aussi
 

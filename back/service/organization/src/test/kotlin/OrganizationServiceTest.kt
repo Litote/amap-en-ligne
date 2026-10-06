@@ -275,6 +275,38 @@ internal class OrganizationServiceTest {
             coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
         }
 
+    // ---- instance-owner fan-out ----
+
+    @Test
+    fun `GIVEN admin caller WHEN renames the organization THEN the change is fanned out to instance-owner`() =
+        runTest {
+            val existingOrg = buildOrganization()
+            val renamed = existingOrg.copy(name = "Renamed AMAP")
+            val fanOut = slot<List<Change>>()
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+            coEvery { organizationSyncDAO.put(any(), any(), capture(fanOut)) } returns Unit
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(renamed), OrganizationPayload(renamed))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            val change = fanOut.captured.single { it.scopeKey == SyncScope.InstanceOwner.key }
+            assertEquals(ChangeOp.UPSERT, change.op)
+            assertEquals("Renamed AMAP", (change.payload as OrganizationPayload).organization.name)
+        }
+
+    @Test
+    fun `GIVEN admin caller WHEN edit leaves the identity unchanged THEN nothing is fanned out to instance-owner`() =
+        runTest {
+            val existingOrg = buildOrganization()
+            val fanOut = slot<List<Change>>()
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+            coEvery { organizationSyncDAO.put(any(), any(), capture(fanOut)) } returns Unit
+
+            service.applyUpsert(adminAuth, buildMutation(existingOrg), OrganizationPayload(existingOrg))
+
+            assertTrue(fanOut.captured.none { it.scopeKey == SyncScope.InstanceOwner.key })
+        }
+
     // ---- Privileged callers ----
 
     @Test
@@ -1146,7 +1178,7 @@ internal class OrganizationServiceTest {
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
             // The stored org must still carry the NO_ACCOUNT product preserved from the persisted org
-            coVerify(exactly = 1) { organizationSyncDAO.put(match { it.products == listOf(noAccountProduct) }, any()) }
+            coVerify(exactly = 1) { organizationSyncDAO.put(match { it.products == listOf(noAccountProduct) }, any(), any()) }
         }
 
     @Test
@@ -1163,7 +1195,7 @@ internal class OrganizationServiceTest {
             val outcome = service.applyUpsert(adminAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
 
             assertEquals(MutationStatus.APPLIED, outcome.status)
-            coVerify(exactly = 1) { organizationSyncDAO.put(updatedOrg, any()) }
+            coVerify(exactly = 1) { organizationSyncDAO.put(updatedOrg, any(), any()) }
         }
 
     // ---- Slot lifecycle (delete / cancel / reschedule) ----

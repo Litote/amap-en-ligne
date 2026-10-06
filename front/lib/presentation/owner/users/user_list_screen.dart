@@ -257,7 +257,7 @@ class _FiltersSection extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             _RoleChip(
-              label: 'Owner',
+              label: _roleLabel(Role.owner),
               selected: state.roleFilter == UserListRoleFilter.owner,
               onSelected: () => bloc.add(
                 const UserListEvent.roleFilterChanged(UserListRoleFilter.owner),
@@ -429,7 +429,7 @@ class _UserListTile extends StatelessWidget {
   );
 
   String _affiliationSummary(UserRow row) {
-    if (row.isOwner) return '(instance)   Owner';
+    if (row.isOwner) return '(instance)   Propriétaire';
     if (row.isProducer) {
       return 'Producteur de : ${row.producerAccountName ?? ''}';
     }
@@ -539,7 +539,7 @@ String _rolesLabel(Set<Role> roles) {
   if (roles.contains(Role.coordinator)) labels.add('Coord.');
   if (roles.contains(Role.volunteer)) labels.add('Amapien');
   if (roles.contains(Role.producer)) labels.add('Producteur');
-  if (roles.contains(Role.owner)) labels.add('Owner');
+  if (roles.contains(Role.owner)) labels.add(_roleLabel(Role.owner));
   return labels.join(' · ');
 }
 
@@ -548,7 +548,7 @@ String _roleLabel(Role role) => switch (role) {
   Role.coordinator => 'Coordinateur',
   Role.volunteer => 'Amapien',
   Role.producer => 'Producteur',
-  Role.owner => 'Owner',
+  Role.owner => 'Propriétaire',
 };
 
 String _statusLabel(UserDisplayStatus status) => switch (status) {

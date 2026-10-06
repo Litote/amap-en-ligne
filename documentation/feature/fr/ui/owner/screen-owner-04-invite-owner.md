@@ -39,10 +39,10 @@ Cet écran remplace l'ancien modal « Inviter un Owner » qui se trouvait dans l
 │  │    indiquée (lien valide 7 jours).                  │   │
 │  │  • Tant que l'activation n'est pas effectuée, le    │   │
 │  │    compte apparaît en statut « Invité ».            │   │
-│  │  • À l'activation, le rôle Owner est attribué.      │   │
-│  │  • Owner est un rôle exclusif : aucune appartenance │   │
+│  │  • À l'activation, le rôle propriétaire est attribué.│   │
+│  │  • Propriétaire est un rôle exclusif : aucune appartenance │   │
 │  │    AMAP ni rattachement producteur n'est créé.      │   │
-│  │  • Les Owners existants reçoivent une notification. │   │
+│  │  • Les propriétaires existants reçoivent une notification. │   │
 │  └─────────────────────────────────────────────────────┘   │
 │                                                             │
 │  [ANNULER]                          [ENVOYER L'INVITATION]  │
@@ -67,10 +67,10 @@ Cet écran remplace l'ancien modal « Inviter un Owner » qui se trouvait dans l
 │  jean.dupont@exemple.fr.                                    │
 │                                                             │
 │  Le compte apparaît dès maintenant dans la liste des        │
-│  utilisateurs avec le statut « Invité ». Il deviendra Owner │
+│  utilisateurs avec le statut « Invité ». Il deviendra propriétaire │
 │  à l'activation (lien valide 7 jours).                      │
 │                                                             │
-│  [VOIR LA LISTE DES UTILISATEURS]   [INVITER UN AUTRE OWNER]│
+│  [VOIR LA LISTE DES UTILISATEURS]   [INVITER UN AUTRE PROPRIÉTAIRE]│
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -94,7 +94,7 @@ Cet écran remplace l'ancien modal « Inviter un Owner » qui se trouvait dans l
 | Élément | Comportement |
 |---------|-------------|
 | [VOIR LA LISTE DES UTILISATEURS] | Navigue vers [`screen-owner-03-user-management.md`](screen-owner-03-user-management.md) avec le filtre Statut positionné sur « Invité » |
-| [INVITER UN AUTRE OWNER] | Réinitialise le formulaire et reste sur l'écran courant |
+| [INVITER UN AUTRE PROPRIÉTAIRE] | Réinitialise le formulaire et reste sur l'écran courant |
 | ← Tableau de bord | Revient à [`screen-owner-01-home.md`](screen-owner-01-home.md) |
 
 ---

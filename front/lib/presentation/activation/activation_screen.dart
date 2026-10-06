@@ -171,7 +171,7 @@ class _SuccessCard extends StatelessWidget {
   String _successMessage() {
     switch (result.kind) {
       case ActivationKind.owner:
-        return 'Votre compte Owner a été activé. '
+        return 'Votre compte propriétaire a été activé. '
             'Vous pouvez maintenant vous connecter.';
       case ActivationKind.producer:
         final producerName = result.organizationName ?? '';

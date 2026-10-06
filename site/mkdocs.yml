@@ -19,6 +19,7 @@ theme:
   name: material
   language: fr
   custom_dir: overrides
+  favicon: assets/favicon.png
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -103,9 +104,11 @@ nav:
           - Gérer les membres: guide/admin-amap/01-gestion-des-membres.md
           - Gérer les producteurs: guide/admin-amap/02-gestion-des-producteurs.md
           - Modèles de livraison: guide/admin-amap/03-modeles-de-livraison.md
+          - Configurer l'AMAP: guide/admin-amap/04-configuration-de-l-amap.md
       - Administrateur d'instance:
           - guide/owner-instance/README.md
           - Valider les demandes: guide/owner-instance/01-demandes-de-creation.md
           - Gérer les comptes: guide/owner-instance/02-gestion-des-comptes.md
           - Inviter un administrateur: guide/owner-instance/03-inviter-un-administrateur.md
+      - Aide: guide/aide.md
       - Glossaire: guide/glossaire.md

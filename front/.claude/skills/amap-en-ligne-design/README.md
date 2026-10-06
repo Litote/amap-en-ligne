@@ -47,7 +47,7 @@ Both run from the **same Flutter codebase** — there is no separate marketing w
 
 **Tone examples (verbatim from the codebase):**
 - > "Les AMAP (Association pour le Maintien d'une Agriculture Paysanne) créent des liens directs entre producteurs et consommateurs autour de produits locaux et de saison."
-- > "Amap en Ligne est gratuit, open-source et auto-hébergeable."
+- > "Amap en Ligne est libre (AGPL) et auto-hébergeable."
 - > "Première connexion ? Vous devez avoir reçu une invitation par email de votre coordinateur."
 - > "C'est totalement gratuit !" (the *only* exclamation point — used once, on the create-organization card, to signal warmth)
 

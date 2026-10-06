@@ -10,5 +10,5 @@ rules:
   bot-conditions:
     ignore:
       # Restricting to dependabot[bot] is the intended guard for these workflows.
-      - dependabot-gradle-verification.yml:20
+      - dependabot-gradle-verification.yml:17
       - dependabot-flutter-lock.yml:18

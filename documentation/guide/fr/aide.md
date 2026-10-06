@@ -14,6 +14,12 @@ fonctionnalités de l'application. Quelques points de départ utiles :
   contrats, échanges de paniers.
 - [Guide du Coordinateur](coordinateur/README.md) — planification des livraisons,
   créneaux de bénévolat, contrats de saison.
+- [Guide du Producteur](producteur/README.md) — catalogue de produits, composition des
+  paniers.
+- [Guide de l'Administrateur d'AMAP](admin-amap/README.md) — membres, producteurs,
+  modèles de livraison, configuration de l'AMAP.
+- [Guide de l'Administrateur d'instance](owner-instance/README.md) — demandes de
+  création, comptes de l'instance.
 - [Glossaire](glossaire.md) — définitions des termes employés dans l'application.
 
 ## Besoin d'aide ?

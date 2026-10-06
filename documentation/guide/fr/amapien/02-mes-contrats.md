@@ -8,7 +8,7 @@ contrats sont créés et attribués par votre coordinateur.
 
 ## Y accéder
 
-Ouvrez le **[Menu]**, puis **[MES CONTRATS]**.
+Ouvrez le **[Menu]**, puis **[Mes contrats]**.
 
 ## Ce que vous voyez
 
@@ -16,18 +16,18 @@ Vos contrats sont regroupés par état, dans l'ordre : **actifs**, **à venir**,
 **terminés**.
 
 ```
-┌──────────────────────────────────────────────┐
-│ Filtres : [Tous] [Actifs] [À venir] [Terminés]│
-│                                                │
-│ 🟢 Contrats actifs                              │
-│   🌿 Maraîcher Bio • Panier légumes printemps  │
-│   🟢 Actif • Du 1 avr 2025 au 30 sept 2025     │
-│   📦 Panier moyen • 📍 Retrait du mercredi      │
-│                                                │
-│ 🔵 Contrats à venir                             │
-│   🍞 Pain artisanal • Abonnement hebdomadaire  │
-│   🔵 À venir • Du 15 sept au 15 déc 2025       │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│ Filtres : [Tous] [Actifs] [À venir] [Terminés]
+│
+│ 🟢 Contrats actifs
+│   🌿 Maraîcher Bio • Panier légumes printemps
+│   🟢 Actif • Du 1 avr 2025 au 30 sept 2025
+│   📦 Panier moyen • 📍 Retrait du mercredi
+│
+│ 🔵 Contrats à venir
+│   🍞 Pain artisanal • Abonnement hebdomadaire
+│   🔵 À venir • Du 15 sept au 15 déc 2025
+└──────────────────────────────────────────────
 ```
 
 Chaque contrat indique : son intitulé, le producteur, son état, la période couverte et
@@ -65,7 +65,9 @@ les contrats de l'état choisi.
 L'écran affiche : « Aucun contrat ne vous est actuellement attribué. Contactez votre
 coordinateur si nécessaire. »
 
-Pour obtenir ou modifier un contrat, adressez-vous à votre coordinateur.
+Pour obtenir ou modifier un contrat, adressez-vous à votre coordinateur. Un contrat
+encore **en préparation** n'apparaît pas ici tant que les coordinateurs ne l'ont pas
+ouvert.
 
 ## Voir aussi
 

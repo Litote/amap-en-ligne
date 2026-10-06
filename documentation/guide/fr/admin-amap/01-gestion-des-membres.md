@@ -7,70 +7,72 @@ coordinateur, administrateur), relancer les invitations et gérer les comptes ex
 
 ## Y accéder
 
-Ouvrez le **[Menu]**, puis **[UTILISATEURS]** (ou l'accès rapide « Utilisateurs » du
-tableau de bord).
+Ouvrez le **[Menu]**, puis **[Utilisateurs]** (ou l'accès rapide « Utilisateurs » du
+tableau de bord). L'écran s'intitule **« Gestion des membres »**.
 
-## Ajouter un membre
+## Inviter un membre
 
-1. Dans **« Nouveau membre »**, renseignez le **prénom**, le **nom** et l'**e-mail**
-   (le téléphone est optionnel).
-2. Cochez les **rôles** à attribuer :
+1. Touchez le bouton rond **[Inviter un membre]** (icône de personne avec un « + »), en
+   bas à droite de l'écran.
+2. Renseignez le **prénom**, le **nom** et l'**e-mail** (tous obligatoires).
+3. Cochez au moins un **rôle** à attribuer :
    - **Amapien** (membre standard) ;
    - **Coordinateur** (accès gestion) ;
    - **Admin** (accès complet — visible uniquement si vous êtes vous-même admin).
-3. Laissez cochée **« Envoyer l'invitation par email »**.
-4. Touchez **[AJOUTER MEMBRE]**.
+4. Touchez **[Inviter]**.
 
 La personne reçoit un e-mail d'invitation pour activer son compte (lien valable
-7 jours).
-
-### Inviter plusieurs personnes à la fois
-
-Le bloc **« Invitation groupée »** permet de coller une liste au format
-`prénom,nom,email` (une par ligne), de choisir les rôles, puis de toucher
-**[TRAITER LES INVITATIONS]**. Un récapitulatif indique les invitations envoyées et les
-éventuelles erreurs.
+7 jours). Une seule invitation en attente est possible par adresse e-mail (les
+majuscules et minuscules ne comptent pas) : si l'adresse a déjà une invitation en
+attente, l'application vous le signale.
 
 ## La liste des membres
 
-Chaque membre affiche son nom, son e-mail, ses rôles et son statut. Utilisez la
-recherche et les filtres pour retrouver une personne.
+Chaque ligne affiche le nom, l'e-mail, les rôles et l'état du membre. Utilisez la
+barre **« Rechercher un membre… »** et les filtres pour retrouver une personne :
 
-```
-┌──────────────────────────────────────────────┐
-│  👤 Marie Martin        📧 marie.m@email.com   │
-│     🟢 Coordinateur • Actif       [MODIFIER]   │
-│  👤 Julie Legrand       📧 julie.l@email.com   │
-│     🟡 Invitation envoyée le 28/12 [RELANCER]  │
-└──────────────────────────────────────────────┘
-```
+| Filtre | Ce qu'il affiche |
+|--------|------------------|
+| **Tous** | Les membres actifs et les invitations en attente |
+| **Admin**, **Coordinateur**, **Amapien** | Les personnes ayant ce rôle |
+| **Invitations passées** | Les invitations annulées ou expirées |
+| **Anciens utilisateurs** | Les comptes suspendus |
 
 ### Les statuts
 
 | Indicateur | Signification |
 |------------|---------------|
-| 🟢/🔵/🟣 **rôle • Actif** | Compte actif (l'icône reflète le ou les rôles) |
-| 🟡 **Invitation envoyée** | En attente d'activation — possibilité de relance |
-| 🔴 **Compte suspendu** | Accès temporairement désactivé |
+| Pastilles de **rôle** | Compte actif, avec le ou les rôles de la personne |
+| **Invité** | En attente d'activation — possibilité de relance |
+| Compte suspendu | Accès désactivé (visible via le filtre « Anciens utilisateurs ») |
+
+Pour une invitation, la ligne indique la date de création ou de la dernière relance.
 
 ## Relancer une invitation
 
-Sur un membre en attente d'activation, touchez **[RELANCER]** : un nouvel e-mail
-d'activation est envoyé.
+- **Une personne** : sur sa ligne, touchez **[Relancer]** : un nouvel e-mail d'activation
+  est envoyé. L'icône 🗑 **Supprimer l'invitation** annule l'invitation.
+- **Tout le monde à la fois** : lorsque des membres ne se sont pas encore connectés, un
+  bandeau « N membre(s) ne se sont pas encore connectés. » apparaît en haut de la liste.
+  Touchez **[Demander la connexion]**. Vous pouvez personnaliser le **titre** et le
+  **corps** du message (champs facultatifs ; laissés vides, le message par défaut est
+  utilisé ; **[Repartir de l'alerte par défaut]** efface vos modifications), puis
+  touchez **[Renvoyer]**. Le lien d'activation est toujours ajouté au message.
 
-## Modifier un membre
+## Modifier les rôles d'un membre
 
-Touchez **[MODIFIER]** pour ouvrir la fiche du membre. Vous pouvez :
+Sur la ligne du membre, touchez l'icône ⚙ **Modifier les rôles**. Cochez ou décochez
+**Amapien**, **Coordinateur** et **Admin** (plusieurs rôles possibles simultanément),
+puis touchez **[Enregistrer]**.
 
-- corriger ses informations (prénom, nom, téléphone) ;
-- ajuster ses **rôles** (plusieurs rôles possibles simultanément).
-
-Touchez **[SAUVEGARDER]**.
+Les informations personnelles (nom, e-mail, téléphone) ne se modifient pas depuis cet
+écran : chaque membre les met à jour lui-même depuis **[Préférences]**, et l'e-mail de
+connexion ne peut pas être changé.
 
 ## Supprimer un membre
 
-Sur la ligne du membre, touchez l'icône 🗑 **Supprimer le membre**, puis confirmez avec
-**[SUPPRIMER]**. L'icône n'apparaît pas sur votre propre ligne.
+Sur la ligne du membre, touchez l'icône 🗑 **Supprimer le membre** (« Supprimer ce membre ? »),
+puis confirmez avec **[SUPPRIMER]**. L'icône n'apparaît pas sur votre propre ligne.
 
 Ce que fait la suppression :
 
@@ -80,8 +82,7 @@ Ce que fait la suppression :
   que les comptes de l'AMAP restent justes ;
 - il reçoit un e-mail l'informant de la suppression.
 
-La suppression est **définitive**. Pour une absence ou une pause, préférez la
-suspension. Vous pourrez réinviter la même adresse plus tard : la personne repartira
+La suppression est **définitive**. Vous pourrez réinviter la même adresse plus tard : la personne repartira
 d'un compte neuf, sans son ancien historique.
 
 > Certaines traces ne sont pas effacées automatiquement (nom recopié sur les feuilles

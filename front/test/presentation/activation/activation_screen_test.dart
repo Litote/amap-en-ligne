@@ -355,7 +355,7 @@ void main() {
 
     expect(
       find.text(
-        'Votre compte Owner a été activé. Vous pouvez maintenant vous connecter.',
+        'Votre compte propriétaire a été activé. Vous pouvez maintenant vous connecter.',
       ),
       findsOneWidget,
     );

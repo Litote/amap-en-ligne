@@ -17,17 +17,17 @@ Depuis le tableau de bord, touchez **« Nouvel Administrateur »**.
 3. Touchez **[ENVOYER L'INVITATION]**.
 
 ```
-┌──────────────────────────────────────────────┐
-│  Inviter un nouvel administrateur de l'instance│
-│   Prénom * [……]                                 │
-│   Nom *    [……]                                 │
-│   Email *  [……]                                 │
-│   [ANNULER]        [ENVOYER L'INVITATION]      │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│  Inviter un nouvel administrateur de l'instance
+│   Prénom * [……]
+│   Nom *    [……]
+│   Email *  [……]
+│   [ANNULER]        [ENVOYER L'INVITATION]
+└──────────────────────────────────────────────
 ```
 
 Après l'envoi, un écran de confirmation propose **[VOIR LA LISTE DES UTILISATEURS]** ou
-**[INVITER UN AUTRE OWNER]**.
+**[INVITER UN AUTRE PROPRIÉTAIRE]**.
 
 ## Ce qu'il faut savoir
 
@@ -43,8 +43,7 @@ Après l'envoi, un écran de confirmation propose **[VOIR LA LISTE DES UTILISATE
 
 | Cas | Message |
 |-----|---------|
-| Adresse déjà rattachée à un compte | « Cette adresse email correspond déjà à un compte sur l'instance… » |
-| Invitation déjà en attente | « Une invitation est déjà en attente pour cette adresse… » |
+| Adresse déjà rattachée à un compte ou à une invitation en attente | « Cette adresse email correspond déjà à un compte ou à une invitation en attente sur l'instance. » |
 | Erreur réseau | « L'envoi de l'invitation a échoué. Veuillez réessayer. » |
 
 ## Voir aussi

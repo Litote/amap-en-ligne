@@ -22,7 +22,7 @@ vous pouvez consulter plusieurs rubriques.
 | **Coordinateur** | organiser les livraisons, gérer les créneaux et les contrats de saison, suivre la distribution | [Guide du Coordinateur](coordinateur/README.md) |
 | **Producteur** | gérer votre catalogue de produits et décrire le contenu de vos livraisons | [Guide du Producteur](producteur/README.md) |
 | **Administrateur d'AMAP** | gérer les membres, les producteurs et les modèles de livraison de votre AMAP | [Guide de l'Administrateur d'AMAP](admin-amap/README.md) |
-| **Administrateur de l'instance** | valider les demandes de création et gérer les comptes de l'instance | [Guide de l'Administrateur d'instance](owner-instance/README.md) |
+| **Administrateur d'instance** | valider les demandes de création et gérer les comptes de l'instance | [Guide de l'Administrateur d'instance](owner-instance/README.md) |
 
 ## Besoin d'un mot ?
 
@@ -36,11 +36,11 @@ l'administrateur de son AMAP ou de l'instance, et les réponses aux questions
 fréquentes (activation de compte, mot de passe oublié, mode hors connexion, accès
 aux contrats, inscription aux créneaux).
 
----
-
-> **Note pour les contributrices et contributeurs de la documentation**
-> Ce guide est rédigé **en français uniquement**, à destination des utilisatrices et
-> utilisateurs finaux : il ne contient aucun terme technique en anglais.
-> Les libellés de boutons et d'écrans cités ici reprennent mot pour mot ceux de
-> l'application. **Lorsqu'un libellé change dans l'application, pensez à mettre à jour
-> la page correspondante de ce guide** afin que les captures de texte restent fidèles.
+<!--
+  Note pour les contributrices et contributeurs (non affichée sur le site) :
+  ce guide est rédigé en français uniquement, à destination des utilisatrices et
+  utilisateurs finaux ; il ne contient aucun terme technique en anglais.
+  Les libellés de boutons et d'écrans cités reprennent mot pour mot ceux de
+  l'application : lorsqu'un libellé change dans l'application, mettez à jour la page
+  correspondante de ce guide.
+-->

@@ -334,7 +334,6 @@ object EmailTemplates {
             body =
                 "Bonjour ${target.firstName} ${target.lastName},\n\n" +
                     "Votre compte a été supprimé conformément à votre demande ou à une décision d'administration.\n" +
-                    "Vos données personnelles ont été anonymisées." +
                     SIGNATURE,
         )
 

@@ -19,15 +19,15 @@ L'écran présente **vos** produits présents dans cette livraison ; touchez un 
 voir ses tailles de panier.
 
 ```
-┌──────────────────────────────────────────────┐
-│ ← Composition du jeudi 1 octobre  ENREGISTRER │
-│  ▼ Fromages                                   │
-│    Petit                                      │
-│    [img] Brie            [ 200 g ]      (−)   │
-│    [+ Ajouter]                                │
-│    Grand                                      │
-│    [+ Ajouter]                                │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│ ← Composition du jeudi 1 octobre  ENREGISTRER
+│  ▼ Fromages
+│    Petit
+│    [img] Brie            [ 200 g ]      (−)
+│    [+ Ajouter]
+│    Grand
+│    [+ Ajouter]
+└──────────────────────────────────────────────
 ```
 
 ## Ajouter un composant à un panier

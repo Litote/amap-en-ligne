@@ -179,7 +179,7 @@ internal class ImportServiceTest {
             val organizationSyncDAO =
                 mockk<OrganizationSyncDAO>(relaxed = true) {
                     coEvery { getById(targetOrgId.toId<Organization>()) } returns targetOrganization
-                    coEvery { put(capture(capturedOrg), any()) } returns Unit
+                    coEvery { put(capture(capturedOrg), any(), any()) } returns Unit
                 }
 
             val service = buildService(organizationSyncDAO = organizationSyncDAO, memberSyncDAO = memberSyncDAO)
@@ -194,6 +194,24 @@ internal class ImportServiceTest {
             assertEquals(targetOrgId, capturedMember.captured.organizationId.id)
             // change scope key targets the destination org
             assertEquals("organization:$targetOrgId", memberChanges.captured.single().scopeKey)
+        }
+
+    @Test
+    fun `GIVEN target with its own name WHEN import THEN keeps the target name and fans the change out to instance-owner`() =
+        runTest {
+            val capturedOrg = slot<Organization>()
+            val capturedFanOut = slot<List<Change>>()
+            val organizationSyncDAO =
+                mockk<OrganizationSyncDAO>(relaxed = true) {
+                    coEvery { getById(targetOrgId.toId<Organization>()) } returns targetOrganization
+                    coEvery { put(capture(capturedOrg), any(), capture(capturedFanOut)) } returns Unit
+                }
+            val service = buildService(organizationSyncDAO = organizationSyncDAO)
+
+            service.importIntoOrganization(adminAuth(), targetOrgId, archive())
+
+            assertEquals("Target Shell", capturedOrg.captured.name)
+            assertEquals(listOf("instance-owner"), capturedFanOut.captured.map { it.scopeKey })
         }
 
     @Test

@@ -8,8 +8,11 @@ reçoit la liste des coordinateurs qui s'en occupent.
 
 ## Le principe
 
-- Tout coordinateur de l'AMAP peut **se porter coordinateur** d'un produit sur une
-  livraison, même s'il n'est pas « référent » de ce contrat.
+- Un coordinateur peut **se porter coordinateur** d'un produit sur une livraison s'il
+  est **coordinateur référent** du contrat correspondant (défini dans la fiche du
+  contrat, voir [Définir les contrats de saison](03-contrats-de-saison.md)).
+- En général, un seul coordinateur — présent ce jour-là — suffit par contrat ; un
+  second peut s'ajouter exceptionnellement.
 - Une livraison ne peut pas être **confirmée** tant qu'un de ses produits n'a aucun
   coordinateur.
 - Les états avancés (en cours, terminée, annulée) ne sont plus soumis à cette
@@ -21,12 +24,12 @@ Lorsqu'une prochaine livraison manque d'un coordinateur, sa carte affiche une al
 un bouton :
 
 ```
-┌──────────────────────────────────────────────┐
-│  Mercredi 24 janvier • 18h00                   │
-│  👥 Coordinateurs : 🥕 Jean Morel · 🍞 —       │
-│     ⚠️ Coordinateur manquant : Pain artisanal  │
-│     [ME PORTER COORDINATEUR]                   │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│  Mercredi 24 janvier • 18h00
+│  👥 Coordinateurs : 🥕 Jean Morel · 🍞 —
+│     ⚠️ Coordinateur manquant : Pain artisanal
+│     [ME PORTER COORDINATEUR]
+└──────────────────────────────────────────────
 ```
 
 1. Touchez **[ME PORTER COORDINATEUR]**.
@@ -34,17 +37,20 @@ un bouton :
    coordinateur référent (défini dans la fiche du contrat) vous sont proposés.
 3. Vous êtes ajouté comme coordinateur de ce produit pour cette livraison.
 
-## Se porter coordinateur lors de la création / modification d'un créneau
+## Se porter coordinateur depuis le formulaire de livraison
 
-Le formulaire de créneau comporte un bloc **« Coordinateurs par contrat »** : pour
-chaque produit, vous voyez les coordinateurs déjà affectés et un bouton
-**[ME PORTER COORDINATEUR]**.
+Le formulaire « Modifier la livraison » comporte un bloc **« 👥 Coordinateurs par
+contrat »** : pour chaque contrat, vous voyez les coordinateurs déjà affectés et, si
+vous êtes référent de ce contrat, un bouton **[ME PORTER COORDINATEUR]**.
 
 - La croix **✕** à côté d'un nom retire un coordinateur. En tant que coordinateur (non
   administrateur), vous ne pouvez retirer que **vous-même**, et seulement tant que la
   livraison n'est pas en cours.
-- Si vous êtes **administrateur**, l'option **[+ Ajouter un coordinateur]** vous permet
-  d'affecter n'importe quel coordinateur de l'AMAP.
+- Si vous êtes **administrateur**, le bouton **[Ajouter un coordinateur]** vous permet
+  d'affecter l'un des **coordinateurs référents** du contrat.
+
+> Les changements de coordinateurs sont **enregistrés immédiatement**, sans attendre
+> le bouton [Enregistrer] du formulaire.
 
 ## Messages possibles
 

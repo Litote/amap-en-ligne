@@ -38,12 +38,12 @@ L'instance distingue cinq rôles, cf. [ADR-001](../../../../architecture/adr-001
 │  Producteur : [Tous ▼]                                      │
 │                                                             │
 │  Rôle :                                                     │
-│  [Tous] [Owner] [Admin] [Coordinateur] [Amapien] [Producteur]│
+│  [Tous] [Propriétaire] [Admin] [Coordinateur] [Amapien] [Producteur]│
 │                                                             │
 │  Statut :                                                   │
 │  [Tous] [Actif] [Invité] [Suspendu]                         │
 │                                                             │
-│  Alice Martin                              [Actif] [Owner] ›│
+│  Alice Martin                              [Actif] [Propriétaire] ›│
 │  alice@exemple.fr                                           │
 │  (Administrateur d'instance)                                │
 │  ─────────────────────────────────────────────────────────  │

@@ -52,8 +52,8 @@ Si l'utilisateur est déjà connecté, il est redirigé vers la home corresponda
 │     - Dans toutes les régions :                            │
 │       https://www.reseau-amap.org/recherche-amap.php       │
 │                                                             │
-│  ℹ️  Amap en Ligne est gratuit, open-source et             │
-│      auto-hébergeable                                      │
+│  ℹ️  Amap en Ligne est libre (AGPL) et auto-hébergeable    │
+│                                                             │
 │  🌐 [En savoir plus] | 🔗 [GitHub]                        │
 │                                                             │
 │  [À propos]                                                │
@@ -90,7 +90,7 @@ Si l'utilisateur est déjà connecté, il est redirigé vers la home corresponda
 ### Section informative
 - **Mission** : Faciliter la gestion des livraisons dans les organisations alimentaires locales
 - **Public cible** : AMAP, coopératives, groupements d'achats
-- **Valeurs** : Open-source, gratuit, local, solidaire, auto-hébergeable
+- **Valeurs** : Libre et auto-hébergeable
 
 ### Fonctionnalités mises en avant
 - **Pour les Amapiens** : Inscription simple, rappels automatiques, suivi personnel
@@ -131,7 +131,7 @@ Si l'utilisateur est déjà connecté, il est redirigé vers la home corresponda
 
 ### Métadonnées optimisées
 - **Title** : "Amap en Ligne - Gestion simplifiée de vos livraisons AMAP"
-- **Description** : "Outil gratuit et open-source pour faciliter la gestion bénévole dans votre AMAP. Inscriptions, planning, suivi temps réel."
+- **Description** : "Outil libre pour faciliter la gestion bénévole dans votre AMAP. Inscriptions, planning, suivi temps réel."
 - **Mots-clés** : AMAP, livraisons, bénévolat, agriculture paysanne, local, open-source
 
 ### Structure sémantique

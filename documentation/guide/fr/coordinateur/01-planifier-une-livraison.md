@@ -5,57 +5,76 @@
 Créer une nouvelle livraison : date, horaires, contrats présents et besoins en
 bénévoles. Un **modèle de livraison** peut pré-remplir la plupart des champs.
 
+> **Astuce** : à la création d'un contrat de saison, l'application propose de créer
+> d'un coup toutes ses livraisons hebdomadaires (voir
+> [Créer les livraisons du contrat](03-contrats-de-saison.md#créer-les-livraisons-du-contrat)).
+> Cette page décrit la création d'une livraison à l'unité.
+
 ## Créer une livraison
 
-1. Depuis votre tableau de bord, touchez **[➕ NOUVEAU CRÉNEAU]**.
-2. Choisissez la **date de livraison**.
-3. Si votre AMAP a défini des modèles de livraison, sélectionnez-en un dans **Modèle de livraison**.
-   Si un modèle par défaut existe, il est déjà sélectionné. Le modèle pré-remplit les
-   horaires, le nombre de bénévoles et l'éventuel créneau anticipé.
-4. Vérifiez ou ajustez les **horaires** (début et fin).
-5. Indiquez le nombre de **bénévoles requis** (minimum et maximum).
-6. Cochez les **contrats présents** sur cette livraison — chaque case indique le nom
-   du contrat et son producteur ; les contrats actifs à la date choisie sont tous
-   cochés par défaut. La liste **« Produits présents »** se limite aux produits des
-   contrats cochés.
-7. Ajoutez éventuellement des **instructions spéciales**.
-8. Touchez **[CRÉER CRÉNEAU]**.
+1. Ouvrez le **[Menu]**, puis **[Gestion des livraisons]**, et touchez le bouton
+   **Ajouter livraison** (« + »). Vous pouvez aussi toucher **[➕ NOUVEAU CRÉNEAU]**
+   depuis votre tableau de bord. L'écran s'intitule **« Nouvelle livraison »**.
+2. Touchez **« Sélectionner une date »** pour choisir le jour, puis
+   **« Sélectionner l'heure »** pour l'heure de la livraison.
+3. Si votre AMAP a défini des modèles de livraison, sélectionnez-en un dans **Modèle de
+   livraison (facultatif)**. Si un modèle par défaut existe, il est déjà sélectionné. Le
+   modèle pré-remplit les horaires, le nombre de bénévoles et l'éventuel créneau anticipé.
+4. Dans **Horaires des créneaux**, vérifiez ou ajustez l'**heure d'arrivée des
+   bénévoles** et l'**heure de fin** (« Selon le modèle » tant que vous n'y touchez pas).
+5. Indiquez les **Bénévoles minimum requis**.
+6. Cochez les **contrats présents** sur cette livraison (« 🌿 Contrats présents ») —
+   chaque case indique le nom du contrat et son producteur ; les contrats actifs à la
+   date choisie sont tous cochés par défaut. La liste **« Produits présents »** se limite
+   aux produits des contrats cochés. Si aucun contrat ne couvre la date, un message
+   vous invite à vérifier les dates des contrats dans « Gestion des contrats ».
+7. Ajoutez éventuellement des **Instructions (facultatif)**.
+8. Touchez **[Enregistrer]**.
 
 ```
-┌──────────────────────────────────────────────┐
-│ ➕ Nouveau créneau                              │
-│   📅 Date : [31/01/2025]                        │
-│   📄 Modèle de livraison : [Livraison standard ▼]          │
-│   🕐 Horaires : Début [18:00]  Fin [20:00]      │
-│   👥 Bénévoles : Min [5]  Max [8]               │
-│   🌿 Contrats présents :                         │
-│      ✅ Légumes de saison — Maraîcher Bio        │
-│      ☐ Œufs fermiers — Œufs Fermiers             │
-│   Produits présents :                            │
-│      ✅ Tomates   ✅ Salades                     │
-│   📝 Instructions spéciales : […]                │
-│   [CRÉER CRÉNEAU]                               │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│ Nouvelle livraison
+│   📅 samedi 31 janvier 2026
+│   🕐 18:00
+│   Modèle de livraison (facultatif) : [Standard ▼]
+│   Horaires des créneaux
+│     Heure d'arrivée : [17:30]  Heure de fin [20:00]
+│   Bénévoles minimum requis : [5]
+│   🌿 Contrats présents :
+│      ✅ Légumes de saison — Maraîcher Bio
+│      ☐ Œufs fermiers — Œufs Fermiers
+│   Produits présents :
+│      ✅ Tomates   ✅ Salades
+│   Instructions (facultatif) : […]
+│   [Enregistrer]
+└──────────────────────────────────────────────
 ```
+
+Le bloc « Bénévoles minimum requis » et les créneaux de bénévolat n'apparaissent que si
+l'un des contrats cochés est un **contrat principal** (voir
+[Contrats de saison](03-contrats-de-saison.md)).
 
 ## À propos du modèle de livraison
 
-- Le modèle ne fait que **pré-remplir** : vous pouvez tout ajuster pour cette livraison.
+- Le modèle ne fait que **pré-remplir** : vous pouvez tout ajuster pour cette livraison,
+  sans modifier le modèle.
 - Si vous modifiez vous-même le **nombre de bénévoles minimum**, un changement de
   modèle ne l'écrasera plus.
-- L'option **« Aucun »** laisse les horaires entièrement libres.
+- L'option **« Aucun modèle »** laisse les horaires entièrement libres.
 - Les modèles sont créés par l'**administrateur de l'AMAP** (voir le
   [Guide de l'Administrateur d'AMAP](../admin-amap/03-modeles-de-livraison.md)). Vous ne
   pouvez pas les créer ni les modifier depuis cet écran.
 
 ## Le créneau anticipé
 
-Si le modèle choisi prévoit un **créneau anticipé** (arrivée plus tôt pour réceptionner
-les produits), ses champs s'affichent en lecture seule : heure d'arrivée anticipée,
-explication visible par les amapiens et nombre maximum de bénévoles.
+Un **créneau anticipé** correspond à une arrivée plus tôt pour réceptionner les produits.
+Il est repris du modèle choisi, ou peut être défini directement sur la livraison avec
+l'interrupteur **« Créneau anticipé »**. Ses champs sont modifiables pour cette livraison
+seulement (le modèle n'est jamais modifié) :
 
-Le lien **« Modifier pour cette livraison uniquement »** permet d'ajuster ces valeurs
-pour cette livraison **sans modifier le modèle**.
+- **Arrivée (créneau anticipé)** ;
+- **Bénévoles max (créneau anticipé)** ;
+- **Explication (créneau anticipé, facultatif)**, visible par les amapiens.
 
 ## Confirmer une livraison : au moins un coordinateur par produit
 

@@ -675,7 +675,7 @@ String _rolesLabel(Set<Role> roles) {
   if (roles.contains(Role.coordinator)) labels.add('Coordinateur');
   if (roles.contains(Role.volunteer)) labels.add('Amapien');
   if (roles.contains(Role.producer)) labels.add('Producteur');
-  if (roles.contains(Role.owner)) labels.add('Owner');
+  if (roles.contains(Role.owner)) labels.add('Propriétaire');
   return labels.join(' · ');
 }
 
@@ -691,7 +691,7 @@ String _mutationErrorMessage(MutationError? error) {
   if (error == null) return 'Opération refusée.';
   return switch (error.code) {
     MutationErrorCode.lastOwner =>
-      "Au moins un Owner actif est obligatoire sur l'instance.",
+      "Au moins un propriétaire actif est obligatoire sur l'instance.",
     MutationErrorCode.selfActionForbidden =>
       'Vous ne pouvez pas modifier votre propre compte.',
     MutationErrorCode.lastAdmin =>

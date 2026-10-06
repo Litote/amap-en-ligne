@@ -11,19 +11,19 @@ Votre accueil met en avant vos prochaines participations et les livraisons qui o
 besoin de bénévoles :
 
 ```
-┌──────────────────────────────────────────────┐
-│ 🎯 Ma prochaine participation                  │
-│   Mercredi 31 Jan • 18h-20h                    │
-│   ✅ Inscrit(e) • 5/5 bénévoles                │
-│   [SE DÉSINSCRIRE]                             │
-│                                                │
-│ 📋 Prochaines livraisons                       │
-│   Mercredi 17 Jan • 18h-20h                    │
-│   ⚠️ Besoin urgent • 2/5 bénévoles             │
-│   [S'INSCRIRE]                                 │
-│                                                │
-│ [VOIR PLANNING COMPLET]   [MON HISTORIQUE]     │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│ 🎯 Ma prochaine participation
+│   Mercredi 31 Jan • 18h-20h
+│   ✅ Inscrit(e) • 5/5 bénévoles
+│   [SE DÉSINSCRIRE]
+│
+│ 📋 Prochaines livraisons
+│   Mercredi 17 Jan • 18h-20h
+│   ⚠️ Besoin urgent • 2/5 bénévoles
+│   [S'INSCRIRE]
+│
+│ [VOIR PLANNING COMPLET]   [MON HISTORIQUE]
+└──────────────────────────────────────────────
 ```
 
 - **[S'INSCRIRE]** vous inscrit immédiatement sur le créneau.
@@ -45,9 +45,9 @@ bénévoles et votre éventuelle inscription.
 |------------|---------------|
 | ✅ **Vous êtes inscrit(e)** | Votre participation est confirmée |
 | ✅ **TERMINÉ** | Livraison passée à laquelle vous avez participé |
-| 🔴 **Besoin urgent de bénévoles** | Moins de la moitié des bénévoles nécessaires, livraison dans 3 jours ou moins |
-| 🙋 **Bénévoles recherchés** | Moins de la moitié des bénévoles nécessaires, livraison plus lointaine |
-| ⚠️ **Places limitées** | Le créneau se remplit |
+| 🔴 **Besoin urgent de bénévoles** | Moins de la moitié des places prises, livraison dans 3 jours ou moins |
+| 🙋 **Bénévoles recherchés** | Moins de la moitié des places prises, livraison plus lointaine |
+| ⚠️ **Places limitées** | Entre la moitié et 80 % des places prises |
 | **COMPLET** | Toutes les places sont prises |
 | ❌ **Créneau annulé** | Le créneau a été annulé par la coordination — l'inscription est impossible |
 
@@ -72,15 +72,15 @@ Lorsqu'un créneau anticipé est disponible, la livraison affiche **deux boutons
 directement sur sa carte :
 
 ```
-┌──────────────────────────────────────────────┐
-│  Mercredi 31 Janvier • 18h00-20h00             │
-│  ⏰ Créneau anticipé disponible                 │
-│                                                │
-│  [S'inscrire • Créneau standard 18h00-20h00]   │
-│                                                │
-│  [S'inscrire • Créneau anticipé 17h00-20h00]   │
-│  ℹ️ Réception des légumes du maraîcher          │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│  Mercredi 31 Janvier • 18h00-20h00
+│  ⏰ Créneau anticipé disponible
+│
+│  [S'inscrire • Créneau standard 18h00-20h00]
+│
+│  [S'inscrire • Créneau anticipé 17h00-20h00]
+│  ℹ️ Réception des légumes du maraîcher
+└──────────────────────────────────────────────
 ```
 
 - **[S'inscrire • Créneau standard]** — l'horaire de bénévolat habituel.

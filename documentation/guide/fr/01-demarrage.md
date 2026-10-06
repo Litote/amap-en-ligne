@@ -13,7 +13,7 @@ Avant de pouvoir consulter votre planning ou gérer votre AMAP, vous devez :
 
 ## L'application en deux mots
 
-Amap en ligne est gratuite, libre et fonctionne sur **téléphone Android, iPhone et
+Amap en ligne est libre et fonctionne sur **téléphone Android, iPhone et
 dans un navigateur web**. Elle fonctionne aussi **hors connexion** : vous pouvez
 consulter vos informations et préparer vos actions sans réseau, l'application se
 synchronise automatiquement dès qu'une connexion est disponible (voir
@@ -33,20 +33,20 @@ utilise son propre serveur, votre coordinateur vous communiquera l'adresse à ut
 L'écran d'accueil (avant connexion) propose trois entrées :
 
 ```
-┌─────────────────────────────────────────┐
-│            🥕 Amap en ligne             │
-├─────────────────────────────────────────┤
-│  👤 J'ai déjà un compte                  │
-│     [SE CONNECTER]                       │
-│                                          │
-│  🔍 Je veux rejoindre une AMAP           │
-│     [S'INSCRIRE À UNE AMAP]              │
-│     Choisir une AMAP : [ … ▼]            │
-│                                          │
-│  🏢 Je veux créer une nouvelle           │
-│     organisation (AMAP ou producteur)    │
-│     [INSCRIVEZ-VOUS]                     │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────
+│            🥕 Amap en ligne
+├─────────────────────────────────────────
+│  👤 J'ai déjà un compte
+│     [SE CONNECTER]
+│
+│  🔍 Je veux rejoindre une AMAP
+│     [S'INSCRIRE À UNE AMAP]
+│     Choisir une AMAP : [ … ▼]
+│
+│  🏢 Je veux créer une nouvelle
+│     organisation (AMAP ou producteur)
+│     [INSCRIVEZ-VOUS]
+└─────────────────────────────────────────
 ```
 
 - **[SE CONNECTER]** — vous avez déjà un compte (voir [Se connecter](#se-connecter)).
@@ -67,8 +67,8 @@ Après connexion, vous arrivez automatiquement sur le tableau de bord correspond
 votre rôle.
 
 > **Première connexion ?** Vous devez d'abord avoir reçu une invitation par e-mail de
-> votre coordinateur, ou avoir activé votre compte (voir ci-dessous). Sans invitation,
-> contactez votre AMAP.
+> l'administrateur de votre AMAP et activé votre compte (voir ci-dessous). Sans
+> invitation, contactez votre AMAP.
 
 ## Activer son compte
 
@@ -119,8 +119,7 @@ Vous souhaitez créer une nouvelle AMAP, ou un compte producteur :
    administrateur de cette organisation.
 5. Acceptez les conditions d'utilisation, puis touchez **[CRÉER]**.
 
-Votre demande est examinée par l'équipe de l'instance (réponse habituelle sous
-quelques jours ouvrés). En cas d'approbation, vous recevez un e-mail d'activation pour
+Votre demande est examinée par l'administrateur de l'instance. En cas d'approbation, vous recevez un e-mail d'activation pour
 définir votre mot de passe et accéder à votre espace.
 
 ## Naviguer dans l'application
@@ -130,13 +129,13 @@ l'écran. Son contenu s'adapte à vos rôles.
 
 - Si vous cumulez plusieurs rôles (par exemple amapien et coordinateur), le menu
   regroupe les entrées par section de rôle.
-- Les entrées **[NOTIFICATIONS]**, **[PRÉFÉRENCES]**, **[AIDE]** et **[DÉCONNEXION]**
-  sont toujours présentes en bas du menu. **[NOTIFICATIONS]** ouvre votre boîte de
+- Les entrées **[Notifications]**, **[Préférences]**, **[Aide]** et **[Se déconnecter]**
+  sont toujours présentes en bas du menu. **[Notifications]** ouvre votre boîte de
   réception (alertes de créneaux, échanges de paniers, demandes…).
 
 ## Régler ses préférences et notifications
 
-Depuis le menu, **[PRÉFÉRENCES]** vous permet de :
+Depuis le menu, **[Préférences]** vous permet de :
 
 - consulter vos **informations personnelles** et modifier votre nom et votre téléphone
   (l'e-mail, votre identifiant de connexion, n'est pas modifiable) ;

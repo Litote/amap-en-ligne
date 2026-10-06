@@ -229,7 +229,7 @@ void main() {
 
       expect(find.text('Rôle :'), findsOneWidget);
       // FilterChip labels for roles.
-      expect(find.widgetWithText(FilterChip, 'Owner'), findsOneWidget);
+      expect(find.widgetWithText(FilterChip, 'Propriétaire'), findsOneWidget);
       expect(find.widgetWithText(FilterChip, 'Admin'), findsOneWidget);
       expect(find.widgetWithText(FilterChip, 'Coordinateur'), findsOneWidget);
       expect(find.widgetWithText(FilterChip, 'Amapien'), findsOneWidget);

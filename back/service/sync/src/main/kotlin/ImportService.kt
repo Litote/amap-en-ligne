@@ -5,6 +5,7 @@ package sync
 import authentication.AuthenticatedInfo
 import authentication.Role
 import core.memberInvitationChanges
+import core.organizationInstanceOwnerChanges
 import id.Id
 import id.generateId
 import id.toId
@@ -295,7 +296,6 @@ class ImportService(
             val rewritten = rewriteOrganization(organization, targetId)
             val merged =
                 targetOrganization.copy(
-                    name = rewritten.name,
                     contactEmail = rewritten.contactEmail,
                     timezone = rewritten.timezone,
                     defaultLanguage = rewritten.defaultLanguage,
@@ -308,6 +308,7 @@ class ImportService(
             organizationSyncDAO.put(
                 merged,
                 change(EntityType.Organization, merged.organizationId.id, scopeKey, OrganizationPayload(merged)),
+                organizationInstanceOwnerChanges(targetOrganization, merged),
             )
         }
     }

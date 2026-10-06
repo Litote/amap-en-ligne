@@ -11,23 +11,23 @@ disposez ainsi d'une vue claire de la situation contractuelle de chaque membre.
 
 ## Y accéder
 
-Ouvrez le **[Menu]**, puis **[CONTRATS DES AMAPIENS]**.
+Ouvrez le **[Menu]**, puis **[Contrats par Amapien]**.
 
 ## L'écran
 
 À gauche, la liste des amapiens ; à droite, le détail de l'amapien sélectionné.
 
 ```
-┌───────────────────────────┬──────────────────────────────┐
-│ 👥 Amapiens                │ 👤 Marie Dupont               │
-│  Marie Dupont             │  Contrats attribués            │
-│  🟢 2 actifs • 🔵 1 [VOIR] │   🌿 Panier légumes • 🟢 Actif │
-│  Paul Martin              │      [RETIRER]                 │
-│  ⚪ Aucun contrat [VOIR]   │  Contrats disponibles          │
-│                           │   ☐ 🥚 Œufs fermiers           │
-│                           │   ☐ 🧀 Fromages de chèvre      │
-│                           │   [AFFECTER LA SÉLECTION]      │
-└───────────────────────────┴──────────────────────────────┘
+┌───────────────────────────┬──────────────────────────────
+│ 👥 Amapiens                │ 👤 Marie Dupont
+│  Marie Dupont             │  Contrats attribués
+│  🟢 2 actifs • 🔵 1 [VOIR] │   🌿 Panier légumes • 🟢 Actif
+│  Paul Martin              │      [RETIRER]
+│  ⚪ Aucun contrat [VOIR]   │  Contrats disponibles
+│                           │   ☐ 🥚 Œufs fermiers
+│                           │   ☐ 🧀 Fromages de chèvre
+│                           │   [AFFECTER LA SÉLECTION]
+└───────────────────────────┴──────────────────────────────
 ```
 
 ## Affecter un ou plusieurs contrats

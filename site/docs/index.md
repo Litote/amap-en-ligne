@@ -15,5 +15,5 @@ hide:
 
 Amap en ligne simplifie l'organisation des livraisons d'une AMAP : planning,
 inscriptions des bénévoles, contrats, paniers et échanges entre membres.
-L'application est gratuite, libre et fonctionne sur Android, iPhone et dans un
+L'application est libre et fonctionne sur Android, iPhone et dans un
 navigateur web.

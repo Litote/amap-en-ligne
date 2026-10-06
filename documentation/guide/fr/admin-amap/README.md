@@ -9,6 +9,7 @@ coordinateur.
 1. [Gérer les membres](01-gestion-des-membres.md)
 2. [Gérer les producteurs](02-gestion-des-producteurs.md)
 3. [Gérer les modèles de livraison](03-modeles-de-livraison.md)
+4. [Configurer l'AMAP](04-configuration-de-l-amap.md) — informations, alertes, sauvegarde
 
 ## Votre tableau de bord
 

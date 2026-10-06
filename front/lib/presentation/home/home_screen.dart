@@ -239,7 +239,7 @@ class _InfoSection extends StatelessWidget {
       ),
       const SizedBox(height: 16),
       Text(
-        'Amap en Ligne est gratuit, open-source et auto-hébergeable.',
+        'Amap en Ligne est libre (AGPL) et auto-hébergeable.',
         style: Theme.of(context).textTheme.bodySmall,
       ),
       const SizedBox(height: 8),
@@ -267,7 +267,7 @@ class _InfoSection extends StatelessWidget {
       context: context,
       applicationName: 'Amap en Ligne',
       applicationVersion: versionText,
-      applicationLegalese: 'Gratuit, open-source et auto-hébergeable.',
+      applicationLegalese: 'Libre (AGPL) et auto-hébergeable.',
     );
   }
 }

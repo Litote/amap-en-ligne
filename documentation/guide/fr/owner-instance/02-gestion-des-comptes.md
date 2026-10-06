@@ -18,22 +18,22 @@ La liste agrège les comptes de toutes les AMAP et de tous les producteurs. Vous
 - filtrer par **AMAP**, par **producteur**, par **rôle** ou par **statut**.
 
 ```
-┌──────────────────────────────────────────────┐
-│ Rôle : [Tous][Owner][Admin][Coordinateur]…     │
-│ Statut : [Tous][Actif][Invité][Suspendu]       │
-│ Jean Dupont          [Actif] [Admin] [Coord] › │
-│ jean@exemple.fr                                │
-│   AMAP des Pins · Admin · Coordinateur         │
-│ Marie Leblanc        [Actif] [Producteur]    › │
-│   Producteur de : Ferme des Lilas              │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│ Rôle : [Tous][Propriétaire][Admin][Coordinateur]…
+│ Statut : [Tous][Actif][Invité][Suspendu]
+│ Jean Dupont          [Actif] [Admin] [Coord] ›
+│ jean@exemple.fr
+│   AMAP des Pins · Admin · Coordinateur
+│ Marie Leblanc        [Actif] [Producteur]    ›
+│   Producteur de : Ferme des Lilas
+└──────────────────────────────────────────────
 ```
 
 ### Les rôles
 
 | Rôle | Portée |
 |------|--------|
-| **Owner** (administrateur d'instance) | L'instance — rôle exclusif |
+| **Propriétaire** (administrateur d'instance) | L'instance — rôle exclusif |
 | **Admin** / **Coordinateur** / **Amapien** | Au sein d'une AMAP (cumulables) |
 | **Producteur** | Un compte producteur — rôle exclusif |
 

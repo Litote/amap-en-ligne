@@ -25,19 +25,19 @@ Ouvrez le **[Menu]**, puis **[Modèles de livraison]** (ou l'accès rapide
 6. Touchez **[CRÉER]**.
 
 ```
-┌──────────────────────────────────────────────┐
-│ ➕ Nouveau modèle                               │
-│   Nom : [Livraison avec réception anticipée]   │
-│   Horaires : Début [18:00]  Fin [20:00]        │
-│   Bénévoles souhaités : [6]                    │
-│   [ ] Définir comme modèle par défaut           │
-│   ┄ Créneau anticipé ┄                          │
-│   [✓] Activer un créneau anticipé               │
-│   Heure d'arrivée anticipée : [17:00]          │
-│   Explication : [Réception des légumes…]        │
-│   Nombre max de bénévoles : [2]                 │
-│   [CRÉER]                                      │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│ ➕ Nouveau modèle
+│   Nom : [Livraison avec réception anticipée]
+│   Horaires : Début [18:00]  Fin [20:00]
+│   Bénévoles souhaités : [6]
+│   [ ] Définir comme modèle par défaut
+│   ┄ Créneau anticipé ┄
+│   [✓] Activer un créneau anticipé
+│   Heure d'arrivée anticipée : [17:00]
+│   Explication : [Réception des légumes…]
+│   Nombre max de bénévoles : [2]
+│   [CRÉER]
+└──────────────────────────────────────────────
 ```
 
 ## Le modèle par défaut

@@ -63,7 +63,7 @@ function HomeScreen({ go }) {
           Les AMAP (Association pour le Maintien d'une Agriculture Paysanne) créent des liens directs entre producteurs et consommateurs autour de produits locaux et de saison.
         </div>
         <div style={{font:'12px/1.4 Roboto', color: C.fg2, marginTop: 16}}>
-          Amap en Ligne est gratuit, open-source et auto-hébergeable.
+          Amap en Ligne est libre (AGPL) et auto-hébergeable.
         </div>
       </div>
     </MobileFrame>

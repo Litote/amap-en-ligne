@@ -1,6 +1,7 @@
 # Guide de l'Administrateur d'instance
 
-En tant qu'administrateur de l'instance (le serveur), vous pilotez l'ensemble de la
+En tant qu'administrateur de l'instance (le serveur) — rôle affiché
+**« Propriétaire »** dans l'application —, vous pilotez l'ensemble de la
 plateforme : vous validez les **demandes de création** d'AMAP et de comptes producteurs,
 vous gérez les **comptes** de l'instance et vous invitez d'autres administrateurs.
 

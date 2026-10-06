@@ -199,12 +199,12 @@ class ConfirmDeleteOwnerDialog extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            '$_kDeletionHeader  • retire le rôle Owner ;\n'
+            '$_kDeletionHeader  • retire le rôle propriétaire ;\n'
             "  • supprime le compte du fournisseur d'authentification $_kSessionsInvalidated"
             "  • écrit une entrée d'audit privacy-preserving (RGPD).\n"
             '\n'
             "L'utilisateur reçoit un email de notification. Les autres "
-            "Owners sont informés de l'action sans que l'identité de "
+            "propriétaires sont informés de l'action sans que l'identité de "
             "l'utilisateur supprimé ne leur soit transmise.",
           ),
         ],

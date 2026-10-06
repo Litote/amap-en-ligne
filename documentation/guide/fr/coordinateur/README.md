@@ -1,7 +1,7 @@
 # Guide du Coordinateur
 
 En tant que coordinateur, vous organisez les livraisons de votre AMAP : vous créez les
-créneaux, gérez les contrats de saison, affectez les contrats aux amapiens et suivez la
+livraisons et leurs créneaux de bénévolat, gérez les contrats de saison, affectez les contrats aux amapiens et suivez la
 distribution le jour J.
 
 > Le coordinateur dispose aussi des écrans de l'amapien (accueil, contrats,
@@ -20,7 +20,7 @@ distribution le jour J.
 
 Après connexion, votre tableau de bord présente :
 
-- un bouton **[➕ NOUVEAU CRÉNEAU]** pour créer une livraison ;
+- un bouton **[➕ NOUVEAU CRÉNEAU]**, qui crée une nouvelle **livraison** ;
 - les **livraisons en cours** ;
 - les **prochaines livraisons**, avec les coordinateurs affectés et une alerte si un
   produit n'a pas encore de coordinateur.

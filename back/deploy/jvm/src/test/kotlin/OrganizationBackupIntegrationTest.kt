@@ -99,9 +99,9 @@ internal class OrganizationBackupIntegrationTest : JvmSyncTestSupport() {
             orgB,
             queryString("SELECT organization_id FROM member WHERE member_id = ?", aliceId),
         )
-        // Org B took the source org's name.
+        // Org B keeps its own name: the import never overwrites the target's identity name.
         assertEquals(
-            "AMAP du Test",
+            "Coquille vide",
             queryString("SELECT name FROM organization WHERE organization_id = ?", orgB),
         )
     }

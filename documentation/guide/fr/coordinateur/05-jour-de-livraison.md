@@ -2,48 +2,54 @@
 
 ## À quoi ça sert
 
-Préparer et suivre une livraison le jour J : imprimer les feuilles d'émargement,
+Préparer et suivre une livraison le jour J : générer les feuilles d'émargement,
 pointer les présences et les paniers récupérés, puis finaliser la livraison.
 
 ## 1. Préparer les feuilles d'émargement
 
 Avant la livraison, vous pouvez générer des documents papier.
 
-1. Ouvrez la livraison concernée.
-2. Choisissez les feuilles à générer :
-   - **Feuille d'émargement bénévoles** (présences à pointer) ;
-   - **Feuille de récupération des paniers** (suivi de la distribution).
-3. Choisissez le format (couleur ou noir & blanc).
-4. Vérifiez l'aperçu, puis utilisez **[TÉLÉCHARGER PDF]**, **[IMPRIMER]** ou
-   **[ENVOYER EMAIL]**.
+1. Ouvrez le **[Menu]**, puis **[Feuilles d'émargement]**.
+2. Choisissez la **livraison** dans la liste déroulante « Livraison ».
+3. Choisissez l'onglet de la feuille à générer :
+   - **Bénévoles** : feuille d'émargement des bénévoles inscrits (nom, e-mail, heure
+     d'arrivée) ;
+   - **Paniers** : feuille de récupération des paniers par produit (membre, format de
+     panier, récupéré par, récupéré).
+4. Touchez **[Télécharger PDF]** pour obtenir le fichier (à imprimer depuis votre
+   appareil), ou **[Envoyer email]** pour recevoir la feuille par e-mail à l'adresse
+   saisie dans la boîte de dialogue « Envoyer par email ».
+
+La feuille des bénévoles liste tous les inscrits non absents, sauf les coordinateurs de la
+livraison.
 
 ## 2. Suivre la livraison en direct
 
 Touchez une livraison depuis votre tableau de bord pour ouvrir son **suivi en direct**.
 
 ```
-┌──────────────────────────────────────────────┐
-│ 🔴 LIVE • 17 Jan • 18h-20h   👥 4/5 présents   │
-│                                                │
-│ 👥 Coordinateurs de cette livraison             │
-│   🥕 Légumes : Jean Morel • 📞 06 12 34 56 78  │
-│   🍞 Pain : Marc Olivier • 📞 06 98 76 54 32   │
-│                                                │
-│ 👥 État des bénévoles                           │
-│   ✅ Jean Petit        [MARQUER ABSENT]         │
-│   🔴 Tom Richard       [MARQUER PRÉSENT]        │
-│                                                │
-│ 🥚 Récupération paniers (par produit)           │
-│   ✅ Marie Dupont   1 panier                    │
-│   ⏳ 15 membres restants…   [VOIR TOUT]         │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────
+│ 🔴 LIVE • 17 Jan • 18h-20h   👥 4/5 présents
+│
+│ 👥 Coordinateurs de cette livraison
+│   🥕 Légumes : Jean Morel • 📞 06 12 34 56 78
+│   🍞 Pain : Marc Olivier • 📞 06 98 76 54 32
+│
+│ 👥 État des bénévoles
+│   ✅ Jean Petit        [ABSENT]
+│   🔴 Tom Richard       [PRÉSENT]
+│
+│ 🥚 Récupération paniers (par produit)
+│   ✅ Marie Dupont   1 panier
+│   ⏳ 15 membres restants…
+└──────────────────────────────────────────────
 ```
 
 Pendant la livraison vous pouvez :
 
-- **pointer les bénévoles** : **[MARQUER ABSENT]** / **[MARQUER PRÉSENT]** ;
+- **pointer les bénévoles** : **[PRÉSENT]** / **[ABSENT]** ;
 - **contacter** un bénévole absent ou un membre dont le panier n'est pas récupéré, via
-  **[CONTACTER]** (téléphone ou e-mail) ;
+  l'icône **Contacter** de sa ligne (téléphone ou e-mail) ;
 - **suivre la récupération des paniers**, produit par produit ;
 - consulter les **barres de progression** (bénévoles présents, paniers récupérés).
 

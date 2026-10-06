@@ -7,7 +7,7 @@ modifications de planning), et tenir à jour vos informations personnelles.
 
 ## Y accéder
 
-Ouvrez le **[Menu]**, puis **[PRÉFÉRENCES]**.
+Ouvrez le **[Menu]**, puis **[Préférences]**.
 
 ## Vos informations personnelles
 

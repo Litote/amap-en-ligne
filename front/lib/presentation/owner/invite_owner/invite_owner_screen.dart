@@ -269,10 +269,10 @@ class _FormView extends StatelessWidget {
                       'indiquée (lien valide 7 jours).\n'
                       "• Tant que l'activation n'est pas effectuée, le "
                       'compte apparaît en statut « Invité ».\n'
-                      "• À l'activation, le rôle Owner est attribué.\n"
-                      '• Owner est un rôle exclusif : aucune appartenance '
+                      "• À l'activation, le rôle propriétaire est attribué.\n"
+                      '• Propriétaire est un rôle exclusif : aucune appartenance '
                       "AMAP ni rattachement producteur n'est créé.\n"
-                      '• Les Owners existants reçoivent une notification.',
+                      '• Les propriétaires existants reçoivent une notification.',
                     ),
                   ],
                 ),
@@ -355,7 +355,7 @@ class _ConfirmationView extends StatelessWidget {
           const SizedBox(height: 8),
           const Text(
             'Le compte apparaît dès maintenant dans la liste des '
-            'utilisateurs avec le statut « Invité ». Il deviendra Owner '
+            'utilisateurs avec le statut « Invité ». Il deviendra propriétaire '
             "à l'activation (lien valide 7 jours).",
           ),
           const SizedBox(height: 24),
@@ -373,7 +373,7 @@ class _ConfirmationView extends StatelessWidget {
                 key: const Key('invite_another_button'),
                 onPressed: onInviteAnother,
                 style: FilledButton.styleFrom(shape: const StadiumBorder()),
-                child: const Text('INVITER UN AUTRE OWNER'),
+                child: const Text('INVITER UN AUTRE PROPRIÉTAIRE'),
               ),
             ],
           ),
