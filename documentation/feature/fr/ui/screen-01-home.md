@@ -56,6 +56,8 @@ Si l'utilisateur est déjà connecté, il est redirigé vers la home corresponda
 │                                                             │
 │  🌐 [En savoir plus] | 🔗 [GitHub]                        │
 │                                                             │
+│  [Guide d'utilisation]                                     │
+│                                                             │
 │  [À propos]                                                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
@@ -71,6 +73,7 @@ Si l'utilisateur est déjà connecté, il est redirigé vers la home corresponda
 ### Actions secondaires
 - **[En savoir plus]** : Redirection vers page d'information détaillée
 - **[GitHub]** : Lien vers le repository open-source
+- **[Guide d'utilisation]** : Ouvre dans un nouvel onglet / le navigateur le guide d'utilisation publié de l'instance (`guide_url` du document de découverte, ou du préréglage serveur). Masqué si l'instance n'en publie pas
 - **[À propos]** : Ouvre une boîte de dialogue affichant le nom de l'application et le numéro de version du build installé (`v<version> (build <numéro>)`) — utile pour vérifier quelle version est servie
 - **Liens AMAP** : Redirection vers les sites de recherche d'AMAP externes
 

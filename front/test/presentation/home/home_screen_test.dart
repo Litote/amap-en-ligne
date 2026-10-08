@@ -1,4 +1,5 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
+import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/presentation/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,10 +26,47 @@ void main() {
     );
   });
 
-  Widget buildSubject() => RepositoryProvider<PublicApi>.value(
-    value: api,
+  Widget buildSubject({String? guideUrl}) => MultiRepositoryProvider(
+    providers: [
+      RepositoryProvider<PublicApi>.value(value: api),
+      RepositoryProvider<ServerConfig>.value(
+        value: GoTrueServerConfig(
+          id: 'test',
+          name: 'Test',
+          backendUrl: 'http://localhost:8080',
+          gotrueUrl: 'http://localhost:9999',
+          guideUrl: guideUrl,
+        ),
+      ),
+    ],
     child: const MaterialApp(home: HomeScreen()),
   );
+
+  testWidgets('home shows a guide link when the server exposes one', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildSubject(guideUrl: 'https://litote.github.io/amap-en-ligne/'),
+    );
+    await tester.pump();
+
+    expect(
+      find.widgetWithText(TextButton, "Guide d'utilisation"),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('home hides the guide link when the server has no guide', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildSubject());
+    await tester.pump();
+
+    expect(
+      find.widgetWithText(TextButton, "Guide d'utilisation"),
+      findsNothing,
+    );
+  });
 
   testWidgets('home shows an "À propos" button', (tester) async {
     await tester.pumpWidget(buildSubject());

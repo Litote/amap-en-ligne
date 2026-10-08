@@ -1,5 +1,9 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
 import 'package:amap_en_ligne/domain/model/public_organization.dart';
+import 'package:amap_en_ligne/domain/server/server_config.dart';
+import 'package:amap_en_ligne/presentation/common/open_url_stub.dart'
+    if (dart.library.js_interop) 'package:amap_en_ligne/presentation/common/open_url_web.dart'
+    if (dart.library.io) 'package:amap_en_ligne/presentation/common/open_url_native.dart';
 import 'package:amap_en_ligne/presentation/home/home_bloc.dart';
 import 'package:amap_en_ligne/presentation/home/home_state.dart';
 import 'package:flutter/material.dart';
@@ -224,38 +228,50 @@ class _InfoSection extends StatelessWidget {
   const _InfoSection();
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        "Qu'est-ce qu'une AMAP ?",
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
-      const SizedBox(height: 8),
-      const Text(
-        "Les AMAP (Association pour le Maintien d'une Agriculture Paysanne) "
-        'créent des liens directs entre producteurs et consommateurs autour '
-        'de produits locaux et de saison.',
-      ),
-      const SizedBox(height: 16),
-      Text(
-        'Amap en Ligne est libre (AGPL) et auto-hébergeable.',
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-      const SizedBox(height: 8),
-      TextButton(
-        style: TextButton.styleFrom(
-          padding: EdgeInsets.zero,
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          alignment: Alignment.centerLeft,
-          textStyle: Theme.of(context).textTheme.bodySmall,
+  Widget build(BuildContext context) {
+    final guideUrl = context.read<ServerConfig>().guideUrl;
+    final linkStyle = TextButton.styleFrom(
+      padding: EdgeInsets.zero,
+      minimumSize: Size.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      alignment: Alignment.centerLeft,
+      textStyle: Theme.of(context).textTheme.bodySmall,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Qu'est-ce qu'une AMAP ?",
+          style: Theme.of(context).textTheme.titleSmall,
         ),
-        onPressed: () => _showAboutAmap(context),
-        child: const Text('À propos'),
-      ),
-    ],
-  );
+        const SizedBox(height: 8),
+        const Text(
+          "Les AMAP (Association pour le Maintien d'une Agriculture Paysanne) "
+          'créent des liens directs entre producteurs et consommateurs autour '
+          'de produits locaux et de saison.',
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Amap en Ligne est libre (AGPL) et auto-hébergeable.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        if (guideUrl != null) ...[
+          const SizedBox(height: 8),
+          TextButton(
+            style: linkStyle,
+            onPressed: () => openUrl(guideUrl),
+            child: const Text("Guide d'utilisation"),
+          ),
+        ],
+        const SizedBox(height: 8),
+        TextButton(
+          style: linkStyle,
+          onPressed: () => _showAboutAmap(context),
+          child: const Text('À propos'),
+        ),
+      ],
+    );
+  }
 
   Future<void> _showAboutAmap(BuildContext context) async {
     final info = await PackageInfo.fromPlatform();

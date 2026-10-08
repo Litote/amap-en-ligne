@@ -55,6 +55,9 @@ L'écran d'accueil (avant connexion) propose trois entrées :
 - **[INSCRIVEZ-VOUS]** — vous souhaitez créer une nouvelle AMAP ou un compte producteur
   (voir [Créer une organisation](#créer-une-organisation-amap-ou-producteur)).
 
+En bas de l'écran, le lien **Guide d'utilisation** ouvre ce guide (si votre instance
+en publie un).
+
 ## Se connecter
 
 1. Sur l'écran d'accueil, touchez **[SE CONNECTER]**.
