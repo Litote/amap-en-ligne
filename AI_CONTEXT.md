@@ -130,6 +130,8 @@ The front's hardcoded preset list (`front/lib/data/server/server_presets.dart`) 
 |-----------|------------|-------------|
 | `back` | `deploy:jvm` (Ktor CIO, plain JVM on a `jlink`-trimmed Java 25 runtime — deliberately **not** GraalVM native: long-running server, JIT throughput, `firebase-admin` reflection; see `back/CONTRIBUTING.md` → JVM runtime image) | `persistence:postgres` (self-hosted Supabase Postgres, direct JDBC) |
 | `back` | `deploy:lambda` (GraalVM native) | `persistence:dynamo` (DynamoDB via Terraform) |
+
+**Self-hosted JVM stack** (`back/deploy/jvm/prod/`): production Docker Compose of `deploy:jvm` — Caddy (TLS) → `web` (nginx: Flutter web + proxy, `/auth/*` → GoTrue with the prefix stripped, `/auth/admin` blocked) → `api` + GoTrue + Postgres, all on one domain (the web client discovers its server same-origin). Images `ghcr.io/litote/amap-en-ligne-{api,web}` are pushed by the manual `publish-jvm-images.yml`. Invariants it carries: `GOTRUE_JWT_ISSUER = https://$DOMAIN/auth` (also the discovery `auth.base_url`), `GOTRUE_JWT_EXP=900`, GoTrue email links `GOTRUE_MAILER_URLPATHS_*=/auth/verify`, back→GoTrue admin calls on the internal network (`GOTRUE_ADMIN_API_URL`). Installer guides (French): `documentation/install/fr/` (generic, then Infomaniak).
 | `front` | Android / iOS / Web | drift on sqlite (local cache) |
 
 ---

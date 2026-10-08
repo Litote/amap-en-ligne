@@ -1,0 +1,161 @@
+# Production stack of the JVM deployment (self-hosted instance).
+#
+# One host, one domain:
+#
+#   Internet :443 ─► caddy  (automatic Let's Encrypt TLS)
+#                      └─► web (nginx: Flutter web app + reverse proxy)
+#                            ├─ /v1/*, /.well-known/*  ─► api:8080
+#                            └─ /auth/*                ─► gotrue:9999 (prefix stripped)
+#                    postgres (named volume, never exposed)
+#
+# The api and web images are published on GHCR by the manual
+# `.github/workflows/publish-jvm-images.yml` workflow: installing an instance needs
+# Docker + this directory + a `.env` file, no JDK nor Flutter.
+#
+# Setup (see documentation/install/auto-hebergement.md):
+#   cp .env.example .env && ./generate-secrets.sh >> .env   # then edit .env
+#   docker compose up -d
+#   ./create-owner.sh owner@example.org
+#
+# The back applies its Flyway migrations itself at startup.
+
+name: amap-en-ligne
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Runs once on first init (empty volume): pre-creates the `auth` schema GoTrue migrates into.
+      - ../postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  gotrue:
+    # Same tag as the dev stack — bump both together.
+    image: supabase/gotrue:v2.158.1
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      # Public URLs: GoTrue is reached through nginx under /auth/.
+      API_EXTERNAL_URL: https://${DOMAIN:?set DOMAIN in .env}/auth
+      GOTRUE_SITE_URL: https://${DOMAIN}
+      GOTRUE_URI_ALLOW_LIST: https://${DOMAIN}/**
+
+      # `search_path=auth`: see the dev docker-compose.yml. POSTGRES_PASSWORD must be URL-safe
+      # (generate-secrets.sh emits hex).
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres?sslmode=disable&search_path=auth
+
+      # JWT — the issuer is the public auth base URL advertised by /.well-known (the back
+      # reads the same value). Access tokens live 15 minutes: roles are never revoked
+      # server-side, so the TTL is the revocation delay (see AI_CONTEXT.md).
+      GOTRUE_JWT_SECRET: ${GOTRUE_JWT_SECRET:?set GOTRUE_JWT_SECRET in .env}
+      GOTRUE_JWT_ISSUER: https://${DOMAIN}/auth
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_EXP: 900
+      GOTRUE_JWT_ADMIN_ROLES: service_role,supabase_admin
+
+      # Public sign-up closed: accounts are only created by the back (activation) or
+      # create-owner.sh, through the admin API.
+      GOTRUE_DISABLE_SIGNUP: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "false"
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_EXTERNAL_PHONE_ENABLED: "false"
+      GOTRUE_MAILER_SUBJECTS_RECOVERY: Réinitialisation de votre mot de passe
+      # Email links are resolved against the host root, dropping API_EXTERNAL_URL's path:
+      # repeat the /auth prefix (same approach as Supabase's own docker-compose).
+      GOTRUE_MAILER_URLPATHS_RECOVERY: /auth/verify
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: /auth/verify
+      GOTRUE_MAILER_URLPATHS_INVITE: /auth/verify
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: /auth/verify
+
+      # Password recovery emails. GoTrue negotiates STARTTLS on its own when the server offers it.
+      GOTRUE_SMTP_HOST: ${SMTP_HOST:?set SMTP_HOST in .env}
+      GOTRUE_SMTP_PORT: ${SMTP_PORT:-587}
+      GOTRUE_SMTP_USER: ${SMTP_USERNAME:-}
+      GOTRUE_SMTP_PASS: ${SMTP_PASSWORD:-}
+      GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_FROM_EMAIL:?set SMTP_FROM_EMAIL in .env}
+      GOTRUE_SMTP_SENDER_NAME: ${INSTANCE_NAME:-AMAP en ligne}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9999/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  api:
+    image: ghcr.io/litote/amap-en-ligne-api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gotrue:
+        condition: service_healthy
+    # Optional variables (INSTANCE_TERMS_URL, FCM_CREDENTIALS_FILE, …) are only passed when set
+    # in .env: an empty value would be read as set.
+    env_file: .env
+    # Derived values: everything hangs off DOMAIN.
+    environment:
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/postgres
+      INSTANCE_API_URL: https://${DOMAIN}
+      INSTANCE_WEB_URL: https://${DOMAIN}
+      GOTRUE_JWT_ISSUER: https://${DOMAIN}/auth
+      # Admin calls stay on the internal network instead of going through the public URL.
+      GOTRUE_ADMIN_API_URL: http://gotrue:9999
+      SMTP_TLS: ${SMTP_TLS:-true}
+      JAVA_OPTS: ${JAVA_OPTS:--Xmx512m}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/.well-known/amap-en-ligne.json || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  web:
+    image: ghcr.io/litote/amap-en-ligne-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    # Instance terms of service: copy the bundled template, fill it in, then uncomment.
+    #   docker compose cp web:/usr/share/nginx/html/cgu.html instance/cgu.html
+    # volumes:
+    #   - ./instance/cgu.html:/usr/share/nginx/html/cgu.html:ro
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+networks:
+  default:
+    # Fixed name so the helper scripts can attach throw-away containers to it.
+    name: amap-en-ligne
+
+volumes:
+  postgres-data:
+  caddy-data:
+  caddy-config:

@@ -21,6 +21,10 @@ documentation/
   README.md              ← entry index
   architecture/
     README.md            ← architecture guidelines and ADRs
+  install/
+    fr/
+      auto-hebergement.md ← generic self-hosting guide (French, any host)
+      infomaniak.md       ← host-specific additions only, links back to the generic guide
   feature/
     fr/
       README.md          ← functional overview (French)

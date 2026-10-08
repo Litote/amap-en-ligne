@@ -9,3 +9,8 @@
 
 # Per-deployment local env file (committed: `.env.example`).
 deploy/jvm/.env
+
+# Production stack secrets and per-instance overrides (committed: `prod/.env.example`).
+deploy/jvm/prod/.env
+deploy/jvm/prod/instance/
+deploy/jvm/prod/backups/

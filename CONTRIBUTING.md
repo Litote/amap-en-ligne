@@ -215,6 +215,7 @@ Current contract reminder:
 | `front-update-goldens.yml` | Manual only | Regenerates golden screenshots on macOS, opens a PR with verified commit |
 | `deploy-lambda.yml` | PR on `back/**`, `infra/**`; called by `ci.yml` after the tests on a push to `main`; manual dispatch | PR: GraalVM native build + `terraform plan`. Push to `main` (via `ci.yml`) / dispatch: native build + `terraform apply` + `aws lambda update-function-code`. |
 | `deploy-web.yml` | called by `ci.yml` after the tests on a push touching `front/**` to `main`, or manual dispatch (`dev`/`prod` target) | Builds Flutter web (WASM, build number = run number), syncs to S3, invalidates CloudFront. |
+| `publish-jvm-images.yml` | Manual only (`tag`, `latest`) | Builds the self-hosted JVM images — `ghcr.io/litote/amap-en-ligne-api` (`back/deploy/jvm/Dockerfile`) and `ghcr.io/litote/amap-en-ligne-web` (Flutter web + `back/deploy/jvm/prod/nginx.conf`, `prod/web.Dockerfile`) — and pushes them to GHCR with the built-in `GITHUB_TOKEN`. Tag defaults to `VERSION_NAME`. The two GHCR packages must be set **public** once (package settings) so installers can pull without logging in. |
 | `release-please.yml` | push on `main` | Maintains the running release PR from Conventional Commits (see [Releases & versioning](#releases--versioning)). |
 | `docs.yml` | push on `documentation/guide/fr/**`, `site/**` | Builds and publishes the MkDocs help site to GitHub Pages |
 | `zizmor.yml` | push/PR on `main` | Security scan of all workflow files |
@@ -245,6 +246,8 @@ Configure these in the repository settings before the relevant workflows will pa
 | `AWS_LAMBDA_FUNCTION_NAME` | `deploy-lambda` | `amap-en-ligne-api` |
 
 ### Notes
+
+**Self-hosted JVM stack** — `back/deploy/jvm/prod/` is the production Docker Compose stack of the JVM deployment (Caddy TLS → nginx `web` → `api` + GoTrue under `/auth/`, Postgres), consumed by the French installer guides in `documentation/install/fr/`. It differs from the dev stack (`back/deploy/jvm/docker-compose.yml`) on purpose: secrets from `.env` (`generate-secrets.sh`), 15-minute GoTrue access tokens, GoTrue email links prefixed with `/auth`, no published port except Caddy's, no immutable cache on the (unhashed) Flutter web bundles. Keep `prod/nginx.conf` aligned with the dev `nginx.conf` and the GoTrue image tag aligned between both compose files.
 
 **GraalVM native build** — `deploy-lambda` compiles a GraalVM CE 25 native image. This takes up to 60 minutes on a cold runner; Gradle cache warm-up reduces subsequent runs significantly.
 

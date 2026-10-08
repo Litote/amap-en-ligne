@@ -11,11 +11,12 @@
 [![GNU Affero General Public License](https://img.shields.io/badge/license-GNU%20Affero%20General%20Public%20License-blue.svg?style=flat)](https://www.gnu.org/licenses/agpl-3.0.html)
 
 
-Application pour gérer les livraisons des AMAP.
+Application pour gérer l'organisation des AMAP.
 
-Disponibles sur Web, Android et iOS.
+Clients disponibles sur Web, Android et iOS.
 
-Auto-hébergable et fédérée.
+Auto-hébergable et fédérée : pour installer votre propre instance, voir le
+[guide d'auto-hébergement](documentation/install/fr/auto-hebergement.md).
 
 Le reste de la documentation technique est en anglais.
 

@@ -1,0 +1,7 @@
+# TLS termination only: Caddy obtains and renews the Let's Encrypt certificate for $DOMAIN
+# (ports 80 and 443 must be reachable and the DNS must point at this host), then hands
+# everything to the web container, whose nginx owns the routing.
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy web:80
+}
