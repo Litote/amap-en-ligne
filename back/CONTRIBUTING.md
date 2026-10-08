@@ -136,6 +136,34 @@ Documented server acceptance stories live in `../acceptance/scenarios/` and are 
 ./gradlew acceptanceTest
 ```
 
+### JVM runtime image
+
+`back/deploy/jvm/Dockerfile` packages the `installDist` output on a trimmed Java 25 runtime built with `jlink`
+(Alpine base, non-root `amap` user). The image is about 150 MB, against about 300 MB on the stock
+`eclipse-temurin:25-jre-alpine`. It is used by the `api` service of the compose `web` profile:
+
+```bash
+# from back/
+./gradlew :deploy:jvm:installDist
+docker compose -f deploy/jvm/docker-compose.yml --profile web up -d --build
+```
+
+- **jlink module list**: computed with `jdeps`. Regenerate it after adding or upgrading a runtime dependency, or a
+  missing module surfaces as a `NoClassDefFoundError` at runtime only (the command is in the Dockerfile header).
+- **JVM flags** (`applicationDefaultJvmArgs` in `deploy/jvm/build.gradle.kts`, baked into `bin/jvm`):
+  `-XX:+UseSerialGC -XX:MaxRAMPercentage=60 -Xss512k -XX:+ExitOnOutOfMemoryError -XX:+UseCompactObjectHeaders
+  -XX:+UseStringDeduplication -XX:ReservedCodeCacheSize=64m -XX:CICompilerCount=2`. The heap follows the container
+  memory limit; a 512 MB limit is comfortable for one AMAP instance (RSS ≈ 145 MB under light load). Compact
+  headers and string deduplication pay off with the live data volume (invisible on the dev dataset); the code
+  cache cap saves ≈ 5 MB of native memory (≈ 23 MB used under load). To inspect the native memory breakdown
+  without `jcmd` (not in the jlink image), add `-XX:NativeMemoryTracking=summary -XX:+UnlockDiagnosticVMOptions
+  -XX:+PrintNMTStatistics` to `JAVA_OPTS`: the summary is printed when the JVM stops. Override them through
+  `JAVA_OPTS`. To switch GC, disable SerialGC explicitly (`JAVA_OPTS="-XX:-UseSerialGC -XX:+UseG1GC"`), otherwise
+  the JVM refuses to start ("Multiple garbage collectors selected").
+- **No native image on the JVM side**: GraalVM native is reserved for the Lambda, where cold starts matter. For this
+  long-running server, startup (≈ 1.2 s) is not a concern, the JIT gives better peak throughput, and
+  `firebase-admin` (gRPC/Guava, reflection-heavy) would need its own reachability metadata.
+
 ### Adding another provider
 
 The interface seam is intentional: a new provider (Keycloak, Authentik, …) plugs in as a third implementation of `AuthenticationService` plus a third Koin module, with no change to `service:routing`, `service:data` or any DAO. The contract:

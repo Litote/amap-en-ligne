@@ -10,7 +10,7 @@ All commands below are run from `front/` unless stated otherwise.
 
 - Flutter SDK — exact version in `front/.flutter-version` at repo root
 - Xcode (macOS, for iOS builds)
-- Android Studio / Java 17 (for Android builds)
+- Java 25 for Android builds — the Gradle daemon requires it (`android/gradle/gradle-daemon-jvm.properties`, no auto-download: install any JDK 25 locally); the app itself still targets Java 17 bytecode
 
 ---
 

@@ -33,6 +33,22 @@ dependencies {
 
 application {
     mainClass.set("deploy.jvm.MainKt")
+    // Small self-hosted footprint: a single long-running server with a modest heap, where
+    // SerialGC keeps the RSS lowest. The heap follows the container memory limit. Compact object
+    // headers (JEP 519) and string deduplication shrink the live data; the capped code cache and
+    // two JIT threads trim native memory (≈ 23 MB of code cache used under load). Operators
+    // override or extend these through `JAVA_OPTS` (read by the generated `bin/jvm` script).
+    applicationDefaultJvmArgs =
+        listOf(
+            "-XX:+UseSerialGC",
+            "-XX:MaxRAMPercentage=60",
+            "-Xss512k",
+            "-XX:+ExitOnOutOfMemoryError",
+            "-XX:+UseCompactObjectHeaders",
+            "-XX:+UseStringDeduplication",
+            "-XX:ReservedCodeCacheSize=64m",
+            "-XX:CICompilerCount=2",
+        )
 }
 
 // These are heavy integration tests: each test class boots an embedded Ktor server wired to

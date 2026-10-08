@@ -128,7 +128,7 @@ The front's hardcoded preset list (`front/lib/data/server/server_presets.dart`) 
 
 | Component | Deployment | Persistence |
 |-----------|------------|-------------|
-| `back` | `deploy:jvm` (Ktor CIO) | `persistence:postgres` (self-hosted Supabase Postgres, direct JDBC) |
+| `back` | `deploy:jvm` (Ktor CIO, plain JVM on a `jlink`-trimmed Java 25 runtime — deliberately **not** GraalVM native: long-running server, JIT throughput, `firebase-admin` reflection; see `back/CONTRIBUTING.md` → JVM runtime image) | `persistence:postgres` (self-hosted Supabase Postgres, direct JDBC) |
 | `back` | `deploy:lambda` (GraalVM native) | `persistence:dynamo` (DynamoDB via Terraform) |
 | `front` | Android / iOS / Web | drift on sqlite (local cache) |
 
