@@ -110,7 +110,12 @@ jobs:
         env:
           WEB_BUCKET: ${{ steps.tf.outputs.web_bucket }}
         run: |
-          aws s3 sync front/build/web/ "s3://${WEB_BUCKET}/" --delete --exclude "cgu.html"
+          # Flutter web file names are not content-hashed (main.dart.wasm,
+          # flutter_bootstrap.js, …): without Cache-Control the browser applies
+          # heuristic freshness and keeps running the previous build for hours.
+          # no-cache forces an ETag revalidation (cheap 304) on every load.
+          aws s3 sync front/build/web/ "s3://${WEB_BUCKET}/" --delete --exclude "cgu.html" \
+            --cache-control "no-cache"
           # index.html is also served for every SPA deep link (CloudFront rewrite on
           # the default behavior): never let the edge cache the app shell.
           aws s3 cp front/build/web/index.html "s3://${WEB_BUCKET}/index.html" \

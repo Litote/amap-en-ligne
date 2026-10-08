@@ -123,7 +123,8 @@ dev-back: build init
 dev-web: init
 	$(TF) workspace select -or-create dev
 	cd ../front && flutter build web --wasm $(DART_DEFINES)
-	aws s3 sync ../front/build/web/ s3://$$($(TF) output -raw web_bucket)/ --delete --exclude "cgu.html"
+	aws s3 sync ../front/build/web/ s3://$$($(TF) output -raw web_bucket)/ --delete --exclude "cgu.html" \
+	  --cache-control "no-cache"
 	aws s3 cp ../front/build/web/index.html s3://$$($(TF) output -raw web_bucket)/index.html \
 	  --cache-control "no-cache" --content-type "text/html"
 	aws cloudfront create-invalidation \
@@ -143,7 +144,8 @@ prod-back: build init
 prod-web: init
 	$(TF) workspace select -or-create prod
 	cd ../front && flutter build web --wasm $(DART_DEFINES)
-	aws s3 sync ../front/build/web/ s3://$$($(TF) output -raw web_bucket)/ --delete --exclude "cgu.html"
+	aws s3 sync ../front/build/web/ s3://$$($(TF) output -raw web_bucket)/ --delete --exclude "cgu.html" \
+	  --cache-control "no-cache"
 	aws s3 cp ../front/build/web/index.html s3://$$($(TF) output -raw web_bucket)/index.html \
 	  --cache-control "no-cache" --content-type "text/html"
 	aws cloudfront create-invalidation \
