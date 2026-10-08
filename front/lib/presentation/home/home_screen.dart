@@ -51,8 +51,7 @@ class _HomeView extends StatelessWidget {
             const _JoinAmapCard(),
             const SizedBox(height: 16),
             _ActionCard(
-              title: 'Je veux créer une nouvelle organisation',
-              subtitle: "Créer une AMAP\nC'est totalement gratuit !",
+              title: 'Je veux créer une AMAP',
               buttonLabel: 'CRÉER UNE AMAP',
               buttonColor: Colors.orange,
               onPressed: () => context.go('/register'),
@@ -61,7 +60,7 @@ class _HomeView extends StatelessWidget {
             _ActionCard(
               title: 'Je suis producteur',
               subtitle: 'Demandez votre espace producteur',
-              buttonLabel: 'DEVENIR PRODUCTEUR',
+              buttonLabel: 'CRÉER SON COMPTE PRODUCTEUR',
               onPressed: () => context.go('/register/producer'),
             ),
             const SizedBox(height: 32),
@@ -86,14 +85,14 @@ class _Header extends StatelessWidget {
 class _ActionCard extends StatelessWidget {
   const _ActionCard({
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     required this.buttonLabel,
     this.buttonColor,
     required this.onPressed,
   });
 
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final String buttonLabel;
   final Color? buttonColor;
   final VoidCallback onPressed;
@@ -106,8 +105,10 @@ class _ActionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 4),
-          Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+          if (subtitle case final subtitle?) ...[
+            const SizedBox(height: 4),
+            Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+          ],
           const SizedBox(height: 12),
           FilledButton(
             style: buttonColor == null
@@ -224,6 +225,8 @@ class _OrganizationDropdown extends StatelessWidget {
   }
 }
 
+const String _sourceCodeUrl = 'https://github.com/Litote/amap-en-ligne';
+
 class _InfoSection extends StatelessWidget {
   const _InfoSection();
 
@@ -251,23 +254,34 @@ class _InfoSection extends StatelessWidget {
           'de produits locaux et de saison.',
         ),
         const SizedBox(height: 16),
-        Text(
-          'Amap en Ligne est libre (AGPL) et auto-hébergeable.',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        if (guideUrl != null) ...[
-          const SizedBox(height: 8),
-          TextButton(
-            style: linkStyle,
-            onPressed: () => openUrl(guideUrl),
-            child: const Text("Guide d'utilisation"),
-          ),
-        ],
-        const SizedBox(height: 8),
-        TextButton(
-          style: linkStyle,
-          onPressed: () => _showAboutAmap(context),
-          child: const Text('À propos'),
+        // One line when wide enough (desktop), wraps on narrow screens.
+        Wrap(
+          spacing: 16,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              "Amap en Ligne est libre (AGPL), sans coût d'utilisation et "
+              'auto-hébergeable.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            if (guideUrl != null)
+              TextButton(
+                style: linkStyle,
+                onPressed: () => openUrl(guideUrl),
+                child: const Text("Guide d'utilisation"),
+              ),
+            TextButton(
+              style: linkStyle,
+              onPressed: () => openUrl(_sourceCodeUrl),
+              child: const Text('Code source'),
+            ),
+            TextButton(
+              style: linkStyle,
+              onPressed: () => _showAboutAmap(context),
+              child: const Text('À propos'),
+            ),
+          ],
         ),
       ],
     );

@@ -30,7 +30,7 @@ utilise son propre serveur, votre coordinateur vous communiquera l'adresse à ut
 
 ## L'écran d'accueil
 
-L'écran d'accueil (avant connexion) propose trois entrées :
+L'écran d'accueil (avant connexion) propose quatre entrées :
 
 ```
 ┌─────────────────────────────────────────
@@ -43,20 +43,27 @@ L'écran d'accueil (avant connexion) propose trois entrées :
 │     [S'INSCRIRE À UNE AMAP]
 │     Choisir une AMAP : [ … ▼]
 │
-│  🏢 Je veux créer une nouvelle
-│     organisation (AMAP ou producteur)
-│     [INSCRIVEZ-VOUS]
+│  Je veux créer une AMAP
+│     [CRÉER UNE AMAP]
+│
+│  Je suis producteur
+│     [CRÉER SON COMPTE PRODUCTEUR]
 └─────────────────────────────────────────
 ```
 
 - **[SE CONNECTER]** — vous avez déjà un compte (voir [Se connecter](#se-connecter)).
 - **[S'INSCRIRE À UNE AMAP]** — vous souhaitez rejoindre une AMAP existante
   (voir [Rejoindre une AMAP](#rejoindre-une-amap)).
-- **[INSCRIVEZ-VOUS]** — vous souhaitez créer une nouvelle AMAP ou un compte producteur
-  (voir [Créer une organisation](#créer-une-organisation-amap-ou-producteur)).
+- **[CRÉER UNE AMAP]** — vous souhaitez créer une nouvelle AMAP
+  (voir [Créer une AMAP ou un espace producteur](#créer-une-amap-ou-un-espace-producteur)).
+- **[CRÉER SON COMPTE PRODUCTEUR]** — vous êtes producteur et souhaitez votre propre
+  espace (même section).
 
-En bas de l'écran, le lien **Guide d'utilisation** ouvre ce guide (si votre instance
-en publie un).
+En bas de l'écran :
+
+- **Guide d'utilisation** ouvre ce guide (si votre instance en publie un) ;
+- **Code source** ouvre le code source de l'application, libre (AGPL) ;
+- **À propos** affiche la version de l'application installée.
 
 ## Se connecter
 
@@ -111,16 +118,20 @@ Vous n'avez pas encore de compte et souhaitez rejoindre une AMAP existante :
 Votre demande est transmise à l'AMAP. Après acceptation par un administrateur, vous
 recevez une invitation par e-mail pour activer votre compte.
 
-## Créer une organisation (AMAP ou producteur)
+## Créer une AMAP ou un espace producteur
 
-Vous souhaitez créer une nouvelle AMAP, ou un compte producteur :
+Pour créer une nouvelle AMAP :
 
-1. Sur l'écran d'accueil, touchez **[INSCRIVEZ-VOUS]**.
-2. Choisissez le **type d'organisation** : **AMAP** ou **Producteur**.
-3. Renseignez le **nom**, le **fuseau horaire** et la **langue** de l'organisation.
-4. Renseignez votre **identité** (prénom, nom, e-mail) : vous serez le premier
-   administrateur de cette organisation.
+1. Sur l'écran d'accueil, touchez **[CRÉER UNE AMAP]**.
+2. Renseignez le **nom de l'AMAP**.
+3. Renseignez votre **identité** (prénom, nom, e-mail) : vous serez le premier
+   administrateur de cette AMAP.
+4. Ajoutez si vous le souhaitez un message (votre projet, vos questions…).
 5. Acceptez les conditions d'utilisation, puis touchez **[CRÉER]**.
+
+Pour demander un espace producteur, touchez **[CRÉER SON COMPTE PRODUCTEUR]** (ou le lien
+**Vous êtes producteur ?** du formulaire de création d'AMAP), renseignez le **nom du
+producteur** et votre identité, puis touchez **[ENVOYER LA DEMANDE]**.
 
 Votre demande est examinée par l'administrateur de l'instance. En cas d'approbation, vous recevez un e-mail d'activation pour
 définir votre mot de passe et accéder à votre espace.

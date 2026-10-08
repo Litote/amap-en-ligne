@@ -68,6 +68,75 @@ void main() {
     );
   });
 
+  testWidgets('home offers to create an AMAP without a subtitle', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildSubject());
+    await tester.pump();
+
+    expect(find.text('Je veux créer une AMAP'), findsOneWidget);
+    expect(find.text('Je veux créer une nouvelle organisation'), findsNothing);
+    expect(find.textContaining('totalement gratuit'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'CRÉER UNE AMAP'), findsOneWidget);
+  });
+
+  testWidgets('home offers to create a producer account', (tester) async {
+    await tester.pumpWidget(buildSubject());
+    await tester.pump();
+
+    expect(
+      find.widgetWithText(FilledButton, 'CRÉER SON COMPTE PRODUCTEUR'),
+      findsOneWidget,
+    );
+    expect(find.text('DEVENIR PRODUCTEUR'), findsNothing);
+  });
+
+  testWidgets('home no longer shows the national AMAP search', (tester) async {
+    await tester.pumpWidget(buildSubject());
+    await tester.pump();
+
+    expect(find.textContaining('Trouver une AMAP'), findsNothing);
+    expect(find.textContaining('reseau-amap.org'), findsNothing);
+  });
+
+  testWidgets('home shows a "Code source" link', (tester) async {
+    await tester.pumpWidget(buildSubject());
+    await tester.pump();
+
+    expect(find.widgetWithText(TextButton, 'Code source'), findsOneWidget);
+  });
+
+  testWidgets('license, guide, source and about share one line on desktop', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1920, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      buildSubject(guideUrl: 'https://litote.github.io/amap-en-ligne/'),
+    );
+    await tester.pump();
+
+    final license = tester.getCenter(
+      find.text(
+        "Amap en Ligne est libre (AGPL), sans coût d'utilisation et auto-hébergeable.",
+      ),
+    );
+    final guide = tester.getCenter(
+      find.widgetWithText(TextButton, "Guide d'utilisation"),
+    );
+    final source = tester.getCenter(
+      find.widgetWithText(TextButton, 'Code source'),
+    );
+    final about = tester.getCenter(find.widgetWithText(TextButton, 'À propos'));
+    expect(source.dy, moreOrLessEquals(license.dy, epsilon: 1));
+    expect(guide.dy, moreOrLessEquals(license.dy, epsilon: 1));
+    expect(about.dy, moreOrLessEquals(license.dy, epsilon: 1));
+    expect(license.dx, lessThan(guide.dx));
+    expect(guide.dx, lessThan(source.dx));
+    expect(source.dx, lessThan(about.dx));
+  });
+
   testWidgets('home shows an "À propos" button', (tester) async {
     await tester.pumpWidget(buildSubject());
     await tester.pump();
