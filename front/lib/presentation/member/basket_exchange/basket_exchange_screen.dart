@@ -331,7 +331,7 @@ class _ReadyBody extends StatelessWidget {
                 ],
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
-                  onPressed: () => context.push('/basket-exchange/history'),
+                  onPressed: () => context.go('/basket-exchange/history'),
                   icon: const Icon(Icons.history),
                   label: const Text('VOIR HISTORIQUE COMPLET'),
                 ),

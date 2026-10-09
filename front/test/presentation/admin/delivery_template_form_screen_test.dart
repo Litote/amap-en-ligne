@@ -412,4 +412,71 @@ void main() {
       expect(find.text('Ce champ est requis.'), findsOneWidget);
     },
   );
+
+  group('DeliveryTemplateRouteScreen (opened by its URL)', () {
+    const stored = DeliveryTemplate(
+      deliveryTemplateId: 'dt-1',
+      organizationId: 'org-1',
+      name: 'Distribution du mercredi',
+      standardStartTime: '19:00',
+      standardEndTime: '20:30',
+    );
+
+    Future<void> pumpRoute(
+      WidgetTester tester,
+      List<DeliveryTemplate> cached,
+    ) async {
+      when(() => syncBloc.state).thenReturn(const SyncState.idle());
+      when(() => syncBloc.stream).thenAnswer((_) => const Stream.empty());
+      when(
+        () => organizationRepository.watch('org-1'),
+      ).thenAnswer((_) => Stream.value(_organization));
+      when(
+        () => deliveryTemplateRepository.watch('org-1'),
+      ).thenAnswer((_) => Stream.value(cached));
+      await tester.pumpWidget(
+        MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider<DeliveryTemplateRepository>.value(
+              value: deliveryTemplateRepository,
+            ),
+            RepositoryProvider<OrganizationRepository>.value(
+              value: organizationRepository,
+            ),
+          ],
+          child: BlocProvider<SyncBloc>.value(
+            value: syncBloc,
+            child: const MaterialApp(
+              home: DeliveryTemplateRouteScreen(
+                organizationId: 'org-1',
+                deliveryTemplateId: 'dt-1',
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+    }
+
+    testWidgets('edits the cached template, never an empty creation form', (
+      tester,
+    ) async {
+      await pumpRoute(tester, const [stored]);
+
+      expect(
+        _textFormFieldWithValue('Distribution du mercredi'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('says the template is unknown instead of a creation form', (
+      tester,
+    ) async {
+      await pumpRoute(tester, const []);
+
+      expect(find.text('Modèle introuvable.'), findsOneWidget);
+      expect(find.byType(DeliveryTemplateFormScreen), findsNothing);
+    });
+  });
 }

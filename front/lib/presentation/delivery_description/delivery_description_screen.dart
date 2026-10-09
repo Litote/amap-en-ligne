@@ -19,6 +19,52 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Below this window width the AppBar title wraps on two lines.
 const double _kNarrowWidth = 600;
 
+/// Route entry of `/coordinator/deliveries/:deliveryId/description`: uses the
+/// organization handed over by the delivery form ([org]) or, when opened by
+/// its URL (page reload, shared link), reads it back from the local cache.
+/// Back leads to the delivery form when there is no page to pop.
+class DeliveryDescriptionRouteScreen extends StatelessWidget {
+  const DeliveryDescriptionRouteScreen({
+    super.key,
+    required this.tenantId,
+    required this.deliveryId,
+    this.org,
+  });
+
+  final String tenantId;
+  final String deliveryId;
+  final Organization? org;
+
+  @override
+  Widget build(BuildContext context) {
+    final backRoute = '/coordinator/time-slots/$deliveryId';
+    final handedOver = org;
+    if (handedOver != null) {
+      return DeliveryDescriptionScreen(
+        org: handedOver,
+        deliveryId: deliveryId,
+        backRoute: backRoute,
+      );
+    }
+    return StreamBuilder<Organization?>(
+      stream: context.read<OrganizationRepository>().watch(tenantId),
+      builder: (context, snapshot) {
+        final cached = snapshot.data;
+        if (cached == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return DeliveryDescriptionScreen(
+          org: cached,
+          deliveryId: deliveryId,
+          backRoute: backRoute,
+        );
+      },
+    );
+  }
+}
+
 class DeliveryDescriptionScreen extends StatelessWidget {
   const DeliveryDescriptionScreen({
     super.key,

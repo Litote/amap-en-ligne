@@ -46,6 +46,13 @@ void main() {
     expect(formatDeliveryDateTime(wednesday), 'Mercredi 14 janvier • 18h00');
   });
 
+  test('formatDeliveryDateTime can add the year', () {
+    expect(
+      formatDeliveryDateTime(wednesday, withYear: true),
+      'Mercredi 14 janvier 2026 • 18h00',
+    );
+  });
+
   group('formatSlotTime', () {
     test('drops minutes for whole hours', () {
       expect(formatSlotTime('2026-01-14T18:00:00'), '18h');

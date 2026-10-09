@@ -54,7 +54,7 @@ class _TimeSlotsView extends StatelessWidget {
     title: 'Gestion des livraisons',
     actions: const [SyncButton()],
     floatingActionButton: FloatingActionButton(
-      onPressed: () => context.push('/coordinator/time-slots/new'),
+      onPressed: () => context.go('/coordinator/time-slots/new'),
       tooltip: 'Ajouter livraison',
       child: const Icon(Icons.add),
     ),
@@ -265,7 +265,7 @@ class _DeliveryCard extends StatelessWidget {
             alignment: MainAxisAlignment.end,
             children: [
               TextButton.icon(
-                onPressed: () => context.push(
+                onPressed: () => context.go(
                   '/coordinator/time-slots/${delivery.deliveryId}',
                 ),
                 icon: const Icon(Icons.edit_outlined),

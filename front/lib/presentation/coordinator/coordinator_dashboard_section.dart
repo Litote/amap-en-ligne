@@ -197,7 +197,7 @@ class _SectionBody extends StatelessWidget {
         Align(
           alignment: Alignment.centerLeft,
           child: FilledButton(
-            onPressed: () => context.push('/coordinator/time-slots/new'),
+            onPressed: () => context.go('/coordinator/time-slots/new'),
             child: const Text('➕ NOUVEAU CRÉNEAU'),
           ),
         ),

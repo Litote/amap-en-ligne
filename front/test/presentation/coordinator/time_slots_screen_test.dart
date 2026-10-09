@@ -353,7 +353,7 @@ void main() {
   });
 
   testWidgets('MODIFIER navigates to the delivery edit form', (tester) async {
-    await _pumpRouter(
+    final router = await _pumpRouter(
       tester,
       repo: repo,
       contractRepo: contractRepo,
@@ -374,6 +374,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('edit:d-9'), findsOneWidget);
+    // The browser URL reflects the form, so a reload or a shared link
+    // reopens it.
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      '/coordinator/time-slots/d-9',
+    );
   });
 
   testWidgets('SUIVRE navigates to the live tracking screen', (tester) async {

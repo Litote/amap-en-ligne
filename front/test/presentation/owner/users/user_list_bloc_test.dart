@@ -571,6 +571,25 @@ void main() {
     await bloc.close();
   });
 
+  test('searchQueryChanged finds a cedilla name typed without it', () async {
+    _mockData(
+      ownerRepo: ownerRepo,
+      memberRepo: memberRepo,
+      orgRepo: orgRepo,
+      owners: [
+        _owner(id: 'o-1', last: 'Françoise'),
+        _owner(id: 'o-2', last: 'Dupont'),
+      ],
+    );
+    final bloc = buildBloc()..add(const UserListEvent.loaded());
+    await _awaitSettled(bloc);
+
+    bloc.add(const UserListEvent.searchQueryChanged('francoise'));
+    final loaded = await _awaitLoaded(bloc);
+    expect(loaded.totalCount, 1);
+    await bloc.close();
+  });
+
   // ---------------------------------------------------------------------------
   // 6. Pagination
   // ---------------------------------------------------------------------------

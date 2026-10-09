@@ -1033,7 +1033,37 @@ void main() {
       },
     );
 
-    for (final userVersion in [5, 42]) {
+    test(
+      'upgrading from v4 drops the organization cursors only, keeping the '
+      'queue (re-bootstrap without the other members contact details)',
+      () async {
+        final dir = Directory.systemTemp.createTempSync('amap_db_v4');
+        addTearDown(() => dir.deleteSync(recursive: true));
+        final file = File('${dir.path}/app.sqlite');
+
+        final v4 = AppDatabase(NativeDatabase(file));
+        await v4.writeCursor('organization:org-1', 'cursor-org');
+        await v4.writeCursor(testProducerScopeKey, 'cursor-producer');
+        await v4.enqueuePendingMutation(
+          buildProductTypeUpsertMutation(productType: buildProductType()),
+          scopeKey: testProducerScopeKey,
+        );
+        await v4.customStatement('PRAGMA user_version = 4');
+        await v4.close();
+
+        final upgraded = AppDatabase(NativeDatabase(file));
+        addTearDown(upgraded.close);
+
+        expect(await upgraded.readCursor('organization:org-1'), isNull);
+        expect(
+          await upgraded.readCursor(testProducerScopeKey),
+          'cursor-producer',
+        );
+        expect(await upgraded.readPendingMutations(), hasLength(1));
+      },
+    );
+
+    for (final userVersion in [6, 42]) {
       test(
         'user_version $userVersion rebuilds the cache instead of throwing',
         () async {

@@ -275,6 +275,36 @@ void main() {
     },
   );
 
+  testWidgets('the member search ignores accents', (tester) async {
+    await _pump(
+      tester,
+      organizationRepository: organizationRepository,
+      memberRepository: memberRepository,
+      contractRepository: contractRepository,
+      syncBloc: syncBloc,
+    );
+    await tester.pump();
+
+    organizationStream.add(buildOrganization());
+    await tester.pump();
+    memberStream.add([
+      buildMember(memberId: 'm-1', firstName: 'Augustin et Cecile'),
+      buildMember(memberId: 'm-2', firstName: 'Bruno'),
+    ]);
+    await tester.pump();
+    contractStream.add([buildContract(contractId: 'c-active')]);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Rechercher un Amapien'),
+      'cécile',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Augustin et Cecile'), findsWidgets);
+    expect(find.textContaining('Bruno'), findsNothing);
+  });
+
   testWidgets('contract subtitles show the producer name', (tester) async {
     await _pump(
       tester,

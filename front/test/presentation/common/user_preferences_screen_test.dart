@@ -338,6 +338,32 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
+  testWidgets('the local export says what it contains', (tester) async {
+    await _pump(
+      tester,
+      memberRepo: memberRepo,
+      authService: authService,
+      syncBloc: syncBloc,
+      exportService: exportService,
+    );
+
+    // Not « mes données »: the archive is the whole local cache. What it
+    // holds about the other members depends on the role (names only for a
+    // plain member, contact details for coordinators and admins), so the
+    // help text stays true for every role.
+    expect(find.text("EXPORTER LES DONNÉES DE L'APPAREIL"), findsOneWidget);
+    expect(find.text('EXPORTER MES DONNÉES'), findsNothing);
+    expect(
+      find.text(
+        "Copie des données de l'AMAP synchronisées sur cet appareil "
+        '(sauvegarde, support). Elle contient des informations personnelles '
+        ': ne la partagez pas.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('coordonnées des autres membres'), findsNothing);
+  });
+
   testWidgets('exports the local database from the preferences page', (
     tester,
   ) async {

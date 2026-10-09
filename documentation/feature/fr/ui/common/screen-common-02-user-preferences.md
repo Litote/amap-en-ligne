@@ -19,7 +19,10 @@ Interface de configuration des préférences personnelles de l'utilisateur, nota
 │  │  Email : marie.dupont@example.com                       │ │
 │  │  Téléphone : 06 12 34 56 78                            │ │
 │  │  [MODIFIER MES INFORMATIONS]                            │ │
-│  │  [EXPORTER MES DONNÉES]                                 │ │
+│  │  [EXPORTER LES DONNÉES DE L'APPAREIL]                   │ │
+│  │  Copie des données de l'AMAP synchronisées sur cet      │ │
+│  │  appareil (sauvegarde, support). Elle contient des      │ │
+│  │  informations personnelles : ne la partagez pas.        │ │
 │  └─────────────────────────────────────────────────────────┘ │
 │                                                             │
 │  📱 Notifications bénévolat                                 │
@@ -71,7 +74,7 @@ Interface de configuration des préférences personnelles de l'utilisateur, nota
 #### 👤 **Profil utilisateur**
 - **Informations personnelles** : Nom, email, téléphone
 - **[MODIFIER MES INFORMATIONS]** : Edition des données de base
-- **[EXPORTER MES DONNÉES]** : Export du cache SQLite local de l'utilisateur au format ZIP
+- **[EXPORTER LES DONNÉES DE L'APPAREIL]** : Export du cache SQLite local de l'appareil au format ZIP. Ce n'est pas un export des seules données personnelles : il contient tout ce qui est synchronisé sur l'appareil, selon le rôle : pour un amapien, ses propres données et le nom des autres membres (le serveur ne lui transmet pas leurs coordonnées, hormis le téléphone des coordinateurs) ; pour un coordinateur, aussi les coordonnées des membres ; pour un admin, en plus les invitations et demandes d'adhésion. Le texte d'aide sous le bouton, valable pour tous les rôles, signale des informations personnelles et invite à ne pas partager le fichier.
 - **Validation** : Vérification email/téléphone pour certaines notifications
 
 #### 📱 **Notifications bénévolat**
@@ -116,7 +119,7 @@ Visible uniquement pour les membres ayant le rôle **Admin**. Permet de sauvegar
 - **← Retour** : Retour à l'écran précédent
 - **[Menu]** : Accès au menu principal
 - **[MODIFIER MES INFORMATIONS]** : Edition du profil
-- **[EXPORTER MES DONNÉES]** : Télécharge un fichier `.zip` contenant `amap_en_ligne.sqlite`
+- **[EXPORTER LES DONNÉES DE L'APPAREIL]** : Télécharge un fichier `.zip` contenant `amap_en_ligne.sqlite`
 
 ## Logique applicative
 
@@ -127,7 +130,7 @@ Modifications → Validation → Mise à jour base → Confirmation utilisateur
 
 ### Export des données locales
 ```
-Clic sur [EXPORTER MES DONNÉES] → Lecture de la base SQLite locale → Création d'une archive ZIP → Téléchargement / enregistrement du fichier → Confirmation utilisateur
+Clic sur [EXPORTER LES DONNÉES DE L'APPAREIL] → Lecture de la base SQLite locale → Création d'une archive ZIP → Téléchargement / enregistrement du fichier → Confirmation utilisateur
 ```
 
 ### Sauvegarde & migration de l'AMAP (Admin)

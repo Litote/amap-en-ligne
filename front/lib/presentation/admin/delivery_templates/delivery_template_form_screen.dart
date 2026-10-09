@@ -17,6 +17,62 @@ import 'package:go_router/go_router.dart';
 const _defaultEarlySlotMaxVolunteers = 2;
 const _kFieldRequired = kFieldRequiredMessage;
 
+const _kTemplateListRoute = '/admin/delivery-templates';
+
+/// Route entry of `/admin/delivery-templates/:id`: edits the template handed
+/// over by the list ([template]) or, when opened by its URL (page reload,
+/// shared link), the one read back from the local cache by
+/// [deliveryTemplateId] — never an empty creation form under an edit URL.
+class DeliveryTemplateRouteScreen extends StatelessWidget {
+  const DeliveryTemplateRouteScreen({
+    required this.organizationId,
+    required this.deliveryTemplateId,
+    this.template,
+    super.key,
+  });
+
+  final String organizationId;
+  final String deliveryTemplateId;
+  final DeliveryTemplate? template;
+
+  @override
+  Widget build(BuildContext context) {
+    final handedOver = template;
+    if (handedOver != null) {
+      return DeliveryTemplateFormScreen(
+        organizationId: organizationId,
+        template: handedOver,
+      );
+    }
+    return StreamBuilder<List<DeliveryTemplate>>(
+      stream: context.read<DeliveryTemplateRepository>().watch(organizationId),
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        final cached = data
+            ?.where((t) => t.deliveryTemplateId == deliveryTemplateId)
+            .firstOrNull;
+        if (cached != null) {
+          return DeliveryTemplateFormScreen(
+            organizationId: organizationId,
+            template: cached,
+          );
+        }
+        return ConnectedScaffold(
+          title: 'Modifier le modèle',
+          onBack: () => context.canPop()
+              ? context.pop()
+              : context.go(_kTemplateListRoute),
+          body: Center(
+            child: data == null
+                ? const CircularProgressIndicator()
+                : const Text('Modèle introuvable.'),
+          ),
+        );
+      },
+    );
+  }
+}
+
 /// Form screen for creating and editing [DeliveryTemplate] entries.
 ///
 /// When [template] is null, the form creates a new template.
@@ -304,9 +360,8 @@ class _DeliveryTemplateFormViewState extends State<_DeliveryTemplateFormView> {
     ),
   ];
 
-  void _goBack() => context.canPop()
-      ? context.pop()
-      : context.go('/admin/delivery-templates');
+  void _goBack() =>
+      context.canPop() ? context.pop() : context.go(_kTemplateListRoute);
 
   void _initDefaultTemplateOnce(Organization organization) {
     if (_didInitializeDefaultTemplate) return;

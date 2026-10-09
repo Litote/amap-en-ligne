@@ -187,12 +187,12 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
             runSpacing: 12,
             children: [
               FilledButton.tonalIcon(
-                onPressed: () => context.push('/planning'),
+                onPressed: () => context.go('/planning'),
                 icon: const Icon(Icons.calendar_month),
                 label: const Text('PLANNING DES LIVRAISONS'),
               ),
               FilledButton.tonalIcon(
-                onPressed: () => context.push('/history'),
+                onPressed: () => context.go('/history'),
                 icon: const Icon(Icons.history),
                 label: const Text('MON HISTORIQUE'),
               ),

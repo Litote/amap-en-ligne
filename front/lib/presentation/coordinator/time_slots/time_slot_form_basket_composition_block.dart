@@ -46,7 +46,7 @@ class BasketCompositionBlock extends StatelessWidget {
               : '$itemCount composant${itemCount > 1 ? 's' : ''}',
         ),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => context.push(
+        onTap: () => context.go(
           '/coordinator/deliveries/${delivery.deliveryId}/description',
           extra: org,
         ),

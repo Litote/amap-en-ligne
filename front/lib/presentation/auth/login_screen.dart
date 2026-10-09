@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextButton(
                       onPressed: () {
                         final email = _emailController.text.trim();
-                        context.push(
+                        context.go(
                           '/forgot-password',
                           extra: email.isNotEmpty ? email : null,
                         );

@@ -13,6 +13,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/owner.dart';
 import 'package:amap_en_ligne/domain/model/owner_invitation.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
+import 'package:amap_en_ligne/domain/validation/search_text.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_list_event.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_list_state.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_row.dart';
@@ -363,13 +364,10 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     var result = rows;
 
     if (searchQuery.isNotEmpty) {
-      final query = _normalize(searchQuery);
       result = result
           .where(
             (r) =>
-                _normalize(r.firstName).contains(query) ||
-                _normalize(r.lastName).contains(query) ||
-                _normalize(r.email).contains(query),
+                matchesSearch(searchQuery, [r.firstName, r.lastName, r.email]),
           )
           .toList();
     }
@@ -409,18 +407,4 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
         return row.memberships.any((m) => m.roles.contains(Role.volunteer));
     }
   }
-}
-
-/// ASCII-safe lowercase + basic diacritic removal for search.
-/// Full diacritic normalisation would require the `diacritic` package which
-/// is not in pubspec.yaml. This helper covers the most common French chars.
-String _normalize(String s) {
-  const from = 'àâäéèêëîïôùûüÿçœæÀÂÄÉÈÊËÎÏÔÙÛÜŸÇŒÆ';
-  const to = 'aaaeeeeiioouuuycoeAAEEEEEIIOOUUUYCOEAE';
-  final buffer = StringBuffer();
-  for (final char in s.toLowerCase().split('')) {
-    final idx = from.indexOf(char);
-    buffer.write(idx >= 0 ? to[idx] : char);
-  }
-  return buffer.toString();
 }

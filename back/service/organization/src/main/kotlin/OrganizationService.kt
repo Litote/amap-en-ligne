@@ -4,6 +4,7 @@ import authentication.AuthenticatedInfo
 import authentication.Role
 import core.BasketComposition
 import core.EntityTypeService
+import core.MemberContactRedaction
 import core.ProducerScheduleProjection
 import core.organizationInstanceOwnerChanges
 import core.toFrenchLongDate
@@ -75,8 +76,16 @@ class OrganizationService(
         val isPrivilegedCaller = auth.roles.any { it == Role.OWNER || it == Role.ADMIN || it == Role.COORDINATOR }
         val isVolunteerCaller = auth.roles.any { it == Role.VOLUNTEER }
         val persistedOrg = organizationSyncDAO.getById(payload.organization.organizationId)
+        // A plain member is served the other registrations without their email
+        // (MemberContactRedaction): put the stored ones back before any check or write.
+        val incoming =
+            if (MemberContactRedaction.appliesTo(auth)) {
+                MemberContactRedaction.restoreRegistrationEmails(persistedOrg, payload.organization)
+            } else {
+                payload.organization
+            }
 
-        var normalizedOrg = payload.organization
+        var normalizedOrg = incoming
         var slotEvents = emptyList<SlotLifecycleNormalizer.SlotEvent>()
 
         if (!isPrivilegedCaller && isVolunteerCaller && persistedOrg != null) {
@@ -85,7 +94,7 @@ class OrganizationService(
                 VolunteerMutationValidator.validate(
                     auth = auth,
                     persisted = persistedOrg,
-                    incoming = payload.organization,
+                    incoming = incoming,
                     templates = templates,
                     mutation = mutation,
                     service = this,
@@ -94,26 +103,26 @@ class OrganizationService(
             // A volunteer write replaces the whole aggregate: keep the
             // server-allocated slot ids even when the client payload
             // (legacy echo) does not carry them.
-            normalizedOrg = SlotLifecycleNormalizer.inheritSlotIds(persistedOrg, payload.organization)
+            normalizedOrg = SlotLifecycleNormalizer.inheritSlotIds(persistedOrg, incoming)
         }
 
         val productCheckOutcome =
             checkProductsModificationAllowed(
                 organizationId = organizationId,
                 persistedOrg = persistedOrg,
-                incoming = payload.organization,
+                incoming = incoming,
                 mutation = mutation,
             )
         if (productCheckOutcome != null) return productCheckOutcome
 
-        val missingCoordinatorOutcome = checkConfirmedDeliveriesHaveCoordinators(payload.organization, mutation)
+        val missingCoordinatorOutcome = checkConfirmedDeliveriesHaveCoordinators(incoming, mutation)
         if (missingCoordinatorOutcome != null) return missingCoordinatorOutcome
 
-        checkNoFutureDeliveryCompleted(persistedOrg, payload.organization, mutation)?.let { return it }
-        checkNoFutureDayOfRecords(persistedOrg, payload.organization, mutation)?.let { return it }
+        checkNoFutureDeliveryCompleted(persistedOrg, incoming, mutation)?.let { return it }
+        checkNoFutureDayOfRecords(persistedOrg, incoming, mutation)?.let { return it }
 
         if (isPrivilegedCaller) {
-            when (val step = normalizePrivilegedWrite(organizationId, persistedOrg, payload.organization, mutation)) {
+            when (val step = normalizePrivilegedWrite(organizationId, persistedOrg, incoming, mutation)) {
                 is SlotLifecycleNormalizer.Result.Rejected -> {
                     return step.outcome
                 }

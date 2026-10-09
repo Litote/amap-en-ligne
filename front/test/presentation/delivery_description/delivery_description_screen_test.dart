@@ -284,4 +284,41 @@ void main() {
       findsOneWidget,
     );
   });
+
+  group('DeliveryDescriptionRouteScreen (opened by its URL)', () {
+    Future<void> pumpRoute(WidgetTester tester) async {
+      when(() => orgRepo.watch('org-1')).thenAnswer((_) => Stream.value(_org));
+      await tester.pumpWidget(
+        MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider<OrganizationRepository>.value(value: orgRepo),
+            RepositoryProvider<ProductTypeRepository>.value(
+              value: productTypeRepo,
+            ),
+          ],
+          child: const MaterialApp(
+            home: DeliveryDescriptionRouteScreen(
+              tenantId: 'org-1',
+              deliveryId: 'd-1',
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+    }
+
+    testWidgets('reads the organization back from the local cache', (
+      tester,
+    ) async {
+      await pumpRoute(tester);
+
+      final screen = tester.widget<DeliveryDescriptionScreen>(
+        find.byType(DeliveryDescriptionScreen),
+      );
+      expect(screen.org, _org);
+      // Nothing to pop when opened by its URL: back leads to the delivery form.
+      expect(screen.backRoute, '/coordinator/time-slots/d-1');
+    });
+  });
 }

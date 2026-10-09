@@ -10,6 +10,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockDeliveryTemplateRepository extends Mock
@@ -97,6 +98,8 @@ Future<void> _pumpScreen(
 }
 
 void main() {
+  setUpAll(() async => initializeDateFormatting('fr'));
+
   late _MockDeliveryTemplateRepository deliveryTemplateRepository;
   late _MockOrganizationRepository organizationRepository;
 
@@ -144,7 +147,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Livraisons associées'), findsOneWidget);
-    expect(find.textContaining('14/06/2024'), findsOneWidget);
+    // Same date style as the rest of the app, with the year (the list spans
+    // seasons).
+    expect(find.text('Vendredi 14 juin 2024 • 18h00'), findsOneWidget);
   });
 
   testWidgets('delete is blocked when future deliveries are still associated', (

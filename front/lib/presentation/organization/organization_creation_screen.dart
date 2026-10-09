@@ -265,7 +265,7 @@ class _FormViewState extends State<_FormView> {
                   child: TextButton(
                     onPressed: submitting
                         ? null
-                        : () => context.push(
+                        : () => context.go(
                             '/register/producer',
                             extra: {
                               'firstName': _firstNameController.text.trim(),

@@ -82,16 +82,26 @@ class AppDatabase extends _$AppDatabase
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   // v2: product_types.item_types (component catalog). v3: producer_schedules.
-  // v4: cache_owners. Any other version change rebuilds the cache (see
-  // [_rebuildOnVersionMismatch]).
+  // v4: cache_owners. v5: organization scopes re-bootstrapped (plain members
+  // no longer receive the other members' contact details). Any other version
+  // change rebuilds the cache (see [_rebuildOnVersionMismatch]).
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
-      // Purely additive: keeps the queued offline mutations of the upgrade.
-      if (from == 3 && to == 4) return m.createTable(cacheOwners);
+      // Both steps keep the queued offline mutations of the upgrade.
+      if ((from == 3 || from == 4) && to == 5) {
+        if (from == 3) await m.createTable(cacheOwners);
+        // A cache synced before the server masked the other members' contact
+        // details still holds them: dropping the organization cursors makes
+        // the next sync bootstrap those scopes, which overwrites the rows.
+        await customStatement(
+          "DELETE FROM sync_cursors WHERE scope_key LIKE 'organization:%'",
+        );
+        return;
+      }
       return _rebuildOnVersionMismatch(m, from, to);
     },
   );

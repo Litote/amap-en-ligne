@@ -8,6 +8,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/shared_basket_view.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
+import 'package:amap_en_ligne/domain/validation/search_text.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_ended_listener.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
@@ -168,12 +169,14 @@ class _CoordinatorMemberContractsScreenState
   ) {
     final members = [...rawMembers]
       ..sort((a, b) => memberDisplayName(a).compareTo(memberDisplayName(b)));
-    final search = _searchController.text.trim().toLowerCase();
-    final filteredMembers = members.where((member) {
-      if (search.isEmpty) return true;
-      return memberDisplayName(member).toLowerCase().contains(search) ||
-          (member.email?.toLowerCase().contains(search) ?? false);
-    }).toList();
+    final filteredMembers = members
+        .where(
+          (member) => matchesSearch(_searchController.text, [
+            memberDisplayName(member),
+            member.email,
+          ]),
+        )
+        .toList();
     final selectedMember = _resolveSelectedMember(filteredMembers);
     return (
       organization: organization,

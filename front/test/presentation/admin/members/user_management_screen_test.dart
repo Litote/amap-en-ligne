@@ -551,6 +551,44 @@ void main() {
       expect(find.text('David Petit'), findsNothing);
     });
 
+    testWidgets(
+      'the search ignores accents and never matches the technical id',
+      (tester) async {
+        when(() => memberRepo.watch(_orgId)).thenAnswer(
+          (_) => Stream.value([
+            member,
+            const Member(
+              memberId: 'david-2',
+              organizationId: _orgId,
+              firstName: 'Cecile',
+              lastName: 'Petit',
+              roles: {Role.volunteer},
+            ),
+          ]),
+        );
+        when(
+          () => invitationRepo.watch(_orgId),
+        ).thenAnswer((_) => Stream.value(const []));
+
+        await _pumpScreen(
+          tester,
+          memberRepo: memberRepo,
+          invitationRepo: invitationRepo,
+        );
+        await tester.pump();
+
+        await tester.enterText(find.byType(TextField), 'cécile');
+        await tester.pumpAndSettle();
+        expect(find.text('Cecile Petit'), findsOneWidget);
+        expect(find.text('Claire Bernard'), findsNothing);
+
+        // « david-2 » is the member id, not something the admin can see.
+        await tester.enterText(find.byType(TextField), 'david');
+        await tester.pumpAndSettle();
+        expect(find.text('Cecile Petit'), findsNothing);
+      },
+    );
+
     testWidgets('the Admin role filter hides non-admin members', (
       tester,
     ) async {

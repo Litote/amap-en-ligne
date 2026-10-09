@@ -358,6 +358,38 @@ internal class OrganizationServiceTest {
         }
 
     @Test
+    fun `GIVEN volunteer caller served masked emails WHEN registers self THEN APPLIED and the stored emails are kept`() =
+        runTest {
+            // The plain member was served the other registrations without their email
+            // (MemberContactRedaction) and writes the whole organization back.
+            val existingSlot = buildStandardSlot(requiredVolunteers = 3, registrations = listOf(buildRegistration("neighbour")))
+            val existingOrg =
+                buildOrganization(deliveries = listOf(buildDelivery(contracts = listOf(buildContract(slots = listOf(existingSlot))))))
+            val maskedNeighbour = buildRegistration("neighbour").copy(memberEmail = "")
+            val updatedSlot = existingSlot.copy(registrations = listOf(maskedNeighbour, buildRegistration(volunteerId)))
+            val updatedOrg =
+                existingOrg.copy(deliveries = listOf(buildDelivery(contracts = listOf(buildContract(slots = listOf(updatedSlot))))))
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+            coEvery { deliveryTemplateSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(buildTemplate())
+            val written = slot<Organization>()
+            coEvery { organizationSyncDAO.put(capture(written), any(), any()) } returns Unit
+
+            val outcome = service.applyUpsert(volunteerAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            val registrations =
+                written.captured.deliveries
+                    .single()
+                    .contracts
+                    .single()
+                    .slots
+                    .single()
+                    .registrations
+            assertEquals("neighbour@example.com", registrations.single { it.memberId.id == "neighbour" }.memberEmail)
+            assertEquals("$volunteerId@example.com", registrations.single { it.memberId.id == volunteerId }.memberEmail)
+        }
+
+    @Test
     fun `GIVEN volunteer caller WHEN registers self and client increments currentRegistrations THEN APPLIED`() =
         runTest {
             // The client updates currentRegistrations as a denormalized counter alongside the

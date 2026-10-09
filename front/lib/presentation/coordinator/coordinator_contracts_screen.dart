@@ -14,6 +14,7 @@ import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/model/weekly_delivery_plan.dart';
 import 'package:amap_en_ligne/domain/validation/contract_rules.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
+import 'package:amap_en_ligne/domain/validation/search_text.dart';
 import 'package:amap_en_ligne/presentation/common/date_picker_field.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_ended_listener.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
@@ -1158,15 +1159,16 @@ class _ContractEditor extends StatelessWidget {
         .toList();
   }
 
-  List<Member> get _visibleMembers {
-    final search = memberSearchController.text.trim().toLowerCase();
-    return members.where((member) {
-        if (search.isEmpty) return true;
-        return memberDisplayName(member).toLowerCase().contains(search) ||
-            (member.email?.toLowerCase().contains(search) ?? false);
-      }).toList()
-      ..sort((a, b) => memberDisplayName(a).compareTo(memberDisplayName(b)));
-  }
+  List<Member> get _visibleMembers =>
+      members
+          .where(
+            (member) => matchesSearch(memberSearchController.text, [
+              memberDisplayName(member),
+              member.email,
+            ]),
+          )
+          .toList()
+        ..sort((a, b) => memberDisplayName(a).compareTo(memberDisplayName(b)));
 
   @override
   Widget build(BuildContext context) {

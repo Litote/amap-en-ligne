@@ -919,6 +919,29 @@ void main() {
     expect(memberTile(tester, 'Bob Martin').value, isFalse);
   });
 
+  testWidgets('the member search of a contract ignores accents', (
+    tester,
+  ) async {
+    stubMemberAssignment(contracts: [_emptyContract]);
+
+    await tester.pumpWidget(buildScreen());
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('0 amapiens'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(
+      find.widgetWithText(TextField, 'Rechercher un amapien'),
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Rechercher un amapien'),
+      'ÀLICE',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Alice Durand'), findsOneWidget);
+    expect(find.text('Bob Martin'), findsNothing);
+  });
+
   void stubProductInclusion({required List<Contract> contracts}) {
     when(
       () => organizationRepository.watch(any()),

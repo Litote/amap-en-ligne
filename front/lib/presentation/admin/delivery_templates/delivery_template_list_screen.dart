@@ -4,6 +4,7 @@ import 'package:amap_en_ligne/domain/model/delivery_template.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/admin/delivery_templates/delivery_template_associations.dart';
 import 'package:amap_en_ligne/presentation/admin/delivery_templates/delivery_template_bloc.dart';
+import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class _DeliveryTemplateListView extends StatelessWidget {
       title: 'Modèles de livraison',
       actions: const [SyncButton()],
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/admin/delivery-templates/new'),
+        onPressed: () => context.go('/admin/delivery-templates/new'),
         icon: const Icon(Icons.add),
         label: const Text('Nouveau modèle'),
       ),
@@ -149,7 +150,7 @@ class _TemplateTile extends StatelessWidget {
         tooltip: 'Actions du modèle « ${template.name} »',
         onSelected: (action) {
           if (action == _TemplateAction.edit) {
-            context.push(
+            context.go(
               '/admin/delivery-templates/${template.deliveryTemplateId}',
               extra: template,
             );
@@ -165,7 +166,7 @@ class _TemplateTile extends StatelessWidget {
           ),
         ],
       ),
-      onTap: () => context.push(
+      onTap: () => context.go(
         '/admin/delivery-templates/${template.deliveryTemplateId}',
         extra: template,
       ),
@@ -254,7 +255,12 @@ class _TemplateTile extends StatelessWidget {
               .map(
                 (delivery) => ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(_formatDeliveryDate(delivery.scheduledDate)),
+                  title: Text(
+                    formatDeliveryDateTime(
+                      delivery.scheduledDate,
+                      withYear: true,
+                    ),
+                  ),
                   subtitle: Text(_deliveryStatusLabel(delivery.status)),
                 ),
               )
@@ -288,18 +294,6 @@ class _ErrorView extends StatelessWidget {
       ],
     ),
   );
-}
-
-String _formatDeliveryDate(String isoDate) {
-  final parsed = DateTime.tryParse(isoDate);
-  if (parsed == null) return isoDate;
-  final local = parsed.toLocal();
-  final day = local.day.toString().padLeft(2, '0');
-  final month = local.month.toString().padLeft(2, '0');
-  final year = local.year.toString();
-  final hour = local.hour.toString().padLeft(2, '0');
-  final minute = local.minute.toString().padLeft(2, '0');
-  return '$day/$month/$year à $hour:$minute';
 }
 
 String _deliveryStatusLabel(DeliveryStatus status) => switch (status) {

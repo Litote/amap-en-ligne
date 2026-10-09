@@ -420,8 +420,9 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
           GoRoute(
             path: '/admin/delivery-templates/:id',
             builder: (_, state) => tenantScoped(
-              (tenantId) => DeliveryTemplateFormScreen(
+              (tenantId) => DeliveryTemplateRouteScreen(
                 organizationId: tenantId,
+                deliveryTemplateId: state.pathParameters['id']!,
                 template: state.extra as DeliveryTemplate?,
               ),
             ),
@@ -566,9 +567,12 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
           ),
           GoRoute(
             path: '/coordinator/deliveries/:deliveryId/description',
-            builder: (_, st) => DeliveryDescriptionScreen(
-              org: st.extra! as Organization,
-              deliveryId: st.pathParameters['deliveryId']!,
+            builder: (_, st) => tenantScoped(
+              (tenantId) => DeliveryDescriptionRouteScreen(
+                tenantId: tenantId,
+                deliveryId: st.pathParameters['deliveryId']!,
+                org: st.extra as Organization?,
+              ),
             ),
           ),
           GoRoute(

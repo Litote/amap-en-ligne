@@ -1,6 +1,7 @@
 import 'package:amap_en_ligne/data/network/public_api.dart';
 import 'package:amap_en_ligne/domain/model/public_organization.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
+import 'package:amap_en_ligne/domain/validation/search_text.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_bloc.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_event.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_state.dart';
@@ -88,7 +89,7 @@ class _OrgPickerViewState extends State<_OrgPickerView> {
     super.initState();
     _query = widget.searchQuery;
     _searchController.addListener(() {
-      setState(() => _query = _searchController.text.toLowerCase());
+      setState(() => _query = _searchController.text);
     });
   }
 
@@ -101,7 +102,7 @@ class _OrgPickerViewState extends State<_OrgPickerView> {
   @override
   Widget build(BuildContext context) {
     final filtered = widget.orgs
-        .where((o) => o.name.toLowerCase().contains(_query))
+        .where((o) => matchesSearch(_query, [o.name]))
         .toList();
 
     return Column(
@@ -193,7 +194,10 @@ class _JoinFormViewState extends State<_JoinFormView> {
   }
 
   @override
-  Widget build(BuildContext context) => Center(
+  // Top-aligned: a form shorter than the window starts under the app bar
+  // instead of floating in the middle of the page.
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.topCenter,
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 480),
       child: SingleChildScrollView(

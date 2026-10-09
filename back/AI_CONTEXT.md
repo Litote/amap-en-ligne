@@ -158,7 +158,7 @@ Consequence: keep access token TTL short (recommendation: ≤ 15 minutes — the
 
 ### Read visibility on the organization scope
 
-`organization:{id}` is shared by every member, and so are its `Change` rows. `DataService.isVisible` hides the entity types listed in `ADMIN_ONLY_ORGANIZATION_ENTITY_TYPES` (`MemberInvitation`, `MemberJoinRequest` — personal data of people who are not members yet) from non-ADMIN/OWNER callers, both in the bootstrap snapshot and in the incremental changes (the cursor still moves past the hidden rows). A new entity type carrying such data on that scope must be added there.
+`organization:{id}` is shared by every member, and so are its `Change` rows. **Contact details**: for a caller without COORDINATOR/ADMIN/OWNER role, `DataService.redactContacts` passes every served payload (bootstrap items and incremental `Change` payloads) through `core.MemberContactRedaction` — other `Member` rows reduced to a public profile (phone kept for COORDINATOR members only), registration `member_email` blanked except the caller's; `OrganizationService.applyUpsert` puts the stored emails back (`restoreRegistrationEmails`) before validating such a caller's write. `DataService.isVisible` hides the entity types listed in `ADMIN_ONLY_ORGANIZATION_ENTITY_TYPES` (`MemberInvitation`, `MemberJoinRequest` — personal data of people who are not members yet) from non-ADMIN/OWNER callers, both in the bootstrap snapshot and in the incremental changes (the cursor still moves past the hidden rows). A new entity type carrying such data on that scope must be added there.
 
 ### Notification dates
 

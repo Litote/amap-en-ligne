@@ -147,6 +147,30 @@ void main() {
     expect(find.widgetWithText(FilledButton, "S'INSCRIRE"), findsOneWidget);
   });
 
+  testWidgets('the join form starts at the top of the page, not centred', (
+    tester,
+  ) async {
+    // Phone-sized window, taller than the form.
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    when(
+      () => publicApi.listOrganizations(),
+    ).thenAnswer((_) async => const [_orgA]);
+
+    await pump(tester);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Les Jardins de Provence'));
+    await tester.pumpAndSettle();
+
+    final appBarBottom = tester.getBottomLeft(find.byType(AppBar)).dy;
+    // Only the page padding between the app bar and the first control.
+    expect(
+      tester.getTopLeft(find.text('Choisir une autre AMAP')).dy - appBarBottom,
+      lessThan(48),
+    );
+  });
+
   testWidgets('submitting the empty join form shows validation errors', (
     tester,
   ) async {

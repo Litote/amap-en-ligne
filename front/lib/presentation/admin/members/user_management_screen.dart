@@ -7,6 +7,7 @@ import 'package:amap_en_ligne/domain/model/invitation_status.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/member_invitation.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
+import 'package:amap_en_ligne/domain/validation/search_text.dart';
 import 'package:amap_en_ligne/presentation/admin/members/user_management_bloc.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/common/status_badge.dart';
@@ -299,14 +300,14 @@ class _LoadedBody extends StatelessWidget {
     }
 
     if (searchQuery.isNotEmpty) {
-      final query = searchQuery.toLowerCase();
-      result = result.where((m) {
-        final fullName = '${m.firstName ?? ''} ${m.lastName ?? ''}'
-            .toLowerCase();
-        return m.memberId.toLowerCase().contains(query) ||
-            (m.email?.toLowerCase().contains(query) ?? false) ||
-            fullName.contains(query);
-      }).toList();
+      result = result
+          .where(
+            (m) => matchesSearch(searchQuery, [
+              '${m.firstName ?? ''} ${m.lastName ?? ''}',
+              m.email,
+            ]),
+          )
+          .toList();
     }
     if (roleFilter != null) {
       result = result.where((m) => m.roles.contains(roleFilter)).toList();
@@ -339,14 +340,14 @@ class _LoadedBody extends StatelessWidget {
     }
 
     if (searchQuery.isNotEmpty) {
-      final query = searchQuery.toLowerCase();
-      result = result.where((invitation) {
-        final fullName = '${invitation.firstName} ${invitation.lastName}'
-            .toLowerCase();
-        return invitation.email.toLowerCase().contains(query) ||
-            fullName.contains(query) ||
-            invitation.invitationId.toLowerCase().contains(query);
-      }).toList();
+      result = result
+          .where(
+            (invitation) => matchesSearch(searchQuery, [
+              '${invitation.firstName} ${invitation.lastName}',
+              invitation.email,
+            ]),
+          )
+          .toList();
     }
     if (roleFilter != null) {
       result = result

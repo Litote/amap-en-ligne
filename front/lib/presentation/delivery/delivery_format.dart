@@ -40,11 +40,14 @@ String formatDeliveryDateLine(
 }
 
 /// Formats a delivery's scheduled date as a single start time, coordinator
-/// style: "Mercredi 17 Janvier • 18h00".
-String formatDeliveryDateTime(String scheduledDate) {
+/// style: "Mercredi 17 Janvier • 18h00" ("Mercredi 17 Janvier 2026 • 18h00"
+/// with [withYear], for lists spanning several seasons).
+String formatDeliveryDateTime(String scheduledDate, {bool withYear = false}) {
   final date = DateTime.parse(scheduledDate);
-  final raw = frenchDateFormat("EEEE d MMMM • HH'h'mm").format(date);
-  return _capitalise(raw);
+  final pattern = withYear
+      ? "EEEE d MMMM y • HH'h'mm"
+      : "EEEE d MMMM • HH'h'mm";
+  return _capitalise(frenchDateFormat(pattern).format(date));
 }
 
 /// Formats an ISO-8601 datetime to a trimmed time label: "18h" or "18h30".

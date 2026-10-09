@@ -4,6 +4,7 @@ import authentication.AuthenticatedInfo
 import authentication.Role
 import core.AuthorizedScopeResolver
 import core.EntityTypeService
+import core.MemberContactRedaction
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
 import persistence.changes.BootstrapScopeResult
@@ -145,7 +146,10 @@ class DataService(
         } else {
             val changes = changeDAO.since(scope.key, cursor)
             IncrementalScopeResult(
-                changes = changes.filter { isVisible(auth, scope, it.entityType) },
+                changes =
+                    changes
+                        .filter { isVisible(auth, scope, it.entityType) }
+                        .map { change -> change.copy(payload = change.payload?.let { redactContacts(auth, scope, it) }) },
                 // The cursor moves past the hidden changes too.
                 nextCursor = changes.lastOrNull()?.cursor ?: cursor,
             )
@@ -163,7 +167,7 @@ class DataService(
                     addAll(snapshot(auth, scope, entityType))
                 }
             }
-        return BootstrapScopeResult(items = items, nextCursor = nextCursor)
+        return BootstrapScopeResult(items = items.map { redactContacts(auth, scope, it) }, nextCursor = nextCursor)
     }
 
     private suspend fun snapshot(
@@ -199,6 +203,22 @@ class DataService(
         scope !is SyncScope.Organization ||
             entityType !in ADMIN_ONLY_ORGANIZATION_ENTITY_TYPES ||
             auth.roles.any { it == Role.ADMIN || it == Role.OWNER }
+
+    /**
+     * The other members' contact details are only served to coordinators, admins and owners
+     * on an organization scope ([MemberContactRedaction]); the stored [Change] rows stay
+     * complete, the redaction happens per caller when serving them.
+     */
+    private fun redactContacts(
+        auth: AuthenticatedInfo,
+        scope: SyncScope,
+        payload: EntityPayload,
+    ): EntityPayload =
+        if (scope is SyncScope.Organization && MemberContactRedaction.appliesTo(auth)) {
+            MemberContactRedaction.redact(payload, auth.memberId)
+        } else {
+            payload
+        }
 
     /**
      * Best-effort write of the idempotency record after an APPLIED mutation.

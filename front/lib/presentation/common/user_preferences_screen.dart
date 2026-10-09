@@ -243,6 +243,15 @@ class _ProfilUtilisateurCard extends StatelessWidget {
           _buildEditButton(context),
           const SizedBox(height: 8),
           _ExportDatabaseButton(readyState: readyState),
+          const SizedBox(height: 4),
+          Text(
+            // True for every role: names of the other members for a plain
+            // member, their contact details too for coordinators and admins.
+            "Copie des données de l'AMAP synchronisées sur cet appareil "
+            '(sauvegarde, support). Elle contient des informations personnelles '
+            ': ne la partagez pas.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ],
       ),
     ),
@@ -416,7 +425,9 @@ class _ExportDatabaseButtonState extends State<_ExportDatabaseButton> {
             child: CircularProgressIndicator(strokeWidth: 2),
           )
         : const Icon(Icons.download_outlined),
-    label: Text(_exporting ? 'EXPORT EN COURS…' : 'EXPORTER MES DONNÉES'),
+    label: Text(
+      _exporting ? 'EXPORT EN COURS…' : "EXPORTER LES DONNÉES DE L'APPAREIL",
+    ),
   );
 
   Future<void> _export(BuildContext context) async {

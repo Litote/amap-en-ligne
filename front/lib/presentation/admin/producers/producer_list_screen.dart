@@ -46,7 +46,7 @@ class _ProducerListView extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
                 key: const Key('add_producer_button'),
-                onPressed: () => context.push('/admin/producers/enroll'),
+                onPressed: () => context.go('/admin/producers/enroll'),
                 icon: const Icon(Icons.person_add),
                 label: const Text('Ajouter un producteur'),
               ),
@@ -149,7 +149,7 @@ class _LoadedBody extends StatelessWidget {
                       producerProfile:
                           producerDirectory[producer.producerAccountId],
                       productCount: producerProducts.length,
-                      onTap: () => context.push(
+                      onTap: () => context.go(
                         '/admin/producers/${producer.producerAccountId}',
                         extra: organization,
                       ),
