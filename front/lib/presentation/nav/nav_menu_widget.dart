@@ -4,6 +4,7 @@ import 'package:amap_en_ligne/presentation/auth/auth_bloc.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_view_state.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_item.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_menu_item_tile.dart';
+import 'package:amap_en_ligne/presentation/nav/nav_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -13,45 +14,61 @@ import 'package:go_router/go_router.dart';
 /// Displays the authenticated user's name, the role-appropriate item list,
 /// and a close button. Navigates via go_router when a route item is tapped.
 class NavMenuWidget extends StatelessWidget {
-  const NavMenuWidget({super.key, required this.items, this.onClose});
+  const NavMenuWidget({
+    super.key,
+    required this.items,
+    this.onClose,
+    this.currentLocation,
+  });
 
   final List<NavItem> items;
+
+  /// Path of the displayed screen; the matching entry is highlighted.
+  final String? currentLocation;
 
   /// Called when the user requests to close the menu. Null in desktop layout
   /// where the sidebar is always visible and cannot be closed.
   final VoidCallback? onClose;
 
   @override
-  Widget build(BuildContext context) => Material(
-    elevation: 4,
-    child: SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _NavMenuHeader(onClose: onClose),
-          const Divider(height: 1),
-          Expanded(
-            child: ListView(
-              children: [
-                for (final item in items)
-                  NavMenuItemTile(
-                    item: item,
-                    onTap: () {
-                      onClose?.call();
-                      if (item.onTap != null) {
-                        item.onTap!();
-                      } else if (item.route != null) {
-                        context.go(item.route!);
-                      }
-                    },
-                  ),
-              ],
+  Widget build(BuildContext context) {
+    final selectedRoute = selectedNavRoute(currentLocation, [
+      for (final item in items)
+        if (item.route != null) item.route!,
+    ]);
+    return Material(
+      elevation: 4,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _NavMenuHeader(onClose: onClose),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView(
+                children: [
+                  for (final item in items)
+                    NavMenuItemTile(
+                      item: item,
+                      selected:
+                          selectedRoute != null && item.route == selectedRoute,
+                      onTap: () {
+                        onClose?.call();
+                        if (item.onTap != null) {
+                          item.onTap!();
+                        } else if (item.route != null) {
+                          context.go(item.route!);
+                        }
+                      },
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _NavMenuHeader extends StatelessWidget {

@@ -684,6 +684,53 @@ void main() {
       },
     );
 
+    testWidgets('completed card shows the real end time of the delivery', (
+      tester,
+    ) async {
+      final now = DateTime.now();
+      final delivery = buildDelivery(
+        deliveryId: 'd-1',
+        scheduledDate: '${now.year}-01-14T19:00:00',
+        status: DeliveryStatus.completed,
+        contracts: [
+          buildContract(
+            slots: [
+              buildSlot(
+                startTime: '${now.year}-01-14T19:00:00',
+                endTime: '${now.year}-01-14T20:30:00',
+                registrations: [
+                  buildRegistration(
+                    memberId: _kMemberId,
+                    status: RegistrationStatus.completed,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await _pump(
+        tester,
+        orgRepo: orgRepo,
+        memberRepo: memberRepo,
+        authService: authService,
+        contractRepo: contractRepo,
+      );
+      await tester.pump();
+
+      final me = _buildMember();
+      orgStream.add(buildOrg(deliveries: [delivery]));
+      memberStream.add(me);
+      allMembersStream.add([me]);
+      contractsStream.add([]);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(find.textContaining('19h-20h30'), findsOneWidget);
+      expect(find.textContaining('19h-21h'), findsNothing);
+    });
+
     // --- Monthly histogram ---
 
     testWidgets('monthly histogram section renders', (tester) async {

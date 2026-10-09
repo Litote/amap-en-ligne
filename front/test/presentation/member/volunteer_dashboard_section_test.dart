@@ -544,6 +544,67 @@ void main() {
     );
 
     testWidgets(
+      'standard register label shows the delivery slot arrival, not the '
+      'template one',
+      (tester) async {
+        // Winter delivery: its own slot starts at 18:00 (delivery override)
+        // while the template still says 19:00.
+        final standardSlot = buildSlot(
+          requiredVolunteers: 3,
+          currentRegistrations: 0,
+          startTime: '2025-06-14T18:00:00',
+          endTime: '2025-06-14T19:30:00',
+        ).copyWith(slotKind: SlotKind.standard);
+        final earlySlot = buildSlot(
+          requiredVolunteers: 1,
+          currentRegistrations: 0,
+          startTime: '2025-06-14T17:30:00',
+          endTime: '2025-06-14T19:30:00',
+        ).copyWith(slotKind: SlotKind.early);
+        final contract = buildContract(
+          contractId: 'c-1',
+          slots: [standardSlot, earlySlot],
+        );
+        final delivery = buildDelivery(
+          deliveryId: 'd-1',
+          scheduledDate: _futureDate(),
+          contracts: [contract],
+        ).copyWith(deliveryTemplateId: 'tpl-1', volunteerArrivalTime: '18:00');
+        final org = buildOrg(deliveries: [delivery]);
+        const template = DeliveryTemplate(
+          deliveryTemplateId: 'tpl-1',
+          organizationId: 'org-1',
+          name: 'Standard',
+          standardStartTime: '19:00',
+          standardEndTime: '20:30',
+          volunteerArrivalTime: '19:00',
+          earlySlot: EarlySlot(arrivalTime: '18:00', maxVolunteers: 1),
+        );
+        when(
+          () => templateRepo.watch(any()),
+        ).thenAnswer((_) => Stream.value(const [template]));
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          templateRepo: templateRepo,
+          authService: authService,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        orgStream.add(org);
+        memberStream.add(_buildMember());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        expect(find.textContaining('Arrivée 18h'), findsOneWidget);
+        expect(find.textContaining('Arrivée 19h'), findsNothing);
+      },
+    );
+
+    testWidgets(
       'full slot shows disabled COMPLET button and no S\'INSCRIRE button',
       (tester) async {
         final slot = buildSlot(

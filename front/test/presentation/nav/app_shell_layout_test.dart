@@ -8,6 +8,7 @@ import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/mock_auth_bloc.dart';
@@ -60,6 +61,88 @@ void main() {
 
     // Menu should be hidden after tapping close.
     expect(find.byTooltip('Fermer le menu'), findsNothing);
+  });
+
+  testWidgets(
+    'desktop layout: highlights the menu entry of the current screen',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(1280, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider<AuthBloc>.value(
+            value: authBloc,
+            child: const AppShellLayout(
+              currentLocation: '/notifications',
+              child: ConnectedScaffold(title: 'Test', body: SizedBox()),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      ListTile tileOf(String label) => tester.widget<ListTile>(
+        find.ancestor(of: find.text(label), matching: find.byType(ListTile)),
+      );
+      expect(tileOf('Notifications').selected, isTrue);
+      expect(tileOf('Accueil producteur').selected, isFalse);
+      expect(
+        tester.getSemantics(find.widgetWithText(ListTile, 'Notifications')),
+        isSemantics(isSelected: true, hasSelectedState: true),
+      );
+      semantics.dispose();
+    },
+  );
+
+  testWidgets('the highlighted entry follows navigation inside the shell', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    final router = GoRouter(
+      initialLocation: '/producer-dashboard',
+      routes: [
+        ShellRoute(
+          builder: (context, state, child) =>
+              AppShellLayout(currentLocation: state.uri.path, child: child),
+          routes: [
+            for (final path in ['/producer-dashboard', '/notifications'])
+              GoRoute(
+                path: path,
+                builder: (_, _) =>
+                    const ConnectedScaffold(title: 'Test', body: SizedBox()),
+              ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      BlocProvider<AuthBloc>.value(
+        value: authBloc,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    bool isSelected(String label) => tester
+        .widget<ListTile>(
+          find.ancestor(of: find.text(label), matching: find.byType(ListTile)),
+        )
+        .selected;
+    expect(isSelected('Accueil producteur'), isTrue);
+
+    router.go('/notifications');
+    await tester.pumpAndSettle();
+
+    expect(isSelected('Accueil producteur'), isFalse);
+    expect(isSelected('Notifications'), isTrue);
   });
 
   testWidgets(

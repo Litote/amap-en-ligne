@@ -337,7 +337,8 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
       // Authenticated routes — wrapped in AppShellLayout which provides
       // NavBloc and the responsive navigation chrome.
       ShellRoute(
-        builder: (context, state, child) => AppShellLayout(child: child),
+        builder: (context, state, child) =>
+            AppShellLayout(currentLocation: state.uri.path, child: child),
         routes: [
           GoRoute(
             path: _kProductTypesRoute,

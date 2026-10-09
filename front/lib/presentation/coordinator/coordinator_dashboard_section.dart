@@ -16,6 +16,7 @@ import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart'
 import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_volunteer_summary.dart';
 import 'package:amap_en_ligne/presentation/coordinator/missing_coordinator_listener.dart';
+import 'package:amap_en_ligne/presentation/coordinator/missing_coordinator_warning.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_status_chip.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
@@ -289,10 +290,10 @@ class _DeliveryCard extends StatelessWidget {
         .join(' · ');
 
     // Contracts missing a coordinator — shown in warning banner.
-    final missingContracts = delivery.contracts
-        .where((c) => c.coordinators.isEmpty)
-        .map((c) => deliveryContractName(c, contracts))
-        .toList();
+    final missingContracts = missingCoordinatorContractNames(
+      delivery,
+      contracts,
+    );
 
     // Whether [ME PORTER COORDINATEUR] should be shown:
     //   - delivery is active
@@ -328,13 +329,7 @@ class _DeliveryCard extends StatelessWidget {
               ],
               if (missingContracts.isNotEmpty) ...[
                 const SizedBox(height: 4),
-                Text(
-                  '⚠️ Coordinateur manquant : ${missingContracts.join(', ')}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.error,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                MissingCoordinatorWarning(contractNames: missingContracts),
               ],
               if (showSelfAssign ||
                   (me == null && missingContracts.isNotEmpty)) ...[

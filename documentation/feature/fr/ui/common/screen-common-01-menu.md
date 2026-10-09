@@ -207,6 +207,7 @@ Les rôles plateforme (`Role.OWNER`) et les perspectives producteur (`ProducerAc
 - Sur mobile : panneau plein écran.
 - Sur desktop : panneau latéral.
 - La fermeture se fait par `[Fermer]`, clic extérieur ou choix d'une entrée.
+- L'entrée correspondant à l'écran affiché est mise en évidence (fond et texte accentués) et annoncée comme sélectionnée aux lecteurs d'écran. Un sous-écran met en évidence l'entrée dont il dépend (ex. le formulaire « Modifier la livraison » et le « Suivi livraison » → [Gestion des livraisons] ; les demandes d'un échange → [Échange de paniers]). Une seule entrée est mise en évidence à la fois ; aucune pour un écran sans entrée de menu.
 
 ### Affichage multi-rôles
 - L'en-tête affiche tous les rôles actifs de l'utilisateur séparés par `·`, en ordre croissant de privilège : AMAPIEN → COORDINATEUR → ADMIN.

@@ -268,6 +268,71 @@ void main() {
     expect(find.text('Passées'), findsOneWidget);
   });
 
+  group('missing coordinator warning', () {
+    Future<void> pumpWith(WidgetTester tester, Delivery delivery) async {
+      await _pump(
+        tester,
+        repo: repo,
+        contractRepo: contractRepo,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+      orgStream.add(buildOrg(deliveries: [delivery]));
+      await tester.pump();
+    }
+
+    testWidgets('names the upcoming delivery contracts without coordinator', (
+      tester,
+    ) async {
+      await pumpWith(
+        tester,
+        buildDelivery(
+          scheduledDate: tomorrowIso(),
+          contracts: [
+            buildContract(deliveryDescription: 'Légumes 2026'),
+            buildContract(
+              contractId: 'c-2',
+              coordinators: const [],
+              deliveryDescription: 'Pain 2026',
+            ),
+          ],
+        ),
+      );
+
+      expect(find.text('⚠️ Coordinateur manquant : Pain 2026'), findsOneWidget);
+    });
+
+    testWidgets('is hidden when every contract has a coordinator', (
+      tester,
+    ) async {
+      await pumpWith(
+        tester,
+        buildDelivery(
+          scheduledDate: tomorrowIso(),
+          contracts: [buildContract(deliveryDescription: 'Légumes 2026')],
+        ),
+      );
+
+      expect(find.textContaining('Coordinateur manquant'), findsNothing);
+    });
+
+    testWidgets('is hidden on past deliveries', (tester) async {
+      await pumpWith(
+        tester,
+        buildDelivery(
+          scheduledDate: pastIso(),
+          status: DeliveryStatus.completed,
+          contracts: [
+            buildContract(coordinators: const [], deliveryDescription: 'Pain'),
+          ],
+        ),
+      );
+
+      expect(find.text('Passées'), findsOneWidget);
+      expect(find.textContaining('Coordinateur manquant'), findsNothing);
+    });
+  });
+
   testWidgets('hides empty section headers', (tester) async {
     await _pump(
       tester,

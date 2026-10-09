@@ -76,6 +76,7 @@ Cet écran est notamment ouvert depuis l'action `[➕ NOUVELLE LIVRAISON]` du da
 │  │                                                         │ │
 │  │  À venir                                                │ │
 │  │  📅 24 Jan • 18h-20h  👥 3/5  ⚠️ À surveiller          │ │
+│  │  ⚠️ Coordinateur manquant : Pain artisanal              │ │
 │  │                         [MODIFIER]  [SUIVRE]            │ │
 │  │  📅 31 Jan • 18h-20h  👥 0/5  ⭕ Nouveau               │ │
 │  │                         [MODIFIER]  [SUIVRE]            │ │
@@ -119,6 +120,8 @@ Chaque carte propose deux actions :
 - **[SUIVRE]** : ouvre l'écran de suivi en direct ([Écran 4](screen-coordinator-04-delivery-tracking.md)) — présences bénévoles et récupération des paniers.
 
 La suppression d'une livraison se fait en **balayant la carte vers la gauche** (geste de suppression), ou depuis son formulaire de modification avec le bouton **[Supprimer la livraison]** (accessible au clavier et aux lecteurs d'écran ; absent à la création). Une confirmation « Supprimer la livraison ? » est toujours demandée (ANNULER / SUPPRIMER) ; si des bénévoles sont inscrits, elle précise combien perdront leur inscription. Annuler remet la carte en place.
+
+Une carte de livraison encore active (ni `COMPLETED` ni `CANCELLED`) dont au moins une livraison-contrat (*DELIVERY_CONTRACT*) n'a aucun coordinateur affiche la ligne d'alerte « ⚠️ Coordinateur manquant : <contrats> », qui nomme les contrats concernés (nom courant du contrat), comme sur le [dashboard coordination](screen-coordinator-01-home.md). La ligne disparaît dès que chaque contrat de la livraison a un coordinateur ; les livraisons passées n'en affichent pas.
 
 Dans la liste des livraisons existantes, l'indicateur `👥 N/M` correspond aux inscriptions actuelles sur bénévolat sur la livraison, rapportées au nombre de bénévoles requis pour cette livraison. Une livraison qui ne porte aucun contrat principal alors que l'AMAP en a un (ex. une livraison de fromages seule) n'a besoin d'aucun bénévole : la carte affiche « Aucun bénévole requis », sans pastille de statut. La pastille de statut suit le taux de remplissage : « Complet » (100 %), « Ouvert » (≥ 50 %), « Critique » (< 50 %) — mais une livraison à moins de 50 % prévue dans plus de 3 jours reste « Ouverte », comme le badge « 🙋 Bénévoles recherchés » vu par les amapiens (l'urgence ne commence qu'à 3 jours, délai de la première alerte de manque de bénévoles).
 

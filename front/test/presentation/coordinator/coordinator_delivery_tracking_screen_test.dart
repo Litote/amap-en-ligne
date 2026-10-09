@@ -170,6 +170,45 @@ void main() {
       expect(find.byType(BackButton), findsOneWidget);
     });
 
+    testWidgets('header shows the delivery date, time range and presents', (
+      tester,
+    ) async {
+      final slot = buildSlot(
+        startTime: '2025-06-14T19:00:00',
+        endTime: '2025-06-14T20:30:00',
+        requiredVolunteers: 5,
+        registrations: [
+          buildRegistration(
+            memberId: 'volunteer-1',
+            status: RegistrationStatus.confirmed,
+          ),
+        ],
+      );
+      final contract = buildContract(
+        coordinators: const ['coordinator-1'],
+        slots: [slot],
+      );
+      final delivery = buildDelivery(
+        scheduledDate: '2025-06-14T19:00:00',
+        status: DeliveryStatus.inProgress,
+        contracts: [contract],
+      );
+
+      await _pumpWith(
+        tester,
+        organizationRepository: organizationRepository,
+        memberRepository: memberRepository,
+        syncBloc: syncBloc,
+      );
+      await tester.pump();
+
+      organizationStream.add(buildOrg(deliveries: [delivery]));
+      await tester.pump();
+
+      expect(find.text('📅 Samedi 14 juin • 19h-20h30'), findsOneWidget);
+      expect(find.text('👥 1/5 présents'), findsOneWidget);
+    });
+
     testWidgets('shows volunteer displayName for registered volunteer', (
       tester,
     ) async {

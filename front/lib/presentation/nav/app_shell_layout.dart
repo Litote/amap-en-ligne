@@ -13,45 +13,56 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// - `600 ≤ width < 1024`: retractable side rail (overlay when open)
 /// - `width ≥ 1024`: permanent side navigation bar always visible
 class AppShellLayout extends StatelessWidget {
-  const AppShellLayout({super.key, required this.child});
+  const AppShellLayout({super.key, required this.child, this.currentLocation});
 
   final Widget child;
+
+  /// Path of the displayed screen; its menu entry is highlighted (null: none).
+  final String? currentLocation;
 
   @override
   Widget build(BuildContext context) => BlocProvider(
     create: (ctx) => NavBloc(authBloc: ctx.read<AuthBloc>()),
-    child: _AppShellLayoutBody(child: child),
+    child: _AppShellLayoutBody(currentLocation: currentLocation, child: child),
   );
 }
 
 class _AppShellLayoutBody extends StatelessWidget {
-  const _AppShellLayoutBody({required this.child});
+  const _AppShellLayoutBody({required this.child, this.currentLocation});
 
   final Widget child;
+  final String? currentLocation;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final width = constraints.maxWidth;
       if (width >= 1024) {
-        return _DesktopLayout(child: child);
+        return _DesktopLayout(currentLocation: currentLocation, child: child);
       }
-      return _MobileLayout(child: child);
+      return _MobileLayout(currentLocation: currentLocation, child: child);
     },
   );
 }
 
 /// Desktop layout — permanent sidebar always visible alongside the content.
 class _DesktopLayout extends StatelessWidget {
-  const _DesktopLayout({required this.child});
+  const _DesktopLayout({required this.child, this.currentLocation});
 
   final Widget child;
+  final String? currentLocation;
 
   @override
   Widget build(BuildContext context) => BlocBuilder<NavBloc, NavState>(
     builder: (context, state) => Row(
       children: [
-        SizedBox(width: 280, child: NavMenuWidget(items: state.items)),
+        SizedBox(
+          width: 280,
+          child: NavMenuWidget(
+            items: state.items,
+            currentLocation: currentLocation,
+          ),
+        ),
         const VerticalDivider(width: 1),
         // Own semantics container: the content is a navigator whose route
         // barrier (BlockSemantics) would otherwise hide the sidebar, painted
@@ -70,9 +81,10 @@ class _DesktopLayout extends StatelessWidget {
 
 /// Mobile/tablet layout — overlay menu on top of the content when open.
 class _MobileLayout extends StatelessWidget {
-  const _MobileLayout({required this.child});
+  const _MobileLayout({required this.child, this.currentLocation});
 
   final Widget child;
+  final String? currentLocation;
 
   @override
   Widget build(BuildContext context) => BlocBuilder<NavBloc, NavState>(
@@ -82,6 +94,7 @@ class _MobileLayout extends StatelessWidget {
         if (state.isOpen)
           NavMenuWidget(
             items: state.items,
+            currentLocation: currentLocation,
             onClose: () => context.read<NavBloc>().add(const NavEvent.closed()),
           ),
       ],

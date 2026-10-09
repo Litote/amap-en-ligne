@@ -5,6 +5,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_volunteer_summary.dart';
+import 'package:amap_en_ligne/presentation/coordinator/missing_coordinator_warning.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/delivery_deletion.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slots_bloc.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
@@ -112,7 +113,13 @@ class _DeliveryList extends StatelessWidget {
           children: [
             ..._section(context, 'En cours', inProgress, contracts),
             ..._section(context, 'À venir', upcoming, contracts),
-            ..._section(context, 'Passées', past, contracts),
+            ..._section(
+              context,
+              'Passées',
+              past,
+              contracts,
+              showMissingCoordinator: false,
+            ),
           ],
         );
       },
@@ -123,8 +130,9 @@ class _DeliveryList extends StatelessWidget {
     BuildContext context,
     String title,
     List<Delivery> deliveries,
-    List<Contract> contracts,
-  ) {
+    List<Contract> contracts, {
+    bool showMissingCoordinator = true,
+  }) {
     if (deliveries.isEmpty) return const [];
     return [
       _SectionHeader(title: title),
@@ -153,6 +161,7 @@ class _DeliveryList extends StatelessWidget {
             org: org,
             delivery: delivery,
             contracts: contracts,
+            showMissingCoordinator: showMissingCoordinator,
           ),
         ),
       const SizedBox(height: 16),
@@ -185,11 +194,16 @@ class _DeliveryCard extends StatelessWidget {
     required this.org,
     required this.delivery,
     required this.contracts,
+    required this.showMissingCoordinator,
   });
 
   final Organization org;
   final Delivery delivery;
   final List<Contract> contracts;
+
+  /// Whether the « Coordinateur manquant » alert may be shown (active
+  /// deliveries only — never on past ones).
+  final bool showMissingCoordinator;
 
   @override
   Widget build(BuildContext context) {
@@ -204,6 +218,9 @@ class _DeliveryCard extends StatelessWidget {
       contracts: contracts,
     );
     final coordinators = _getAllCoordinators();
+    final missingCoordinator = showMissingCoordinator
+        ? missingCoordinatorContractNames(delivery, contracts)
+        : const <String>[];
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -231,6 +248,10 @@ class _DeliveryCard extends StatelessWidget {
                   Text(
                     '👥 ${coordinators.length} coordinateur${coordinators.length > 1 ? 's' : ''}',
                   ),
+                ],
+                if (missingCoordinator.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  MissingCoordinatorWarning(contractNames: missingCoordinator),
                 ],
                 if (productNames.isNotEmpty) ...[
                   const SizedBox(height: 4),

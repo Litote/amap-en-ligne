@@ -7,6 +7,7 @@ import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
 import 'package:amap_en_ligne/domain/auth/auth_state.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
+import 'package:amap_en_ligne/domain/model/delivery_slots.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
@@ -431,7 +432,7 @@ class _UpcomingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateLabel = _formatCardDate(delivery.scheduledDate);
+    final dateLabel = _formatCardDate(delivery);
     final teammates = teammatesOn(delivery, selfMemberId);
     final activity = selfActivityOn(delivery, selfMemberId);
     // A coordinator registered on a slot comes as coordinator, not as a
@@ -494,7 +495,7 @@ class _CompletedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateLabel = _formatCardDate(delivery.scheduledDate);
+    final dateLabel = _formatCardDate(delivery);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -744,15 +745,21 @@ class _HistoryFooter extends StatelessWidget {
 // Shared helpers
 // ---------------------------------------------------------------------------
 
-/// Formats a scheduled-date ISO-8601 string to the card format:
-/// "d MMM yyyy • HHh-HHh" (e.g. "10 Jan 2025 • 18h-20h").
-String _formatCardDate(String scheduledDate) {
+/// Formats a delivery's scheduled date to the card format:
+/// "d MMM yyyy • HHh-HHh" (e.g. "10 Jan 2025 • 19h-20h30"). The end is the
+/// delivery's real standard end time (slot, then delivery override), start + 2h
+/// only when none is known.
+String _formatCardDate(Delivery delivery) {
+  final scheduledDate = delivery.scheduledDate;
   try {
     final date = DateTime.parse(scheduledDate);
     final datePart = frenchDateFormat('d MMM yyyy').format(date);
-    final startH = date.hour.toString().padLeft(2, '0');
-    final endH = (date.hour + 2).toString().padLeft(2, '0');
-    return '$datePart • ${startH}h-${endH}h';
+    final endIso = deliveryStandardEndTime(delivery);
+    final end = endIso == null
+        ? date.add(const Duration(hours: 2))
+        : DateTime.parse(endIso);
+    return '$datePart • ${formatSlotTime(date.toIso8601String())}-'
+        '${formatSlotTime(end.toIso8601String())}';
   } on Exception catch (e) {
     recordFallbackBreadcrumb('delivery date parse failed', e);
     return scheduledDate;

@@ -605,15 +605,18 @@ class DeliveryCard extends StatelessWidget {
   }
 
   String _dashboardStandardLabel(_DeliveryCardState state) {
-    final arrivalTime = template?.volunteerArrivalTime;
-    if (arrivalTime != null) {
-      return "S'inscrire • Créneau standard · "
-          'Arrivée ${formatTemplateTime(arrivalTime)}';
-    }
+    // The slot already encodes the delivery override, then the template: it
+    // wins, like on the planning variant.
     final slot = state.standardSlot;
     if (slot != null) {
       return "S'inscrire • Créneau standard · "
           'Arrivée ${formatSlotTime(slot.startTime)}';
+    }
+    final arrivalTime =
+        delivery.volunteerArrivalTime ?? template?.volunteerArrivalTime;
+    if (arrivalTime != null) {
+      return "S'inscrire • Créneau standard · "
+          'Arrivée ${formatTemplateTime(arrivalTime)}';
     }
     return _kRegisterLabel;
   }

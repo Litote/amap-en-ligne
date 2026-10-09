@@ -3,6 +3,7 @@ import 'package:amap_en_ligne/data/repositories/member_repository.dart';
 import 'package:amap_en_ligne/data/repositories/organization_repository.dart';
 import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/delivery_contract_name.dart';
+import 'package:amap_en_ligne/domain/model/delivery_slots.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
@@ -13,6 +14,7 @@ import 'package:amap_en_ligne/presentation/common/open_url_stub.dart'
     if (dart.library.io) 'package:amap_en_ligne/presentation/common/open_url_native.dart';
 import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
+import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
@@ -183,6 +185,11 @@ class _TrackingBody extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _TrackingHeader(
+              delivery: delivery,
+              mainContractIds: mainContractIdsOf(contracts),
+            ),
+            const SizedBox(height: 16),
             _CoordinatorsSectionTracking(
               delivery: delivery,
               membersById: membersById,
@@ -858,6 +865,69 @@ class _ContractBasketCardState extends State<_ContractBasketCard> {
   }
 }
 
+/// Counts present registrations on a single slot, excluding coordinators.
+int _countPresentInSlot(MemberSlot slot, Set<String> coordinatorIds) {
+  var count = 0;
+  for (final reg in slot.registrations) {
+    if (coordinatorIds.contains(reg.memberId)) continue;
+    if (isPresentRegistrationStatus(reg.status)) count++;
+  }
+  return count;
+}
+
+/// Counts all present volunteers of [delivery] across the counting contracts
+/// (main contracts, every contract when none is main), excluding coordinator
+/// registrations and cancelled slots.
+int _countPresentVolunteers(Delivery delivery, Set<String> mainContractIds) {
+  final coordinatorIds = deliveryCoordinatorIds(delivery);
+  final mains = delivery.contracts
+      .where((c) => mainContractIds.contains(c.contractId))
+      .toList();
+  final countingContracts = mains.isEmpty ? delivery.contracts : mains;
+  var count = 0;
+  for (final contract in countingContracts) {
+    for (final slot in contract.slots) {
+      if (slot.status == SlotStatus.cancelled) continue;
+      count += _countPresentInSlot(slot, coordinatorIds);
+    }
+  }
+  return count;
+}
+
+/// Header line of the screen: "📅 Mercredi 14 oct. • 19h-20h30" and
+/// "👥 N/M présents".
+class _TrackingHeader extends StatelessWidget {
+  const _TrackingHeader({
+    required this.delivery,
+    required this.mainContractIds,
+  });
+
+  final Delivery delivery;
+  final Set<String> mainContractIds;
+
+  @override
+  Widget build(BuildContext context) {
+    final requiredVolunteers = deliveryVolunteerStaffing(
+      delivery,
+      mainContractIds: mainContractIds,
+    ).required;
+    final present = _countPresentVolunteers(delivery, mainContractIds);
+    final style = Theme.of(context).textTheme.titleMedium;
+    return Wrap(
+      spacing: 16,
+      runSpacing: 4,
+      alignment: WrapAlignment.spaceBetween,
+      children: [
+        Text(
+          '📅 ${formatDeliveryDateLine(delivery.scheduledDate, slotEndTime: deliveryStandardEndTime(delivery))}',
+          style: style,
+        ),
+        Text('👥 $present/$requiredVolunteers présents', style: style),
+      ],
+    );
+  }
+}
+
 class _ProgressionSection extends StatelessWidget {
   const _ProgressionSection({
     required this.delivery,
@@ -870,41 +940,16 @@ class _ProgressionSection extends StatelessWidget {
   /// (empty ⇒ legacy fallback that counts every contract).
   final Set<String> mainContractIds;
 
-  /// Counts present registrations on a single slot, excluding coordinators.
-  int _countPresentInSlot(MemberSlot slot, Set<String> coordinatorIds) {
-    var count = 0;
-    for (final reg in slot.registrations) {
-      if (coordinatorIds.contains(reg.memberId)) continue;
-      if (isPresentRegistrationStatus(reg.status)) count++;
-    }
-    return count;
-  }
-
-  /// Counts all present volunteers across the counting contracts, excluding
-  /// coordinator registrations and cancelled slots.
-  int _countPresentVolunteers(Set<String> coordinatorIds) {
-    final mains = delivery.contracts
-        .where((c) => mainContractIds.contains(c.contractId))
-        .toList();
-    final countingContracts = mains.isEmpty ? delivery.contracts : mains;
-    var count = 0;
-    for (final contract in countingContracts) {
-      for (final slot in contract.slots) {
-        if (slot.status == SlotStatus.cancelled) continue;
-        count += _countPresentInSlot(slot, coordinatorIds);
-      }
-    }
-    return count;
-  }
-
   @override
   Widget build(BuildContext context) {
     final requiredVolunteers = deliveryVolunteerStaffing(
       delivery,
       mainContractIds: mainContractIds,
     ).required;
-    final coordinatorIds = deliveryCoordinatorIds(delivery);
-    final presentVolunteers = _countPresentVolunteers(coordinatorIds);
+    final presentVolunteers = _countPresentVolunteers(
+      delivery,
+      mainContractIds,
+    );
     final volunteerProgress = requiredVolunteers > 0
         ? presentVolunteers / requiredVolunteers
         : 0.0;
