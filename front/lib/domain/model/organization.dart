@@ -265,6 +265,13 @@ abstract class Organization with _$Organization {
     @JsonKey(name: 'notification_overrides')
     @Default(<NotificationCategory, NotificationCopyOverride>{})
     Map<NotificationCategory, NotificationCopyOverride> notificationOverrides,
+    // Server-derived, never stored server-side: only in the copy served to a
+    // plain member (whose past registrations of the others are anonymous). Per
+    // season year, the participation counts of the active members, one
+    // anonymous entry each — the ranking reads them (see `memberRankIn`).
+    // Null for coordinators/admins, who compute it from the registrations.
+    @JsonKey(name: 'participation_counts_by_season')
+    Map<String, List<int>>? participationCountsBySeason,
   }) = _Organization;
 
   factory Organization.fromJson(Map<String, Object?> json) =>

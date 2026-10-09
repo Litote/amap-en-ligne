@@ -83,8 +83,10 @@ class AppDatabase extends _$AppDatabase
 
   // v2: product_types.item_types (component catalog). v3: producer_schedules.
   // v4: cache_owners. v5: organization scopes re-bootstrapped (plain members
-  // no longer receive the other members' contact details). Any other version
-  // change rebuilds the cache (see [_rebuildOnVersionMismatch]).
+  // no longer receive the other members' contact details) — the server now
+  // re-bootstraps by itself when a cursor's view changes, v5 stays because it
+  // is released (never downgrade). Any other version change rebuilds the
+  // cache (see [_rebuildOnVersionMismatch]).
   @override
   int get schemaVersion => 5;
 

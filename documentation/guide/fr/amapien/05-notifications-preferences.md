@@ -19,11 +19,13 @@ Votre e-mail est votre identifiant de connexion : il ne peut pas être modifié 
 > Renseigner votre téléphone permet aux coordinateurs de vous joindre le jour de la
 > livraison.
 
-> **Qui voit vos coordonnées ?** Votre e-mail et votre téléphone ne sont transmis
+> **Qui voit vos informations ?** Votre e-mail et votre téléphone ne sont transmis
 > qu'aux coordinateurs et aux administrateurs de votre AMAP. Les autres amapiens ne
 > voient que votre nom (par exemple sur le planning ou pour un échange de paniers).
 > Si vous êtes coordinateur, votre téléphone reste visible des amapiens, pour
-> qu'ils puissent vous appeler le jour de la livraison.
+> qu'ils puissent vous appeler le jour de la livraison. Vos contrats, vos absences
+> et votre historique de participation ne sont pas non plus transmis aux autres
+> amapiens : le classement des participations reste anonyme.
 
 ## Vos alertes
 

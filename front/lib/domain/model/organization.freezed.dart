@@ -2375,7 +2375,7 @@ as String?,
 /// @nodoc
 mixin _$Organization {
 
-@JsonKey(name: 'organization_id') String get organizationId; String get name;@JsonKey(name: 'contact_email') String get contactEmail;@JsonKey(name: 'active_status') bool get activeStatus; String? get timezone;@JsonKey(name: 'default_language') String? get defaultLanguage;@JsonKey(name: 'default_delivery_template_id', includeIfNull: false) String? get defaultDeliveryTemplateId; String? get website;@JsonKey(name: 'created_instant') String? get createdInstant;@JsonKey(name: 'last_updated_instant') String? get lastUpdatedInstant; List<OrganizationProducer> get producers; List<OrgProduct> get products; List<Delivery> get deliveries;@JsonKey(name: 'item_types') List<ItemType> get itemTypes;@JsonKey(name: 'notification_overrides') Map<NotificationCategory, NotificationCopyOverride> get notificationOverrides;
+@JsonKey(name: 'organization_id') String get organizationId; String get name;@JsonKey(name: 'contact_email') String get contactEmail;@JsonKey(name: 'active_status') bool get activeStatus; String? get timezone;@JsonKey(name: 'default_language') String? get defaultLanguage;@JsonKey(name: 'default_delivery_template_id', includeIfNull: false) String? get defaultDeliveryTemplateId; String? get website;@JsonKey(name: 'created_instant') String? get createdInstant;@JsonKey(name: 'last_updated_instant') String? get lastUpdatedInstant; List<OrganizationProducer> get producers; List<OrgProduct> get products; List<Delivery> get deliveries;@JsonKey(name: 'item_types') List<ItemType> get itemTypes;@JsonKey(name: 'notification_overrides') Map<NotificationCategory, NotificationCopyOverride> get notificationOverrides;@JsonKey(name: 'participation_counts_by_season') Map<String, List<int>>? get participationCountsBySeason;
 /// Create a copy of Organization
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2389,20 +2389,20 @@ $OrganizationCopyWith<Organization> get copyWith => _$OrganizationCopyWithImpl<O
 @override
 bool operator ==(Object other) {
   final _this = this as Organization;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Organization&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.contactEmail, _this.contactEmail) || other.contactEmail == _this.contactEmail)&&(identical(other.activeStatus, _this.activeStatus) || other.activeStatus == _this.activeStatus)&&(identical(other.timezone, _this.timezone) || other.timezone == _this.timezone)&&(identical(other.defaultLanguage, _this.defaultLanguage) || other.defaultLanguage == _this.defaultLanguage)&&(identical(other.defaultDeliveryTemplateId, _this.defaultDeliveryTemplateId) || other.defaultDeliveryTemplateId == _this.defaultDeliveryTemplateId)&&(identical(other.website, _this.website) || other.website == _this.website)&&(identical(other.createdInstant, _this.createdInstant) || other.createdInstant == _this.createdInstant)&&(identical(other.lastUpdatedInstant, _this.lastUpdatedInstant) || other.lastUpdatedInstant == _this.lastUpdatedInstant)&&const DeepCollectionEquality().equals(other.producers, _this.producers)&&const DeepCollectionEquality().equals(other.products, _this.products)&&const DeepCollectionEquality().equals(other.deliveries, _this.deliveries)&&const DeepCollectionEquality().equals(other.itemTypes, _this.itemTypes)&&const DeepCollectionEquality().equals(other.notificationOverrides, _this.notificationOverrides));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Organization&&(identical(other.organizationId, _this.organizationId) || other.organizationId == _this.organizationId)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.contactEmail, _this.contactEmail) || other.contactEmail == _this.contactEmail)&&(identical(other.activeStatus, _this.activeStatus) || other.activeStatus == _this.activeStatus)&&(identical(other.timezone, _this.timezone) || other.timezone == _this.timezone)&&(identical(other.defaultLanguage, _this.defaultLanguage) || other.defaultLanguage == _this.defaultLanguage)&&(identical(other.defaultDeliveryTemplateId, _this.defaultDeliveryTemplateId) || other.defaultDeliveryTemplateId == _this.defaultDeliveryTemplateId)&&(identical(other.website, _this.website) || other.website == _this.website)&&(identical(other.createdInstant, _this.createdInstant) || other.createdInstant == _this.createdInstant)&&(identical(other.lastUpdatedInstant, _this.lastUpdatedInstant) || other.lastUpdatedInstant == _this.lastUpdatedInstant)&&const DeepCollectionEquality().equals(other.producers, _this.producers)&&const DeepCollectionEquality().equals(other.products, _this.products)&&const DeepCollectionEquality().equals(other.deliveries, _this.deliveries)&&const DeepCollectionEquality().equals(other.itemTypes, _this.itemTypes)&&const DeepCollectionEquality().equals(other.notificationOverrides, _this.notificationOverrides)&&const DeepCollectionEquality().equals(other.participationCountsBySeason, _this.participationCountsBySeason));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Organization;
-  return Object.hash(runtimeType,_this.organizationId,_this.name,_this.contactEmail,_this.activeStatus,_this.timezone,_this.defaultLanguage,_this.defaultDeliveryTemplateId,_this.website,_this.createdInstant,_this.lastUpdatedInstant,const DeepCollectionEquality().hash(_this.producers),const DeepCollectionEquality().hash(_this.products),const DeepCollectionEquality().hash(_this.deliveries),const DeepCollectionEquality().hash(_this.itemTypes),const DeepCollectionEquality().hash(_this.notificationOverrides));
+  return Object.hash(runtimeType,_this.organizationId,_this.name,_this.contactEmail,_this.activeStatus,_this.timezone,_this.defaultLanguage,_this.defaultDeliveryTemplateId,_this.website,_this.createdInstant,_this.lastUpdatedInstant,const DeepCollectionEquality().hash(_this.producers),const DeepCollectionEquality().hash(_this.products),const DeepCollectionEquality().hash(_this.deliveries),const DeepCollectionEquality().hash(_this.itemTypes),const DeepCollectionEquality().hash(_this.notificationOverrides),const DeepCollectionEquality().hash(_this.participationCountsBySeason));
 }
 
 @override
 String toString() {
   final _this = this as Organization;
-  return 'Organization(organizationId: ${_this.organizationId}, name: ${_this.name}, contactEmail: ${_this.contactEmail}, activeStatus: ${_this.activeStatus}, timezone: ${_this.timezone}, defaultLanguage: ${_this.defaultLanguage}, defaultDeliveryTemplateId: ${_this.defaultDeliveryTemplateId}, website: ${_this.website}, createdInstant: ${_this.createdInstant}, lastUpdatedInstant: ${_this.lastUpdatedInstant}, producers: ${_this.producers}, products: ${_this.products}, deliveries: ${_this.deliveries}, itemTypes: ${_this.itemTypes}, notificationOverrides: ${_this.notificationOverrides})';
+  return 'Organization(organizationId: ${_this.organizationId}, name: ${_this.name}, contactEmail: ${_this.contactEmail}, activeStatus: ${_this.activeStatus}, timezone: ${_this.timezone}, defaultLanguage: ${_this.defaultLanguage}, defaultDeliveryTemplateId: ${_this.defaultDeliveryTemplateId}, website: ${_this.website}, createdInstant: ${_this.createdInstant}, lastUpdatedInstant: ${_this.lastUpdatedInstant}, producers: ${_this.producers}, products: ${_this.products}, deliveries: ${_this.deliveries}, itemTypes: ${_this.itemTypes}, notificationOverrides: ${_this.notificationOverrides}, participationCountsBySeason: ${_this.participationCountsBySeason})';
 }
 
 
@@ -2413,7 +2413,7 @@ abstract mixin class $OrganizationCopyWith<$Res>  {
   factory $OrganizationCopyWith(Organization value, $Res Function(Organization) _then) = _$OrganizationCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'organization_id') String organizationId, String name,@JsonKey(name: 'contact_email') String contactEmail,@JsonKey(name: 'active_status') bool activeStatus, String? timezone,@JsonKey(name: 'default_language') String? defaultLanguage,@JsonKey(name: 'default_delivery_template_id', includeIfNull: false) String? defaultDeliveryTemplateId, String? website,@JsonKey(name: 'created_instant') String? createdInstant,@JsonKey(name: 'last_updated_instant') String? lastUpdatedInstant, List<OrganizationProducer> producers, List<OrgProduct> products, List<Delivery> deliveries,@JsonKey(name: 'item_types') List<ItemType> itemTypes,@JsonKey(name: 'notification_overrides') Map<NotificationCategory, NotificationCopyOverride> notificationOverrides
+@JsonKey(name: 'organization_id') String organizationId, String name,@JsonKey(name: 'contact_email') String contactEmail,@JsonKey(name: 'active_status') bool activeStatus, String? timezone,@JsonKey(name: 'default_language') String? defaultLanguage,@JsonKey(name: 'default_delivery_template_id', includeIfNull: false) String? defaultDeliveryTemplateId, String? website,@JsonKey(name: 'created_instant') String? createdInstant,@JsonKey(name: 'last_updated_instant') String? lastUpdatedInstant, List<OrganizationProducer> producers, List<OrgProduct> products, List<Delivery> deliveries,@JsonKey(name: 'item_types') List<ItemType> itemTypes,@JsonKey(name: 'notification_overrides') Map<NotificationCategory, NotificationCopyOverride> notificationOverrides,@JsonKey(name: 'participation_counts_by_season') Map<String, List<int>>? participationCountsBySeason
 });
 
 
@@ -2430,7 +2430,7 @@ class _$OrganizationCopyWithImpl<$Res>
 
 /// Create a copy of Organization
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? organizationId = null,Object? name = null,Object? contactEmail = null,Object? activeStatus = null,Object? timezone = freezed,Object? defaultLanguage = freezed,Object? defaultDeliveryTemplateId = freezed,Object? website = freezed,Object? createdInstant = freezed,Object? lastUpdatedInstant = freezed,Object? producers = null,Object? products = null,Object? deliveries = null,Object? itemTypes = null,Object? notificationOverrides = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? organizationId = null,Object? name = null,Object? contactEmail = null,Object? activeStatus = null,Object? timezone = freezed,Object? defaultLanguage = freezed,Object? defaultDeliveryTemplateId = freezed,Object? website = freezed,Object? createdInstant = freezed,Object? lastUpdatedInstant = freezed,Object? producers = null,Object? products = null,Object? deliveries = null,Object? itemTypes = null,Object? notificationOverrides = null,Object? participationCountsBySeason = freezed,}) {
   return _then(Organization(
 organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -2447,7 +2447,8 @@ as List<OrganizationProducer>,products: null == products ? _self.products : prod
 as List<OrgProduct>,deliveries: null == deliveries ? _self.deliveries : deliveries // ignore: cast_nullable_to_non_nullable
 as List<Delivery>,itemTypes: null == itemTypes ? _self.itemTypes : itemTypes // ignore: cast_nullable_to_non_nullable
 as List<ItemType>,notificationOverrides: null == notificationOverrides ? _self.notificationOverrides : notificationOverrides // ignore: cast_nullable_to_non_nullable
-as Map<NotificationCategory, NotificationCopyOverride>,
+as Map<NotificationCategory, NotificationCopyOverride>,participationCountsBySeason: freezed == participationCountsBySeason ? _self.participationCountsBySeason : participationCountsBySeason // ignore: cast_nullable_to_non_nullable
+as Map<String, List<int>>?,
   ));
 }
 
@@ -2532,10 +2533,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'organization_id')  String organizationId,  String name, @JsonKey(name: 'contact_email')  String contactEmail, @JsonKey(name: 'active_status')  bool activeStatus,  String? timezone, @JsonKey(name: 'default_language')  String? defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false)  String? defaultDeliveryTemplateId,  String? website, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant,  List<OrganizationProducer> producers,  List<OrgProduct> products,  List<Delivery> deliveries, @JsonKey(name: 'item_types')  List<ItemType> itemTypes, @JsonKey(name: 'notification_overrides')  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'organization_id')  String organizationId,  String name, @JsonKey(name: 'contact_email')  String contactEmail, @JsonKey(name: 'active_status')  bool activeStatus,  String? timezone, @JsonKey(name: 'default_language')  String? defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false)  String? defaultDeliveryTemplateId,  String? website, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant,  List<OrganizationProducer> producers,  List<OrgProduct> products,  List<Delivery> deliveries, @JsonKey(name: 'item_types')  List<ItemType> itemTypes, @JsonKey(name: 'notification_overrides')  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides, @JsonKey(name: 'participation_counts_by_season')  Map<String, List<int>>? participationCountsBySeason)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Organization() when $default != null:
-return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeStatus,_that.timezone,_that.defaultLanguage,_that.defaultDeliveryTemplateId,_that.website,_that.createdInstant,_that.lastUpdatedInstant,_that.producers,_that.products,_that.deliveries,_that.itemTypes,_that.notificationOverrides);case _:
+return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeStatus,_that.timezone,_that.defaultLanguage,_that.defaultDeliveryTemplateId,_that.website,_that.createdInstant,_that.lastUpdatedInstant,_that.producers,_that.products,_that.deliveries,_that.itemTypes,_that.notificationOverrides,_that.participationCountsBySeason);case _:
   return orElse();
 
 }
@@ -2553,10 +2554,10 @@ return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeS
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'organization_id')  String organizationId,  String name, @JsonKey(name: 'contact_email')  String contactEmail, @JsonKey(name: 'active_status')  bool activeStatus,  String? timezone, @JsonKey(name: 'default_language')  String? defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false)  String? defaultDeliveryTemplateId,  String? website, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant,  List<OrganizationProducer> producers,  List<OrgProduct> products,  List<Delivery> deliveries, @JsonKey(name: 'item_types')  List<ItemType> itemTypes, @JsonKey(name: 'notification_overrides')  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'organization_id')  String organizationId,  String name, @JsonKey(name: 'contact_email')  String contactEmail, @JsonKey(name: 'active_status')  bool activeStatus,  String? timezone, @JsonKey(name: 'default_language')  String? defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false)  String? defaultDeliveryTemplateId,  String? website, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant,  List<OrganizationProducer> producers,  List<OrgProduct> products,  List<Delivery> deliveries, @JsonKey(name: 'item_types')  List<ItemType> itemTypes, @JsonKey(name: 'notification_overrides')  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides, @JsonKey(name: 'participation_counts_by_season')  Map<String, List<int>>? participationCountsBySeason)  $default,) {final _that = this;
 switch (_that) {
 case _Organization():
-return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeStatus,_that.timezone,_that.defaultLanguage,_that.defaultDeliveryTemplateId,_that.website,_that.createdInstant,_that.lastUpdatedInstant,_that.producers,_that.products,_that.deliveries,_that.itemTypes,_that.notificationOverrides);case _:
+return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeStatus,_that.timezone,_that.defaultLanguage,_that.defaultDeliveryTemplateId,_that.website,_that.createdInstant,_that.lastUpdatedInstant,_that.producers,_that.products,_that.deliveries,_that.itemTypes,_that.notificationOverrides,_that.participationCountsBySeason);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2573,10 +2574,10 @@ return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeS
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'organization_id')  String organizationId,  String name, @JsonKey(name: 'contact_email')  String contactEmail, @JsonKey(name: 'active_status')  bool activeStatus,  String? timezone, @JsonKey(name: 'default_language')  String? defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false)  String? defaultDeliveryTemplateId,  String? website, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant,  List<OrganizationProducer> producers,  List<OrgProduct> products,  List<Delivery> deliveries, @JsonKey(name: 'item_types')  List<ItemType> itemTypes, @JsonKey(name: 'notification_overrides')  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'organization_id')  String organizationId,  String name, @JsonKey(name: 'contact_email')  String contactEmail, @JsonKey(name: 'active_status')  bool activeStatus,  String? timezone, @JsonKey(name: 'default_language')  String? defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false)  String? defaultDeliveryTemplateId,  String? website, @JsonKey(name: 'created_instant')  String? createdInstant, @JsonKey(name: 'last_updated_instant')  String? lastUpdatedInstant,  List<OrganizationProducer> producers,  List<OrgProduct> products,  List<Delivery> deliveries, @JsonKey(name: 'item_types')  List<ItemType> itemTypes, @JsonKey(name: 'notification_overrides')  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides, @JsonKey(name: 'participation_counts_by_season')  Map<String, List<int>>? participationCountsBySeason)?  $default,) {final _that = this;
 switch (_that) {
 case _Organization() when $default != null:
-return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeStatus,_that.timezone,_that.defaultLanguage,_that.defaultDeliveryTemplateId,_that.website,_that.createdInstant,_that.lastUpdatedInstant,_that.producers,_that.products,_that.deliveries,_that.itemTypes,_that.notificationOverrides);case _:
+return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeStatus,_that.timezone,_that.defaultLanguage,_that.defaultDeliveryTemplateId,_that.website,_that.createdInstant,_that.lastUpdatedInstant,_that.producers,_that.products,_that.deliveries,_that.itemTypes,_that.notificationOverrides,_that.participationCountsBySeason);case _:
   return null;
 
 }
@@ -2588,7 +2589,7 @@ return $default(_that.organizationId,_that.name,_that.contactEmail,_that.activeS
 @JsonSerializable()
 
 class _Organization implements Organization {
-  const _Organization({@JsonKey(name: 'organization_id') required this.organizationId, required this.name, @JsonKey(name: 'contact_email') required this.contactEmail, @JsonKey(name: 'active_status') this.activeStatus = true, this.timezone, @JsonKey(name: 'default_language') this.defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false) this.defaultDeliveryTemplateId, this.website, @JsonKey(name: 'created_instant') this.createdInstant, @JsonKey(name: 'last_updated_instant') this.lastUpdatedInstant,  List<OrganizationProducer> producers = const [],  List<OrgProduct> products = const [],  List<Delivery> deliveries = const [], @JsonKey(name: 'item_types')  List<ItemType> itemTypes = const <ItemType>[], @JsonKey(name: 'notification_overrides')  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides = const <NotificationCategory, NotificationCopyOverride>{}}): _producers = producers,_products = products,_deliveries = deliveries,_itemTypes = itemTypes,_notificationOverrides = notificationOverrides;
+  const _Organization({@JsonKey(name: 'organization_id') required this.organizationId, required this.name, @JsonKey(name: 'contact_email') required this.contactEmail, @JsonKey(name: 'active_status') this.activeStatus = true, this.timezone, @JsonKey(name: 'default_language') this.defaultLanguage, @JsonKey(name: 'default_delivery_template_id', includeIfNull: false) this.defaultDeliveryTemplateId, this.website, @JsonKey(name: 'created_instant') this.createdInstant, @JsonKey(name: 'last_updated_instant') this.lastUpdatedInstant,  List<OrganizationProducer> producers = const [],  List<OrgProduct> products = const [],  List<Delivery> deliveries = const [], @JsonKey(name: 'item_types')  List<ItemType> itemTypes = const <ItemType>[], @JsonKey(name: 'notification_overrides')  Map<NotificationCategory, NotificationCopyOverride> notificationOverrides = const <NotificationCategory, NotificationCopyOverride>{}, @JsonKey(name: 'participation_counts_by_season')  Map<String, List<int>>? participationCountsBySeason}): _producers = producers,_products = products,_deliveries = deliveries,_itemTypes = itemTypes,_notificationOverrides = notificationOverrides,_participationCountsBySeason = participationCountsBySeason;
   factory _Organization.fromJson(Map<String, dynamic> json) => _$OrganizationFromJson(json);
 
 @override@JsonKey(name: 'organization_id') final  String organizationId;
@@ -2636,6 +2637,15 @@ class _Organization implements Organization {
   return EqualUnmodifiableMapView(_notificationOverrides);
 }
 
+ final  Map<String, List<int>>? _participationCountsBySeason;
+@override@JsonKey(name: 'participation_counts_by_season') Map<String, List<int>>? get participationCountsBySeason {
+  final value = _participationCountsBySeason;
+  if (value == null) return null;
+  if (_participationCountsBySeason is EqualUnmodifiableMapView) return _participationCountsBySeason;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
 
 /// Create a copy of Organization
 /// with the given fields replaced by the non-null parameter values.
@@ -2650,18 +2660,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Organization&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.activeStatus, activeStatus) || other.activeStatus == activeStatus)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.defaultDeliveryTemplateId, defaultDeliveryTemplateId) || other.defaultDeliveryTemplateId == defaultDeliveryTemplateId)&&(identical(other.website, website) || other.website == website)&&(identical(other.createdInstant, createdInstant) || other.createdInstant == createdInstant)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant)&&const DeepCollectionEquality().equals(other.producers, _producers)&&const DeepCollectionEquality().equals(other.products, _products)&&const DeepCollectionEquality().equals(other.deliveries, _deliveries)&&const DeepCollectionEquality().equals(other.itemTypes, _itemTypes)&&const DeepCollectionEquality().equals(other.notificationOverrides, _notificationOverrides));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Organization&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.activeStatus, activeStatus) || other.activeStatus == activeStatus)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.defaultLanguage, defaultLanguage) || other.defaultLanguage == defaultLanguage)&&(identical(other.defaultDeliveryTemplateId, defaultDeliveryTemplateId) || other.defaultDeliveryTemplateId == defaultDeliveryTemplateId)&&(identical(other.website, website) || other.website == website)&&(identical(other.createdInstant, createdInstant) || other.createdInstant == createdInstant)&&(identical(other.lastUpdatedInstant, lastUpdatedInstant) || other.lastUpdatedInstant == lastUpdatedInstant)&&const DeepCollectionEquality().equals(other.producers, _producers)&&const DeepCollectionEquality().equals(other.products, _products)&&const DeepCollectionEquality().equals(other.deliveries, _deliveries)&&const DeepCollectionEquality().equals(other.itemTypes, _itemTypes)&&const DeepCollectionEquality().equals(other.notificationOverrides, _notificationOverrides)&&const DeepCollectionEquality().equals(other.participationCountsBySeason, _participationCountsBySeason));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,organizationId,name,contactEmail,activeStatus,timezone,defaultLanguage,defaultDeliveryTemplateId,website,createdInstant,lastUpdatedInstant,const DeepCollectionEquality().hash(_producers),const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_deliveries),const DeepCollectionEquality().hash(_itemTypes),const DeepCollectionEquality().hash(_notificationOverrides));
+    return Object.hash(runtimeType,organizationId,name,contactEmail,activeStatus,timezone,defaultLanguage,defaultDeliveryTemplateId,website,createdInstant,lastUpdatedInstant,const DeepCollectionEquality().hash(_producers),const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_deliveries),const DeepCollectionEquality().hash(_itemTypes),const DeepCollectionEquality().hash(_notificationOverrides),const DeepCollectionEquality().hash(_participationCountsBySeason));
 }
 
 @override
 String toString() {
-    return 'Organization(organizationId: $organizationId, name: $name, contactEmail: $contactEmail, activeStatus: $activeStatus, timezone: $timezone, defaultLanguage: $defaultLanguage, defaultDeliveryTemplateId: $defaultDeliveryTemplateId, website: $website, createdInstant: $createdInstant, lastUpdatedInstant: $lastUpdatedInstant, producers: $producers, products: $products, deliveries: $deliveries, itemTypes: $itemTypes, notificationOverrides: $notificationOverrides)';
+    return 'Organization(organizationId: $organizationId, name: $name, contactEmail: $contactEmail, activeStatus: $activeStatus, timezone: $timezone, defaultLanguage: $defaultLanguage, defaultDeliveryTemplateId: $defaultDeliveryTemplateId, website: $website, createdInstant: $createdInstant, lastUpdatedInstant: $lastUpdatedInstant, producers: $producers, products: $products, deliveries: $deliveries, itemTypes: $itemTypes, notificationOverrides: $notificationOverrides, participationCountsBySeason: $participationCountsBySeason)';
 }
 
 
@@ -2672,7 +2682,7 @@ abstract mixin class _$OrganizationCopyWith<$Res> implements $OrganizationCopyWi
   factory _$OrganizationCopyWith(_Organization value, $Res Function(_Organization) _then) = __$OrganizationCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'organization_id') String organizationId, String name,@JsonKey(name: 'contact_email') String contactEmail,@JsonKey(name: 'active_status') bool activeStatus, String? timezone,@JsonKey(name: 'default_language') String? defaultLanguage,@JsonKey(name: 'default_delivery_template_id', includeIfNull: false) String? defaultDeliveryTemplateId, String? website,@JsonKey(name: 'created_instant') String? createdInstant,@JsonKey(name: 'last_updated_instant') String? lastUpdatedInstant, List<OrganizationProducer> producers, List<OrgProduct> products, List<Delivery> deliveries,@JsonKey(name: 'item_types') List<ItemType> itemTypes,@JsonKey(name: 'notification_overrides') Map<NotificationCategory, NotificationCopyOverride> notificationOverrides
+@JsonKey(name: 'organization_id') String organizationId, String name,@JsonKey(name: 'contact_email') String contactEmail,@JsonKey(name: 'active_status') bool activeStatus, String? timezone,@JsonKey(name: 'default_language') String? defaultLanguage,@JsonKey(name: 'default_delivery_template_id', includeIfNull: false) String? defaultDeliveryTemplateId, String? website,@JsonKey(name: 'created_instant') String? createdInstant,@JsonKey(name: 'last_updated_instant') String? lastUpdatedInstant, List<OrganizationProducer> producers, List<OrgProduct> products, List<Delivery> deliveries,@JsonKey(name: 'item_types') List<ItemType> itemTypes,@JsonKey(name: 'notification_overrides') Map<NotificationCategory, NotificationCopyOverride> notificationOverrides,@JsonKey(name: 'participation_counts_by_season') Map<String, List<int>>? participationCountsBySeason
 });
 
 
@@ -2689,7 +2699,7 @@ class __$OrganizationCopyWithImpl<$Res>
 
 /// Create a copy of Organization
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? organizationId = null,Object? name = null,Object? contactEmail = null,Object? activeStatus = null,Object? timezone = freezed,Object? defaultLanguage = freezed,Object? defaultDeliveryTemplateId = freezed,Object? website = freezed,Object? createdInstant = freezed,Object? lastUpdatedInstant = freezed,Object? producers = null,Object? products = null,Object? deliveries = null,Object? itemTypes = null,Object? notificationOverrides = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? organizationId = null,Object? name = null,Object? contactEmail = null,Object? activeStatus = null,Object? timezone = freezed,Object? defaultLanguage = freezed,Object? defaultDeliveryTemplateId = freezed,Object? website = freezed,Object? createdInstant = freezed,Object? lastUpdatedInstant = freezed,Object? producers = null,Object? products = null,Object? deliveries = null,Object? itemTypes = null,Object? notificationOverrides = null,Object? participationCountsBySeason = freezed,}) {
   return _then(_Organization(
 organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -2706,7 +2716,8 @@ as List<OrganizationProducer>,products: null == products ? _self._products : pro
 as List<OrgProduct>,deliveries: null == deliveries ? _self._deliveries : deliveries // ignore: cast_nullable_to_non_nullable
 as List<Delivery>,itemTypes: null == itemTypes ? _self._itemTypes : itemTypes // ignore: cast_nullable_to_non_nullable
 as List<ItemType>,notificationOverrides: null == notificationOverrides ? _self._notificationOverrides : notificationOverrides // ignore: cast_nullable_to_non_nullable
-as Map<NotificationCategory, NotificationCopyOverride>,
+as Map<NotificationCategory, NotificationCopyOverride>,participationCountsBySeason: freezed == participationCountsBySeason ? _self._participationCountsBySeason : participationCountsBySeason // ignore: cast_nullable_to_non_nullable
+as Map<String, List<int>>?,
   ));
 }
 

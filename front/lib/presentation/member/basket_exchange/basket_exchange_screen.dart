@@ -33,9 +33,18 @@ import 'package:go_router/go_router.dart';
 /// Three sections: "💝 Mes propositions en cours", "🛍️ Échanges disponibles",
 /// "📊 Mon historique".
 class BasketExchangeScreen extends StatelessWidget {
-  const BasketExchangeScreen({super.key, required this.tenantId});
+  const BasketExchangeScreen({
+    super.key,
+    required this.tenantId,
+    this.showOverview = false,
+  });
 
   final String tenantId;
+
+  /// Whether to offer the all-members overview (coordinators and admins
+  /// only: plain members are only served the open offers and their own
+  /// exchanges).
+  final bool showOverview;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +59,7 @@ class BasketExchangeScreen extends StatelessWidget {
         orgId: tenantId,
         sub: sub,
       ),
-      child: const _BasketExchangeView(),
+      child: _BasketExchangeView(showOverview: showOverview),
     );
   }
 }
@@ -74,7 +83,9 @@ String _resolveSub(BuildContext context) {
 // ---------------------------------------------------------------------------
 
 class _BasketExchangeView extends StatelessWidget {
-  const _BasketExchangeView();
+  const _BasketExchangeView({required this.showOverview});
+
+  final bool showOverview;
 
   @override
   Widget build(
@@ -105,7 +116,10 @@ class _BasketExchangeView extends StatelessWidget {
           child: CircularProgressIndicator(),
         ),
         BasketExchangeUnauthorized() => const _UnauthorizedBody(),
-        BasketExchangeReady() => _ReadyBody(state: state),
+        BasketExchangeReady() => _ReadyBody(
+          state: state,
+          showOverview: showOverview,
+        ),
       },
     ),
   );
@@ -226,9 +240,10 @@ class _UnauthorizedBody extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ReadyBody extends StatelessWidget {
-  const _ReadyBody({required this.state});
+  const _ReadyBody({required this.state, required this.showOverview});
 
   final BasketExchangeReady state;
+  final bool showOverview;
 
   @override
   Widget build(BuildContext context) {
@@ -355,14 +370,16 @@ class _ReadyBody extends StatelessWidget {
                 label: const Text('ACTUALISER'),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => context.go('/basket-exchange/overview'),
-                icon: const Icon(Icons.table_chart),
-                label: const Text("VUE D'ENSEMBLE"),
+            if (showOverview) ...[
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.go('/basket-exchange/overview'),
+                  icon: const Icon(Icons.table_chart),
+                  label: const Text("VUE D'ENSEMBLE"),
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ],

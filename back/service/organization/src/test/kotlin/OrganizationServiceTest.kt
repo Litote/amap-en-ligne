@@ -67,6 +67,7 @@ import persistence.model.UserPreferences
 import persistence.model.UserSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -361,11 +362,14 @@ internal class OrganizationServiceTest {
     fun `GIVEN volunteer caller served masked emails WHEN registers self THEN APPLIED and the stored emails are kept`() =
         runTest {
             // The plain member was served the other registrations without their email
-            // (MemberContactRedaction) and writes the whole organization back.
+            // (PlainMemberRedaction) and writes the whole organization back.
             val existingSlot = buildStandardSlot(requiredVolunteers = 3, registrations = listOf(buildRegistration("neighbour")))
             val existingOrg =
                 buildOrganization(deliveries = listOf(buildDelivery(contracts = listOf(buildContract(slots = listOf(existingSlot))))))
-            val maskedNeighbour = buildRegistration("neighbour").copy(memberEmail = "")
+            val maskedNeighbour =
+                buildRegistration(
+                    "neighbour",
+                ).copy(memberEmail = "", registrationInstant = Instant.fromEpochMilliseconds(0))
             val updatedSlot = existingSlot.copy(registrations = listOf(maskedNeighbour, buildRegistration(volunteerId)))
             val updatedOrg =
                 existingOrg.copy(deliveries = listOf(buildDelivery(contracts = listOf(buildContract(slots = listOf(updatedSlot))))))
@@ -387,6 +391,144 @@ internal class OrganizationServiceTest {
                     .registrations
             assertEquals("neighbour@example.com", registrations.single { it.memberId.id == "neighbour" }.memberEmail)
             assertEquals("$volunteerId@example.com", registrations.single { it.memberId.id == volunteerId }.memberEmail)
+        }
+
+    private fun maskedPlainMemberCopy(): Pair<Organization, Organization> {
+        // Stored: a past delivery (attendance + an absence + coordinator notes) and an
+        // upcoming one where the neighbour is registered.
+        val past =
+            buildDelivery(
+                scheduledDate = LocalDateTime.parse("2026-01-07T19:00:00"),
+                contracts =
+                    listOf(
+                        buildContract(
+                            slots =
+                                listOf(
+                                    buildStandardSlot(
+                                        requiredVolunteers = 3,
+                                        registrations =
+                                            listOf(
+                                                buildRegistration("neighbour", RegistrationStatus.CONFIRMED),
+                                                buildRegistration("absentee", RegistrationStatus.CANCELLED),
+                                            ),
+                                    ),
+                                ),
+                        ).copy(preparationNotes = "Clé chez la gardienne"),
+                    ),
+            ).copy(deliveryId = "delivery-past".toId())
+        val upcomingSlot = buildStandardSlot(requiredVolunteers = 3, registrations = listOf(buildRegistration("neighbour")))
+        val upcoming = buildDelivery(contracts = listOf(buildContract(slots = listOf(upcomingSlot))))
+        val stored = buildOrganization(deliveries = listOf(past, upcoming))
+        // What the plain member was served (PlainMemberRedaction), then their self-registration.
+        val maskedPast =
+            past.copy(
+                contracts =
+                    past.contracts.map { link ->
+                        link.copy(
+                            preparationNotes = null,
+                            slots =
+                                link.slots.map {
+                                    it.copy(
+                                        registrations =
+                                            listOf(
+                                                buildRegistration("anonymous", RegistrationStatus.CONFIRMED).copy(
+                                                    displayName = "",
+                                                    memberEmail = "",
+                                                    registrationInstant = Instant.fromEpochMilliseconds(0),
+                                                ),
+                                            ),
+                                    )
+                                },
+                        )
+                    },
+            )
+        val maskedNeighbour = buildRegistration("neighbour").copy(memberEmail = "", registrationInstant = Instant.fromEpochMilliseconds(0))
+        val registered =
+            buildDelivery(
+                contracts =
+                    listOf(
+                        buildContract(
+                            slots = listOf(upcomingSlot.copy(registrations = listOf(maskedNeighbour, buildRegistration(volunteerId)))),
+                        ),
+                    ),
+            )
+        return stored to stored.copy(deliveries = listOf(maskedPast, registered), participationCountsBySeason = mapOf(2026 to listOf(1, 0)))
+    }
+
+    @Test
+    fun `GIVEN volunteer caller writing back the masked copy WHEN registers self THEN APPLIED and nothing stored is lost`() =
+        runTest {
+            val (stored, written) = maskedPlainMemberCopy()
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns stored
+            coEvery { deliveryTemplateSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(buildTemplate())
+            val persisted = slot<Organization>()
+            coEvery { organizationSyncDAO.put(capture(persisted), any(), any()) } returns Unit
+
+            val outcome = service.applyUpsert(volunteerAuth, buildMutation(written), OrganizationPayload(written))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            val expected =
+                stored.copy(
+                    deliveries =
+                        listOf(
+                            stored.deliveries[0],
+                            stored.deliveries[1].copy(
+                                contracts =
+                                    stored.deliveries[1].contracts.map { link ->
+                                        link.copy(
+                                            slots =
+                                                link.slots.map {
+                                                    it.copy(
+                                                        registrations =
+                                                            it.registrations + buildRegistration(volunteerId),
+                                                    )
+                                                },
+                                        )
+                                    },
+                            ),
+                        ),
+                )
+            assertEquals(expected.deliveries, persisted.captured.deliveries)
+            assertNull(persisted.captured.participationCountsBySeason)
+        }
+
+    @Test
+    fun `GIVEN volunteer caller WHEN altering a masked registration of another member THEN REJECTED FORBIDDEN`() =
+        runTest {
+            val (stored, written) = maskedPlainMemberCopy()
+            // Turns the anonymous attendance into an absence: not the copy that was served.
+            val tampered =
+                written.copy(
+                    deliveries =
+                        listOf(
+                            written.deliveries[0].copy(
+                                contracts =
+                                    written.deliveries[0].contracts.map { link ->
+                                        link.copy(
+                                            slots =
+                                                link.slots.map { slot ->
+                                                    slot.copy(
+                                                        registrations =
+                                                            slot.registrations.map {
+                                                                it.copy(
+                                                                    status = RegistrationStatus.CANCELLED,
+                                                                )
+                                                            },
+                                                    )
+                                                },
+                                        )
+                                    },
+                            ),
+                            written.deliveries[1],
+                        ),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns stored
+            coEvery { deliveryTemplateSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(buildTemplate())
+
+            val outcome = service.applyUpsert(volunteerAuth, buildMutation(tampered), OrganizationPayload(tampered))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
         }
 
     @Test

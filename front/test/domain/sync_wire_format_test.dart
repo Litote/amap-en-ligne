@@ -2143,6 +2143,27 @@ void main() {
       expect(encoded['item_types'], isA<List>());
     });
 
+    test('Organization decodes the participation counts served to a plain '
+        'member (season keys are strings) and omits them when absent', () {
+      final org = Organization.fromJson({
+        'organization_id': 'org-1',
+        'name': 'AMAP test',
+        'contact_email': 'test@example.com',
+        'participation_counts_by_season': {
+          '2026': [3, 1, 0],
+        },
+      });
+      expect(org.participationCountsBySeason, {
+        '2026': [3, 1, 0],
+      });
+
+      final withoutCounts = org.copyWith(participationCountsBySeason: null);
+      expect(
+        withoutCounts.toJson().containsKey('participation_counts_by_season'),
+        isFalse,
+      );
+    });
+
     test('Organization with no item_types deserializes as empty catalog', () {
       final org = Organization.fromJson({
         'organization_id': 'org-1',

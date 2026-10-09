@@ -306,6 +306,71 @@ void main() {
       expect(find.textContaining('⭐ Statut : Occasionnel'), findsOneWidget);
     });
 
+    testWidgets(
+      'plain member copy: the rank comes from the anonymous served counts',
+      (tester) async {
+        const contractId = 'c-season';
+        final seasonYear = DateTime.now().year;
+        // The others' past registrations are anonymous in a plain member's
+        // copy: they cannot be counted per member any more.
+        final delivery = buildDelivery(
+          deliveryId: 'd-1',
+          scheduledDate: '$seasonYear-01-10T18:00:00',
+          status: DeliveryStatus.completed,
+          contracts: [
+            buildContract(
+              contractId: contractId,
+              slots: [
+                buildSlot(
+                  registrations: [
+                    buildRegistration(
+                      memberId: _kMemberId,
+                      status: RegistrationStatus.completed,
+                    ),
+                    buildRegistration(
+                      memberId: 'anonymous',
+                      status: RegistrationStatus.completed,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+
+        await _pump(
+          tester,
+          orgRepo: orgRepo,
+          memberRepo: memberRepo,
+          authService: authService,
+          contractRepo: contractRepo,
+        );
+        await tester.pump();
+
+        final me = _buildMember();
+        orgStream.add(
+          buildOrg(deliveries: [delivery]).copyWith(
+            participationCountsBySeason: {
+              '$seasonYear': [4, 2, 1, 0],
+            },
+          ),
+        );
+        memberStream.add(me);
+        allMembersStream.add([me]);
+        contractsStream.add([
+          _activeContract(contractId: contractId, seasonYear: seasonYear),
+        ]);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        // 1 participation: two members above, among 4 active members.
+        expect(
+          find.textContaining("🏆 Rang dans l'Amap : 3ème / 4 membres"),
+          findsOneWidget,
+        );
+      },
+    );
+
     testWidgets('stats card shows "Membre actif" when >= 5 completions', (
       tester,
     ) async {

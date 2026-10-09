@@ -1755,6 +1755,36 @@ void main() {
       expect(result, isNull);
     });
 
+    test('uses the anonymous counts served to a plain member (past '
+        'registrations of the others are anonymous)', () {
+      final d = buildDelivery(
+        deliveryId: 'd-1',
+        contracts: [
+          buildContract(
+            contractId: 'c-1',
+            slots: [
+              buildSlot(registrations: [completedReg('m-1')]),
+            ],
+          ),
+        ],
+      );
+      final org = buildOrg(deliveries: [d]).copyWith(
+        participationCountsBySeason: const {
+          '2026': [3, 1, 1, 0],
+        },
+      );
+      final members = [buildActiveMember('m-1'), buildActiveMember('m-2')];
+
+      final result = memberRankIn(org, members, 'm-1', {
+        'c-1',
+      }, seasonYear: 2026);
+
+      // m-1 has 1 participation: one member above, one other at 1.
+      expect(result?.rank, 2);
+      expect(result?.total, 4);
+      expect(result?.tied, isTrue);
+    });
+
     test('returns rank 1 for member with most participations', () {
       final d1 = buildDelivery(
         deliveryId: 'd-1',
@@ -1987,6 +2017,22 @@ void main() {
       accountStatus: MemberAccountStatus.active,
       roles: const {Role.volunteer},
     );
+
+    test('uses the anonymous counts served to a plain member', () {
+      final org = buildOrg().copyWith(
+        participationCountsBySeason: const {
+          '2026': [6, 5, 3, 0, 0],
+        },
+      );
+
+      final result = participationDistribution(org, const [], {
+        'c-1',
+      }, seasonYear: 2026);
+
+      expect(result.active, 2);
+      expect(result.occasional, 1);
+      expect(result.inactive, 2);
+    });
 
     test('returns zeros when no members', () {
       final result = participationDistribution(buildOrg(), [], {'c-1'});

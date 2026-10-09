@@ -216,6 +216,7 @@ class _HistoryBody extends StatelessWidget {
           org: org,
           memberId: memberId,
           allMembers: allMembers,
+          seasonYear: seasonYear,
           seasonContractIds: contractIds,
         ),
         const SizedBox(height: 16),
@@ -311,12 +312,14 @@ class _StatsCard extends StatelessWidget {
     required this.org,
     required this.memberId,
     required this.allMembers,
+    required this.seasonYear,
     required this.seasonContractIds,
   });
 
   final Organization org;
   final String memberId;
   final List<Member> allMembers;
+  final int seasonYear;
   final Set<String> seasonContractIds;
 
   @override
@@ -342,6 +345,7 @@ class _StatsCard extends StatelessWidget {
       activeMembers,
       memberId,
       seasonContractIds,
+      seasonYear: seasonYear,
     );
 
     final lastDelivery = lastCompletedDeliveryInSeason(

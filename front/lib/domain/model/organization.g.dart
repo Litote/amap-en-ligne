@@ -286,6 +286,13 @@ _Organization _$OrganizationFromJson(
         ),
       ) ??
       const <NotificationCategory, NotificationCopyOverride>{},
+  participationCountsBySeason:
+      (json['participation_counts_by_season'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(
+          k,
+          (e as List<dynamic>).map((e) => (e as num).toInt()).toList(),
+        ),
+      ),
 );
 
 Map<String, dynamic> _$OrganizationToJson(_Organization instance) =>
@@ -307,6 +314,7 @@ Map<String, dynamic> _$OrganizationToJson(_Organization instance) =>
       'notification_overrides': instance.notificationOverrides.map(
         (k, e) => MapEntry(_$NotificationCategoryEnumMap[k]!, e),
       ),
+      'participation_counts_by_season': ?instance.participationCountsBySeason,
     };
 
 const _$NotificationCategoryEnumMap = {

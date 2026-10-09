@@ -40,6 +40,12 @@ data class Organization(
     // Resolved at publish sites via NotificationCopy.resolve; empty ⇒ hardcoded defaults.
     @SerialName("notification_overrides")
     val notificationOverrides: Map<NotificationCategory, NotificationCopyOverride> = emptyMap(),
+    // Server-derived, never stored: served to plain members only, whose copy carries the past
+    // registrations anonymised. For each season year, the participation counts (present
+    // registrations on that season's contracts) of the active members, one anonymous entry
+    // per member, so the ranking can still be computed client-side. Null otherwise.
+    @SerialName("participation_counts_by_season")
+    val participationCountsBySeason: Map<Int, List<Int>>? = null,
 ) {
     fun getNextDeliveries(
         startDate: Instant = Clock.System.now() - 2.hours,

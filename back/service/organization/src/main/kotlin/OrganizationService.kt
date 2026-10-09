@@ -4,7 +4,7 @@ import authentication.AuthenticatedInfo
 import authentication.Role
 import core.BasketComposition
 import core.EntityTypeService
-import core.MemberContactRedaction
+import core.PlainMemberRedaction
 import core.ProducerScheduleProjection
 import core.organizationInstanceOwnerChanges
 import core.toFrenchLongDate
@@ -76,13 +76,13 @@ class OrganizationService(
         val isPrivilegedCaller = auth.roles.any { it == Role.OWNER || it == Role.ADMIN || it == Role.COORDINATOR }
         val isVolunteerCaller = auth.roles.any { it == Role.VOLUNTEER }
         val persistedOrg = organizationSyncDAO.getById(payload.organization.organizationId)
-        // A plain member is served the other registrations without their email
-        // (MemberContactRedaction): put the stored ones back before any check or write.
+        // A plain member is served a masked copy (PlainMemberRedaction): put the stored values
+        // back before any check or write. The derived participation counts are never stored.
         val incoming =
-            if (MemberContactRedaction.appliesTo(auth)) {
-                MemberContactRedaction.restoreRegistrationEmails(persistedOrg, payload.organization)
+            if (PlainMemberRedaction.appliesTo(auth)) {
+                PlainMemberRedaction.restoreServedMasks(persistedOrg, payload.organization, auth.memberId)
             } else {
-                payload.organization
+                payload.organization.copy(participationCountsBySeason = null)
             }
 
         var normalizedOrg = incoming

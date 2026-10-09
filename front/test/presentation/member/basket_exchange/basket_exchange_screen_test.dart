@@ -53,6 +53,7 @@ Future<void> _pump(
   required _MockAuthService authService,
   required _MockSyncBloc syncBloc,
   String tenantId = 'org-1',
+  bool showOverview = false,
 }) async {
   await tester.pumpWidget(
     MultiRepositoryProvider(
@@ -65,7 +66,12 @@ Future<void> _pump(
       ],
       child: BlocProvider<SyncBloc>.value(
         value: syncBloc,
-        child: MaterialApp(home: BasketExchangeScreen(tenantId: tenantId)),
+        child: MaterialApp(
+          home: BasketExchangeScreen(
+            tenantId: tenantId,
+            showOverview: showOverview,
+          ),
+        ),
       ),
     ),
   );
@@ -208,6 +214,54 @@ void main() {
         await exchangeController.close();
       },
     );
+
+    for (final showOverview in [false, true]) {
+      testWidgets(
+        'VUE D\'ENSEMBLE is ${showOverview ? 'offered to coordinators' : 'hidden from plain members'}',
+        (tester) async {
+          // Tall window: the footer actions sit at the bottom of the list.
+          tester.view.physicalSize = const Size(800, 2400);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(tester.view.resetPhysicalSize);
+          when(() => orgRepo.watch(any())).thenAnswer(
+            (_) => Stream.value(
+              const Organization(
+                organizationId: 'org-1',
+                name: 'Test AMAP',
+                contactEmail: 'contact@test.com',
+              ),
+            ),
+          );
+          when(() => memberRepo.watchMyMember(any())).thenAnswer(
+            (_) => Stream.value(
+              const Member(memberId: 'member-1', organizationId: 'org-1'),
+            ),
+          );
+          when(
+            () => exchangeRepo.watch(any()),
+          ).thenAnswer((_) => Stream.value(const []));
+
+          await _pump(
+            tester,
+            orgRepo: orgRepo,
+            memberRepo: memberRepo,
+            exchangeRepo: exchangeRepo,
+            contractRepo: contractRepo,
+            authService: authService,
+            syncBloc: syncBloc,
+            showOverview: showOverview,
+          );
+          await tester.pump();
+          await tester.pump();
+
+          expect(find.text('ACTUALISER'), findsOneWidget);
+          expect(
+            find.text("VUE D'ENSEMBLE"),
+            showOverview ? findsOneWidget : findsNothing,
+          );
+        },
+      );
+    }
 
     testWidgets(
       'does not reopen dialog when org stream re-emits while propose dialog is open',

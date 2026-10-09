@@ -4,11 +4,13 @@ import authentication.AuthenticatedInfo
 import authentication.Role
 import core.AuthorizedScopeResolver
 import core.EntityTypeService
-import core.MemberContactRedaction
+import core.PlainMemberRedaction
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
 import persistence.changes.BootstrapScopeResult
+import persistence.changes.ChangeOp
 import persistence.changes.ClientMutation
+import persistence.changes.ContractPayload
 import persistence.changes.Cursor
 import persistence.changes.Delete
 import persistence.changes.EntityPayload
@@ -131,27 +133,46 @@ class DataService(
         scope: SyncScope,
         cursor: String?,
     ): ScopeSyncResult {
-        if (cursor == null) {
+        // The cursor tells which view the client's cache holds (PlainMemberRedaction): one
+        // bootstrap when it is not the caller's view any more, plain diffs otherwise.
+        val masked = redactsFor(auth, scope)
+        if (cursor == null || PlainMemberRedaction.isMaskedViewCursor(cursor) != masked) {
             return bootstrapScope(auth, scope)
         }
+        val logCursor = PlainMemberRedaction.changeLogCursor(cursor)
 
         val changedRowCount =
             changeDAO.countSince(
                 scopeKey = scope.key,
-                cursor = cursor,
+                cursor = logCursor,
                 limit = ChangeDAO.DEFAULT_INCREMENTAL_LIMIT + 1,
             )
         return if (changedRowCount > ChangeDAO.DEFAULT_INCREMENTAL_LIMIT) {
             bootstrapScope(auth, scope)
         } else {
-            val changes = changeDAO.since(scope.key, cursor)
+            val changes = changeDAO.since(scope.key, logCursor)
+            val visible = changes.filter { isVisible(auth, scope, it.entityType) }
+            val context =
+                if (masked && visible.any { change -> change.payload?.let(PlainMemberRedaction::needsContext) == true }) {
+                    redactionContext(
+                        auth,
+                        service(EntityType.Member).snapshot(auth, scope),
+                        service(EntityType.Contract).snapshot(auth, scope),
+                    )
+                } else {
+                    null
+                }
             IncrementalScopeResult(
                 changes =
-                    changes
-                        .filter { isVisible(auth, scope, it.entityType) }
-                        .map { change -> change.copy(payload = change.payload?.let { redactContacts(auth, scope, it) }) },
+                    visible.map { change ->
+                        val payload = change.payload ?: return@map change
+                        // Not served any more (e.g. an offer settled between others): a
+                        // tombstone so the client cache drops what it may hold.
+                        redact(auth, scope, payload, context)?.let { change.copy(payload = it) }
+                            ?: change.copy(op = ChangeOp.DELETE, payload = null)
+                    },
                 // The cursor moves past the hidden changes too.
-                nextCursor = changes.lastOrNull()?.cursor ?: cursor,
+                nextCursor = PlainMemberRedaction.cursorFor(changes.lastOrNull()?.cursor ?: logCursor, masked),
             )
         }
     }
@@ -160,14 +181,16 @@ class DataService(
         auth: AuthenticatedInfo,
         scope: SyncScope,
     ): BootstrapScopeResult {
-        val nextCursor = Cursor.next()
+        val nextCursor = PlainMemberRedaction.cursorFor(Cursor.next(), masked = redactsFor(auth, scope))
         val items =
             buildList {
                 for (entityType in scope.entityTypes) {
                     addAll(snapshot(auth, scope, entityType))
                 }
             }
-        return BootstrapScopeResult(items = items.map { redactContacts(auth, scope, it) }, nextCursor = nextCursor)
+        // The snapshot itself carries what the redaction depends on (members, contracts).
+        val context = if (redactsFor(auth, scope)) redactionContext(auth, items, items) else null
+        return BootstrapScopeResult(items = items.mapNotNull { redact(auth, scope, it, context) }, nextCursor = nextCursor)
     }
 
     private suspend fun snapshot(
@@ -205,17 +228,34 @@ class DataService(
             auth.roles.any { it == Role.ADMIN || it == Role.OWNER }
 
     /**
-     * The other members' contact details are only served to coordinators, admins and owners
-     * on an organization scope ([MemberContactRedaction]); the stored [Change] rows stay
-     * complete, the redaction happens per caller when serving them.
+     * A plain member only gets the plain-member view of an organization scope
+     * ([PlainMemberRedaction]); the stored [Change] rows stay complete, the redaction
+     * happens per caller when serving them.
      */
-    private fun redactContacts(
+    private fun redactsFor(
+        auth: AuthenticatedInfo,
+        scope: SyncScope,
+    ): Boolean = scope is SyncScope.Organization && PlainMemberRedaction.appliesTo(auth)
+
+    private fun redactionContext(
+        auth: AuthenticatedInfo,
+        memberItems: List<EntityPayload>,
+        contractItems: List<EntityPayload>,
+    ) = PlainMemberRedaction.Context(
+        callerId = auth.memberId,
+        now = Clock.System.now(),
+        members = memberItems.filterIsInstance<MemberPayload>().map { it.member },
+        contracts = contractItems.filterIsInstance<ContractPayload>().map { it.contract },
+    )
+
+    private fun redact(
         auth: AuthenticatedInfo,
         scope: SyncScope,
         payload: EntityPayload,
-    ): EntityPayload =
-        if (scope is SyncScope.Organization && MemberContactRedaction.appliesTo(auth)) {
-            MemberContactRedaction.redact(payload, auth.memberId)
+        context: PlainMemberRedaction.Context?,
+    ): EntityPayload? =
+        if (redactsFor(auth, scope)) {
+            PlainMemberRedaction.redact(payload, auth.memberId, context)
         } else {
             payload
         }

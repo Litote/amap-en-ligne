@@ -37,7 +37,7 @@ Interface permettant aux membres d'échanger leurs paniers entre eux. L'échange
 │  │  [VOIR HISTORIQUE COMPLET]                             │ │
 │  └─────────────────────────────────────────────────────────┘ │
 │                                                             │
-│ [🔄 ACTUALISER]              [VUE D'ENSEMBLE]              │
+│ [🔄 ACTUALISER]              [VUE D'ENSEMBLE] (coord./admin)│
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -50,7 +50,7 @@ Interface permettant aux membres d'échanger leurs paniers entre eux. L'échange
 - **[VOIR LES DEMANDES]** : écran des demandes reçues pour une proposition, avec le panier proposé en retour par chaque demandeur.
 - **[ANNULER]** : annule une proposition en cours, après confirmation (« Annuler cette proposition ? » → **[ANNULER LA PROPOSITION]** / **[NON]**) ; les demandes en attente sont automatiquement refusées.
 - **[VOIR HISTORIQUE COMPLET]** : navigation vers l'historique détaillé (`/basket-exchange/history`, flèche retour dans l'en-tête).
-- **[VUE D'ENSEMBLE]** : tableau récapitulatif de tous les échanges en cours de l'AMAP, ouvert à tous les membres (`/basket-exchange/overview`).
+- **[VUE D'ENSEMBLE]** : tableau récapitulatif de tous les échanges en cours de l'AMAP (`/basket-exchange/overview`), réservé aux coordinateurs et administrateurs — le bouton n'est pas affiché aux amapiens.
 
 ### États dynamiques des échanges
 - **🟡 En attente** : proposition active, en attente de demandes / de validation.
@@ -136,9 +136,9 @@ La liste des livraisons ne propose que les paniers que le membre peut céder : l
 - **[VALIDER]** : confirme l'échange réciproque (le proposant cède son panier et récupère celui du demandeur). Les autres demandes en attente sont automatiquement refusées.
 - **[REFUSER]** : refuse cette demande individuellement ; la proposition reste **ouverte** pour les autres membres. Le demandeur est notifié.
 
-### Vue d'ensemble (tous les membres)
+### Vue d'ensemble (coordinateurs et administrateurs)
 
-Écran `/basket-exchange/overview` accessible à tous les membres : tableau récapitulatif des échanges **en cours** (ouverts ou confirmés) de l'AMAP — offreur, panier offert (date), demandeur retenu, panier en retour (date), nombre de demandes en attente, statut. Un bouton d'**export CSV** (« comme un fichier Excel ») télécharge le tableau.
+Écran `/basket-exchange/overview` réservé aux coordinateurs et administrateurs (un amapien qui ouvre l'adresse est renvoyé vers son accueil). Un amapien ne reçoit d'ailleurs que les propositions **ouvertes** de l'AMAP et les échanges **auxquels il participe** (comme offreur ou demandeur) ; un échange conclu entre deux autres membres disparaît de son application. Contenu : tableau récapitulatif des échanges **en cours** (ouverts ou confirmés) de l'AMAP — offreur, panier offert (date), demandeur retenu, panier en retour (date), nombre de demandes en attente, statut. Un bouton d'**export CSV** (« comme un fichier Excel ») télécharge le tableau.
 
 ### Présence sur le tableau de bord
 

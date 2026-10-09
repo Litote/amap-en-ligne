@@ -93,6 +93,7 @@ const _kActivateRoute = '/activate';
 const _kResetPasswordRoute = '/reset-password';
 const _kProductTypesRoute = '/product-types';
 const _kOrganizationRequestsRoute = '/admin/organization-requests';
+const _kBasketExchangeOverviewRoute = '/basket-exchange/overview';
 const _kProducerDashboardRoute = '/producer-dashboard';
 const _kDashboardRoute = '/dashboard';
 
@@ -211,7 +212,11 @@ _RouteAudience? _audienceOf(String location) {
   if (_isUnder(location, '/admin') || _isUnder(location, '/members')) {
     return _RouteAudience.admin;
   }
-  if (_isUnder(location, '/coordinator') || _isUnder(location, '/slots')) {
+  if (_isUnder(location, '/coordinator') ||
+      _isUnder(location, '/slots') ||
+      // The all-members exchange overview: plain members are only served the
+      // open offers and their own exchanges.
+      _isUnder(location, _kBasketExchangeOverviewRoute)) {
     return _RouteAudience.coordinator;
   }
   if (_isUnder(location, _kProducerDashboardRoute) ||
@@ -483,7 +488,7 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
             ),
           ),
           GoRoute(
-            path: '/basket-exchange/overview',
+            path: _kBasketExchangeOverviewRoute,
             builder: (_, _) => tenantScoped(
               (tenantId) => BasketExchangeOverviewScreen(orgId: tenantId),
             ),
@@ -500,7 +505,12 @@ GoRouter buildRouter({required AuthBloc authBloc}) {
           GoRoute(
             path: '/basket-exchange',
             builder: (_, _) => tenantScoped(
-              (tenantId) => BasketExchangeScreen(tenantId: tenantId),
+              (tenantId) => BasketExchangeScreen(
+                tenantId: tenantId,
+                showOverview: authBloc.state.memberRoles.any(
+                  (role) => role == Role.coordinator || role == Role.admin,
+                ),
+              ),
             ),
           ),
           GoRoute(

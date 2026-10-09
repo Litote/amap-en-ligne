@@ -898,15 +898,36 @@ typedef MemberRankResult = ({int rank, int total, bool tied});
 ///
 /// Only members present in [activeMembers] are included in the denominator.
 /// Returns null when [memberId] is not found in [activeMembers].
+///
+/// A plain member's copy has the others' past registrations anonymised: the
+/// counts then come from [Organization.participationCountsBySeason] for
+/// [seasonYear] (one anonymous entry per active member, the caller's own count
+/// still read from their registrations).
 MemberRankResult? memberRankIn(
   Organization org,
   Iterable<Member> activeMembers,
   String memberId,
-  Set<String> seasonContractIds,
-) {
+  Set<String> seasonContractIds, {
+  int? seasonYear,
+}) {
   final activeMemberList = activeMembers.toList();
   final isMemberActive = activeMemberList.any((m) => m.memberId == memberId);
   if (!isMemberActive) return null;
+
+  final servedCounts = _servedSeasonCounts(org, seasonYear);
+  if (servedCounts != null) {
+    final myCount = completedRegistrationsInSeason(
+      org,
+      memberId,
+      seasonContractIds,
+    );
+    return (
+      rank: 1 + servedCounts.where((c) => c > myCount).length,
+      total: servedCounts.length,
+      // The caller is one of the entries equal to their own count.
+      tied: servedCounts.where((c) => c == myCount).length > 1,
+    );
+  }
 
   // Build (memberId, count) pairs for all active members.
   final scores = activeMemberList.map((m) {
@@ -942,11 +963,26 @@ MemberRankResult? memberRankIn(
 ({int active, int occasional, int inactive}) participationDistribution(
   Organization org,
   Iterable<Member> activeMembers,
-  Set<String> seasonContractIds,
-) {
+  Set<String> seasonContractIds, {
+  int? seasonYear,
+}) {
   var active = 0;
   var occasional = 0;
   var inactive = 0;
+  // Anonymous counts served to a plain member (see [memberRankIn]).
+  final servedCounts = _servedSeasonCounts(org, seasonYear);
+  if (servedCounts != null) {
+    for (final count in servedCounts) {
+      if (count >= 5) {
+        active++;
+      } else if (count >= 1) {
+        occasional++;
+      } else {
+        inactive++;
+      }
+    }
+    return (active: active, occasional: occasional, inactive: inactive);
+  }
   for (final m in activeMembers) {
     final status = memberActivityStatus(org, m.memberId, seasonContractIds);
     switch (status) {
@@ -1043,4 +1079,11 @@ DateTime defaultPlanningMonth(Organization org, DateTime now) {
     (date) => date.year == now.year && date.month == now.month,
   );
   return pastThisMonth ? DateTime(now.year, now.month + 1) : currentMonth;
+}
+
+/// The anonymous participation counts of [seasonYear] served to a plain member,
+/// or null (coordinators and admins compute them from the registrations).
+List<int>? _servedSeasonCounts(Organization org, int? seasonYear) {
+  if (seasonYear == null) return null;
+  return org.participationCountsBySeason?['$seasonYear'];
 }

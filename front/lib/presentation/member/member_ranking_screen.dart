@@ -165,11 +165,18 @@ class _MemberRankingScreenState extends State<MemberRankingScreen> {
 
     final memberId = me.memberId;
     final myCount = completedRegistrationsInSeason(org, memberId, contractIds);
-    final rankResult = memberRankIn(org, activeMembers, memberId, contractIds);
+    final rankResult = memberRankIn(
+      org,
+      activeMembers,
+      memberId,
+      contractIds,
+      seasonYear: seasonYear,
+    );
     final distribution = participationDistribution(
       org,
       activeMembers,
       contractIds,
+      seasonYear: seasonYear,
     );
 
     final myActivity = memberActivityStatus(org, memberId, contractIds);

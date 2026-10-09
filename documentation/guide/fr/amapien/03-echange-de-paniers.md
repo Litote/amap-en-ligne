@@ -66,8 +66,10 @@ Sur votre proposition, touchez **[ANNULER]**. Les demandes en attente sont alors
 
 - La page d'accueil affiche une carte **Échanges de paniers** rappelant les propositions à
   valider, vos demandes en attente et vos échanges confirmés.
-- **[VUE D'ENSEMBLE]** ouvre un tableau de tous les échanges en cours de l'AMAP, exportable en
-  fichier CSV.
+- Vous voyez les propositions **ouvertes** de l'AMAP et les échanges **auxquels vous
+  participez** ; les échanges conclus entre d'autres membres ne vous sont pas montrés.
+- Les coordinateurs et administrateurs disposent en plus de **[VUE D'ENSEMBLE]**, un tableau
+  de tous les échanges en cours de l'AMAP, exportable en fichier CSV.
 - **[VOIR HISTORIQUE COMPLET]** (carte **Mon historique**) liste vos échanges passés avec les deux
   paniers échangés ; la flèche en haut à gauche ramène aux échanges.
 

@@ -393,6 +393,8 @@ void main() {
           '/coordinator/time-slots',
           '/coordinator/tracking/d-1',
           '/slots',
+          // The all-members exchange overview is a coordinator screen.
+          '/basket-exchange/overview',
           '/owner/dashboard',
           '/admin/organization-requests',
           '/producer-dashboard',
@@ -412,7 +414,8 @@ void main() {
           '/contracts',
           '/planning',
           '/history/ranking',
-          '/basket-exchange/overview',
+          '/basket-exchange',
+          '/basket-exchange/history',
           '/notifications',
           '/preferences',
           '/help',
@@ -440,6 +443,10 @@ void main() {
           isNull,
         );
         expect(redirect('/planning', UserRole.coordinator, roles), isNull);
+        expect(
+          redirect('/basket-exchange/overview', UserRole.coordinator, roles),
+          isNull,
+        );
         expect(redirect('/members', UserRole.coordinator, roles), '/dashboard');
       });
 

@@ -1917,7 +1917,8 @@ internal class DataServiceTest {
             val response =
                 service.sync(
                     volunteerAuth,
-                    mapOf("organization:$organizationId" to "c-init"),
+                    // A plain member's cursor carries the masked-view mark (PlainMemberRedaction).
+                    mapOf("organization:$organizationId" to "pm.c-init"),
                     listOf(
                         ClientMutation(
                             clientOpId = "op-contract",
@@ -1980,7 +1981,8 @@ internal class DataServiceTest {
             val response =
                 service.sync(
                     volunteerAuth,
-                    mapOf("organization:$organizationId" to "c-init"),
+                    // A plain member's cursor carries the masked-view mark (PlainMemberRedaction).
+                    mapOf("organization:$organizationId" to "pm.c-init"),
                     listOf(
                         ClientMutation(
                             clientOpId = "op-tmpl",

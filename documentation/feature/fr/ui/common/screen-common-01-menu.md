@@ -217,7 +217,7 @@ Les rôles plateforme (`Role.OWNER`) et les perspectives producteur (`ProducerAc
 - Les rôles plateforme (`OWNER`) et les perspectives producteur (`ProducerAccount`) ne se fusionnent pas avec les `MemberRole` — ils disposent de menus distincts.
 
 ### Accès aux écrans
-- Un écran n'est accessible qu'aux rôles dont le menu le propose, même en saisissant son adresse ou en suivant un ancien lien : écrans owner (y compris « Demandes d'organisation » et « Demandes producteurs ») → OWNER ; autres écrans admin et « Utilisateurs » → ADMIN ; écrans coordinateur → COORDINATOR ou ADMIN ; espace producteur (catalogue, livraisons) → producteur ; écrans amapien (accueil, contrats, planning, historique, échanges) → tout membre de l'AMAP. Sinon l'utilisateur est renvoyé vers sa page d'accueil.
+- Un écran n'est accessible qu'aux rôles dont le menu le propose, même en saisissant son adresse ou en suivant un ancien lien : écrans owner (y compris « Demandes d'organisation » et « Demandes producteurs ») → OWNER ; autres écrans admin et « Utilisateurs » → ADMIN ; écrans coordinateur (y compris la vue d'ensemble des échanges de paniers) → COORDINATOR ou ADMIN ; espace producteur (catalogue, livraisons) → producteur ; écrans amapien (accueil, contrats, planning, historique, échanges) → tout membre de l'AMAP. Sinon l'utilisateur est renvoyé vers sa page d'accueil.
 - [Notifications], [Préférences] et [Aide] restent accessibles à tous.
 
 ### Entrées par rôle

@@ -496,4 +496,28 @@ internal class ModelSerializationTest {
         val encoded = json.encodeToString(Contract.serializer(), contract)
         assertTrue(!encoded.contains("anchor_delivery_id"), "expected anchor_delivery_id omitted but got: $encoded")
     }
+
+    @Test
+    fun `GIVEN served participation counts WHEN serialized THEN season keys are strings and absent counts are omitted`() {
+        val organization =
+            Organization(
+                organizationId = "org-1".toId(),
+                name = "AMAP",
+                contactEmail = "amap@example.org",
+                activeStatus = true,
+                timezone = TimeZone.of("Europe/Paris"),
+                defaultLanguage = "fr",
+                createdInstant = Instant.fromEpochMilliseconds(0),
+                lastUpdatedInstant = Instant.fromEpochMilliseconds(0),
+                participationCountsBySeason = mapOf(2026 to listOf(3, 1, 0)),
+            )
+
+        val encoded = json.encodeToString(Organization.serializer(), organization)
+
+        // The front decodes it as Map<String, List<int>>.
+        assertTrue(encoded.contains(""""participation_counts_by_season":{"2026":[3,1,0]}"""))
+        assertEquals(organization, json.decodeFromString(Organization.serializer(), encoded))
+        val withoutCounts = json.encodeToString(Organization.serializer(), organization.copy(participationCountsBySeason = null))
+        assertTrue("participation_counts_by_season" !in withoutCounts)
+    }
 }
