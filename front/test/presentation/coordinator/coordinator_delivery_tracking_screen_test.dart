@@ -1044,6 +1044,49 @@ void main() {
     );
 
     testWidgets(
+      'keeps PRÉSENT / ABSENT / COLLECTÉ enabled on a past COMPLETED delivery',
+      (tester) async {
+        // A closed delivery (archived or auto-closed the next day) can still
+        // be pointed after the fact.
+        final delivery = buildDelivery(
+          scheduledDate: daysFromNowIso(-7),
+          status: DeliveryStatus.completed,
+          contracts: [
+            buildContract(
+              slots: [
+                buildSlot(
+                  registrations: [buildRegistration(memberId: 'member-9')],
+                ),
+              ],
+            ),
+          ],
+        );
+
+        await _pumpWith(
+          tester,
+          organizationRepository: organizationRepository,
+          memberRepository: memberRepository,
+          syncBloc: syncBloc,
+        );
+        await tester.pump();
+
+        organizationStream.add(buildOrg(deliveries: [delivery]));
+        await tester.pump();
+
+        for (final label in ['PRÉSENT', 'ABSENT', 'COLLECTÉ']) {
+          final button = tester.widget<ButtonStyleButton>(
+            find.ancestor(
+              of: find.text(label),
+              matching: find.bySubtype<ButtonStyleButton>(),
+            ),
+          );
+          expect(button.onPressed, isNotNull, reason: label);
+        }
+        expect(find.textContaining('pourront être saisies'), findsNothing);
+      },
+    );
+
+    testWidgets(
       'disables CLÔTURER LA DISTRIBUTION before the delivery day and says why',
       (tester) async {
         final delivery = buildDelivery(

@@ -106,6 +106,7 @@ Cet écran n'a plus d'entrée de menu dédiée : il est désormais atteint depui
 - Le compteur « Contrats collectés » et les blocs « Récupération des paniers » ne portent que sur les livraisons-contrats ayant au moins un panier : un contrat sans panier ce jour-là (ex. encore en préparation) n'est pas listé et n'empêche pas d'atteindre 100 %.
 - L'écran a sa propre adresse (`/coordinator/tracking/{livraison}`, et `/coordinator/post-delivery/{livraison}` pour la finalisation) : un rechargement de la page le rouvre et le lien peut être partagé. Le retour mène à la liste des livraisons (depuis la finalisation : au suivi de la même livraison).
 - **[CLÔTURER LA DISTRIBUTION]** (bas de l'écran) ouvre la [finalisation](screen-coordinator-05-post-delivery-sync.md). Le bouton n'est actif qu'à partir du jour de la livraison ; avant, il est grisé et suivi du message « La distribution pourra être clôturée à partir du {jour date}. » (le serveur refuse de terminer une livraison future).
+- Une livraison **terminée** (archivée, ou clôturée automatiquement le lendemain de son jour) reste pointable : « PRÉSENT », « ABSENT » et « COLLECTÉ » restent actifs, et les présences saisies après coup comptent dans l'historique et les statistiques des bénévoles.
 
 ## Références
 

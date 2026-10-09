@@ -17,6 +17,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.core.logger.PrintLogger
 import org.koin.ksp.generated.module
+import organization.DeliveryAutoCloseService
 import persistence.postgres.PostgresModule
 import properties.Properties
 import provisioning.gotrue.ProvisioningGoTrueModule
@@ -75,6 +76,11 @@ fun bootstrap(
         val shortageService = koin.koin.get<VolunteerShortageService>()
         launchPollLoop(shortageIntervalMs, "volunteer shortage alert job") {
             shortageService.run(Clock.System.now(), lookback = (2 * shortageIntervalMs).milliseconds)
+        }
+        // Past deliveries are closed (COMPLETED) the day after, on the same schedule.
+        val autoCloseService = koin.koin.get<DeliveryAutoCloseService>()
+        launchPollLoop(shortageIntervalMs, "delivery auto-close job") {
+            autoCloseService.run(Clock.System.now())
         }
     }
 }

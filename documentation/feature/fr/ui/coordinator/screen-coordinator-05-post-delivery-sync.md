@@ -96,6 +96,7 @@ Interface de synchronisation des validations papier avec les données numérique
 ## Règles métier
 
 - **Pas de clôture avant le jour de livraison** : une livraison ne peut passer au statut `COMPLETED` qu'à partir de sa date prévue (dans le fuseau de l'organisation). Le serveur refuse le passage à `COMPLETED` d'une livraison future (`INVALID_PAYLOAD`) ; une livraison déjà terminée reste modifiable.
+- **Clôture automatique le lendemain** : une livraison encore active (`PLANNED`, `CONFIRMED` ou `IN_PROGRESS`) dont le jour est passé (dans le fuseau de l'organisation) passe automatiquement au statut `COMPLETED`, comme si elle avait été archivée ; la vérification a lieu toutes les 15 minutes. Seul le statut change : les inscriptions non pointées restent telles quelles (elles ne comptent pas comme participations), et le coordinateur peut toujours saisir présences, absences et collecte après coup depuis le [suivi](screen-coordinator-04-delivery-tracking.md). Une livraison annulée (`CANCELLED`) n'est jamais modifiée.
 
 ## Actions de clôture
 

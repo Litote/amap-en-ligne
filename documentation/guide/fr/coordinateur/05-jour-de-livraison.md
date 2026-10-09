@@ -84,6 +84,13 @@ Trois actions de clôture sont disponibles :
   vous ramène à l'écran de suivi. Une livraison ne peut pas être archivée avant son
   jour.
 
+Si vous oubliez d'archiver, l'application le fait pour vous : **le lendemain** de la
+livraison, elle passe automatiquement au statut **Terminée**. Vous pouvez toujours
+pointer après coup : depuis **Gestion des livraisons** > **Passées** > **[SUIVRE]**, les
+boutons **[PRÉSENT]**, **[ABSENT]** et **[COLLECTÉ]** restent disponibles, et les
+présences saisies comptent dans l'historique des bénévoles. Les inscriptions que vous
+n'avez pas pointées ne sont pas comptées comme participations.
+
 ## Voir aussi
 
 - [Gérer les bénévoles et les créneaux](02-benevoles-et-creneaux.md)

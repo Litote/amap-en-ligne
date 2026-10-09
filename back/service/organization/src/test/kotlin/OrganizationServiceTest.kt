@@ -914,6 +914,56 @@ internal class OrganizationServiceTest {
         }
 
     @Test
+    fun `GIVEN past delivery already COMPLETED WHEN coordinator records presence and collection afterwards THEN APPLIED`() =
+        runTest {
+            // A closed delivery (manually archived or auto-closed the next day) can still be
+            // pointed after the fact.
+            val past = LocalDateTime.parse("2026-01-07T19:00:00")
+            val closed = futureDeliveryWithRegistration(scheduledDate = past).copy(status = DeliveryStatus.COMPLETED)
+            val existingOrg = buildOrganization(deliveries = listOf(closed))
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries =
+                        listOf(
+                            futureDeliveryWithRegistration(
+                                registrationStatus = RegistrationStatus.CONFIRMED,
+                                contractStatus = DeliveryContractStatus.DISTRIBUTED,
+                                scheduledDate = past,
+                            ).copy(status = DeliveryStatus.COMPLETED),
+                        ),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            coVerify(exactly = 1) { organizationSyncDAO.put(any(), any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN past delivery already COMPLETED WHEN coordinator marks a volunteer absent afterwards THEN APPLIED`() =
+        runTest {
+            val past = LocalDateTime.parse("2026-01-07T19:00:00")
+            val closed = futureDeliveryWithRegistration(scheduledDate = past).copy(status = DeliveryStatus.COMPLETED)
+            val existingOrg = buildOrganization(deliveries = listOf(closed))
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries =
+                        listOf(
+                            futureDeliveryWithRegistration(
+                                registrationStatus = RegistrationStatus.CANCELLED,
+                                scheduledDate = past,
+                            ).copy(status = DeliveryStatus.COMPLETED),
+                        ),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+
+            val outcome = service.applyUpsert(coordinatorAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    @Test
     fun `GIVEN admin caller WHEN payload has PLANNED delivery with empty coordinators THEN APPLIED`() =
         runTest {
             val existingOrg = buildOrganization()
