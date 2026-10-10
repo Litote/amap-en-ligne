@@ -170,6 +170,26 @@ make plan-dev
 make plan-prod
 ```
 
+### Lambda architecture (arm64)
+
+The Lambda functions run on **arm64** (Graviton: cheaper than x86_64 for the same memory), set by the
+Terraform variable `lambda_architecture` (`arm64` | `x86_64`). The ZIP must match it: GraalVM `native-image`
+compiles for the platform it runs on — `bootstrap` **and** `libaws-crt-jni.so`, which the aws-crt GraalVM
+feature extracts for the build platform.
+
+- **CI** builds natively on an arm64 runner (`ubuntu-24.04-arm`): CI deploys are always arm64.
+- **`make build` / `make dev-back` / `make prod-back`** build for the **host** architecture (`LAMBDA_ARCH`,
+  derived from `uname -m`) and pass the same value to Terraform, so the ZIP and the functions always match.
+  On Apple Silicon or an arm64 Linux host this is arm64. On an x86_64 host the functions run on x86_64 until
+  the next CI deploy switches them back to arm64 — both work, only the price differs.
+- **Forcing arm64 on an x86_64 host** (`make dev-back LAMBDA_ARCH=arm64`) runs the whole Gradle + `native-image`
+  build under QEMU emulation: it takes hours, and needs the binfmt handlers
+  (`docker run --privileged --rm tonistiigi/binfmt --install arm64`, once per boot, unless Docker Desktop
+  already provides them). Prefer letting CI build arm64.
+
+Switching the architecture updates the functions in place (code and architecture together, from the new
+S3 object version): no replacement.
+
 ---
 
 ## 3bis. Continuous deployment (GitHub Actions)
@@ -448,6 +468,8 @@ needing SnapStart.
 - The native image is built inside a Docker container pinned to
   `ghcr.io/graalvm/native-image-community:25` so builds are reproducible
   regardless of the host OS.
+- The functions run on arm64 (`lambda_architecture`): the native image is compiled
+  for the build platform, see [Lambda architecture](#lambda-architecture-arm64).
 
 ### Terraform structure
 
