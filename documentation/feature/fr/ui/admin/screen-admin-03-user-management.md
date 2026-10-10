@@ -228,7 +228,7 @@ Un membre peut cumuler plusieurs rôles simultanément (ex : Coordinateur + Admi
 
 ### Actions administratives
 - **Suspension temporaire** : Désactivation du compte sans suppression
-- **Suppression définitive** : icône 🗑 « Supprimer le membre » sur chaque ligne de membre (absente sur la ligne de l'Admin connecté), puis confirmation « Supprimer ce membre ? » [ANNULER] / [SUPPRIMER]. Le compte de connexion est supprimé et la fiche anonymisée ; refusée pour le dernier Admin. Détail : [`../../suppression-de-compte.md`](../../suppression-de-compte.md)
+- **Suppression définitive** : icône 🗑 « Supprimer le membre » sur chaque ligne de membre (absente sur la ligne de l'Admin connecté), puis confirmation « Supprimer ce membre ? » [ANNULER] / [SUPPRIMER]. Le compte de connexion est supprimé et la fiche anonymisée, ainsi que ses invitations passées (affichées « Invitation anonymisée » sous « Invitations passées ») ; ses inscriptions aux livraisons à venir et son rôle de coordinateur sur celles-ci sont retirés, ses participations passées deviennent « Membre supprimé » ; son offre d'échange ouverte est annulée et ses demandes d'échange en attente retirées ; refusée pour le dernier Admin. Détail : [`../../suppression-de-compte.md`](../../suppression-de-compte.md)
 - **Réactivation** : Restauration d'un compte suspendu
 
 ## Invitations en masse

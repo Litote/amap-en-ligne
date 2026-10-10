@@ -615,7 +615,7 @@ class _RegistrationTileState extends State<_RegistrationTile> {
 
     return ListTile(
       leading: Icon(icon, color: iconColor),
-      title: Text(registration.displayName),
+      title: Text(registrationDisplayName(registration)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -650,7 +650,10 @@ class _RegistrationTileState extends State<_RegistrationTile> {
           ],
         ],
       ),
-      trailing: _buildContactButton(context, registration.displayName),
+      trailing: _buildContactButton(
+        context,
+        registrationDisplayName(registration),
+      ),
     );
   }
 }

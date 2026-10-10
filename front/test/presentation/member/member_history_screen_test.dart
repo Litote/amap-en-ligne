@@ -840,6 +840,78 @@ void main() {
       expect(find.text('📊 Répartition par mois'), findsOneWidget);
     });
 
+    testWidgets('monthly histogram reads each month with its own count', (
+      tester,
+    ) async {
+      // Screen readers sort labels by position: the count labels sit at
+      // different heights (above bars of different sizes), so each column
+      // must be read as one « month : count » node.
+      final handle = tester.ensureSemantics();
+      final now = DateTime.now();
+      final delivery = buildDelivery(
+        scheduledDate:
+            '${now.year}-${now.month.toString().padLeft(2, '0')}-10T18:00:00',
+        status: DeliveryStatus.completed,
+        contracts: [
+          buildContract(
+            contractId: 'c-season',
+            slots: [
+              buildSlot(
+                registrations: [
+                  buildRegistration(
+                    memberId: _kMemberId,
+                    status: RegistrationStatus.completed,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await _pump(
+        tester,
+        orgRepo: orgRepo,
+        memberRepo: memberRepo,
+        authService: authService,
+        contractRepo: contractRepo,
+      );
+      await tester.pump();
+
+      final me = _buildMember();
+      orgStream.add(buildOrg(deliveries: [delivery]));
+      memberStream.add(me);
+      allMembersStream.add([me]);
+      contractsStream.add([
+        _activeContract(contractId: 'c-season', seasonYear: now.year),
+      ]);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      const monthNames = [
+        'janvier',
+        'février',
+        'mars',
+        'avril',
+        'mai',
+        'juin',
+        'juillet',
+        'août',
+        'septembre',
+        'octobre',
+        'novembre',
+        'décembre',
+      ];
+      expect(
+        find.bySemanticsLabel(
+          '${monthNames[now.month - 1]} ${now.year} : 1 participation',
+        ),
+        findsOneWidget,
+      );
+      expect(find.bySemanticsLabel('(1)'), findsNothing);
+      handle.dispose();
+    });
+
     // --- Footer ---
 
     testWidgets(

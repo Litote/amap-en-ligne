@@ -696,12 +696,17 @@ class _MemberInvitationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = '${invitation.firstName} ${invitation.lastName}'.trim();
+    final name = '${invitation.firstName} ${invitation.lastName}'.trim();
+    // Deleting a member blanks the identity of their past invitations.
+    final anonymised = name.isEmpty && invitation.email.trim().isEmpty;
+    final title = anonymised ? 'Invitation anonymisée' : name;
     final lastSentLabel = _formatLastSent(invitation);
     final statusLabel = _formatInvitationStatus(invitation);
     final subtitleLines = <Widget>[
-      _HighlightedText(invitation.email, query: searchQuery),
-      const SizedBox(height: 4),
+      if (!anonymised) ...[
+        _HighlightedText(invitation.email, query: searchQuery),
+        const SizedBox(height: 4),
+      ],
       Wrap(
         spacing: 4,
         runSpacing: 4,

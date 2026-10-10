@@ -423,9 +423,14 @@ object EmailTemplates {
         }
         for ((startTime, reg) in volunteers) {
             val arrival = "${startTime.hour}h${startTime.minute.toString().padStart(2, '0')}"
-            appendLine(
-                "${reg.displayName} <${reg.memberEmail}>  Arrivée : $arrival  □ Présent  □ Absent  Signature : ___________",
-            )
+            // A deleted member's history keeps no name nor email.
+            val who =
+                if (reg.displayName.isBlank()) {
+                    "Membre supprimé"
+                } else {
+                    "${reg.displayName} <${reg.memberEmail}>"
+                }
+            appendLine("$who  Arrivée : $arrival  □ Présent  □ Absent  Signature : ___________")
         }
     }
 

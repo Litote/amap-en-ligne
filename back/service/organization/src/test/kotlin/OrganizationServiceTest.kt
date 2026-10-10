@@ -481,6 +481,7 @@ internal class OrganizationServiceTest {
                                                     it.copy(
                                                         registrations =
                                                             it.registrations + buildRegistration(volunteerId),
+                                                        currentRegistrations = it.currentRegistrations + 1,
                                                     )
                                                 },
                                         )
@@ -493,7 +494,71 @@ internal class OrganizationServiceTest {
         }
 
     @Test
-    fun `GIVEN volunteer caller WHEN altering a masked registration of another member THEN REJECTED FORBIDDEN`() =
+    fun `GIVEN a stale copy missing a newer registration WHEN volunteer registers self elsewhere THEN APPLIED and both kept`() =
+        runTest {
+            // Two members register around the same time: the caller's copy predates the
+            // neighbour's registration on the first delivery.
+            val emptySlot = buildStandardSlot(requiredVolunteers = 3, registrations = emptyList())
+            val first = buildDelivery(contracts = listOf(buildContract(slots = listOf(emptySlot))))
+            val second =
+                buildDelivery(
+                    contracts = listOf(buildContract(slots = listOf(emptySlot))),
+                    scheduledDate = LocalDateTime.parse("2099-01-22T18:30:00"),
+                ).copy(deliveryId = "delivery-2".toId())
+            val callerCopy = buildOrganization(deliveries = listOf(first, second))
+            val stored =
+                callerCopy.copy(
+                    deliveries =
+                        listOf(
+                            first.copy(
+                                contracts =
+                                    listOf(
+                                        buildContract(
+                                            slots = listOf(emptySlot.copy(registrations = listOf(buildRegistration("neighbour")))),
+                                        ),
+                                    ),
+                            ),
+                            second,
+                        ),
+                )
+            val written =
+                callerCopy.copy(
+                    deliveries =
+                        listOf(
+                            first,
+                            second.copy(
+                                contracts =
+                                    listOf(
+                                        buildContract(
+                                            slots = listOf(emptySlot.copy(registrations = listOf(buildRegistration(volunteerId)))),
+                                        ),
+                                    ),
+                            ),
+                        ),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns stored
+            coEvery { deliveryTemplateSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(buildTemplate())
+            val persisted = slot<Organization>()
+            coEvery { organizationSyncDAO.put(capture(persisted), any(), any()) } returns Unit
+
+            val outcome = service.applyUpsert(volunteerAuth, buildMutation(written), OrganizationPayload(written))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            val registrationsByDelivery =
+                persisted.captured.deliveries.associate { delivery ->
+                    delivery.deliveryId.id to
+                        delivery.contracts
+                            .single()
+                            .slots
+                            .single()
+                            .registrations
+                            .map { it.memberId.id }
+                }
+            assertEquals(mapOf(deliveryId to listOf("neighbour"), "delivery-2" to listOf(volunteerId)), registrationsByDelivery)
+        }
+
+    @Test
+    fun `GIVEN volunteer caller WHEN altering a masked registration of another member THEN the stored registrations are kept`() =
         runTest {
             val (stored, written) = maskedPlainMemberCopy()
             // Turns the anonymous attendance into an absence: not the copy that was served.
@@ -524,11 +589,14 @@ internal class OrganizationServiceTest {
                 )
             coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns stored
             coEvery { deliveryTemplateSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(buildTemplate())
+            val persisted = slot<Organization>()
+            coEvery { organizationSyncDAO.put(capture(persisted), any(), any()) } returns Unit
 
             val outcome = service.applyUpsert(volunteerAuth, buildMutation(tampered), OrganizationPayload(tampered))
 
-            assertEquals(MutationStatus.REJECTED, outcome.status)
-            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
+            // The self-registration goes through; the tampered attendance is ignored.
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            assertEquals(stored.deliveries[0], persisted.captured.deliveries[0])
         }
 
     @Test
@@ -613,7 +681,7 @@ internal class OrganizationServiceTest {
     // ---- Volunteer forbidden actions ----
 
     @Test
-    fun `GIVEN volunteer caller WHEN registers another member's id THEN REJECTED FORBIDDEN`() =
+    fun `GIVEN volunteer caller WHEN registers another member's id THEN ignored and the stored organization is written back`() =
         runTest {
             val existingSlot = buildStandardSlot(registrations = emptyList())
             val existingOrg =
@@ -632,13 +700,14 @@ internal class OrganizationServiceTest {
 
             val outcome = service.applyUpsert(volunteerAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
 
-            assertEquals(MutationStatus.REJECTED, outcome.status)
-            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
-            coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
+            // Only the caller's own registrations are taken from a volunteer write: the stored
+            // organization is written back unchanged, so the caller's cache converges on it.
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            coVerify(exactly = 1) { organizationSyncDAO.put(existingOrg, any(), any()) }
         }
 
     @Test
-    fun `GIVEN volunteer caller WHEN modifies organization name THEN REJECTED FORBIDDEN`() =
+    fun `GIVEN volunteer caller WHEN modifies organization name THEN ignored and the stored organization is written back`() =
         runTest {
             val existingOrg = buildOrganization()
             val updatedOrg = existingOrg.copy(name = "Hacked Name")
@@ -648,13 +717,14 @@ internal class OrganizationServiceTest {
 
             val outcome = service.applyUpsert(volunteerAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
 
-            assertEquals(MutationStatus.REJECTED, outcome.status)
-            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
-            coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
+            // Only the caller's own registrations are taken from a volunteer write: the stored
+            // organization is written back unchanged, so the caller's cache converges on it.
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            coVerify(exactly = 1) { organizationSyncDAO.put(existingOrg, any(), any()) }
         }
 
     @Test
-    fun `GIVEN volunteer caller WHEN adds a delivery THEN REJECTED FORBIDDEN`() =
+    fun `GIVEN volunteer caller WHEN adds a delivery THEN ignored and the stored organization is written back`() =
         runTest {
             val existingOrg = buildOrganization(deliveries = emptyList())
             val updatedOrg = existingOrg.copy(deliveries = listOf(buildDelivery()))
@@ -664,9 +734,10 @@ internal class OrganizationServiceTest {
 
             val outcome = service.applyUpsert(volunteerAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
 
-            assertEquals(MutationStatus.REJECTED, outcome.status)
-            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
-            coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
+            // Only the caller's own registrations are taken from a volunteer write: the stored
+            // organization is written back unchanged, so the caller's cache converges on it.
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            coVerify(exactly = 1) { organizationSyncDAO.put(existingOrg, any(), any()) }
         }
 
     @Test
@@ -898,6 +969,63 @@ internal class OrganizationServiceTest {
             assertEquals(MutationStatus.REJECTED, outcome.status)
             assertEquals(MutationErrorCode.MISSING_COORDINATOR, outcome.error?.code)
             coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN a CONFIRMED delivery already without coordinator WHEN admin edits another delivery THEN APPLIED`() =
+        runTest {
+            // E.g. its only coordinator's account was deleted: the alert asks to assign one,
+            // but unrelated writes must not be blocked meanwhile.
+            val orphan =
+                buildDelivery(status = DeliveryStatus.CONFIRMED, contracts = listOf(buildContract(coordinators = emptyList())))
+            val other =
+                buildDelivery(
+                    status = DeliveryStatus.PLANNED,
+                    contracts = listOf(buildContract()),
+                    scheduledDate = LocalDateTime.parse("2099-01-22T18:30:00"),
+                ).copy(deliveryId = "delivery-2".toId())
+            val existingOrg = buildOrganization(deliveries = listOf(orphan, other))
+            val updatedOrg = existingOrg.copy(deliveries = listOf(orphan, other.copy(minVolunteersRequired = 3)))
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+            coEvery { contractSyncDAO.getByOrganizationId(organizationId.toId()) } returns
+                listOf(buildContractDefinition(listOf("coordinator-1")))
+
+            val outcome = service.applyUpsert(adminAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+        }
+
+    @Test
+    fun `GIVEN a CONFIRMED delivery already without coordinator WHEN volunteer registers on it THEN APPLIED`() =
+        runTest {
+            val slot = buildStandardSlot(requiredVolunteers = 2, registrations = emptyList())
+            val orphan =
+                buildDelivery(
+                    status = DeliveryStatus.CONFIRMED,
+                    contracts = listOf(buildContract(slots = listOf(slot), coordinators = emptyList())),
+                )
+            val existingOrg = buildOrganization(deliveries = listOf(orphan))
+            val updatedOrg =
+                existingOrg.copy(
+                    deliveries =
+                        listOf(
+                            orphan.copy(
+                                contracts =
+                                    listOf(
+                                        buildContract(
+                                            slots = listOf(slot.copy(registrations = listOf(buildRegistration(volunteerId)))),
+                                            coordinators = emptyList(),
+                                        ),
+                                    ),
+                            ),
+                        ),
+                )
+            coEvery { organizationSyncDAO.getById(organizationId.toId()) } returns existingOrg
+            coEvery { deliveryTemplateSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(buildTemplate())
+
+            val outcome = service.applyUpsert(volunteerAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
         }
 
     // ---- Closing guard: a delivery cannot be COMPLETED before its day ----
@@ -1194,7 +1322,7 @@ internal class OrganizationServiceTest {
         }
 
     @Test
-    fun `GIVEN volunteer caller WHEN tries to assign themselves as coordinator THEN REJECTED FORBIDDEN`() =
+    fun `GIVEN volunteer caller WHEN tries to assign themselves as coordinator THEN ignored and the stored organization is written back`() =
         runTest {
             val existingContract = buildContract(coordinators = emptyList())
             val existingDelivery = buildDelivery(status = DeliveryStatus.PLANNED, contracts = listOf(existingContract))
@@ -1208,9 +1336,10 @@ internal class OrganizationServiceTest {
 
             val outcome = service.applyUpsert(volunteerAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
 
-            assertEquals(MutationStatus.REJECTED, outcome.status)
-            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
-            coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
+            // Only the caller's own registrations are taken from a volunteer write: the stored
+            // organization is written back unchanged, so the caller's cache converges on it.
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            coVerify(exactly = 1) { organizationSyncDAO.put(existingOrg, any(), any()) }
         }
 
     @Test

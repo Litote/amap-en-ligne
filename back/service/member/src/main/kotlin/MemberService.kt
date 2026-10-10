@@ -5,25 +5,36 @@ import authentication.Role
 import core.EntityTypeService
 import core.InputRules
 import core.MemberRoleProvisioningPort
+import core.ProducerScheduleProjection
 import core.RoleService
 import core.UserProvisioningPort
+import core.memberInvitationChanges
 import email.AccountLifecycleEmailPort
 import id.generateId
 import id.toId
+import kotlinx.datetime.toLocalDateTime
 import org.koin.core.annotation.Single
+import persistence.changes.BasketExchangePayload
+import persistence.changes.Change
+import persistence.changes.ChangeOp
 import persistence.changes.ClientMutation
+import persistence.changes.Cursor
 import persistence.changes.Delete
 import persistence.changes.MemberPayload
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationOutcome
+import persistence.changes.OrganizationPayload
 import persistence.changes.SyncScope
 import persistence.dao.AccountDeletionLogDAO
+import persistence.dao.BasketExchangeSyncDAO
 import persistence.dao.ContractSyncDAO
+import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationSyncDAO
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
+import persistence.model.MemberInvitationStatus
 import kotlin.time.Clock
 
 @Single(createdAtStart = true, binds = [EntityTypeService::class])
@@ -36,6 +47,8 @@ class MemberService(
     private val accountDeletionLogDAO: AccountDeletionLogDAO,
     private val contractSyncDAO: ContractSyncDAO,
     private val organizationSyncDAO: OrganizationSyncDAO,
+    private val memberInvitationSyncDAO: MemberInvitationSyncDAO,
+    private val basketExchangeSyncDAO: BasketExchangeSyncDAO,
 ) : EntityTypeService<MemberPayload>(EntityType.Member) {
     private val contractSubscriptionGuard = MemberContractSubscriptionGuard(contractSyncDAO, organizationSyncDAO)
     private val lifecycleSideEffects =
@@ -398,9 +411,93 @@ class MemberService(
                 )
             }
         memberSyncDAO.anonymiseBySub(targetSub, buildLifecycleChanges(anonymisedMembers))
+        anonymiseSettledInvitations(members)
+        scrubDeliveries(members)
+        closeBasketExchanges(members)
 
         lifecycleSideEffects.onDeleted(members, auth, targetSub)
         return applied(mutation, memberId)
+    }
+
+    /** Cancels the deleted [members]' open offers and withdraws their pending requests ([DeletedMemberExchanges]). */
+    private suspend fun closeBasketExchanges(members: List<Member>) {
+        val now = Clock.System.now()
+        members.forEach { member ->
+            val organizationId = member.organizationId
+            basketExchangeSyncDAO.getByOrganizationId(organizationId).forEach { exchange ->
+                val closed = DeletedMemberExchanges.close(exchange, member.memberId, now) ?: return@forEach
+                basketExchangeSyncDAO.put(
+                    closed,
+                    Change(
+                        cursor = Cursor.next(),
+                        entityType = EntityType.BasketExchange,
+                        entityId = closed.basketExchangeId.id,
+                        scopeKey = SyncScope.Organization(organizationId.id).key,
+                        op = ChangeOp.UPSERT,
+                        payload = BasketExchangePayload(closed),
+                        producedAt = now.toEpochMilliseconds(),
+                    ),
+                )
+            }
+        }
+    }
+
+    /**
+     * Frees the deleted [members]' upcoming registrations and coordinator roles, and strips
+     * their name and email from the history ([DeletedMemberScrub]), in each of their
+     * organizations — one organization write, fanned out like any other.
+     */
+    private suspend fun scrubDeliveries(members: List<Member>) {
+        val now = Clock.System.now()
+        members.forEach { member ->
+            val organizationId = member.organizationId
+            val stored = organizationSyncDAO.getById(organizationId) ?: return@forEach
+            val today = now.toLocalDateTime(stored.timezone).date
+            val scrubbed = DeletedMemberScrub.scrub(stored, member.memberId, today)
+            if (scrubbed == stored) return@forEach
+            val contracts = contractSyncDAO.getByOrganizationId(organizationId)
+            organizationSyncDAO.put(
+                scrubbed,
+                Change(
+                    cursor = Cursor.next(),
+                    entityType = EntityType.Organization,
+                    entityId = organizationId.id,
+                    scopeKey = SyncScope.Organization(organizationId.id).key,
+                    op = ChangeOp.UPSERT,
+                    payload = OrganizationPayload(scrubbed),
+                    producedAt = now.toEpochMilliseconds(),
+                ),
+                ProducerScheduleProjection.changes(stored, contracts, scrubbed, contracts),
+            )
+        }
+    }
+
+    /**
+     * The invitations that led to the deleted [members] (activated or cancelled, matched by email,
+     * letter case ignored) keep no identity either: email, names and custom copy are blanked.
+     * A pending invitation is a new, legitimate request for that email and is left as is.
+     */
+    private suspend fun anonymiseSettledInvitations(members: List<Member>) {
+        members
+            .filter { !it.email.isNullOrBlank() }
+            .groupBy { it.organizationId }
+            .forEach { (organizationId, orgMembers) ->
+                val emails = orgMembers.mapNotNull { it.email?.trim()?.lowercase() }.toSet()
+                memberInvitationSyncDAO
+                    .listByOrganizationId(organizationId)
+                    .filter { it.status != MemberInvitationStatus.PENDING_ACTIVATION && it.email.trim().lowercase() in emails }
+                    .forEach { invitation ->
+                        val anonymised =
+                            invitation.copy(
+                                email = "",
+                                firstName = "",
+                                lastName = "",
+                                customEmailSubject = null,
+                                customEmailBody = null,
+                            )
+                        memberInvitationSyncDAO.put(anonymised, memberInvitationChanges(anonymised))
+                    }
+            }
     }
 
     override suspend fun snapshot(auth: AuthenticatedInfo): List<MemberPayload> {

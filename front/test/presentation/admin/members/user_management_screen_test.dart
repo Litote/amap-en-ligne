@@ -801,6 +801,41 @@ void main() {
     });
   });
 
+  group('UserManagementScreen — anonymised invitation', () {
+    testWidgets('GIVEN a past invitation anonymised by a member deletion '
+        'WHEN "Invitations passées" is shown '
+        'THEN it reads « Invitation anonymisée » instead of a blank row', (
+      tester,
+    ) async {
+      when(() => invitationRepo.watch(_orgId)).thenAnswer(
+        (_) => Stream.value(const [
+          MemberInvitation(
+            invitationId: 'inv-anon',
+            organizationId: _orgId,
+            email: '',
+            firstName: '',
+            lastName: '',
+            roles: {Role.volunteer},
+            status: InvitationStatus.cancelled,
+            createdAt: '2026-01-02T00:00:00Z',
+            expiresAt: '2026-01-09T00:00:00Z',
+          ),
+        ]),
+      );
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+
+      await tapChip(tester, 'Invitations passées');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Invitation anonymisée'), findsOneWidget);
+    });
+  });
+
   group('UserManagementScreen — search highlighting', () {
     List<TextSpan> highlightedSpans(WidgetTester tester) =>
         tester.widgetList<RichText>(find.byType(RichText)).expand((rich) {

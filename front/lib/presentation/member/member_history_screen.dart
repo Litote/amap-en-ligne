@@ -549,6 +549,22 @@ const _kMonthAbbreviations = [
   'Déc',
 ];
 
+/// Full French month names, read by screen readers instead of the abbreviations.
+const _kMonthNames = [
+  'janvier',
+  'février',
+  'mars',
+  'avril',
+  'mai',
+  'juin',
+  'juillet',
+  'août',
+  'septembre',
+  'octobre',
+  'novembre',
+  'décembre',
+];
+
 /// Bar chart covering every month of the season range.
 ///
 /// Built entirely from Material 3 widgets (Column/Row of Container bars) —
@@ -634,47 +650,56 @@ class _MonthlyBarChart extends StatelessWidget {
         // the season spans multiple calendar years).
         final showYear = multiYear && renderedYears.add(entry.year);
 
-        return SizedBox(
-          width: _colWidth,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Count label above bar (shown for zero bars too).
-              Text(
-                '(${entry.count})',
-                style: textTheme.labelSmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 2),
-              // Bar (or empty space when count == 0).
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: _colWidth * 0.55,
-                  height: barHeight.clamp(0, _maxBarHeight),
-                  color: colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              // Month label.
-              Text(
-                _kMonthAbbreviations[entry.month - 1],
-                style: textTheme.labelSmall,
-                textAlign: TextAlign.center,
-              ),
-              // Year label — shown at first month of each new year when range
-              // spans multiple calendar years.
-              if (showYear)
+        // One node per column: screen readers order labels by position, and
+        // the count labels sit at different heights above the bars.
+        return Semantics(
+          container: true,
+          label:
+              '${_kMonthNames[entry.month - 1]} ${entry.year} : '
+              '${entry.count} participation${entry.count > 1 ? 's' : ''}',
+          excludeSemantics: true,
+          child: SizedBox(
+            width: _colWidth,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Count label above bar (shown for zero bars too).
                 Text(
-                  '${entry.year}',
-                  style: textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  '(${entry.count})',
+                  style: textTheme.labelSmall,
                   textAlign: TextAlign.center,
-                )
-              else
-                const SizedBox(height: 14),
-            ],
+                ),
+                const SizedBox(height: 2),
+                // Bar (or empty space when count == 0).
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: _colWidth * 0.55,
+                    height: barHeight.clamp(0, _maxBarHeight),
+                    color: colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Month label.
+                Text(
+                  _kMonthAbbreviations[entry.month - 1],
+                  style: textTheme.labelSmall,
+                  textAlign: TextAlign.center,
+                ),
+                // Year label — shown at first month of each new year when range
+                // spans multiple calendar years.
+                if (showYear)
+                  Text(
+                    '${entry.year}',
+                    style: textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                else
+                  const SizedBox(height: 14),
+              ],
+            ),
           ),
         );
       }).toList(),

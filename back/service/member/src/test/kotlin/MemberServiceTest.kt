@@ -15,9 +15,11 @@ import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.todayIn
+import persistence.changes.Change
 import persistence.changes.ClientMutation
 import persistence.changes.Delete
 import persistence.changes.MemberPayload
@@ -25,19 +27,30 @@ import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
 import persistence.changes.Upsert
 import persistence.dao.AccountDeletionLogDAO
+import persistence.dao.BasketExchangeSyncDAO
 import persistence.dao.ContractSyncDAO
+import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationSyncDAO
 import persistence.dao.OwnerSyncDAO
+import persistence.model.BasketExchange
+import persistence.model.BasketExchangeStatus
 import persistence.model.Contract
 import persistence.model.ContractStatus
 import persistence.model.DeletionActorRole
+import persistence.model.Delivery
+import persistence.model.DeliveryContract
+import persistence.model.DeliveryContractStatus
+import persistence.model.DeliveryStatus
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
 import persistence.model.MemberContract
 import persistence.model.MemberContractStatus
+import persistence.model.MemberInvitation
+import persistence.model.MemberInvitationStatus
 import persistence.model.MemberPreferences
+import persistence.model.Organization
 import persistence.model.Server
 import persistence.model.UserPreferences
 import persistence.model.UserSettings
@@ -142,6 +155,8 @@ internal class MemberServiceTest {
 
     private val contractSyncDAO = mockk<ContractSyncDAO>(relaxed = true)
     private val organizationSyncDAO = mockk<OrganizationSyncDAO>(relaxed = true)
+    private val memberInvitationSyncDAO = mockk<MemberInvitationSyncDAO>(relaxed = true)
+    private val basketExchangeSyncDAO = mockk<BasketExchangeSyncDAO>(relaxed = true)
 
     private fun buildService(
         memberSyncDAO: MemberSyncDAO,
@@ -158,6 +173,8 @@ internal class MemberServiceTest {
             accountDeletionLogDAO = accountDeletionLogDAO,
             contractSyncDAO = contractDAO,
             organizationSyncDAO = orgDAO,
+            memberInvitationSyncDAO = memberInvitationSyncDAO,
+            basketExchangeSyncDAO = basketExchangeSyncDAO,
         )
 
     private fun buildDeleteMutation(memberId: String): ClientMutation =
@@ -865,6 +882,176 @@ internal class MemberServiceTest {
                 )
             }
             coVerify(exactly = 0) { memberSyncDAO.delete(any(), any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN a deleted member WHEN their settled invitation carries their identity THEN it is anonymised`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val service = buildService(memberSyncDAO)
+            val target = buildMember(id = "target-sub").copy(email = "Target@Example.org", firstName = "Ada", lastName = "Lovelace")
+            val admin = buildMember(id = adminAuth.memberId, roles = setOf(Role.ADMIN))
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(admin, target)
+            coEvery { memberSyncDAO.getMembersBySub("target-sub") } returns listOf(target)
+            coEvery { memberSyncDAO.anonymiseBySub(any(), any()) } returns Unit
+
+            fun invitation(
+                id: String,
+                email: String,
+                status: MemberInvitationStatus,
+            ) = MemberInvitation(
+                invitationId = id,
+                organizationId = organizationId.toId(),
+                email = email,
+                firstName = "Ada",
+                lastName = "Lovelace",
+                roles = setOf(Role.VOLUNTEER),
+                status = status,
+                createdAt = Instant.fromEpochMilliseconds(1_000_000L),
+                expiresAt = Instant.fromEpochMilliseconds(2_000_000L),
+                customEmailSubject = "Bonjour Ada",
+            )
+            val activated = invitation("inv-activated", "target@example.org", MemberInvitationStatus.ACTIVATED)
+            // A new pending invitation is a fresh, legitimate request: kept.
+            val pending = invitation("inv-pending", "target@example.org", MemberInvitationStatus.PENDING_ACTIVATION)
+            val someoneElse = invitation("inv-other", "other@example.org", MemberInvitationStatus.ACTIVATED)
+            coEvery { memberInvitationSyncDAO.listByOrganizationId(organizationId.toId()) } returns listOf(activated, pending, someoneElse)
+            val written = mutableListOf<MemberInvitation>()
+            val changes = mutableListOf<List<Change>>()
+            coEvery { memberInvitationSyncDAO.put(capture(written), capture(changes)) } returns Unit
+
+            val outcome = service.applyDelete(adminAuth, buildDeleteMutation("target-sub"), Delete(EntityType.Member, "target-sub"))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            assertEquals(
+                listOf(activated.copy(email = "", firstName = "", lastName = "", customEmailSubject = null, customEmailBody = null)),
+                written,
+            )
+            assertEquals(
+                setOf("organization:$organizationId", "instance-owner"),
+                changes.single().map { it.scopeKey }.toSet(),
+            )
+        }
+
+    @Test
+    fun `GIVEN a deleted member registered on an upcoming delivery WHEN deleted THEN the organization is written without them`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val orgDAO = mockk<OrganizationSyncDAO>(relaxed = true)
+            val service = buildService(memberSyncDAO, orgDAO = orgDAO)
+            val target = buildMember(id = "target-sub")
+            val admin = buildMember(id = adminAuth.memberId, roles = setOf(Role.ADMIN))
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(admin, target)
+            coEvery { memberSyncDAO.getMembersBySub("target-sub") } returns listOf(target)
+            coEvery { memberSyncDAO.anonymiseBySub(any(), any()) } returns Unit
+            val upcoming =
+                Delivery(
+                    deliveryId = "delivery-next".toId(),
+                    organizationId = organizationId.toId(),
+                    scheduledDate = LocalDateTime.parse("2099-01-15T19:00:00"),
+                    status = DeliveryStatus.PLANNED,
+                    minVolunteersRequired = 2,
+                    contracts =
+                        listOf(
+                            DeliveryContract(
+                                contractId = "contract-1".toId(),
+                                coordinators = listOf("target-sub".toId()),
+                                basketQuantity = 10,
+                                deliveryDescription = "Légumes",
+                                status = DeliveryContractStatus.PENDING,
+                            ),
+                        ),
+                )
+            val stored =
+                Organization(
+                    organizationId = organizationId.toId(),
+                    name = "AMAP",
+                    contactEmail = "amap@example.org",
+                    activeStatus = true,
+                    timezone = TimeZone.of("Europe/Paris"),
+                    defaultLanguage = "fr",
+                    createdInstant = Instant.fromEpochMilliseconds(0),
+                    lastUpdatedInstant = Instant.fromEpochMilliseconds(0),
+                    deliveries = listOf(upcoming),
+                )
+            coEvery { orgDAO.getById(organizationId.toId()) } returns stored
+            val written = slot<Organization>()
+            val change = slot<Change>()
+            coEvery { orgDAO.put(capture(written), capture(change), any()) } returns Unit
+
+            val outcome = service.applyDelete(adminAuth, buildDeleteMutation("target-sub"), Delete(EntityType.Member, "target-sub"))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            assertEquals(
+                emptyList(),
+                written.captured.deliveries
+                    .single()
+                    .contracts
+                    .single()
+                    .coordinators,
+            )
+            assertEquals("organization:$organizationId", change.captured.scopeKey)
+        }
+
+    @Test
+    fun `GIVEN a deleted member absent from every delivery WHEN deleted THEN the organization is not rewritten`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val orgDAO = mockk<OrganizationSyncDAO>(relaxed = true)
+            val service = buildService(memberSyncDAO, orgDAO = orgDAO)
+            val target = buildMember(id = "target-sub")
+            val admin = buildMember(id = adminAuth.memberId, roles = setOf(Role.ADMIN))
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(admin, target)
+            coEvery { memberSyncDAO.getMembersBySub("target-sub") } returns listOf(target)
+            coEvery { memberSyncDAO.anonymiseBySub(any(), any()) } returns Unit
+            coEvery { orgDAO.getById(organizationId.toId()) } returns
+                Organization(
+                    organizationId = organizationId.toId(),
+                    name = "AMAP",
+                    contactEmail = "amap@example.org",
+                    activeStatus = true,
+                    timezone = TimeZone.of("Europe/Paris"),
+                    defaultLanguage = "fr",
+                    createdInstant = Instant.fromEpochMilliseconds(0),
+                    lastUpdatedInstant = Instant.fromEpochMilliseconds(0),
+                )
+
+            service.applyDelete(adminAuth, buildDeleteMutation("target-sub"), Delete(EntityType.Member, "target-sub"))
+
+            coVerify(exactly = 0) { orgDAO.put(any(), any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN an open basket exchange offer of a deleted member WHEN deleted THEN it is cancelled on the organization scope`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val service = buildService(memberSyncDAO)
+            val target = buildMember(id = "target-sub")
+            val admin = buildMember(id = adminAuth.memberId, roles = setOf(Role.ADMIN))
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(admin, target)
+            coEvery { memberSyncDAO.getMembersBySub("target-sub") } returns listOf(target)
+            coEvery { memberSyncDAO.anonymiseBySub(any(), any()) } returns Unit
+            val open =
+                BasketExchange(
+                    basketExchangeId = "exchange-1".toId(),
+                    organizationId = organizationId.toId(),
+                    deliveryId = "delivery-1".toId(),
+                    contractId = "contract-1".toId(),
+                    offeringMemberId = "target-sub".toId(),
+                    status = BasketExchangeStatus.OPEN,
+                    createdAt = Instant.fromEpochMilliseconds(1_000L),
+                )
+            val settled = open.copy(basketExchangeId = "exchange-2".toId(), status = BasketExchangeStatus.ACCEPTED)
+            coEvery { basketExchangeSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(open, settled)
+            val written = mutableListOf<BasketExchange>()
+            val changes = mutableListOf<Change>()
+            coEvery { basketExchangeSyncDAO.put(capture(written), capture(changes)) } returns Unit
+
+            val outcome = service.applyDelete(adminAuth, buildDeleteMutation("target-sub"), Delete(EntityType.Member, "target-sub"))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            assertEquals(listOf("exchange-1" to BasketExchangeStatus.CANCELLED), written.map { it.basketExchangeId.id to it.status })
+            assertEquals("organization:$organizationId", changes.single().scopeKey)
         }
 
     @Test
