@@ -1,6 +1,14 @@
 ZIP := ../back/deploy/lambda/build/libs/lambda.zip
 TF  := terraform
 
+# Instruction set of the Lambda functions (Terraform `lambda_architecture`). The native image is compiled for the
+# platform it is built on, so the default is the host's: a cross build runs under QEMU emulation, which takes hours.
+# CI deploys arm64 (arm64 runner); a deploy from an x86_64 host runs the functions on x86_64 until the next CI deploy.
+# `make dev-back LAMBDA_ARCH=arm64` forces an emulated arm64 build (needs the binfmt handlers, see README).
+LAMBDA_ARCH ?= $(if $(filter arm64 aarch64,$(shell uname -m)),arm64,x86_64)
+LAMBDA_PLATFORM := $(if $(filter x86_64,$(LAMBDA_ARCH)),linux/amd64,linux/arm64)
+TF_VARS := -var="zip_path=$(ZIP)" -var="lambda_architecture=$(LAMBDA_ARCH)"
+
 GIT_COMMIT_HASH := $(shell git -C .. rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 DART_DEFINES := --dart-define=GIT_COMMIT_HASH=$(GIT_COMMIT_HASH) \
@@ -13,7 +21,7 @@ DART_DEFINES := --dart-define=GIT_COMMIT_HASH=$(GIT_COMMIT_HASH) \
 .PHONY: build
 build: gradle-permissions
 	docker run --rm \
-		--platform linux/amd64 \
+		--platform $(LAMBDA_PLATFORM) \
 		--entrypoint sh \
 		--user $(shell id -u):$(shell id -g) \
 		-e GRADLE_USER_HOME=/gradle-home \
@@ -23,7 +31,7 @@ build: gradle-permissions
 		-w /project \
 		ghcr.io/graalvm/native-image-community:25 \
 		-c "./back/gradlew --project-dir back/deploy/lambda packageNative --no-daemon --no-build-cache"
-	@echo "✓ Lambda ZIP : $(ZIP)"
+	@echo "✓ Lambda ZIP ($(LAMBDA_ARCH)) : $(ZIP)"
 
 .PHONY: sync-serializable
 sync-serializable:
@@ -117,7 +125,7 @@ init:
 .PHONY: dev-back
 dev-back: build init
 	$(TF) workspace select -or-create dev
-	$(TF) apply -auto-approve -var="zip_path=$(ZIP)"
+	$(TF) apply -auto-approve $(TF_VARS)
 
 .PHONY: dev-web
 dev-web: init
@@ -138,7 +146,7 @@ dev: dev-back dev-web
 .PHONY: prod-back
 prod-back: build init
 	$(TF) workspace select -or-create prod
-	$(TF) apply -var="zip_path=$(ZIP)"
+	$(TF) apply $(TF_VARS)
 
 .PHONY: prod-web
 prod-web: init
@@ -159,17 +167,17 @@ prod: prod-back prod-web
 .PHONY: plan-dev
 plan-dev: build
 	$(TF) workspace select -or-create dev
-	$(TF) plan -var="zip_path=$(ZIP)"
+	$(TF) plan $(TF_VARS)
 
 .PHONY: plan-prod
 plan-prod: build
 	$(TF) workspace select -or-create prod
-	$(TF) plan -var="zip_path=$(ZIP)"
+	$(TF) plan $(TF_VARS)
 
 .PHONY: destroy-dev
 destroy-dev:
 	$(TF) workspace select dev
-	$(TF) destroy -var="zip_path=$(ZIP)"
+	$(TF) destroy $(TF_VARS)
 
 # Import an already-existing Cognito owner into Terraform state (run once when
 # the user was created outside Terraform or before this bootstrap resource existed).

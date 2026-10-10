@@ -64,10 +64,11 @@ resource "aws_lambda_function" "activation_email" {
   s3_key            = var.jar_s3_key
   s3_object_version = var.jar_s3_object_version
 
-  handler     = "deploy.lambda.ActivationEmailMainKt"
-  runtime     = "provided.al2023"
-  memory_size = var.memory_mb
-  timeout     = var.timeout_seconds
+  handler       = "deploy.lambda.ActivationEmailMainKt"
+  runtime       = "provided.al2023"
+  architectures = [var.architecture]
+  memory_size   = var.memory_mb
+  timeout       = var.timeout_seconds
 
   publish = true
 

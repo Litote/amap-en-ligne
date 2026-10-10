@@ -4,6 +4,17 @@ variable "aws_region" {
   default     = "eu-west-3"
 }
 
+variable "lambda_architecture" {
+  description = "Instruction set of the Lambda functions — must match the native ZIP (built on an arm64 CI runner, or by make build with LAMBDA_ARCH)"
+  type        = string
+  default     = "arm64"
+
+  validation {
+    condition     = contains(["arm64", "x86_64"], var.lambda_architecture)
+    error_message = "lambda_architecture must be arm64 or x86_64."
+  }
+}
+
 variable "zip_path" {
   description = "Local path to the native Lambda ZIP produced by make build"
   type        = string

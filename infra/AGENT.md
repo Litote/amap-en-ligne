@@ -63,7 +63,7 @@ infra/
 |--------|-------------|-------|
 | `dynamo` | DynamoDB table `data` (single-table) | pk + sk, 3 GSIs: `by_cursor`, `by_organization_name`, `by_admin_email` |
 | `cognito` | User Pool + app client | `USER_PASSWORD_AUTH` (no SRP), custom attribute `custom:producer_account_id`, groups: `ADMIN`, `PRODUCER` |
-| `lambda` | Lambda function + IAM role | GraalVM native image; env vars: `DYNAMO_TABLE`, `COGNITO_ISSUER_URL`, `COGNITO_CLIENT_ID`, `INSTANCE_NAME`, `INSTANCE_API_URL` |
+| `lambda` | Lambda function + IAM role | GraalVM native image, arm64 (`lambda_architecture` — must match the ZIP, built on an arm64 CI runner); env vars: `DYNAMO_TABLE`, `COGNITO_ISSUER_URL`, `COGNITO_CLIENT_ID`, `INSTANCE_NAME`, `INSTANCE_API_URL` |
 | `api_gateway` | HTTP API V2 | Single route `POST /v1/sync` + `ANY /{proxy+}` for public endpoints; JWT authorizer pointing at Cognito |
 | `storage` | S3 bucket | Lambda deployment artifact |
 

@@ -134,10 +134,11 @@ resource "aws_lambda_function" "data" {
   s3_key            = var.jar_s3_key
   s3_object_version = var.jar_s3_object_version
 
-  handler     = var.handler
-  runtime     = var.runtime
-  memory_size = var.memory_mb
-  timeout     = var.timeout_seconds
+  handler       = var.handler
+  runtime       = var.runtime
+  architectures = [var.architecture]
+  memory_size   = var.memory_mb
+  timeout       = var.timeout_seconds
 
   publish = true
 
@@ -253,10 +254,11 @@ resource "aws_lambda_function" "volunteer_shortage" {
   s3_key            = var.jar_s3_key
   s3_object_version = var.jar_s3_object_version
 
-  handler     = "deploy.lambda.VolunteerShortageMainKt"
-  runtime     = var.runtime
-  memory_size = var.memory_mb
-  timeout     = 300
+  handler       = "deploy.lambda.VolunteerShortageMainKt"
+  runtime       = var.runtime
+  architectures = [var.architecture]
+  memory_size   = var.memory_mb
+  timeout       = 300
 
   environment {
     variables = aws_lambda_function.data.environment[0].variables

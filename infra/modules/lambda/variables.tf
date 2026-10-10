@@ -24,6 +24,11 @@ variable "handler" {
   default     = "deploy.lambda.DataLambda"
 }
 
+variable "architecture" {
+  description = "Instruction set of the function (arm64 or x86_64) — must match the native ZIP"
+  type        = string
+}
+
 variable "runtime" {
   description = "Lambda runtime (provided.al2023 for the native GraalVM custom runtime)"
   type        = string
