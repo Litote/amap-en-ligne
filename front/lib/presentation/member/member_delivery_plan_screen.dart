@@ -15,6 +15,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_card.dart';
+import 'package:amap_en_ligne/presentation/delivery/registration_rejection.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
@@ -246,10 +247,11 @@ class _MemberDeliveryPlanScreenState extends State<MemberDeliveryPlanScreen> {
         listener: (context, state) {
           if (state is! SyncSucceeded) return;
           if (state.rejectedMutations.isEmpty) return;
-          // V1 limitation: surface a generic rejection SnackBar.
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("L'inscription n'a pas pu être enregistrée."),
+            SnackBar(
+              content: Text(
+                registrationRejectionMessage(state.rejectedMutations),
+              ),
             ),
           );
         },

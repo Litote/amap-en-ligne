@@ -15,6 +15,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
@@ -27,6 +28,7 @@ import persistence.changes.MutationErrorCode
 import persistence.changes.MutationStatus
 import persistence.changes.Upsert
 import persistence.dao.AccountDeletionLogDAO
+import persistence.dao.ActivationTokenDAO
 import persistence.dao.BasketExchangeSyncDAO
 import persistence.dao.ContractSyncDAO
 import persistence.dao.MemberInvitationSyncDAO
@@ -36,6 +38,7 @@ import persistence.dao.OwnerSyncDAO
 import persistence.model.BasketExchange
 import persistence.model.BasketExchangeStatus
 import persistence.model.Contract
+import persistence.model.ContractMember
 import persistence.model.ContractStatus
 import persistence.model.DeletionActorRole
 import persistence.model.Delivery
@@ -157,6 +160,7 @@ internal class MemberServiceTest {
     private val organizationSyncDAO = mockk<OrganizationSyncDAO>(relaxed = true)
     private val memberInvitationSyncDAO = mockk<MemberInvitationSyncDAO>(relaxed = true)
     private val basketExchangeSyncDAO = mockk<BasketExchangeSyncDAO>(relaxed = true)
+    private val activationTokenDAO = mockk<ActivationTokenDAO>(relaxed = true)
 
     private fun buildService(
         memberSyncDAO: MemberSyncDAO,
@@ -175,6 +179,7 @@ internal class MemberServiceTest {
             organizationSyncDAO = orgDAO,
             memberInvitationSyncDAO = memberInvitationSyncDAO,
             basketExchangeSyncDAO = basketExchangeSyncDAO,
+            activationTokenDAO = activationTokenDAO,
         )
 
     private fun buildDeleteMutation(memberId: String): ClientMutation =
@@ -931,6 +936,9 @@ internal class MemberServiceTest {
                 setOf("organization:$organizationId", "instance-owner"),
                 changes.single().map { it.scopeKey }.toSet(),
             )
+            // Its activation tokens keep no email either; the pending invitation's are untouched.
+            coVerify(exactly = 1) { activationTokenDAO.anonymiseByMemberInvitationId("inv-activated".toId()) }
+            coVerify(exactly = 0) { activationTokenDAO.anonymiseByMemberInvitationId("inv-pending".toId()) }
         }
 
     @Test
@@ -1052,6 +1060,66 @@ internal class MemberServiceTest {
             assertEquals(MutationStatus.APPLIED, outcome.status)
             assertEquals(listOf("exchange-1" to BasketExchangeStatus.CANCELLED), written.map { it.basketExchangeId.id to it.status })
             assertEquals("organization:$organizationId", changes.single().scopeKey)
+        }
+
+    @Test
+    fun `GIVEN a deleted member subscribed to a running contract WHEN deleted THEN the subscription is cancelled`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val orgDAO = mockk<OrganizationSyncDAO>(relaxed = true)
+            val contractDAO = mockk<ContractSyncDAO>(relaxed = true)
+            val service = buildService(memberSyncDAO, contractDAO = contractDAO, orgDAO = orgDAO)
+            val target = buildMember(id = "target-sub")
+            val admin = buildMember(id = adminAuth.memberId, roles = setOf(Role.ADMIN))
+            coEvery { memberSyncDAO.getByOrganizationId(organizationId.toId()) } returns listOf(admin, target)
+            coEvery { memberSyncDAO.getMembersBySub("target-sub") } returns listOf(target)
+            coEvery { memberSyncDAO.anonymiseBySub(any(), any()) } returns Unit
+            coEvery { orgDAO.getById(organizationId.toId()) } returns
+                Organization(
+                    organizationId = organizationId.toId(),
+                    name = "AMAP",
+                    contactEmail = "amap@example.org",
+                    activeStatus = true,
+                    timezone = TimeZone.of("Europe/Paris"),
+                    defaultLanguage = "fr",
+                    createdInstant = Instant.fromEpochMilliseconds(0),
+                    lastUpdatedInstant = Instant.fromEpochMilliseconds(0),
+                )
+            val running =
+                Contract(
+                    contractId = "contract-1".toId(),
+                    name = "Légumes",
+                    organizationId = organizationId.toId(),
+                    producerAccountId = "producer-1".toId(),
+                    minDeliveryDate = LocalDate.parse("2026-01-01"),
+                    maxDeliveryDate = LocalDate.parse("2099-12-31"),
+                    deliveryCount = 10,
+                    seasonYear = 2026,
+                    status = ContractStatus.ACTIVE,
+                    members =
+                        listOf(
+                            ContractMember(
+                                memberId = "target-sub".toId(),
+                                subscriptionInstant = Instant.fromEpochMilliseconds(1_000L),
+                                status = MemberContractStatus.ACTIVE,
+                            ),
+                        ),
+                )
+            coEvery { contractDAO.getByOrganizationId(organizationId.toId()) } returns listOf(running)
+            val written = slot<Contract>()
+            val change = slot<Change>()
+            coEvery { contractDAO.put(capture(written), capture(change), any()) } returns Unit
+
+            val outcome = service.applyDelete(adminAuth, buildDeleteMutation("target-sub"), Delete(EntityType.Member, "target-sub"))
+
+            assertEquals(MutationStatus.APPLIED, outcome.status)
+            assertEquals(
+                MemberContractStatus.CANCELLED,
+                written.captured.members
+                    .single()
+                    .status,
+            )
+            assertEquals("organization:$organizationId", change.captured.scopeKey)
         }
 
     @Test

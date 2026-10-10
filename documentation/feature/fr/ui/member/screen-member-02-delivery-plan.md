@@ -103,6 +103,9 @@ Lorsqu'une livraison possède un créneau anticipé (*EARLY_SLOT*) configuré et
 
 Lorsque le créneau anticipé est complet ou absent, un unique bouton d'inscription est affiché (comportement inchangé).
 
+### Inscription refusée
+Le serveur vérifie les places au moment de l'enregistrement. Si un autre bénévole a pris la dernière place depuis l'affichage, l'inscription est refusée, la carte revient à l'état réel et le message « Ce créneau vient d'être complété. Choisissez-en un autre. » s'affiche. Tout autre refus affiche « L'inscription n'a pas pu être enregistrée. Réessayez. » (même comportement sur l'accueil).
+
 ### Données affichées
 - Planning mensuel chronologique
 - État de participation du membre pour chaque créneau

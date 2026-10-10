@@ -196,6 +196,10 @@ internal object VolunteerMutationValidator {
         return null
     }
 
+    /**
+     * A full slot is a CONFLICT, not a FORBIDDEN: the registration was allowed when the member
+     * saw the slot, another one took the last place since (the app says so).
+     */
     private fun checkCapacity(
         slot: MemberSlot,
         delivery: Delivery,
@@ -213,7 +217,7 @@ internal object VolunteerMutationValidator {
         return when (slot.slotKind) {
             SlotKind.STANDARD -> {
                 if (activeCount > slot.requiredVolunteers) {
-                    service.rejected(mutation, MutationErrorCode.FORBIDDEN, "standard slot is at capacity")
+                    service.rejected(mutation, MutationErrorCode.CONFLICT, "standard slot is at capacity")
                 } else {
                     null
                 }
@@ -228,7 +232,7 @@ internal object VolunteerMutationValidator {
                 if (earlySlotMax == null) {
                     service.rejected(mutation, MutationErrorCode.FORBIDDEN, "no early slot configuration for this delivery")
                 } else if (activeCount > earlySlotMax) {
-                    service.rejected(mutation, MutationErrorCode.FORBIDDEN, "early slot is at capacity")
+                    service.rejected(mutation, MutationErrorCode.CONFLICT, "early slot is at capacity")
                 } else {
                     null
                 }

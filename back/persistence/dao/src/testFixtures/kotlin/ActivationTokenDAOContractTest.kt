@@ -272,6 +272,26 @@ abstract class ActivationTokenDAOContractTest {
             assertEquals(invalidatedAt.toEpochMilliseconds(), found.invalidatedAt?.toEpochMilliseconds())
         }
 
+    @Test
+    fun `GIVEN member invitation tokens WHEN anonymiseByMemberInvitationId THEN only their email is blanked`() =
+        runTest {
+            val invitationId = generateId<MemberInvitation>().id
+            insertMemberInvitation(invitationId)
+            val token = buildMemberToken(invitationId)
+            dao.create(token)
+            val otherInvitationId = generateId<MemberInvitation>().id
+            insertMemberInvitation(otherInvitationId)
+            val other = buildMemberToken(otherInvitationId)
+            dao.create(other)
+
+            dao.anonymiseByMemberInvitationId(token.memberInvitationId!!)
+
+            val found = assertNotNull(dao.findByToken(token.token))
+            assertEquals("", found.adminEmail)
+            assertEquals(token.memberInvitationId, found.memberInvitationId)
+            assertEquals(other.adminEmail, assertNotNull(dao.findByToken(other.token)).adminEmail)
+        }
+
     /** Override to pre-insert an owner_invitation row if backend has FK constraints. */
     protected open fun insertOwnerInvitation(invitationId: String) {
         // No-op by default (Dynamo has no FK constraints)

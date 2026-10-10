@@ -16,6 +16,7 @@ import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_card.dart';
+import 'package:amap_en_ligne/presentation/delivery/registration_rejection.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
 import 'package:flutter/material.dart';
@@ -184,13 +185,8 @@ class _VolunteerDashboardSectionState extends State<VolunteerDashboardSection> {
         if (state is! SyncSucceeded) return;
         final rejected = state.rejectedMutations;
         if (rejected.isEmpty) return;
-        // V1 limitation: surface a generic rejection message.
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "L'inscription n'a pas pu être enregistrée. Réessayez.",
-            ),
-          ),
+          SnackBar(content: Text(registrationRejectionMessage(rejected))),
         );
       },
       child: _SectionBody(

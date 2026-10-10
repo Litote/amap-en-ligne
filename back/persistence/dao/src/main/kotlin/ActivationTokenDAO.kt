@@ -30,6 +30,12 @@ interface ActivationTokenDAO {
         invalidatedAt: Instant,
     )
 
+    /**
+     * Blanks the email copied on the tokens of [invitationId] (account deletion: the deleted
+     * member's identity is not kept on their past activation tokens).
+     */
+    suspend fun anonymiseByMemberInvitationId(invitationId: Id<MemberInvitation>)
+
     suspend fun invalidateByOrganizationRequestId(
         requestId: Id<OrganizationRequest>,
         invalidatedAt: Instant,

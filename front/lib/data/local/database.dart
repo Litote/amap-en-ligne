@@ -183,7 +183,12 @@ class AppDatabase extends _$AppDatabase
     }
   }
 
-  Future<void> clearAll() => transaction(() async {
+  Future<void> clearAll() => transaction(deleteAllRows);
+
+  /// Empties every table, without opening a transaction: for callers already
+  /// inside one (a nested transaction never commits on web, see
+  /// `sync_nested_transaction_test.dart`). Others use [clearAll].
+  Future<void> deleteAllRows() async {
     await delete(productTypes).go();
     await delete(syncCursors).go();
     await delete(pendingMutations).go();
@@ -205,5 +210,5 @@ class AppDatabase extends _$AppDatabase
     await delete(attendanceEmailRequests).go();
     await delete(errorReports).go();
     await delete(producerSchedules).go();
-  });
+  }
 }

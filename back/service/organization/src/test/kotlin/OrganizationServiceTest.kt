@@ -741,7 +741,7 @@ internal class OrganizationServiceTest {
         }
 
     @Test
-    fun `GIVEN volunteer caller WHEN registers self to a full standard slot THEN REJECTED FORBIDDEN`() =
+    fun `GIVEN volunteer caller WHEN registers self to a full standard slot THEN REJECTED CONFLICT`() =
         runTest {
             // Slot has requiredVolunteers=1 and already has 1 active registration from someone else
             val existingReg = buildRegistration(otherMemberId)
@@ -764,7 +764,7 @@ internal class OrganizationServiceTest {
             val outcome = service.applyUpsert(volunteerAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
 
             assertEquals(MutationStatus.REJECTED, outcome.status)
-            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
+            assertEquals(MutationErrorCode.CONFLICT, outcome.error?.code)
             coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
         }
 
@@ -805,7 +805,7 @@ internal class OrganizationServiceTest {
         }
 
     @Test
-    fun `GIVEN volunteer caller WHEN registers self to an early slot beyond max THEN REJECTED FORBIDDEN`() =
+    fun `GIVEN volunteer caller WHEN registers self to an early slot beyond max THEN REJECTED CONFLICT`() =
         runTest {
             // Template has earlySlot.maxVolunteers=1; slot already has 1 active registration
             val existingReg = buildRegistration(otherMemberId)
@@ -828,7 +828,7 @@ internal class OrganizationServiceTest {
             val outcome = service.applyUpsert(volunteerAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
 
             assertEquals(MutationStatus.REJECTED, outcome.status)
-            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
+            assertEquals(MutationErrorCode.CONFLICT, outcome.error?.code)
             coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
         }
 
@@ -871,7 +871,7 @@ internal class OrganizationServiceTest {
         }
 
     @Test
-    fun `GIVEN volunteer caller WHEN registers to template-less early slot beyond its override max THEN REJECTED FORBIDDEN`() =
+    fun `GIVEN volunteer caller WHEN registers to template-less early slot beyond its override max THEN REJECTED CONFLICT`() =
         runTest {
             // Delivery override caps the early slot at 1; the slot already has 1 active registration.
             val deliveryEarlySlot = EarlySlot(arrivalTime = "16:30", explanation = "Réception", maxVolunteers = 1)
@@ -907,7 +907,7 @@ internal class OrganizationServiceTest {
             val outcome = service.applyUpsert(volunteerAuth, buildMutation(updatedOrg), OrganizationPayload(updatedOrg))
 
             assertEquals(MutationStatus.REJECTED, outcome.status)
-            assertEquals(MutationErrorCode.FORBIDDEN, outcome.error?.code)
+            assertEquals(MutationErrorCode.CONFLICT, outcome.error?.code)
             coVerify(exactly = 0) { organizationSyncDAO.put(any(), any()) }
         }
 

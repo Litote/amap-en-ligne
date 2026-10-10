@@ -81,6 +81,8 @@ Ce que fait la suppression :
 - ses **inscriptions aux livraisons à venir sont retirées** (les places sont libérées) et il
   n'en est plus coordinateur : pensez à désigner un autre coordinateur si l'alerte
   « Coordinateur manquant » apparaît ;
+- ses **abonnements aux contrats en cours sont annulés** (ses paniers ne sont plus comptés) et
+  il est retiré des paniers partagés ;
 - ses **échanges de paniers en cours sont clos** : son offre ouverte est annulée, ses
   demandes en attente sont retirées ;
 - son **historique est conservé** sans son nom (contrats, paniers, participations), pour

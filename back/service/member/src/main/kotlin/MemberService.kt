@@ -18,6 +18,7 @@ import persistence.changes.BasketExchangePayload
 import persistence.changes.Change
 import persistence.changes.ChangeOp
 import persistence.changes.ClientMutation
+import persistence.changes.ContractPayload
 import persistence.changes.Cursor
 import persistence.changes.Delete
 import persistence.changes.MemberPayload
@@ -26,6 +27,7 @@ import persistence.changes.MutationOutcome
 import persistence.changes.OrganizationPayload
 import persistence.changes.SyncScope
 import persistence.dao.AccountDeletionLogDAO
+import persistence.dao.ActivationTokenDAO
 import persistence.dao.BasketExchangeSyncDAO
 import persistence.dao.ContractSyncDAO
 import persistence.dao.MemberInvitationSyncDAO
@@ -49,6 +51,7 @@ class MemberService(
     private val organizationSyncDAO: OrganizationSyncDAO,
     private val memberInvitationSyncDAO: MemberInvitationSyncDAO,
     private val basketExchangeSyncDAO: BasketExchangeSyncDAO,
+    private val activationTokenDAO: ActivationTokenDAO,
 ) : EntityTypeService<MemberPayload>(EntityType.Member) {
     private val contractSubscriptionGuard = MemberContractSubscriptionGuard(contractSyncDAO, organizationSyncDAO)
     private val lifecycleSideEffects =
@@ -414,9 +417,39 @@ class MemberService(
         anonymiseSettledInvitations(members)
         scrubDeliveries(members)
         closeBasketExchanges(members)
+        closeContracts(members)
 
         lifecycleSideEffects.onDeleted(members, auth, targetSub)
         return applied(mutation, memberId)
+    }
+
+    /**
+     * Cancels the deleted [members]' subscriptions to the running contracts and takes them out
+     * of their coordinator pool and shared baskets ([DeletedMemberContracts]).
+     */
+    private suspend fun closeContracts(members: List<Member>) {
+        val now = Clock.System.now()
+        members.forEach { member ->
+            val organizationId = member.organizationId
+            val organization = organizationSyncDAO.getById(organizationId) ?: return@forEach
+            val today = now.toLocalDateTime(organization.timezone).date
+            contractSyncDAO.getByOrganizationId(organizationId).forEach { contract ->
+                val closed = DeletedMemberContracts.close(contract, member.memberId, today) ?: return@forEach
+                // Members, pool and shared baskets are not part of the producers' schedules.
+                contractSyncDAO.put(
+                    closed,
+                    Change(
+                        cursor = Cursor.next(),
+                        entityType = EntityType.Contract,
+                        entityId = closed.contractId.id,
+                        scopeKey = SyncScope.Organization(organizationId.id).key,
+                        op = ChangeOp.UPSERT,
+                        payload = ContractPayload(closed),
+                        producedAt = now.toEpochMilliseconds(),
+                    ),
+                )
+            }
+        }
     }
 
     /** Cancels the deleted [members]' open offers and withdraws their pending requests ([DeletedMemberExchanges]). */
@@ -474,7 +507,8 @@ class MemberService(
 
     /**
      * The invitations that led to the deleted [members] (activated or cancelled, matched by email,
-     * letter case ignored) keep no identity either: email, names and custom copy are blanked.
+     * letter case ignored) keep no identity either: email, names and custom copy are blanked, and
+     * so is the email copied on their activation tokens.
      * A pending invitation is a new, legitimate request for that email and is left as is.
      */
     private suspend fun anonymiseSettledInvitations(members: List<Member>) {
@@ -496,6 +530,7 @@ class MemberService(
                                 customEmailBody = null,
                             )
                         memberInvitationSyncDAO.put(anonymised, memberInvitationChanges(anonymised))
+                        activationTokenDAO.anonymiseByMemberInvitationId(invitation.invitationId.toId())
                     }
             }
     }
