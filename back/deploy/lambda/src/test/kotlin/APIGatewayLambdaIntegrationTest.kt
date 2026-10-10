@@ -396,6 +396,8 @@ internal class APIGatewayLambdaIntegrationTest {
                                         invalidatedAt: Instant,
                                     ) = Unit
 
+                                    override suspend fun anonymiseByMemberInvitationId(invitationId: id.Id<MemberInvitation>) = Unit
+
                                     override suspend fun invalidateByOrganizationRequestId(
                                         requestId: id.Id<persistence.model.OrganizationRequest>,
                                         invalidatedAt: Instant,
@@ -571,6 +573,8 @@ internal class APIGatewayLambdaIntegrationTest {
                                         invitationId: id.Id<MemberInvitation>,
                                         invalidatedAt: Instant,
                                     ) = Unit
+
+                                    override suspend fun anonymiseByMemberInvitationId(invitationId: id.Id<MemberInvitation>) = Unit
 
                                     override suspend fun invalidateByOrganizationRequestId(
                                         requestId: id.Id<persistence.model.OrganizationRequest>,
