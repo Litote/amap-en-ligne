@@ -4,17 +4,6 @@ description: >
   Write BLoC classes and their unit tests in amap-en-ligne/front.
   Covers bloc_test/blocTest<>, mocktail _MockX pattern, StreamController
   lifecycle, skip/wait, and the project's sealed Event+State conventions.
-triggers:
-  - BLoC
-  - bloc_test
-  - blocTest
-  - Cubit
-  - event state
-  - mocktail
-  - Mock service
-  - StreamController
-  - authBloc
-  - syncBloc
 ---
 
 # BLoC Pattern

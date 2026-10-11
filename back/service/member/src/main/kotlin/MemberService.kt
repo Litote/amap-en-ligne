@@ -292,7 +292,7 @@ class MemberService(
         }
     }
 
-    private fun validateRoleChange(
+    private suspend fun validateRoleChange(
         auth: AuthenticatedInfo,
         mutation: ClientMutation,
         payload: MemberPayload,
@@ -552,19 +552,15 @@ class MemberService(
             is SyncScope.Owner -> emptyList()
         }
 
-    private suspend fun checkLastAdminOrgs(members: List<Member>): List<String> {
-        val candidateOrganizations =
-            members
-                .filter { it.roles.contains(Role.ADMIN) }
-                .map { it.organizationId.id }
-                .distinct()
-        val targetMemberIds = members.map { it.memberId }.toSet()
-        return candidateOrganizations.filter { organizationId ->
-            memberSyncDAO
-                .getByOrganizationId(organizationId.toId())
-                .none { row -> row.roles.contains(Role.ADMIN) && row.memberId !in targetMemberIds }
-        }
-    }
+    /** Organizations that would be left without an admin able to log in (see [RoleService.validateLastAdmin]). */
+    private suspend fun checkLastAdminOrgs(members: List<Member>): List<String> =
+        members
+            .filter { it.roles.contains(Role.ADMIN) }
+            .filter { member ->
+                val organizationMembers = memberSyncDAO.getByOrganizationId(member.organizationId)
+                roleService.validateLastAdmin(member.memberId.id, emptySet(), organizationMembers) != null
+            }.map { it.organizationId.id }
+            .distinct()
 
     private suspend fun findMemberById(memberId: String): Member? = memberSyncDAO.listAll().find { it.memberId.id == memberId }
 

@@ -11,6 +11,8 @@ import 'package:amap_en_ligne/domain/validation/search_text.dart';
 import 'package:amap_en_ligne/presentation/admin/members/user_management_bloc.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/common/status_badge.dart';
+import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
+import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:flutter/material.dart';
@@ -572,7 +574,8 @@ class _MemberTile extends StatelessWidget {
   String _formatMemberName(Member member) {
     final fullName = '${member.firstName ?? ''} ${member.lastName ?? ''}'
         .trim();
-    return fullName.isEmpty ? '(aucun nom)' : fullName;
+    if (fullName.isNotEmpty) return fullName;
+    return isDeletedMember(member) ? kDeletedMemberLabel : '(aucun nom)';
   }
 }
 

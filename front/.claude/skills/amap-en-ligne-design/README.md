@@ -25,7 +25,7 @@ Both run from the **same Flutter codebase** — there is no separate marketing w
 ## Sources used to build this design system
 
 - **GitHub repo:** [`Litote/amap-en-ligne`](https://github.com/Litote/amap-en-ligne) — Flutter (Dart) front, Kotlin/Ktor back, Terraform infra. The visual system below is reverse-engineered from `front/lib/main.dart` (theme) and the screens under `front/lib/presentation/**`.
-- **In-repo design notes:** `AI_CONTEXT.md`, `front/AI_CONTEXT.md`. There is **no dedicated design-system file** in the upstream repo — the design surface is whatever Flutter Material 3 produces from a `ColorScheme.fromSeed(seedColor: Colors.green)` plus the per-screen widget choices.
+- **In-repo design notes:** `AI_CONTEXT.md`, `front/AI_CONTEXT.md`. Besides this skill, the design system is documented in `documentation/feature/fr/ui/charte-graphique.md` and ADR `documentation/architecture/adr-002-design-system.md`; in code, the design surface is whatever Flutter Material 3 produces from a `ColorScheme.fromSeed(seedColor: Colors.green)` plus the per-screen widget choices.
 
 > **Reader:** If you have access to the GitHub repo above, you can explore further to produce more pixel-faithful designs. The Flutter source under `front/lib/presentation/` is the canonical reference for component appearance and copy tone.
 

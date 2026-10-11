@@ -29,7 +29,7 @@ Four conceptual layers, each its own module. Read it as **what is stored → how
 | Module | Depends on | Holds | Role |
 |--------|-----------|-------|------|
 | `persistence:model` | `lib:authentication/id/i18n` | Domain entities + the closed `EntityType` enum. Also carries a few **transport DTOs** (`ActivateRequest/Response`, `EmailMessage`, `PublicOrganizationSummary`) that are not persisted aggregates — left here on purpose (no dedicated module). | what is stored |
-| `persistence:wire` | `model` | **The whole sync wire protocol**: `Change`/`ChangeOp` (change-feed record), `EntityPayload` (polymorphic carrier), `ClientMutation`/`MutationOp`, `SyncRequest`/`SyncResponse`, `MutationOutcome`/`MutationErrorCode`, `SyncScope`, `Cursor`, `OrganizationExport`. (Formerly named `persistence:changes` — renamed because <¼ of it is about the change feed.) | how it travels |
+| `persistence:wire` | `model` | **The whole sync wire protocol**: `Change`/`ChangeOp` (change-feed record), `EntityPayload` (polymorphic carrier), `ClientMutation`/`MutationOp`, `SyncRequest`/`SyncResponse`, `MutationOutcome`/`MutationErrorCode`, `SyncScope`, `Cursor`, `OrganizationExport`. | how it travels |
 | `persistence:dao` | `model` + `wire` | **Every DAO interface** (incl. `ChangeDAO`) + the shared contract tests in `testFixtures`. | how it's stored |
 | `persistence:dynamo` / `persistence:postgres` | `dao` | DAO implementations + tests (Dynamo Local / Testcontainers). | adapters |
 
@@ -75,7 +75,7 @@ One `EntityTypeService<P>` per `EntityType`, each in its own `service:<name>` mo
 
 `MutationErrorCode`: `NOT_FOUND`, `FORBIDDEN`, `INVALID_PAYLOAD`, `INTERNAL_ERROR` (transient server failure — the only retryable code), `UNIQUE_VIOLATION`, `CONFLICT`, `OWNER_EXCLUSIVE`, `PRODUCER_EXCLUSIVE`, `MIXED_ROLES`, `LAST_ADMIN`, `LAST_OWNER`, `LAST_PRODUCER`, `SELF_ACTION_FORBIDDEN`, `MISSING_COORDINATOR`, `CONTRACT_ENDED`, `INVALID_SUBSCRIPTION`, `INVALID_SHARED_BASKET`.
 
-`RoleService` centralises role-exclusivity validation (`validateGrantOwner`, `validateLastAdmin`, `validateLastOwner`, `validateMixedRoles`, `validateProducerExclusive`); producer checks resolve through `UserProvisioningPort.findProducerAccountIdByEmail`.
+`RoleService` centralises role-exclusivity validation (`validateGrantOwner`, `validateLastAdmin` — effective admins only: ADMIN + `ACTIVE` + no pending invitation for their email in the org, `validateLastOwner`, `validateMixedRoles`, `validateProducerExclusive`); producer checks resolve through `UserProvisioningPort.findProducerAccountIdByEmail`.
 
 ### Validators co-located in `OrganizationService.kt`
 

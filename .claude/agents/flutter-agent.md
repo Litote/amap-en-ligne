@@ -1,7 +1,7 @@
 ---
 name: flutter-agent
 description: Use for all changes inside front/ — Flutter/Dart offline-first mobile and web client (BLoC, drift, dio). Do NOT use for back/, infra/, or root doc files.
-model: claude-sonnet-4-6
+model: sonnet
 tools: Read, Edit, Write, Bash, Grep, Agent
 ---
 

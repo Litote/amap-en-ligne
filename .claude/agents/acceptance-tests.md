@@ -1,7 +1,7 @@
 ---
 name: acceptance-tests
 description: Use for all acceptance and E2E test changes in acceptance/ — cross-component tests (Kotlin + Dart), Playwright, Docker infrastructure, OTP/auth flows. Coordinates back and front test changes.
-model: claude-sonnet-4-6
+model: sonnet
 tools: Read, Edit, Write, Bash, Grep, Agent
 ---
 

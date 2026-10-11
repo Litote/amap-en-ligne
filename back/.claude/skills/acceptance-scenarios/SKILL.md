@@ -6,7 +6,7 @@ description: Acceptance scenario format for this project. Use when adding or mod
 ## Location
 
 Scenario files live in `acceptance/scenarios/` at the repository root (not inside `back/`).
-Each file is a `.json` document. The test runner (`AcceptanceScenariosTest`) discovers all `.json` files in that directory and executes those targeting `"server"`.
+Each file is a `.json` document. The test runner (`AcceptanceScenariosTest`) discovers all `.json` files in that directory and executes those targeting `"server"`; the other targets have their own runners (below).
 
 ## File structure
 
@@ -27,9 +27,21 @@ Each file is a `.json` document. The test runner (`AcceptanceScenariosTest`) dis
 ```
 
 ### `targets`
-- `"server"` — executed by `AcceptanceScenariosTest` against the JVM deployment
-- `"flutter"` — executed by the Flutter integration test suite
-- Include both unless the scenario is specific to one side
+Each target names the runner that executes the scenario. The reference list is `EXECUTED_TARGETS` in `back/deploy/jvm/src/test/kotlin/AcceptanceCatalogTest.kt`, which fails on any unknown target:
+
+| Target | Runner |
+|---|---|
+| `"server"` | `AcceptanceScenariosTest` (generic sync steps, JVM deployment) |
+| `"volunteer-flow"` | `VolunteerRegistrationScenariosTest` |
+| `"coordinator-flow"` | `CoordinatorAssignmentScenariosTest` |
+| `"time-slot-flow"` | `TimeSlotLifecycleScenariosTest` |
+| `"contract-lifecycle"` | `ContractLifecycleScenariosTest` |
+| `"organization-flow"` | `OrganizationFlowScenariosTest` |
+| `"basket-exchange-flow"` | `BasketExchangeFlowScenariosTest` |
+| `"flutter"` | `front/test/acceptance/` (by scenario id) |
+| `"web-ui"` | `front/test/acceptance/cross_component/` web UI e2e (by scenario id) |
+
+The step format below is the `"server"` one; the `*-flow` / `contract-lifecycle` runners read their own steps (see the runner). Add a back target and `"flutter"` when both sides implement the story. A new target needs its runner and an `EXECUTED_TARGETS` entry together.
 
 ### `given`
 Supported `backendState` values: `"empty"`, or `"organization {organizationId}"` (inserts that AMAP before the first step). Only `"appState": "fresh"` is supported. The test runner resets the DB before each scenario.

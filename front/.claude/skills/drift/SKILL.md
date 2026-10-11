@@ -4,21 +4,11 @@ description: >
   Add or modify Drift (SQLite ORM) tables in AppDatabase. Covers Table
   definitions, composite PKs, TypeConverter, multiplatform _open(),
   CRUD query helpers, transaction pattern, and NativeDatabase.memory() tests.
-triggers:
-  - Drift
-  - AppDatabase
-  - drift table
-  - TypeConverter
-  - NativeDatabase
-  - sqlite flutter
-  - offline database
-  - local storage
-  - schemaVersion
 ---
 
 # Drift (SQLite) in amap-en-ligne/front
 
-Single database: `lib/data/local/database.dart`.
+Single database: `lib/data/local/database.dart`. Tables live in `lib/data/local/database/tables.dart`; query helpers live in `part` mixins (`lib/data/local/database/<area>_queries.dart`, `mixin _FooQueries on _$AppDatabase`).
 
 ## Anatomy
 
@@ -110,7 +100,7 @@ Set<Column<Object>> get primaryKey => {tenantId, entityId};
 
 ## CRUD Helpers on AppDatabase
 
-Add query helpers as methods on `AppDatabase`, not as standalone DAOs.
+Add query helpers to the matching `_<Area>Queries` mixin on `AppDatabase`, not as standalone DAOs.
 
 ### Watch (reactive)
 

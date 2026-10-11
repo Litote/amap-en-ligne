@@ -24,11 +24,6 @@ flutter test test/ --exclude-tags "golden || acceptance"
 # Acceptance tests (cross-component E2E excluded — run via ./gradlew frontCrossComponentTest)
 flutter test test/acceptance/ --tags acceptance --exclude-tags cross-component
 
-# Golden tests — macOS only (text rendering differs on Linux)
-flutter test test/golden/ --tags golden
-
-# Regenerate golden screenshots — macOS only
-flutter test test/golden/ --update-goldens --tags golden
 
 # Build
 flutter build apk --release
@@ -36,9 +31,7 @@ flutter build ios --no-codesign --simulator --debug
 flutter build web --release  # builds WASM by default
 ```
 
-**Web builds:** Flutter web uses **WebAssembly (WASM) by default** for better performance (4.8% smaller code size vs JS). To debug or fall back to JS, use `flutter build web --no-wasm`.
-
-**Important:** Golden tests are generated on macOS and validated on macOS. Never run `--update-goldens` on Linux — it will produce different pixel output and break CI.
+**Web builds:** Flutter web uses **WebAssembly (WASM) by default** for better performance. To debug or fall back to JS, use `flutter build web --no-wasm`.
 
 ---
 
@@ -75,7 +68,7 @@ flutter build web --release  # builds WASM by default
 
 **Code generation:** Every model change requires re-running `build_runner`. Generated files (`.freezed.dart`, `.g.dart`) are committed to the repo.
 
-**Runtime config:** The app currently boots from a static server catalog and no longer requires a build-time `secrets.json` file for normal local builds.
+**Runtime config:** The app boots from a static server catalog; normal local builds need no build-time secrets file.
 
 **Comments:** In English (as per global AGENTS.md rule).
 
@@ -136,7 +129,7 @@ Every screen implemented under `lib/presentation/` must mirror its specification
 
 **Before writing or modifying any screen widget:**
 
-1. Locate the screen's spec at `documentation/feature/fr/ui/<role>/screen-<role>-NN-<slug>.md` (e.g. `owner/screen-owner-01-home.md`). If no file matches, ask the orchestrator before guessing.
+1. Locate the screen's spec at `documentation/feature/fr/ui/<role>/screen-<role>-NN-<slug>.md` (e.g. `owner/screen-owner-01-home.md`). If no file matches, ask the user before guessing.
 2. Read the spec end-to-end, including the **Wireframe ASCII**, **Navigation et interactions** table, **États de l'interface**, and **Règles métier** sections.
 3. Treat the ASCII wireframe as the layout source of truth: the order of sections, the visible labels (`[VOIR LES DEMANDES]`, `Demandes en attente`, …), and the user-visible counts must appear in the implementation exactly as written (in French, with the same wording).
 4. Treat the **Navigation et interactions** table as the routing/behaviour contract: each named control routes to the documented target with the documented side effects.
@@ -145,7 +138,7 @@ Every screen implemented under `lib/presentation/` must mirror its specification
 
 **When the spec and the implementation disagree:**
 
-- If the spec is missing a behaviour the user is asking for, **stop and surface the gap** to the orchestrator (per `documentation/AGENT.md`) rather than silently extending either side.
+- If the spec is missing a behaviour the user is asking for, **stop and surface the gap** to the user (per `documentation/AGENT.md`) rather than silently extending either side.
 - If the spec describes data the front does not yet expose (e.g. instance-wide counts), derive the closest approximation from what is available locally and add a short comment naming the missing source — do not invent fake numbers.
 
 **Forbidden in a screen implementation:**
@@ -161,6 +154,6 @@ Every screen implemented under `lib/presentation/` must mirror its specification
 To check the quality gate from an agent session:
 
 1. Run `./gradlew allSonar` from the repo root (runs all checks with coverage then uploads results).
-2. Use the `sonarqube` MCP server (configured in Claude Code) to query the gate status —
+2. Use the `sonarqube` MCP server (configured in Claude Code) to query the gate status.
 3. The gate passes when `new_coverage ≥ 80%`, `new_duplicated_lines_density ≤ 3%`, ratings all A, hotspots reviewed 100%.
 ---

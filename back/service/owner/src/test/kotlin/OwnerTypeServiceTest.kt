@@ -21,6 +21,7 @@ import persistence.changes.MutationStatus
 import persistence.changes.OwnerPayload
 import persistence.changes.Upsert
 import persistence.dao.AccountDeletionLogDAO
+import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OwnerSyncDAO
 import persistence.model.AccountStatus
@@ -43,7 +44,7 @@ internal class OwnerTypeServiceTest {
     private val ownerDAO = mockk<OwnerSyncDAO>()
     private val memberSyncDAO = mockk<MemberSyncDAO>()
     private val userProvisioningPort = mockk<UserProvisioningPort>(relaxed = true)
-    private val roleService = RoleService(ownerDAO, userProvisioningPort)
+    private val roleService = RoleService(ownerDAO, userProvisioningPort, mockk<MemberInvitationSyncDAO>(relaxed = true))
     private val accountLifecycleEmailPort = mockk<AccountLifecycleEmailPort>(relaxed = true)
     private val accountDeletionLogDAO = mockk<AccountDeletionLogDAO>(relaxed = true)
     private val roleProvisioningPort = mockk<OwnerRoleProvisioningPort>(relaxed = true)

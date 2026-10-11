@@ -243,7 +243,7 @@ class UserManagementBloc
     final editing = current.editingMember;
     if (editing == null) return;
     // Same rule as the back (LAST_ADMIN): the AMAP keeps at least one Admin.
-    if (_removesLastAdmin(current.members, editing, current.pendingRoles)) {
+    if (_removesLastAdmin(current, editing, current.pendingRoles)) {
       emit(
         current.copyWith(
           feedbackMessage: _kLastAdminMessage,
@@ -729,7 +729,7 @@ class UserManagementBloc
     if (current is! UserManagementLoaded) return;
     final member = event.member;
     // Same rules as the back (SELF_ACTION_FORBIDDEN, LAST_ADMIN).
-    final localError = _localDeleteError(current.members, member);
+    final localError = _localDeleteError(current, member);
     if (localError != null) {
       emit(
         current.copyWith(feedbackMessage: localError, feedbackIsError: true),
@@ -790,16 +790,30 @@ class UserManagementBloc
     String invitationId,
   ) => Set<String>.from(state.deletingInvitationIds)..remove(invitationId);
 
+  /// Same rule as the back `RoleService.validateLastAdmin`: only effective
+  /// admins count — Admin role, active account, and activated (no pending
+  /// invitation for their email: an imported member waits on one). Removing a
+  /// target who is not an effective admin itself is always allowed.
   static bool _removesLastAdmin(
-    List<Member> members,
+    UserManagementLoaded state,
     Member editing,
     Set<Role> newRoles,
   ) {
     if (!editing.roles.contains(Role.admin) || newRoles.contains(Role.admin)) {
       return false;
     }
-    return !members.any(
-      (m) => m.memberId != editing.memberId && m.roles.contains(Role.admin),
+    final pendingEmails = {
+      for (final invitation in state.memberInvitations)
+        if (invitation.status == InvitationStatus.pendingActivation)
+          invitation.email.toLowerCase(),
+    };
+    bool isEffectiveAdmin(Member m) =>
+        m.roles.contains(Role.admin) &&
+        m.accountStatus == MemberAccountStatus.active &&
+        !pendingEmails.contains(m.email?.toLowerCase());
+    if (!isEffectiveAdmin(editing)) return false;
+    return !state.members.any(
+      (m) => m.memberId != editing.memberId && isEffectiveAdmin(m),
     );
   }
 
@@ -809,9 +823,9 @@ class UserManagementBloc
     _ => 'La modification des rôles a été refusée par le serveur.',
   };
 
-  String? _localDeleteError(List<Member> members, Member member) {
+  String? _localDeleteError(UserManagementLoaded state, Member member) {
     if (member.memberId == _currentMemberId) return _kSelfDeleteMessage;
-    if (_removesLastAdmin(members, member, const {})) return _kLastAdminMessage;
+    if (_removesLastAdmin(state, member, const {})) return _kLastAdminMessage;
     return null;
   }
 

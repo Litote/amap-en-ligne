@@ -116,7 +116,9 @@ internal class MemberServiceTest {
 
     private val ownerDAO = mockk<OwnerSyncDAO>()
     private val userProvisioningPort = mockk<UserProvisioningPort>(relaxed = true)
-    private val roleService = RoleService(ownerDAO, userProvisioningPort)
+
+    // Lazy: the invitation DAO mock is declared further down.
+    private val roleService by lazy { RoleService(ownerDAO, userProvisioningPort, memberInvitationSyncDAO) }
     private val accountLifecycleEmailPort = mockk<AccountLifecycleEmailPort>(relaxed = true)
     private val accountDeletionLogDAO = mockk<AccountDeletionLogDAO>(relaxed = true)
 
@@ -445,6 +447,27 @@ internal class MemberServiceTest {
             val existing = buildMember(id = "sub-target", roles = setOf(Role.ADMIN))
             val updated = existing.copy(accountStatus = MemberAccountStatus.SUSPENDED)
             coEvery { memberSyncDAO.getByOrganizationId(any()) } returns listOf(existing)
+            coEvery { memberSyncDAO.getMembersBySub("sub-target") } returns listOf(existing)
+
+            val outcome = service.applyUpsert(ownerAuth, buildMutation(updated), MemberPayload(updated))
+
+            assertEquals(MutationStatus.REJECTED, outcome.status)
+            assertEquals(MutationErrorCode.LAST_ADMIN, outcome.error?.code)
+            coVerify(exactly = 0) { memberSyncDAO.put(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN OWNER suspend transition WHEN the only other admin is a deleted account THEN LAST_ADMIN`() =
+        runTest {
+            val memberSyncDAO = mockk<MemberSyncDAO>()
+            val service = buildService(memberSyncDAO)
+            val existing = buildMember(id = "sub-target", roles = setOf(Role.ADMIN))
+            // What an account deletion leaves: suspended, PII nulled, roles kept.
+            val deleted =
+                buildMember(id = "sub-deleted", roles = setOf(Role.ADMIN))
+                    .copy(email = null, accountStatus = MemberAccountStatus.SUSPENDED)
+            val updated = existing.copy(accountStatus = MemberAccountStatus.SUSPENDED)
+            coEvery { memberSyncDAO.getByOrganizationId(any()) } returns listOf(existing, deleted)
             coEvery { memberSyncDAO.getMembersBySub("sub-target") } returns listOf(existing)
 
             val outcome = service.applyUpsert(ownerAuth, buildMutation(updated), MemberPayload(updated))

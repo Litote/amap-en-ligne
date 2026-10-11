@@ -2,8 +2,8 @@
 
 > **Purpose**: Instructions for AI agents working on this codebase.
 > For installation, configuration, and usage, see [`README.md`](README.md).
-> For contributing guidelines and project architecture, see (MANDATORY!) [`CONTRIBUTING.md`](CONTRIBUTING.md).
-> For a project analysis, see (MANDATORY!) [`AI_CONTEXT.md`](AI_CONTEXT.md).
+> For contributing guidelines and project architecture, see [`CONTRIBUTING.md`](CONTRIBUTING.md) — read the relevant section before changing build, CI or architecture.
+> For a project analysis, see [`AI_CONTEXT.md`](AI_CONTEXT.md).
 ---
 
 ## Critical Rules

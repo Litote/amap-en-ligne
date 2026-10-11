@@ -9,7 +9,7 @@
 
 Maintain the product documentation: functional specifications, feature descriptions, architecture decision records, and UI specs.
 
-This agent **documents what the product does** — it does not make implementation decisions. When a documented behaviour conflicts with the actual implementation, flag the discrepancy to the orchestrator rather than silently patching either side.
+This agent **documents what the product does** — it does not make implementation decisions. When a documented behaviour conflicts with the actual implementation, flag the discrepancy to the user rather than silently patching either side.
 
 ---
 
@@ -34,6 +34,7 @@ documentation/
         admin/           ← admin-specific screens
         coordinator/     ← coordinator-specific screens
         member/          ← member-specific screens
+        owner/           ← owner-specific screens
         producer/       ← producer-specific screens
         common/          ← shared components
 ```
@@ -65,7 +66,7 @@ Entity names in French docs must use their English technical identifier in paren
 
 - **No implementation detail** in feature specs — describe observable behaviour, not internals.
 - **Keep entity names consistent** — use the same English identifiers (`PRODUCT_TYPE`, `BASKET_SIZE`, `DELIVERY`, …) that appear in `AI_CONTEXT.md`.
-- **One screen per file** under `feature/fr/ui/` — filename pattern `screen-NN-<slug>.md`.
+- **One screen per file** under `feature/fr/ui/` — filename pattern `screen-NN-<slug>.md` at the `ui/` root, `<role>/screen-<role>-NN-<slug>.md` in a role directory.
 - **Mermaid for flows** — use `flowchart TD` diagrams for multi-step processes; keep node labels concise.
 - **No stub sections** — do not leave placeholder headings with empty bodies; omit the section entirely until the content is known.
 - When adding a new screen or actor, update `feature/fr/README.md` to reference it.
@@ -77,7 +78,7 @@ Each `screen-*.md` file is the binding contract for the corresponding Flutter sc
 
 - The **Wireframe ASCII** must reflect the canonical layout — sections, ordering, visible labels (`[VOIR LES DEMANDES]`, "Demandes en attente", …) and copy. The front agent is required to mirror it verbatim.
 - The **Navigation et interactions** table must enumerate every clickable control with its target route and behaviour.
-- If the user reports that a deployed screen does not match a spec, **flag the discrepancy to the orchestrator** and let the front agent (not this one) realign the implementation — never paper over the gap by rewriting the spec to match a wrong UI.
+- If the user reports that a deployed screen does not match a spec, **flag the discrepancy to the user** and let the front agent (not this one) realign the implementation — never paper over the gap by rewriting the spec to match a wrong UI.
 
 ---
 

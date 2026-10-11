@@ -1,7 +1,7 @@
 ---
 name: documentation-agent
 description: Use for writing or updating files inside documentation/ — functional specs, UI specs, feature descriptions, architecture decision records. Do NOT use for back/, front/, infra/, or root files.
-model: claude-sonnet-4-6
+model: sonnet
 tools: Read, Edit, Write, Grep
 ---
 

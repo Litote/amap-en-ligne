@@ -4,9 +4,12 @@ import authentication.Role
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
 import persistence.changes.MutationErrorCode
+import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.OwnerSyncDAO
 import persistence.model.AccountStatus
 import persistence.model.Member
+import persistence.model.MemberAccountStatus
+import persistence.model.MemberInvitationStatus
 
 /**
  * Pure validation service for role-related invariants.
@@ -16,6 +19,7 @@ import persistence.model.Member
 class RoleService(
     private val ownerDAO: OwnerSyncDAO,
     private val userProvisioningPort: UserProvisioningPort,
+    private val memberInvitationSyncDAO: MemberInvitationSyncDAO,
 ) {
     /**
      * Validates that granting [Role.OWNER] to the user identified by [sub] is permitted.
@@ -32,23 +36,40 @@ class RoleService(
     }
 
     /**
-     * Validates that removing [Role.ADMIN] from [targetMemberId] in [existingMembers]
-     * still leaves at least one admin.
+     * Validates that removing [Role.ADMIN] from [targetMemberId] in [existingMembers] (the
+     * members of one organization) still leaves at least one admin who can log in.
      *
-     * Returns [MutationErrorCode.LAST_ADMIN] if no other admin would remain.
+     * Only effective admins count: ADMIN role, ACTIVE account, and activated — no
+     * PENDING_ACTIVATION invitation for their email in the organization (an imported member
+     * waits on one until activation). A deleted account (suspended, roles kept) or an
+     * imported admin who never activated is not an admin anyone can act as, so removing
+     * such a target is always allowed.
+     *
+     * Returns [MutationErrorCode.LAST_ADMIN] if no other effective admin would remain.
      */
-    fun validateLastAdmin(
+    suspend fun validateLastAdmin(
         targetMemberId: String,
         newRoles: Set<Role>,
         existingMembers: List<Member>,
     ): MutationErrorCode? {
-        val targetHadAdmin = existingMembers.find { it.memberId.id == targetMemberId }?.roles?.contains(Role.ADMIN) == true
-        val targetStillAdmin = newRoles.contains(Role.ADMIN)
-        if (!targetHadAdmin || targetStillAdmin) return null
+        val target = existingMembers.find { it.memberId.id == targetMemberId } ?: return null
+        if (Role.ADMIN !in target.roles || Role.ADMIN in newRoles) return null
 
-        val adminCount = existingMembers.count { it.roles.contains(Role.ADMIN) }
-        return if (adminCount <= 1) MutationErrorCode.LAST_ADMIN else null
+        val pendingEmails =
+            memberInvitationSyncDAO
+                .listByOrganizationId(target.organizationId)
+                .filter { it.status == MemberInvitationStatus.PENDING_ACTIVATION }
+                .map { it.email.lowercase() }
+                .toSet()
+        val effectiveAdmins = existingMembers.filter { it.isEffectiveAdmin(pendingEmails) }
+        if (effectiveAdmins.none { it.memberId == target.memberId }) return null
+        return if (effectiveAdmins.none { it.memberId != target.memberId }) MutationErrorCode.LAST_ADMIN else null
     }
+
+    private fun Member.isEffectiveAdmin(pendingInvitationEmails: Set<String>): Boolean =
+        Role.ADMIN in roles &&
+            accountStatus == MemberAccountStatus.ACTIVE &&
+            email?.lowercase() !in pendingInvitationEmails
 
     /**
      * Validates that revoking (suspending) an owner leaves at least one active owner.

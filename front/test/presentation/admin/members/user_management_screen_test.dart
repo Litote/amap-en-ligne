@@ -766,6 +766,37 @@ void main() {
       expect(allChip.selected, isFalse);
     });
 
+    testWidgets('GIVEN a deleted account '
+        'WHEN "Anciens utilisateurs" is selected '
+        'THEN it is named "Membre supprimé"', (tester) async {
+      when(() => memberRepo.watch(_orgId)).thenAnswer(
+        (_) => Stream.value(const [
+          // What an account deletion leaves: suspended, PII nulled.
+          Member(
+            memberId: 'deleted-1',
+            organizationId: _orgId,
+            roles: {Role.volunteer},
+            accountStatus: MemberAccountStatus.suspended,
+          ),
+        ]),
+      );
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const []));
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+
+      await tapChip(tester, 'Anciens utilisateurs');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Membre supprimé'), findsOneWidget);
+      expect(find.text('(aucun nom)'), findsNothing);
+    });
+
     testWidgets('GIVEN "Anciens utilisateurs" selected '
         'WHEN "Tous" is tapped '
         'THEN active members and pending invitations are listed again', (

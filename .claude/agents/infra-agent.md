@@ -1,7 +1,7 @@
 ---
 name: infra-agent
 description: Use for all changes inside infra/ — Terraform/AWS infrastructure (DynamoDB, Lambda, API Gateway, Cognito). Do NOT use for back/, front/, or root doc files.
-model: claude-sonnet-4-6
+model: sonnet
 tools: Read, Edit, Write, Bash, Grep
 ---
 
