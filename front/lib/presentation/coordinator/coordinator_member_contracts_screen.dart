@@ -167,8 +167,14 @@ class _CoordinatorMemberContractsScreenState
     List<Member> rawMembers,
     List<Contract> contracts,
   ) {
-    final members = [...rawMembers]
-      ..sort((a, b) => memberDisplayName(a).compareTo(memberDisplayName(b)));
+    // Deleted accounts are only listed while still on a contract.
+    final members = assignableMembers(
+      rawMembers,
+      keepMemberIds: {
+        for (final contract in contracts)
+          for (final entry in contract.members) entry.memberId,
+      },
+    )..sort((a, b) => memberDisplayName(a).compareTo(memberDisplayName(b)));
     final filteredMembers = members
         .where(
           (member) => matchesSearch(_searchController.text, [

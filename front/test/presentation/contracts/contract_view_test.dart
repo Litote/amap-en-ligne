@@ -402,6 +402,52 @@ void main() {
     );
   });
 
+  group('deleted members', () {
+    // What the back leaves of a member whose account was deleted (RGPD):
+    // PII nulled and the row suspended.
+    const deleted = Member(
+      memberId: 'b159207e-2041-7081-32e0-626bc29e22b2',
+      organizationId: 'org-1',
+      accountStatus: MemberAccountStatus.suspended,
+    );
+    const suspended = Member(
+      memberId: 'm-suspended',
+      organizationId: 'org-1',
+      firstName: 'Bob',
+      lastName: 'Durand',
+      accountStatus: MemberAccountStatus.suspended,
+    );
+    const alice = Member(
+      memberId: 'm-alice',
+      organizationId: 'org-1',
+      firstName: 'Alice',
+    );
+
+    test('isDeletedMember spots a suspended member without any PII', () {
+      expect(isDeletedMember(deleted), isTrue);
+      expect(isDeletedMember(suspended), isFalse);
+      expect(
+        isDeletedMember(const Member(memberId: 'm-3', organizationId: 'org-1')),
+        isFalse,
+      );
+    });
+
+    test('memberDisplayName shows a deleted member as "Membre supprimé"', () {
+      expect(memberDisplayName(deleted), 'Membre supprimé');
+    });
+
+    test('assignableMembers drops deleted members unless already linked', () {
+      expect(assignableMembers([alice, deleted, suspended]), [
+        alice,
+        suspended,
+      ]);
+      expect(
+        assignableMembers([alice, deleted], keepMemberIds: {deleted.memberId}),
+        [alice, deleted],
+      );
+    });
+  });
+
   group('Contract subscription helpers', () {
     const productTypeId = 'pt-tomato';
     const basketSizeSmall = BasketSize(name: 'small');
