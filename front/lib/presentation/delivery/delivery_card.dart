@@ -36,6 +36,10 @@ enum DeliveryCardVariant {
 /// ordering, coordinator style) follow each screen's UI spec.
 const _kRegisterLabel = "S'INSCRIRE";
 
+/// Member id of the others' past registrations served to a plain member (back
+/// `PlainMemberRedaction.ANONYMOUS_MEMBER_ID`).
+const _kAnonymousMemberId = 'anonymous';
+
 class DeliveryCard extends StatelessWidget {
   const DeliveryCard({
     required this.delivery,
@@ -182,11 +186,11 @@ class DeliveryCard extends StatelessWidget {
       ] else if (isCompleted && alreadyRegistered) ...[
         const Text('✅ TERMINÉ - Vous avez participé'),
         const SizedBox(height: 4),
-        _planningCounter(context, state, completed: true),
+        _completedVolunteersLine(context, state),
       ] else if (isCompleted) ...[
         const Text('✅ TERMINÉ'),
         const SizedBox(height: 4),
-        _planningCounter(context, state, completed: true),
+        _completedVolunteersLine(context, state),
       ] else if (alreadyRegistered) ...[
         Text(
           // A coordinator of the delivery is never counted among the
@@ -284,11 +288,59 @@ class DeliveryCard extends StatelessWidget {
     );
   }
 
-  Widget _planningCounter(
+  /// A completed delivery names who volunteered (« 👥 Bénévoles : Marie D.,
+  /// Jean P. ») instead of the places left, which mean nothing any more. The
+  /// back serves a plain member the others' past registrations anonymised:
+  /// those are only counted (« + 2 autres »).
+  Widget _completedVolunteersLine(
     BuildContext context,
-    _DeliveryCardState state, {
-    bool completed = false,
-  }) {
+    _DeliveryCardState state,
+  ) {
+    if (state.totalRequired == 0 && state.volunteers.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final anonymous = state.volunteers
+        .where((r) => r.memberId == _kAnonymousMemberId)
+        .length;
+    final names = [
+      for (final registration in state.volunteers)
+        if (registration.memberId != _kAnonymousMemberId)
+          _shortVolunteerName(registration),
+    ];
+    return Text(
+      _volunteersSummary(names, anonymous),
+      style: Theme.of(context).textTheme.bodySmall,
+    );
+  }
+
+  static String _volunteersSummary(List<String> names, int anonymous) {
+    String plural(int n) => n > 1 ? 's' : '';
+    if (names.isEmpty) {
+      return anonymous == 0
+          ? '👥 Aucun bénévole'
+          : '👥 $anonymous bénévole${plural(anonymous)}';
+    }
+    final others = anonymous == 0
+        ? ''
+        : ' + $anonymous autre${plural(anonymous)}';
+    return '👥 Bénévoles : ${names.join(', ')}$others';
+  }
+
+  /// « Marie D. »: the first name(s) and the initial of the last name, from
+  /// the member record when known, else from the name copied on registering.
+  String _shortVolunteerName(MemberRegistration registration) {
+    final member = membersById[registration.memberId];
+    final first = member?.firstName?.trim() ?? '';
+    final last = member?.lastName?.trim() ?? '';
+    if (first.isNotEmpty && last.isNotEmpty) return '$first ${last[0]}.';
+    final copied = registrationDisplayName(registration);
+    if (copied == kDeletedMemberLabel) return copied;
+    final words = copied.split(RegExp(r'\s+'));
+    if (words.length < 2) return copied;
+    return '${words.sublist(0, words.length - 1).join(' ')} ${words.last[0]}.';
+  }
+
+  Widget _planningCounter(BuildContext context, _DeliveryCardState state) {
     final required = state.totalRequired;
     final current = state.totalCurrent;
     if (required == 0) return const SizedBox.shrink();
@@ -298,7 +350,7 @@ class DeliveryCard extends StatelessWidget {
       text = '👥 $current/$required bénévoles ─ COMPLET';
     } else if (missing == 1) {
       text = '👥 $current/$required bénévoles ─ 1 place restante';
-    } else if (missing <= (required / 2).ceil() && !completed) {
+    } else if (missing <= (required / 2).ceil()) {
       text = '👥 $current/$required bénévoles ─ $missing places restantes';
     } else {
       text = '👥 $current/$required bénévoles ─ Manque $missing personnes';
@@ -639,6 +691,9 @@ class _SlotAnalyzer {
   final Set<String> mainContractIds;
   int totalRequired = 0;
   int totalCurrent = 0;
+
+  /// The counted registrations (active, coordinators excluded).
+  final List<MemberRegistration> volunteers = [];
   bool hasAnySlot = false;
   bool hasActiveSlot = false;
   bool hasStandardCapacity = false;
@@ -660,6 +715,13 @@ class _SlotAnalyzer {
         totalRequired += slot.requiredVolunteers;
         final active = activeRegistrationsExcluding(slot, coordinatorIds);
         totalCurrent += active;
+        volunteers.addAll(
+          slot.registrations.where(
+            (r) =>
+                r.status != RegistrationStatus.cancelled &&
+                !coordinatorIds.contains(r.memberId),
+          ),
+        );
         final hasRoom = active < slot.requiredVolunteers;
         _processSlot(slot, hasRoom);
       }
@@ -698,6 +760,7 @@ class _DeliveryCardState {
     required this.hasStandardCapacity,
     required this.hasEarlyCapacity,
     required this.earlyRemaining,
+    this.volunteers = const [],
   });
 
   factory _DeliveryCardState.from(
@@ -724,6 +787,7 @@ class _DeliveryCardState {
       hasStandardCapacity: analyzer.hasStandardCapacity,
       hasEarlyCapacity: analyzer.hasEarlyCapacity,
       earlyRemaining: earlyCapacity - earlyCurrent,
+      volunteers: analyzer.volunteers,
     );
   }
 
@@ -735,6 +799,7 @@ class _DeliveryCardState {
   final bool hasStandardCapacity;
   final bool hasEarlyCapacity;
   final int earlyRemaining;
+  final List<MemberRegistration> volunteers;
 
   /// Whether the delivery mobilises volunteers at all (it has a staffed slot).
   bool get hasVolunteerNeed =>

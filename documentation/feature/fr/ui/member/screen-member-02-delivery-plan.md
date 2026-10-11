@@ -87,7 +87,7 @@ Interface de consultation du planning mensuel avec possibilité d'inscription di
 - Affichage du mois courant : **Janvier 2025**. À l'ouverture, le planning affiche le mois de la prochaine livraison (le mois en cours tant qu'il lui reste une livraison), jamais un mois vide alors qu'une livraison est à venir.
 
 ### États des livraisons
-- **✅ TERMINÉ** : Livraison passée avec participation confirmée
+- **✅ TERMINÉ** : Livraison passée avec participation confirmée. La carte ne montre plus de places restantes mais la liste des bénévoles (« 👥 Bénévoles : Marie D., Jean P. », coordinateurs exclus) ; pour un amapien simple, les autres bénévoles d'une livraison passée sont anonymisés par le serveur et seulement comptés (« 👥 Bénévoles : Marie D. + 2 autres ») ; sans bénévole : « 👥 Aucun bénévole »
 - **✅ COMPLET** : Toutes les places bénévoles sont prises. Cet état n'apparaît que lorsque la livraison est effectivement complète (au moins un créneau défini et toutes les places occupées) — une livraison sans créneau bénévole n'affiche ni COMPLET ni bouton d'inscription
 - **🔴 BESOIN URGENT** : Moins de 50% des bénévoles requis et livraison dans 3 jours ou moins (le bouton devient « S'INSCRIRE MAINTENANT 🚨 »)
 - **🙋 Bénévoles recherchés** : Moins de 50% des bénévoles requis, livraison dans plus de 3 jours

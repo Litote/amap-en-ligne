@@ -151,9 +151,10 @@ Every screen implemented under `lib/presentation/` must mirror its specification
 
 ## SonarCloud Workflow
 
-To check the quality gate from an agent session:
+Run this yourself after **every** code change, before reporting the work as done (never leave it to the user — see root `AGENTS.md`):
 
 1. Run `./gradlew allSonar` from the repo root (runs all checks with coverage then uploads results).
 2. Use the `sonarqube` MCP server (configured in Claude Code) to query the gate status.
 3. The gate passes when `new_coverage ≥ 80%`, `new_duplicated_lines_density ≤ 3%`, ratings all A, hotspots reviewed 100%.
+4. `:back:sonarCheck` must pass too: **0 unresolved issues overall** (back + front), stricter than the gate — e.g. a Dart method over the cognitive complexity limit (`dart:S3776`, 15) fails it. Fix every issue reported.
 ---

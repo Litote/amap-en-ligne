@@ -26,6 +26,7 @@
 | **Testing**                | When you try to fix a bug, start by adding the test and THEN fix the bug. Add tests for all logic changes |
 | **E2E testing**            | When adding a user-facing feature that involves auth, sync, or a cross-component flow: add a cross-component E2E test. Kotlin side in `acceptance/e2e/src/test/kotlin/e2e/` (extends `E2eTestSupport`), Flutter side in `front/test/acceptance/cross_component/` (tagged `cross-component`). See `acceptance/AGENTS.md` for the Kotlin side and the `front/.claude/skills/acceptance-tests` skill for the Flutter side. |
 | **Validation on both sides** | Every business/input rule enforced by a front form (required field, format, length, range, cross-field ordering such as start < end, uniqueness…) MUST also be enforced by the back (route or `EntityTypeService`, rejecting with `400 INVALID_PAYLOAD` / `MutationErrorCode.INVALID_PAYLOAD`), and every back rule a user can hit MUST be checked by the front before submitting (with a French message). The front check is UX; the back check is the source of truth — never rely on one side only. When adding or changing a rule, add a test on **both** sides. |
+| **SonarCloud**             | After **every** code change (back, front, tests, build scripts), run `./gradlew allSonar` from the repo root before reporting the work as done, and fix every issue it reports — `:back:sonarCheck` fails on any unresolved issue (0 issues overall, stricter than the quality gate). Query the issues with the `sonarqube` MCP server (project `Litote_amap-en-ligne`). Never hand this check back to the user. |
 | **Imports**                | Use single imports only                                                                                   |
 | **Language**               | Write all code, comments, and documentation in English                                                    |
 | **Visibility**             | Prefer private by default — use `_prefix` convention in Dart                                              |
@@ -47,7 +48,7 @@ A change is complete when:
 - [ ] `./gradlew check` passes (compiles without warnings, all tests pass) in root directory — note `check` is unit-only; back acceptance scenarios run via `./gradlew allAcceptanceTests`, not `check`
 - [ ] `./gradlew allAcceptanceTests` passes (back acceptance + front acceptance + cross-component E2E) — the dedicated CI `acceptance` job runs this and its coverage is folded into SonarCloud
 - [ ] IDE diagnostics (Problems panel) report zero errors
-- [ ] SonarCloud quality gate passes (coverage ≥ 80%, 0 hotspots to review, 0 bugs, 0 vulnerabilities) — run `./gradlew allSonar` from the repo root
+- [ ] `./gradlew allSonar` passes from the repo root, run by the agent itself after every code change: SonarCloud quality gate (coverage ≥ 80%, 0 hotspots to review, 0 bugs, 0 vulnerabilities) **and** `:back:sonarCheck` (0 unresolved issues overall)
 - [ ] If a new user-facing feature involves auth, sync, or a cross-component flow: a cross-component E2E test added in `acceptance/e2e/` (Kotlin) + `front/test/acceptance/cross_component/` (Flutter) and verified via `./gradlew crossComponentTest`
 
 ---

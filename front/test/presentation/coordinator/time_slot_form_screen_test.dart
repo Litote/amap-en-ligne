@@ -414,6 +414,24 @@ void main() {
       verify(() => syncBloc.add(const SyncEvent.mutationApplied())).called(1);
     });
 
+    testWidgets('an unknown delivery id says it is not found, with no form', (
+      tester,
+    ) async {
+      // E.g. an old link to a delivery deleted since.
+      await _pumpScreen(
+        tester,
+        organizationRepository: organizationRepository,
+        deliveryTemplateRepository: deliveryTemplateRepository,
+        syncBloc: syncBloc,
+        deliveryId: 'd-unknown',
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Livraison introuvable.'), findsOneWidget);
+      expect(find.text('Enregistrer'), findsNothing);
+      expect(find.text('Supprimer la livraison'), findsNothing);
+    });
+
     testWidgets('a new delivery offers no deletion', (tester) async {
       await _pumpScreen(
         tester,
