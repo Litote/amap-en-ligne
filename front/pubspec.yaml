@@ -44,7 +44,7 @@ dependencies:
   printing: 5.15.1
   sentry_flutter: 9.30.1
   shared_preferences: 2.5.5
-  url_launcher: 6.3.2
+  url_launcher: 6.3.3
   web: 1.1.1
 
 dev_dependencies:
