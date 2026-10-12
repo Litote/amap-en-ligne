@@ -474,8 +474,19 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Inviter'));
       await tester.pumpAndSettle();
 
-      // First name, last name and email, plus the roles.
+      // First name, last name and email; « Amapien » is pre-checked, and the
+      // generic summary is not repeated under the per-field messages.
       expect(find.text('Ce champ est requis.'), findsNWidgets(3));
+      expect(find.text('Choisissez au moins un rôle.'), findsNothing);
+      expect(
+        find.text('Veuillez remplir tous les champs obligatoires.'),
+        findsNothing,
+      );
+
+      await tester.tap(find.widgetWithText(CheckboxListTile, 'Amapien'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Inviter'));
+      await tester.pumpAndSettle();
       expect(find.text('Choisissez au moins un rôle.'), findsOneWidget);
 
       await tester.enterText(
@@ -766,6 +777,37 @@ void main() {
       expect(allChip.selected, isFalse);
     });
 
+    testWidgets('GIVEN a deleted account '
+        'WHEN "Anciens utilisateurs" is selected '
+        'THEN it is named "Membre supprimé"', (tester) async {
+      when(() => memberRepo.watch(_orgId)).thenAnswer(
+        (_) => Stream.value(const [
+          // What an account deletion leaves: suspended, PII nulled.
+          Member(
+            memberId: 'deleted-1',
+            organizationId: _orgId,
+            roles: {Role.volunteer},
+            accountStatus: MemberAccountStatus.suspended,
+          ),
+        ]),
+      );
+      when(
+        () => invitationRepo.watch(_orgId),
+      ).thenAnswer((_) => Stream.value(const []));
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+
+      await tapChip(tester, 'Anciens utilisateurs');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Membre supprimé'), findsOneWidget);
+      expect(find.text('(aucun nom)'), findsNothing);
+    });
+
     testWidgets('GIVEN "Anciens utilisateurs" selected '
         'WHEN "Tous" is tapped '
         'THEN active members and pending invitations are listed again', (
@@ -798,6 +840,41 @@ void main() {
       );
       expect(formerChip.selected, isFalse);
       expect(find.text('Sam Suspendu'), findsNothing);
+    });
+  });
+
+  group('UserManagementScreen — anonymised invitation', () {
+    testWidgets('GIVEN a past invitation anonymised by a member deletion '
+        'WHEN "Invitations passées" is shown '
+        'THEN it reads « Invitation anonymisée » instead of a blank row', (
+      tester,
+    ) async {
+      when(() => invitationRepo.watch(_orgId)).thenAnswer(
+        (_) => Stream.value(const [
+          MemberInvitation(
+            invitationId: 'inv-anon',
+            organizationId: _orgId,
+            email: '',
+            firstName: '',
+            lastName: '',
+            roles: {Role.volunteer},
+            status: InvitationStatus.cancelled,
+            createdAt: '2026-01-02T00:00:00Z',
+            expiresAt: '2026-01-09T00:00:00Z',
+          ),
+        ]),
+      );
+      await _pumpScreen(
+        tester,
+        memberRepo: memberRepo,
+        invitationRepo: invitationRepo,
+      );
+      await tester.pump();
+
+      await tapChip(tester, 'Invitations passées');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Invitation anonymisée'), findsOneWidget);
     });
   });
 

@@ -445,7 +445,7 @@ void main() {
 
   group('CoordinatorDashboardSection — missing coordinator banner', () {
     testWidgets(
-      'shows ⚠️ banner when at least one contract has no coordinator',
+      'shows ⚠ banner when at least one contract has no coordinator',
       (tester) async {
         final contract = buildContract(
           contractId: 'c-1',
@@ -477,7 +477,7 @@ void main() {
     );
 
     testWidgets(
-      'does not show ⚠️ banner when all contracts have at least one coordinator',
+      'does not show ⚠ banner when all contracts have at least one coordinator',
       (tester) async {
         final contract = buildContract(
           contractId: 'c-1',

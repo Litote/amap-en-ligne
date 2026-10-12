@@ -311,7 +311,8 @@ void main() {
 
   group('invite member', () {
     blocTest<UserManagementBloc, UserManagementState>(
-      'showInviteForm sets showingInviteForm true and clears invite fields',
+      'showInviteForm sets showingInviteForm true, clears invite fields and '
+      'pre-checks the Amapien role',
       build: buildBloc,
       seed: () => UserManagementState.loaded(
         members: _members,
@@ -329,7 +330,7 @@ void main() {
             .having((s) => s.inviteFirstName, 'inviteFirstName', '')
             .having((s) => s.inviteLastName, 'inviteLastName', '')
             .having((s) => s.inviteEmail, 'inviteEmail', '')
-            .having((s) => s.inviteRoles, 'inviteRoles', isEmpty)
+            .having((s) => s.inviteRoles, 'inviteRoles', {Role.volunteer})
             .having((s) => s.inviteError, 'inviteError', null)
             .having((s) => s.inviteSuccess, 'inviteSuccess', false),
       ],
@@ -887,6 +888,101 @@ void main() {
           organizationId: any(named: 'organizationId'),
         ),
       ),
+    );
+
+    blocTest<UserManagementBloc, UserManagementState>(
+      'a deleted account keeping the Admin role does not count as an admin',
+      build: buildBloc,
+      seed: () => const UserManagementState.loaded(
+        members: [
+          _member2,
+          // What an account deletion leaves: suspended, PII nulled, roles kept.
+          Member(
+            memberId: 'deleted-admin',
+            organizationId: _testOrgId,
+            roles: {Role.admin},
+            accountStatus: MemberAccountStatus.suspended,
+          ),
+        ],
+      ),
+      act: (bloc) =>
+          bloc.add(const UserManagementEvent.deleteMemberRequested(_member2)),
+      expect: () => [
+        isA<UserManagementLoaded>().having(
+          (s) => s.feedbackMessage,
+          'feedbackMessage',
+          'Cette AMAP doit conserver au moins un Admin.',
+        ),
+      ],
+    );
+
+    blocTest<UserManagementBloc, UserManagementState>(
+      'an admin who never activated their account does not count as an admin',
+      build: buildBloc,
+      seed: () => UserManagementState.loaded(
+        members: const [
+          _member2,
+          // Imported member: its account waits on a pending invitation.
+          Member(
+            memberId: 'imported-admin',
+            organizationId: _testOrgId,
+            roles: {Role.admin},
+            email: 'Imported@Example.org',
+          ),
+        ],
+        memberInvitations: [
+          _invitation.copyWith(email: 'imported@example.org'),
+        ],
+      ),
+      act: (bloc) =>
+          bloc.add(const UserManagementEvent.deleteMemberRequested(_member2)),
+      expect: () => [
+        isA<UserManagementLoaded>().having(
+          (s) => s.feedbackMessage,
+          'feedbackMessage',
+          'Cette AMAP doit conserver au moins un Admin.',
+        ),
+      ],
+    );
+
+    blocTest<UserManagementBloc, UserManagementState>(
+      'an admin who never activated can be deleted even without other admin',
+      setUp: () {
+        stubDelete('op-del');
+        when(
+          () => syncRepository.sync(tenantId: any(named: 'tenantId')),
+        ).thenAnswer((_) async => const SyncOutcome.success());
+      },
+      build: buildBloc,
+      seed: () => UserManagementState.loaded(
+        members: const [
+          Member(
+            memberId: 'imported-admin',
+            organizationId: _testOrgId,
+            roles: {Role.admin},
+            email: 'imported@example.org',
+          ),
+        ],
+        memberInvitations: [
+          _invitation.copyWith(email: 'imported@example.org'),
+        ],
+      ),
+      act: (bloc) => bloc.add(
+        const UserManagementEvent.deleteMemberRequested(
+          Member(
+            memberId: 'imported-admin',
+            organizationId: _testOrgId,
+            roles: {Role.admin},
+            email: 'imported@example.org',
+          ),
+        ),
+      ),
+      verify: (_) => verify(
+        () => memberRepo.delete(
+          memberId: 'imported-admin',
+          organizationId: _testOrgId,
+        ),
+      ).called(1),
     );
 
     blocTest<UserManagementBloc, UserManagementState>(

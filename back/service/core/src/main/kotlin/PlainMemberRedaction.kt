@@ -51,8 +51,9 @@ import kotlin.time.Instant
  *   (anonymous) ranking is still computed client-side.
  *
  * Applied by `DataService` to the bootstrap snapshots and the incremental changes (stored
- * rows stay complete), and reverted by [restoreServedMasks] when such a member writes the
- * organization back (self-registration), so masked values never overwrite the stored ones.
+ * rows stay complete). When such a member writes the organization back (self-registration),
+ * `OrganizationService` only keeps their own registrations from it, so masked values never
+ * overwrite the stored ones.
  */
 object PlainMemberRedaction {
     /** Member id of an anonymised past registration. */
@@ -249,59 +250,6 @@ object PlainMemberRedaction {
                 .forEach { counts[it.memberId] = (counts[it.memberId] ?: 0) + 1 }
             activeMembers.map { counts[it] ?: 0 }.sortedDescending()
         }
-    }
-
-    /**
-     * [incoming] (written by the plain member [callerId]) with every part they were served
-     * masked taken back from [persisted]: in each slot, the others' registrations are restored
-     * when they are exactly the masked form of the stored ones (any real change is left as is,
-     * so the volunteer validator still rejects it); a dropped preparation note is restored;
-     * the derived [Organization.participationCountsBySeason] is cleared.
-     */
-    fun restoreServedMasks(
-        persisted: Organization?,
-        incoming: Organization,
-        callerId: String,
-    ): Organization {
-        val cleared = incoming.copy(participationCountsBySeason = null)
-        if (persisted == null) return cleared
-        val persistedDeliveries = persisted.deliveries.associateBy { it.deliveryId }
-        return cleared.copy(
-            deliveries =
-                cleared.deliveries.map { delivery ->
-                    val stored = persistedDeliveries[delivery.deliveryId] ?: return@map delivery
-                    val storedLinks = stored.contracts.associateBy { it.contractId }
-                    delivery.copy(
-                        contracts =
-                            delivery.contracts.map { link ->
-                                val storedLink = storedLinks[link.contractId] ?: return@map link
-                                link.copy(
-                                    preparationNotes = link.preparationNotes ?: storedLink.preparationNotes,
-                                    slots =
-                                        link.slots.mapIndexed { index, slot ->
-                                            val storedSlot = storedLink.slots.getOrNull(index) ?: return@mapIndexed slot
-                                            restoreSlot(slot, storedSlot, storedLink, callerId)
-                                        },
-                                )
-                            },
-                    )
-                },
-        )
-    }
-
-    private fun restoreSlot(
-        slot: MemberSlot,
-        storedSlot: MemberSlot,
-        storedLink: DeliveryContract,
-        callerId: String,
-    ): MemberSlot {
-        val storedOthers = othersOf(storedSlot, callerId)
-        val incomingOthers = othersOf(slot, callerId)
-        // The day may have changed since the copy was served: accept both masked forms.
-        val servedMasked =
-            incomingOthers == maskOthers(storedOthers, storedLink, past = false) ||
-                incomingOthers == maskOthers(storedOthers, storedLink, past = true)
-        return if (servedMasked) slot.copy(registrations = storedOthers + ownOf(slot, callerId)) else slot
     }
 
     private fun ownOf(

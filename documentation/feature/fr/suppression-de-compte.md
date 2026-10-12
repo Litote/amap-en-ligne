@@ -48,9 +48,36 @@ effacé.
 ### Ce qui est conservé, et pourquoi
 
 La fiche anonymisée garde son **identifiant technique**, ses **rôles**, ses
-**abonnements aux contrats** et ses **inscriptions passées**. Les contrats, livraisons
+**abonnements aux contrats terminés** et ses **inscriptions passées**. Les contrats, livraisons
 et échanges de paniers continuent de la référencer : l'historique de l'AMAP (paniers
 distribués, participations, statistiques) reste cohérent.
+
+Dans les livraisons (*DELIVERY*) de l'AMAP :
+
+- **livraisons à venir** (ni terminées ni annulées, aujourd'hui ou plus tard) : ses
+  inscriptions bénévoles (*MemberRegistration*) sont retirées — les places sont libérées —
+  et il n'est plus coordinateur des livraisons-contrats (*DELIVERY_CONTRACT*) ; une
+  livraison qui se retrouve sans coordinateur affiche l'alerte « Coordinateur manquant » ;
+- **historique** (livraisons passées, terminées ou annulées) : ses inscriptions restent
+  comptées (compteurs, classement, statistiques) mais perdent le nom et l'e-mail recopiés ;
+  les écrans coordinateur et les feuilles d'émargement affichent « Membre supprimé ».
+
+Dans les contrats (*CONTRACT*) encore en cours (ni terminés ni échus) : son abonnement
+(*CONTRACT_MEMBER*) passe à « annulé » — ses paniers ne sont plus comptés —, il sort de la
+liste des coordinateurs possibles du contrat et de ses paniers partagés (*SHARED_BASKET*) ;
+un panier partagé qui n'a plus qu'un membre est supprimé.
+
+Ses jetons d'activation (*ACTIVATION_TOKEN*, déjà utilisés) perdent l'e-mail recopié.
+
+Dans les échanges de paniers (*BASKET_EXCHANGE*) en cours : son offre encore ouverte est
+annulée et les demandes en attente sur cette offre sont refusées ; ses propres demandes en
+attente sur les offres des autres sont retirées. Les échanges conclus restent dans
+l'historique.
+
+Ses invitations passées (*MemberInvitation* activées ou annulées, retrouvées par l'e-mail,
+sans tenir compte des majuscules) perdent aussi prénom, nom, e-mail et texte d'e-mail
+personnalisé ; l'écran des membres les affiche « Invitation anonymisée ». Une invitation
+encore en attente pour la même adresse est une nouvelle demande : elle est conservée.
 
 ### Ce qui n'est pas effacé aujourd'hui
 
@@ -59,8 +86,6 @@ complet impose de les traiter à la main tant que l'application ne le fait pas :
 
 | Donnée | Où | Contenu restant |
 |--------|----|-----------------|
-| Inscriptions aux créneaux | Livraisons de l'AMAP (*Organization* → *MemberRegistration*) | Nom affiché et e-mail recopiés au moment de l'inscription (utilisés par les feuilles d'émargement) |
-| Invitation | *MemberInvitation* | Prénom, nom et e-mail de l'invitation (statut « activée ») |
 | Notifications | Fil privé du membre (*Notification*) | Notifications déjà reçues |
 | Appareils | *DeviceToken* | Jetons de notification push des appareils du membre |
 | E-mails envoyés | Boîtes des destinataires | Tout e-mail déjà envoyé (échanges de paniers, feuilles d'émargement…) |

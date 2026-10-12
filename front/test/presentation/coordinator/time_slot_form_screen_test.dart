@@ -414,6 +414,24 @@ void main() {
       verify(() => syncBloc.add(const SyncEvent.mutationApplied())).called(1);
     });
 
+    testWidgets('an unknown delivery id says it is not found, with no form', (
+      tester,
+    ) async {
+      // E.g. an old link to a delivery deleted since.
+      await _pumpScreen(
+        tester,
+        organizationRepository: organizationRepository,
+        deliveryTemplateRepository: deliveryTemplateRepository,
+        syncBloc: syncBloc,
+        deliveryId: 'd-unknown',
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Livraison introuvable.'), findsOneWidget);
+      expect(find.text('Enregistrer'), findsNothing);
+      expect(find.text('Supprimer la livraison'), findsNothing);
+    });
+
     testWidgets('a new delivery offers no deletion', (tester) async {
       await _pumpScreen(
         tester,
@@ -1990,7 +2008,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // The volunteer controls are hidden when no main contract is linked.
-        expect(find.text('Bénévoles minimum requis'), findsNothing);
+        expect(find.text('Bénévoles (créneau standard)'), findsNothing);
         expect(find.text('Horaires des créneaux'), findsNothing);
 
         await tester.tap(find.byIcon(Icons.calendar_today));
@@ -2940,6 +2958,26 @@ void main() {
       expect(find.text('16:30'), findsOneWidget);
       expect(
         find.widgetWithText(TextFormField, 'Réception des légumes'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('states the total of volunteers expected across both slots', (
+      tester,
+    ) async {
+      await pumpEditOverrides(tester);
+
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Bénévoles (créneau standard)'),
+        '4',
+      );
+      await tester.pump();
+
+      expect(
+        find.text(
+          'Total attendu : 7 bénévoles '
+          '(4 au créneau standard + 3 au créneau anticipé)',
+        ),
         findsOneWidget,
       );
     });

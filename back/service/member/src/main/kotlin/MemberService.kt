@@ -5,25 +5,38 @@ import authentication.Role
 import core.EntityTypeService
 import core.InputRules
 import core.MemberRoleProvisioningPort
+import core.ProducerScheduleProjection
 import core.RoleService
 import core.UserProvisioningPort
+import core.memberInvitationChanges
 import email.AccountLifecycleEmailPort
 import id.generateId
 import id.toId
+import kotlinx.datetime.toLocalDateTime
 import org.koin.core.annotation.Single
+import persistence.changes.BasketExchangePayload
+import persistence.changes.Change
+import persistence.changes.ChangeOp
 import persistence.changes.ClientMutation
+import persistence.changes.ContractPayload
+import persistence.changes.Cursor
 import persistence.changes.Delete
 import persistence.changes.MemberPayload
 import persistence.changes.MutationErrorCode
 import persistence.changes.MutationOutcome
+import persistence.changes.OrganizationPayload
 import persistence.changes.SyncScope
 import persistence.dao.AccountDeletionLogDAO
+import persistence.dao.ActivationTokenDAO
+import persistence.dao.BasketExchangeSyncDAO
 import persistence.dao.ContractSyncDAO
+import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.MemberSyncDAO
 import persistence.dao.OrganizationSyncDAO
 import persistence.model.EntityType
 import persistence.model.Member
 import persistence.model.MemberAccountStatus
+import persistence.model.MemberInvitationStatus
 import kotlin.time.Clock
 
 @Single(createdAtStart = true, binds = [EntityTypeService::class])
@@ -36,6 +49,9 @@ class MemberService(
     private val accountDeletionLogDAO: AccountDeletionLogDAO,
     private val contractSyncDAO: ContractSyncDAO,
     private val organizationSyncDAO: OrganizationSyncDAO,
+    private val memberInvitationSyncDAO: MemberInvitationSyncDAO,
+    private val basketExchangeSyncDAO: BasketExchangeSyncDAO,
+    private val activationTokenDAO: ActivationTokenDAO,
 ) : EntityTypeService<MemberPayload>(EntityType.Member) {
     private val contractSubscriptionGuard = MemberContractSubscriptionGuard(contractSyncDAO, organizationSyncDAO)
     private val lifecycleSideEffects =
@@ -276,7 +292,7 @@ class MemberService(
         }
     }
 
-    private fun validateRoleChange(
+    private suspend fun validateRoleChange(
         auth: AuthenticatedInfo,
         mutation: ClientMutation,
         payload: MemberPayload,
@@ -398,9 +414,125 @@ class MemberService(
                 )
             }
         memberSyncDAO.anonymiseBySub(targetSub, buildLifecycleChanges(anonymisedMembers))
+        anonymiseSettledInvitations(members)
+        scrubDeliveries(members)
+        closeBasketExchanges(members)
+        closeContracts(members)
 
         lifecycleSideEffects.onDeleted(members, auth, targetSub)
         return applied(mutation, memberId)
+    }
+
+    /**
+     * Cancels the deleted [members]' subscriptions to the running contracts and takes them out
+     * of their coordinator pool and shared baskets ([DeletedMemberContracts]).
+     */
+    private suspend fun closeContracts(members: List<Member>) {
+        val now = Clock.System.now()
+        members.forEach { member ->
+            val organizationId = member.organizationId
+            val organization = organizationSyncDAO.getById(organizationId) ?: return@forEach
+            val today = now.toLocalDateTime(organization.timezone).date
+            contractSyncDAO.getByOrganizationId(organizationId).forEach { contract ->
+                val closed = DeletedMemberContracts.close(contract, member.memberId, today) ?: return@forEach
+                // Members, pool and shared baskets are not part of the producers' schedules.
+                contractSyncDAO.put(
+                    closed,
+                    Change(
+                        cursor = Cursor.next(),
+                        entityType = EntityType.Contract,
+                        entityId = closed.contractId.id,
+                        scopeKey = SyncScope.Organization(organizationId.id).key,
+                        op = ChangeOp.UPSERT,
+                        payload = ContractPayload(closed),
+                        producedAt = now.toEpochMilliseconds(),
+                    ),
+                )
+            }
+        }
+    }
+
+    /** Cancels the deleted [members]' open offers and withdraws their pending requests ([DeletedMemberExchanges]). */
+    private suspend fun closeBasketExchanges(members: List<Member>) {
+        val now = Clock.System.now()
+        members.forEach { member ->
+            val organizationId = member.organizationId
+            basketExchangeSyncDAO.getByOrganizationId(organizationId).forEach { exchange ->
+                val closed = DeletedMemberExchanges.close(exchange, member.memberId, now) ?: return@forEach
+                basketExchangeSyncDAO.put(
+                    closed,
+                    Change(
+                        cursor = Cursor.next(),
+                        entityType = EntityType.BasketExchange,
+                        entityId = closed.basketExchangeId.id,
+                        scopeKey = SyncScope.Organization(organizationId.id).key,
+                        op = ChangeOp.UPSERT,
+                        payload = BasketExchangePayload(closed),
+                        producedAt = now.toEpochMilliseconds(),
+                    ),
+                )
+            }
+        }
+    }
+
+    /**
+     * Frees the deleted [members]' upcoming registrations and coordinator roles, and strips
+     * their name and email from the history ([DeletedMemberScrub]), in each of their
+     * organizations — one organization write, fanned out like any other.
+     */
+    private suspend fun scrubDeliveries(members: List<Member>) {
+        val now = Clock.System.now()
+        members.forEach { member ->
+            val organizationId = member.organizationId
+            val stored = organizationSyncDAO.getById(organizationId) ?: return@forEach
+            val today = now.toLocalDateTime(stored.timezone).date
+            val scrubbed = DeletedMemberScrub.scrub(stored, member.memberId, today)
+            if (scrubbed == stored) return@forEach
+            val contracts = contractSyncDAO.getByOrganizationId(organizationId)
+            organizationSyncDAO.put(
+                scrubbed,
+                Change(
+                    cursor = Cursor.next(),
+                    entityType = EntityType.Organization,
+                    entityId = organizationId.id,
+                    scopeKey = SyncScope.Organization(organizationId.id).key,
+                    op = ChangeOp.UPSERT,
+                    payload = OrganizationPayload(scrubbed),
+                    producedAt = now.toEpochMilliseconds(),
+                ),
+                ProducerScheduleProjection.changes(stored, contracts, scrubbed, contracts),
+            )
+        }
+    }
+
+    /**
+     * The invitations that led to the deleted [members] (activated or cancelled, matched by email,
+     * letter case ignored) keep no identity either: email, names and custom copy are blanked, and
+     * so is the email copied on their activation tokens.
+     * A pending invitation is a new, legitimate request for that email and is left as is.
+     */
+    private suspend fun anonymiseSettledInvitations(members: List<Member>) {
+        members
+            .filter { !it.email.isNullOrBlank() }
+            .groupBy { it.organizationId }
+            .forEach { (organizationId, orgMembers) ->
+                val emails = orgMembers.mapNotNull { it.email?.trim()?.lowercase() }.toSet()
+                memberInvitationSyncDAO
+                    .listByOrganizationId(organizationId)
+                    .filter { it.status != MemberInvitationStatus.PENDING_ACTIVATION && it.email.trim().lowercase() in emails }
+                    .forEach { invitation ->
+                        val anonymised =
+                            invitation.copy(
+                                email = "",
+                                firstName = "",
+                                lastName = "",
+                                customEmailSubject = null,
+                                customEmailBody = null,
+                            )
+                        memberInvitationSyncDAO.put(anonymised, memberInvitationChanges(anonymised))
+                        activationTokenDAO.anonymiseByMemberInvitationId(invitation.invitationId.toId())
+                    }
+            }
     }
 
     override suspend fun snapshot(auth: AuthenticatedInfo): List<MemberPayload> {
@@ -420,19 +552,15 @@ class MemberService(
             is SyncScope.Owner -> emptyList()
         }
 
-    private suspend fun checkLastAdminOrgs(members: List<Member>): List<String> {
-        val candidateOrganizations =
-            members
-                .filter { it.roles.contains(Role.ADMIN) }
-                .map { it.organizationId.id }
-                .distinct()
-        val targetMemberIds = members.map { it.memberId }.toSet()
-        return candidateOrganizations.filter { organizationId ->
-            memberSyncDAO
-                .getByOrganizationId(organizationId.toId())
-                .none { row -> row.roles.contains(Role.ADMIN) && row.memberId !in targetMemberIds }
-        }
-    }
+    /** Organizations that would be left without an admin able to log in (see [RoleService.validateLastAdmin]). */
+    private suspend fun checkLastAdminOrgs(members: List<Member>): List<String> =
+        members
+            .filter { it.roles.contains(Role.ADMIN) }
+            .filter { member ->
+                val organizationMembers = memberSyncDAO.getByOrganizationId(member.organizationId)
+                roleService.validateLastAdmin(member.memberId.id, emptySet(), organizationMembers) != null
+            }.map { it.organizationId.id }
+            .distinct()
 
     private suspend fun findMemberById(memberId: String): Member? = memberSyncDAO.listAll().find { it.memberId.id == memberId }
 

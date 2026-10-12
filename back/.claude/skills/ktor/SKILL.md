@@ -53,7 +53,7 @@ internal fun Route.myAuthenticatedRoute(
 `authenticatedInfoOrRespond` returns `null` and sends 401 automatically for expired/invalid/wrong-server tokens. Never call it on a path listed in `isUnauthenticatedPath`.
 
 ### Admin route (requires role check)
-See `AdminRoute.kt` — after `authenticatedInfoOrRespond`, check `info.roles.contains(Role.ADMIN)` and respond 403 via `httpService.forbiddenError(path)` if not.
+See `ProducerAccountSearchRoute.kt` — after `authenticatedInfoOrRespond`, check the caller's roles (e.g. `info.roles.any { it == Role.ADMIN || it == Role.OWNER }`) and respond 403 via `httpService.forbiddenError(path)` if not.
 
 ## Error responses
 

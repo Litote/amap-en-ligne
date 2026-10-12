@@ -12,6 +12,7 @@ import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/coordinator/attendance/attendance_sheets_bloc.dart';
+import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
@@ -347,7 +348,7 @@ class _AttendanceActionBar extends StatelessWidget {
               data: volunteerRows
                   .map(
                     (e) => [
-                      e.registration.displayName,
+                      registrationDisplayName(e.registration),
                       e.registration.memberEmail,
                       _formatTime(e.slotStartTime),
                     ],
@@ -622,7 +623,7 @@ class _VolunteersTab extends StatelessWidget {
         final entry = entries[index];
         final reg = entry.registration;
         return ListTile(
-          title: Text(reg.displayName),
+          title: Text(registrationDisplayName(reg)),
           subtitle: Text(
             '${reg.memberEmail} • Arrivée: ${_formatTime(entry.slotStartTime)}',
           ),

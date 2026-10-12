@@ -919,6 +919,37 @@ void main() {
     expect(memberTile(tester, 'Bob Martin').value, isFalse);
   });
 
+  testWidgets(
+    'deleted accounts are not offered as contract members nor coordinators',
+    (tester) async {
+      // What the back leaves of deleted accounts: PII nulled, row suspended.
+      const deletedAdmin = Member(
+        memberId: 'deleted-admin',
+        organizationId: 'org-1',
+        roles: {Role.admin, Role.coordinator},
+        accountStatus: MemberAccountStatus.suspended,
+      );
+      const deletedVolunteer = Member(
+        memberId: 'deleted-volunteer',
+        organizationId: 'org-1',
+        accountStatus: MemberAccountStatus.suspended,
+      );
+      stubMemberAssignment(
+        contracts: [_emptyContract],
+        members: const [_bob, _alice, deletedAdmin, deletedVolunteer],
+      );
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('0 amapiens'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('deleted-'), findsNothing);
+      expect(find.text('Membre supprimé'), findsNothing);
+      expect(find.text('Bob Martin'), findsOneWidget);
+    },
+  );
+
   testWidgets('the member search of a contract ignores accents', (
     tester,
   ) async {

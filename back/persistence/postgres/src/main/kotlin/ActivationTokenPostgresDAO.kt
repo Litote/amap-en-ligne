@@ -132,6 +132,17 @@ internal class ActivationTokenPostgresDAO(
         }
     }
 
+    override suspend fun anonymiseByMemberInvitationId(invitationId: Id<MemberInvitation>) {
+        client.dataSource.tx { conn ->
+            conn
+                .prepareStatement("UPDATE activation_token SET admin_email = '' WHERE member_invitation_id = ?")
+                .use { stmt ->
+                    stmt.setString(1, invitationId.id)
+                    stmt.executeUpdate()
+                }
+        }
+    }
+
     override suspend fun invalidateByOrganizationRequestId(
         requestId: Id<OrganizationRequest>,
         invalidatedAt: Instant,

@@ -1,6 +1,6 @@
 {
-  "id": "volunteer-register-other-forbidden",
-  "title": "A volunteer cannot register another member to a slot — mutation is rejected with FORBIDDEN",
+  "id": "volunteer-register-other-ignored",
+  "title": "A volunteer cannot register another member to a slot — only their own registrations are taken from the write, the stored organization is written back unchanged",
   "targets": [
     "volunteer-flow",
     "flutter"
@@ -89,7 +89,7 @@
       "mutationOutcomes": [
         {
           "clientOpId": "op-register-other",
-          "status": "REJECTED"
+          "status": "APPLIED"
         }
       ]
     }

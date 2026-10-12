@@ -7,6 +7,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/domain/validation/delivery_rules.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
+import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
 import 'package:amap_en_ligne/presentation/coordinator/delivery_navigation.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
@@ -231,7 +232,7 @@ class _RegistrationRow extends StatelessWidget {
 
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(reg.displayName),
+      title: Text(registrationDisplayName(reg)),
       subtitle: Text(subtitle),
     );
   }
@@ -400,7 +401,7 @@ class _CloseActionsSection extends StatefulWidget {
 List<List<String>> _volunteerPresenceRows(Delivery delivery) => [
   for (final reg in _volunteerRegistrations(delivery))
     [
-      reg.displayName,
+      registrationDisplayName(reg),
       switch (reg.status) {
         RegistrationStatus.confirmed ||
         RegistrationStatus.completed => 'Présent',

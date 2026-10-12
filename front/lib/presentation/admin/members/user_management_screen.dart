@@ -11,6 +11,8 @@ import 'package:amap_en_ligne/domain/validation/search_text.dart';
 import 'package:amap_en_ligne/presentation/admin/members/user_management_bloc.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/common/status_badge.dart';
+import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
+import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:flutter/material.dart';
@@ -572,7 +574,8 @@ class _MemberTile extends StatelessWidget {
   String _formatMemberName(Member member) {
     final fullName = '${member.firstName ?? ''} ${member.lastName ?? ''}'
         .trim();
-    return fullName.isEmpty ? '(aucun nom)' : fullName;
+    if (fullName.isNotEmpty) return fullName;
+    return isDeletedMember(member) ? kDeletedMemberLabel : '(aucun nom)';
   }
 }
 
@@ -696,12 +699,17 @@ class _MemberInvitationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = '${invitation.firstName} ${invitation.lastName}'.trim();
+    final name = '${invitation.firstName} ${invitation.lastName}'.trim();
+    // Deleting a member blanks the identity of their past invitations.
+    final anonymised = name.isEmpty && invitation.email.trim().isEmpty;
+    final title = anonymised ? 'Invitation anonymisée' : name;
     final lastSentLabel = _formatLastSent(invitation);
     final statusLabel = _formatInvitationStatus(invitation);
     final subtitleLines = <Widget>[
-      _HighlightedText(invitation.email, query: searchQuery),
-      const SizedBox(height: 4),
+      if (!anonymised) ...[
+        _HighlightedText(invitation.email, query: searchQuery),
+        const SizedBox(height: 4),
+      ],
       Wrap(
         spacing: 4,
         runSpacing: 4,
@@ -993,7 +1001,9 @@ class _InviteForm extends StatelessWidget {
         if (canEditAdminRole) _roleTile(context, Role.admin, 'Admin'),
         if (_attempted && state.inviteRoles.isEmpty)
           Text('Choisissez au moins un rôle.', style: errorStyle),
-        if (inviteError != null) ...[
+        // Missing fields are already flagged one by one above.
+        if (inviteError != null &&
+            inviteError != kInviteRequiredFieldsMessage) ...[
           const SizedBox(height: 8),
           Text(inviteError, style: errorStyle),
         ],

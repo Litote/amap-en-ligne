@@ -214,6 +214,54 @@ void main() {
     },
   );
 
+  testWidgets('a deleted member is listed only while still on a contract, as '
+      '"Membre supprimé"', (tester) async {
+    await _pump(
+      tester,
+      organizationRepository: organizationRepository,
+      memberRepository: memberRepository,
+      contractRepository: contractRepository,
+      syncBloc: syncBloc,
+    );
+    await tester.pump();
+
+    organizationStream.add(buildOrganization());
+    await tester.pump();
+    memberStream.add([
+      buildMember(memberId: 'm-1', firstName: 'Alice'),
+      // Deleted accounts: PII nulled, row suspended.
+      const Member(
+        memberId: 'deleted-free',
+        organizationId: 'org-1',
+        accountStatus: MemberAccountStatus.suspended,
+      ),
+      const Member(
+        memberId: 'deleted-linked',
+        organizationId: 'org-1',
+        accountStatus: MemberAccountStatus.suspended,
+      ),
+    ]);
+    await tester.pump();
+    contractStream.add([
+      buildContract(
+        contractId: 'c-1',
+        members: const [
+          ContractMember(
+            memberId: 'deleted-linked',
+            subscriptionInstant: '2026-01-01T00:00:00Z',
+            status: ContractMemberStatus.cancelled,
+          ),
+        ],
+      ),
+    ]);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('deleted-'), findsNothing);
+    // Only the member still on a contract is listed (Alice is selected).
+    expect(find.text('Membre supprimé'), findsOneWidget);
+    expect(find.text('Alice'), findsWidgets);
+  });
+
   testWidgets(
     'the shared basket dialog scrolls a long list of families instead of '
     'overflowing',

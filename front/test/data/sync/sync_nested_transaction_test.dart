@@ -153,4 +153,29 @@ void main() {
       expect(invitations.single.invitationId, 'real-invitation');
     },
   );
+
+  test('a sync by another user than the cache owner wipes the cache without '
+      'opening a nested transaction', () async {
+    // The browser kept the cache of a previous account: the next user's
+    // first sync must wipe it — a nested transaction there hung the whole
+    // sync on web (« Synchronisation en cours… » forever after login).
+    await db.writeCacheOwner('previous-user');
+    await db.writeCursor('organization:org-1', 'c-old');
+    final api = _MockSyncApi();
+    final repo = SyncRepository(
+      db: db,
+      api: api,
+      currentUserId: () => 'new-user',
+    );
+    when(() => api.sync(any())).thenAnswer(
+      (_) async => const SyncResponse(authorizedScopes: [], results: {}),
+    );
+
+    final outcome = await repo.sync(tenantId: '');
+
+    expect(outcome, isA<SyncSuccess>());
+    expect(counter.nested, 0);
+    expect(await db.readCacheOwner(), 'new-user');
+    expect(await db.readCursor('organization:org-1'), isNull);
+  });
 }

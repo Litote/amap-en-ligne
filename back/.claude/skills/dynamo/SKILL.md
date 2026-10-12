@@ -16,9 +16,9 @@ All entities share one DynamoDB table (`DYNAMO_TABLE`, default `data`), with `pk
 | Server              | `SERVER`                          | `${serverId}`       |
 | OrganizationRequest | `ORGREQ`                          | `${requestId}`      |
 | ProducerAccount     | `PA#${organizationId}`            | `${producerAccountId}` |
-| Change              | `CHANGE#${entityType}#${scopeId}` | `${entityId}`       |
+| Change              | `CHANGE#${scopeKey}`              | `${EntityType}#${entityId}` |
 
-GSI `by_cursor`: PK=`change_pk` (`${entityType}#${scopeId}`), SK=`cursor` — sparse, only Change items.
+GSI `by_cursor`: PK=`change_pk` (the scope key, e.g. `organization:{id}`), SK=`cursor` — sparse, only Change items.
 GSIs `by_organization_name`, `by_admin_email`: KEYS_ONLY — sparse, only OrganizationRequest items.
 
 ### Adding a new synced entity
@@ -116,10 +116,10 @@ internal class MyEntityDynamoDAO(private val client: DynamoClient) : MyEntityDAO
 ## Change record
 
 `Change.toAttributeValueMap()` is defined in `ChangeDynamoDAO.kt`. Fields written:
-- `pk`: `CHANGE#${entityType}#${scopeId}`
-- `sk`: `${entityId}`
-- `change_pk`: `${entityType}#${scopeId}` (GSI key)
-- `cursor`, `entity_type`, `producer_account_id`, `op`, `produced_at`, optional `payload`
+- `pk`: `CHANGE#${scopeKey}`
+- `sk`: `${EntityType}#${entityId}`
+- `change_pk`: `${scopeKey}` (GSI key)
+- `entity_id`, `cursor`, `entity_type`, `scope_key`, `op`, `produced_at`, optional `payload`
 
 Never construct the Change attribute map manually — call `change.toAttributeValueMap()`.
 

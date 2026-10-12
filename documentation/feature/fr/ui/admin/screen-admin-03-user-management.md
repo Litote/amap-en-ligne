@@ -11,7 +11,7 @@ L'écran est **entièrement servi par le sync offline-first** : la liste des mem
 
 - **Liste des membres actifs** : lecture du scope `organization:{id}` (entité `Member`, qui porte désormais `firstName`/`lastName`/`email`/`phone` + `accountStatus`).
 - **Invitations en attente** : lecture de la même scope (entité `MemberInvitation`, synchronisée).
-- **Inviter un membre** : `Upsert(MemberInvitationPayload)` avec id `tmp_*` ; le back génère le token et envoie l'email lors de l'application de la mutation, et renvoie le `invitation_id` via `MutationOutcome.serverEntityId`. Après un envoi refusé, chaque champ fautif affiche son erreur (« Ce champ est requis. », « Adresse email invalide. », « Choisissez au moins un rôle. ») en plus du message général ; l'email d'un membre existant ou d'une invitation en attente (casse ignorée) est refusé avant l'envoi (« Une invitation est déjà en attente pour cet email. »).
+- **Inviter un membre** : `Upsert(MemberInvitationPayload)` avec id `tmp_*` ; le back génère le token et envoie l'email lors de l'application de la mutation, et renvoie le `invitation_id` via `MutationOutcome.serverEntityId`. Après un envoi refusé, chaque champ fautif affiche son erreur (« Ce champ est requis. », « Adresse email invalide. », « Choisissez au moins un rôle. »), sans répéter de message général ; le rôle « Amapien » est coché à l'ouverture du formulaire ; l'email d'un membre existant ou d'une invitation en attente (casse ignorée) est refusé avant l'envoi (« Une invitation est déjà en attente pour cet email. »).
 - **Relancer une invitation** : nouveau `Upsert(MemberInvitationPayload)` avec `resend_requested_at` fraîchement mis à jour ; le back régénère le token et renvoie l'email.
 - **Modifier les rôles, activer, suspendre, supprimer** : `Upsert/Delete(MemberPayload)` — `MemberService` côté back orchestre les side-effects (`UserProvisioningPort.banUser/unbanUser/deleteUser`, `AccountLifecycleEmailPort`, `AccountDeletionLog`).
 - **Rejets serveur** : `MutationOutcome.error.code` porte `LAST_ADMIN` / `SELF_ACTION_FORBIDDEN` / `FORBIDDEN` ; le front transforme ces codes en SnackBars contextuels.
@@ -45,7 +45,7 @@ Tous les changements sont **disponibles offline** (queue de mutations locale) et
 │  │  [________________________________]                    │ │
 │  │                                                         │ │
 │  │  Rôles dans l'organisation *                            │ │
-│  │  ☐ Amapien (membre standard)                             │ │
+│  │  ☑ Amapien (membre standard)                             │ │
 │  │  ☐ Coordinateur (accès gestion)                         │ │
 │  │  ☐ Admin (accès complet)                                │ │
 │  │                                                         │ │
@@ -228,7 +228,7 @@ Un membre peut cumuler plusieurs rôles simultanément (ex : Coordinateur + Admi
 
 ### Actions administratives
 - **Suspension temporaire** : Désactivation du compte sans suppression
-- **Suppression définitive** : icône 🗑 « Supprimer le membre » sur chaque ligne de membre (absente sur la ligne de l'Admin connecté), puis confirmation « Supprimer ce membre ? » [ANNULER] / [SUPPRIMER]. Le compte de connexion est supprimé et la fiche anonymisée ; refusée pour le dernier Admin. Détail : [`../../suppression-de-compte.md`](../../suppression-de-compte.md)
+- **Suppression définitive** : icône 🗑 « Supprimer le membre » sur chaque ligne de membre (absente sur la ligne de l'Admin connecté), puis confirmation « Supprimer ce membre ? » [ANNULER] / [SUPPRIMER]. Le compte de connexion est supprimé et la fiche anonymisée, ainsi que ses invitations passées (affichées « Invitation anonymisée » sous « Invitations passées ») ; ses inscriptions aux livraisons à venir et son rôle de coordinateur sur celles-ci sont retirés, ses participations passées deviennent « Membre supprimé » ; son offre d'échange ouverte est annulée et ses demandes d'échange en attente retirées ; ses abonnements aux contrats en cours sont annulés et il quitte leurs paniers partagés ; refusée pour le dernier Admin. Détail : [`../../suppression-de-compte.md`](../../suppression-de-compte.md)
 - **Réactivation** : Restauration d'un compte suspendu
 
 ## Invitations en masse

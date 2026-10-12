@@ -19,7 +19,7 @@ Interface d'accueil personnalisée pour les membres Amap, présentant les inform
 │  │  🌿 Maraîcher Bio + 🥚 Œufs Fermiers                   │ │
 │  │  👥 5/5 bénévoles confirmés                            │ │
 │  │  🧺 Composition du panier ▼                            │ │
-│  │  ✅ Inscrit(e) - Préparation paniers                   │ │
+│  │  ✅ Inscrit(e) • Créneau standard · Arrivée 18h        │ │
 │  │  [SE DÉSINSCRIRE] ❌                                    │ │
 │  └─────────────────────────────────────────────────────────┘ │
 │                                                             │
@@ -37,7 +37,7 @@ Interface d'accueil personnalisée pour les membres Amap, présentant les inform
 │  │  🌿 Maraîcher Bio + 🍞 Pain Artisanal                  │ │
 │  │  👥 5/5 bénévoles confirmés                            │ │
 │  │  🧺 Composition du panier ▼                            │ │
-│  │  ✅ Inscrit(e) - Préparation paniers                   │ │
+│  │  ✅ Inscrit(e) • Créneau standard · Arrivée 18h        │ │
 │  │  [SE DÉSINSCRIRE] ❌                                    │ │
 │  └─────────────────────────────────────────────────────────┘ │
 │                                                             │
@@ -61,7 +61,7 @@ Interface d'accueil personnalisée pour les membres Amap, présentant les inform
 - **[Menu]** : Accès au menu principal de navigation
 
 ### États dynamiques
-- **Engagements confirmés** : Affichage en vert avec ✅ et bouton [SE DÉSINSCRIRE] — « ✅ Inscrit(e) comme coordinateur » lorsque le membre est coordinateur d'un contrat de la livraison (il n'est pas compté parmi les bénévoles)
+- **Engagements confirmés** : Affichage en vert avec ✅, le créneau choisi et son heure d'arrivée (« ✅ Inscrit(e) • Créneau anticipé · Arrivée 18h30 ») et bouton [SE DÉSINSCRIRE] — « ✅ Inscrit(e) comme coordinateur » lorsque le membre est coordinateur d'un contrat de la livraison (il n'est pas compté parmi les bénévoles)
 - **Créneaux disponibles** : Bouton [S'INSCRIRE] disponible
 - **Bénévoles recherchés** : 🙋 moins de 50 % des bénévoles inscrits, livraison dans plus de 3 jours
 - **Besoin urgent** : Alerte visuelle en rouge 🔴 avec bouton [S'INSCRIRE] prioritaire — moins de 50 % des bénévoles inscrits et livraison dans 3 jours ou moins

@@ -25,7 +25,8 @@ Interface de consultation du planning mensuel avec possibilité d'inscription di
 │  ┌─────────────────────────────────────────────────────────┐ │
 │  │  📅 Mercredi 10 Janvier • 18h00-20h00                  │ │
 │  │  🌿 Maraîcher Bio + 🍞 Pain Artisanal                  │ │
-│  │  ✅ Vous êtes inscrit(e) comme bénévole                │ │
+│  │  ✅ Vous êtes inscrit(e) comme bénévole • Créneau      │ │
+│  │     standard · Arrivée 18h                             │ │
 │  │  👥 5/5 bénévoles ─ COMPLET                            │ │
 │  │      [VOIR DÉTAILS] [SE DÉSINSCRIRE]                   │ │
 │  └─────────────────────────────────────────────────────────┘ │
@@ -87,12 +88,12 @@ Interface de consultation du planning mensuel avec possibilité d'inscription di
 - Affichage du mois courant : **Janvier 2025**. À l'ouverture, le planning affiche le mois de la prochaine livraison (le mois en cours tant qu'il lui reste une livraison), jamais un mois vide alors qu'une livraison est à venir.
 
 ### États des livraisons
-- **✅ TERMINÉ** : Livraison passée avec participation confirmée
+- **✅ TERMINÉ** : Livraison passée avec participation confirmée. La carte ne montre plus de places restantes mais la liste des bénévoles (« 👥 Bénévoles : Marie D., Jean P. », coordinateurs exclus) ; pour un amapien simple, les autres bénévoles d'une livraison passée sont anonymisés par le serveur et seulement comptés (« 👥 Bénévoles : Marie D. + 2 autres ») ; sans bénévole : « 👥 Aucun bénévole »
 - **✅ COMPLET** : Toutes les places bénévoles sont prises. Cet état n'apparaît que lorsque la livraison est effectivement complète (au moins un créneau défini et toutes les places occupées) — une livraison sans créneau bénévole n'affiche ni COMPLET ni bouton d'inscription
 - **🔴 BESOIN URGENT** : Moins de 50% des bénévoles requis et livraison dans 3 jours ou moins (le bouton devient « S'INSCRIRE MAINTENANT 🚨 »)
 - **🙋 Bénévoles recherchés** : Moins de 50% des bénévoles requis, livraison dans plus de 3 jours
 - **⚠️ Places limitées** : Entre 50% et 80% des places occupées
-- **Vous êtes inscrit(e)** : Participation confirmée du membre connecté. Lorsque le membre est lui-même coordinateur (*COORDINATOR*) d'un contrat de cette livraison, le libellé devient « ✅ Vous êtes inscrit(e) comme coordinateur » : un coordinateur n'est jamais compté parmi les bénévoles du compteur « N/M bénévoles » (sur l'accueil : « ✅ Inscrit(e) comme coordinateur »)
+- **Vous êtes inscrit(e)** : Participation confirmée du membre connecté, suivie du créneau choisi et de son heure d'arrivée (« • Créneau anticipé · Arrivée 18h30 »). Lorsque le membre est lui-même coordinateur (*COORDINATOR*) d'un contrat de cette livraison, le libellé devient « ✅ Vous êtes inscrit(e) comme coordinateur » : un coordinateur n'est jamais compté parmi les bénévoles du compteur « N/M bénévoles » (sur l'accueil : « ✅ Inscrit(e) comme coordinateur »)
 - **⏰ Créneau anticipé disponible** : La livraison dispose d'un créneau anticipé avec au moins une place libre
 - **🚧 Contrat inactif** : Tous les contrats (*CONTRACT*) liés à la livraison sont encore en préparation (`IN_PREPARATION`). Une telle livraison est **masquée pour les amapiens simples** ; seuls les coordinateurs et admins la voient, avec ce badge et **sans action d'inscription**
 
@@ -102,6 +103,9 @@ Lorsqu'une livraison possède un créneau anticipé (*EARLY_SLOT*) configuré et
 - Le second bouton correspond au créneau anticipé (heure d'arrivée anticipée jusqu'à la fin). L'explication saisie par le coordinateur apparaît sous ce bouton.
 
 Lorsque le créneau anticipé est complet ou absent, un unique bouton d'inscription est affiché (comportement inchangé).
+
+### Inscription refusée
+Le serveur vérifie les places au moment de l'enregistrement. Si un autre bénévole a pris la dernière place depuis l'affichage, l'inscription est refusée, la carte revient à l'état réel et le message « Ce créneau vient d'être complété. Choisissez-en un autre. » s'affiche. Tout autre refus affiche « L'inscription n'a pas pu être enregistrée. Réessayez. » (même comportement sur l'accueil).
 
 ### Données affichées
 - Planning mensuel chronologique

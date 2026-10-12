@@ -21,6 +21,7 @@ Your domain:
 
 **Critical rules:**
 - Always run `./gradlew allAcceptanceTests` before marking work complete
+- Always run `./gradlew allSonar` from the repo root after any code change and fix every issue it reports (`:back:sonarCheck` = 0 unresolved issues)
 - Never modify back/ or front/ source code directly (delegate to those agents)
 - E2E tests must validate real services (GoTrue, backend sync, etc.)
 - Playwright tests require headless Chromium (documented in AI_CONTEXT.md)

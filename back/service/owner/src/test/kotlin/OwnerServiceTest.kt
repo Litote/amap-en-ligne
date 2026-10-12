@@ -15,6 +15,7 @@ import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import persistence.changes.MutationErrorCode
 import persistence.dao.AccountDeletionLogDAO
+import persistence.dao.MemberInvitationSyncDAO
 import persistence.dao.OwnerSyncDAO
 import persistence.model.AccountDeletionLog
 import persistence.model.AccountStatus
@@ -30,7 +31,7 @@ import kotlin.time.Instant
 internal class OwnerServiceTest {
     private val ownerDAO = mockk<OwnerSyncDAO>()
     private val userProvisioningPort = mockk<UserProvisioningPort>(relaxed = true)
-    private val roleService = RoleService(ownerDAO, userProvisioningPort)
+    private val roleService = RoleService(ownerDAO, userProvisioningPort, mockk<MemberInvitationSyncDAO>(relaxed = true))
     private val accountLifecycleEmailPort = mockk<AccountLifecycleEmailPort>(relaxed = true)
     private val accountDeletionLogDAO = mockk<AccountDeletionLogDAO>(relaxed = true)
     private val ownerService =

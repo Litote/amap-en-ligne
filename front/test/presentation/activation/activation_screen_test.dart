@@ -156,6 +156,20 @@ void main() {
     });
   }
 
+  testWidgets('a link without token is reported invalid, form disabled', (
+    tester,
+  ) async {
+    await _pump(tester, api, '');
+    await tester.pump();
+
+    expect(find.text("Ce lien d'activation est invalide."), findsOneWidget);
+    expect(
+      tester.widget<FilledButton>(find.byKey(const Key('submit'))).onPressed,
+      isNull,
+    );
+    verifyNever(() => api.describeActivation(any()));
+  });
+
   testWidgets('keeps the form enabled after a server error', (tester) async {
     when(
       () => api.describeActivation(any()),

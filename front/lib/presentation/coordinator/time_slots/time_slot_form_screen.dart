@@ -1254,6 +1254,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
             slotTimesBlock: SlotTimesBlock(
               arrivalTime: _volunteerArrivalTime,
               endTime: _standardEndTime,
+              standardVolunteersCtrl: _minVolunteersCtrl,
               earlySlotEnabled: _earlySlotEnabled,
               earlySlotArrivalTime: _earlySlotArrivalTime,
               earlySlotMaxCtrl: _earlySlotMaxCtrl,
@@ -1278,6 +1279,17 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
         ),
       ),
     );
+  }
+
+  /// Pre-fills the form from the edited [delivery], on the first build only.
+  void _prefillOnce(Delivery delivery) {
+    if (_scheduledDate != null) return;
+    final dt = DateTime.parse(delivery.scheduledDate);
+    _scheduledDate = dt;
+    _scheduledTime = TimeOfDay(hour: dt.hour, minute: dt.minute);
+    _selectedDeliveryTemplateId = delivery.deliveryTemplateId;
+    _minVolunteersCtrl.text = delivery.minVolunteersRequired.toString();
+    _prefillTimesFromDelivery(delivery);
   }
 
   @override
@@ -1313,20 +1325,13 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
                       .where((d) => d.deliveryId == widget.deliveryId)
                       .firstOrNull
                 : null;
-
-            // Pre-fill form when editing.
-            if (_isEditing && _scheduledDate == null) {
-              final delivery = existingDelivery;
-              if (delivery != null) {
-                final dt = DateTime.parse(delivery.scheduledDate);
-                _scheduledDate = dt;
-                _scheduledTime = TimeOfDay(hour: dt.hour, minute: dt.minute);
-                _selectedDeliveryTemplateId = delivery.deliveryTemplateId;
-                _minVolunteersCtrl.text = delivery.minVolunteersRequired
-                    .toString();
-                _prefillTimesFromDelivery(delivery);
-              }
+            // An unknown id (e.g. an old link to a delivery deleted since):
+            // an empty edit form could only fail on save.
+            if (_isEditing && existingDelivery == null) {
+              return const Center(child: Text('Livraison introuvable.'));
             }
+
+            if (existingDelivery != null) _prefillOnce(existingDelivery);
             _initializeProductSelection(org, existingDelivery);
 
             return StreamBuilder<List<DeliveryTemplate>>(
@@ -1624,7 +1629,7 @@ class _FormBody extends StatelessWidget {
     controller: minVolunteersCtrl,
     onChanged: onMinVolunteersChanged,
     decoration: const InputDecoration(
-      labelText: 'Bénévoles minimum requis',
+      labelText: 'Bénévoles (créneau standard)',
       border: OutlineInputBorder(),
     ),
     keyboardType: TextInputType.number,

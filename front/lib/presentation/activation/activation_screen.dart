@@ -48,6 +48,11 @@ class _ActivationScreenState extends State<ActivationScreen> {
   }
 
   Future<void> _loadPreview() async {
+    // A link without token can activate nothing (the server answers 400).
+    if (widget.token.trim().isEmpty) {
+      setState(() => _error = ActivationError.invalidToken);
+      return;
+    }
     try {
       final preview = await context.read<PublicApi>().describeActivation(
         widget.token,

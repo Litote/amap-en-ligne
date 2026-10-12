@@ -136,7 +136,8 @@ class SyncRepository {
     await _db.transaction(() async {
       final owner = await _db.readCacheOwner();
       if (owner == userId) return;
-      if (owner != null) await _db.clearAll();
+      // Already inside the transaction: never `clearAll()`, which opens one.
+      if (owner != null) await _db.deleteAllRows();
       await _db.writeCacheOwner(userId);
     });
   }

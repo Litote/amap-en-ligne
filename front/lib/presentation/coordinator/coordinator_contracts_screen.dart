@@ -1159,8 +1159,16 @@ class _ContractEditor extends StatelessWidget {
         .toList();
   }
 
+  /// Deleted accounts stay listed only while linked to the contract.
   List<Member> get _visibleMembers =>
-      members
+      assignableMembers(
+            members,
+            keepMemberIds: {
+              ...selectedMemberIds,
+              for (final entry in selectedContract?.members ?? const [])
+                entry.memberId,
+            },
+          )
           .where(
             (member) => matchesSearch(memberSearchController.text, [
               memberDisplayName(member),
@@ -1175,13 +1183,17 @@ class _ContractEditor extends StatelessWidget {
     final activeProducers = organization.producers
         .where((p) => p.status == OrganizationProducerStatus.active)
         .toList();
-    final coordinators = members
-        .where(
-          (member) =>
-              member.roles.contains(Role.coordinator) ||
-              member.roles.contains(Role.admin),
-        )
-        .toList();
+    final coordinators =
+        assignableMembers(
+              members,
+              keepMemberIds: {...?selectedContract?.coordinators},
+            )
+            .where(
+              (member) =>
+                  member.roles.contains(Role.coordinator) ||
+                  member.roles.contains(Role.admin),
+            )
+            .toList();
     final contract = selectedContract;
     final contractEnded =
         contract != null && isContractEffectivelyEnded(contract);

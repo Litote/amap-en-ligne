@@ -348,6 +348,26 @@ internal class EmailTemplatesTest {
     }
 
     @Test
+    fun `GIVEN the registration of a deleted member WHEN attendanceSheets rendered THEN it reads Membre supprime without email`() {
+        val base = buildDeliveryWithVolunteer()
+        val slot =
+            base.contracts
+                .single()
+                .slots
+                .single()
+        val blanked = slot.registrations.single().copy(memberId = "m-gone".toId(), displayName = "", memberEmail = "")
+        val delivery =
+            base.copy(
+                contracts = listOf(base.contracts.single().copy(slots = listOf(slot.copy(registrations = listOf(blanked))))),
+            )
+
+        val content = EmailTemplates.attendanceSheets(buildOrganization(), delivery)
+
+        assertContains(content.body, "Membre supprimé  Arrivée")
+        assertFalse(content.body.contains("<>"))
+    }
+
+    @Test
     fun `GIVEN a delivery coordinator registered on a slot WHEN attendanceSheets rendered THEN only volunteers are listed`() {
         val base = buildDeliveryWithVolunteer()
         val link = base.contracts.single()

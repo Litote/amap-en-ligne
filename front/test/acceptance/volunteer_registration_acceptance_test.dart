@@ -38,7 +38,7 @@ void main() {
 
   final registrationStory = _loadStory('volunteer-self-registration');
   final unregisterStory = _loadStory('volunteer-self-unregister');
-  final forbiddenStory = _loadStory('volunteer-register-other-forbidden');
+  final ignoredStory = _loadStory('volunteer-register-other-ignored');
   final earlySlotStory = _loadStory(
     'volunteer-register-early-slot-delivery-override',
   );
@@ -297,15 +297,16 @@ void main() {
   });
 
   // --------------------------------------------------------------------------
-  // Scenario 3 — volunteer-register-other-forbidden
+  // Scenario 3 — volunteer-register-other-ignored
   // --------------------------------------------------------------------------
-  test('${forbiddenStory.title} [${forbiddenStory.id}]', () async {
-    // This scenario validates that a REJECTED outcome is surfaced correctly.
-    // The front does not prevent submitting the mutation (it is the back that
-    // rejects it). We simulate the attempt by building a modified org that
-    // contains another member's registration and submitting it directly via
-    // the SyncRepository, then verifying the pending mutation is drained and
-    // the org state is not altered.
+  test('${ignoredStory.title} [${ignoredStory.id}]', () async {
+    // The back only takes the volunteer's own registrations from the write
+    // (stale or tampered copies never refuse a registration): the other
+    // member's registration is ignored and the stored organization comes back
+    // in the same response. We simulate the attempt by submitting a modified
+    // org that contains another member's registration directly via the
+    // SyncRepository, then verify the mutation is drained and the cache is
+    // back to the server state.
 
     final initialOrg = buildOrg();
     await db.upsertOrganization(initialOrg);
@@ -337,46 +338,37 @@ void main() {
     final pending = await db.readPendingMutations();
     expect(pending, hasLength(1));
 
-    // Scripted API returns REJECTED.
+    // The back applies the write as the stored organization unchanged.
     api = _ScriptedSyncApi([
       _ExpectedSyncCall.response(
-        label: forbiddenStory.id,
+        label: ignoredStory.id,
         request: SyncRequest(
           cursors: const {orgScope: 'c0'},
           mutations: pending,
         ),
-        response: const SyncResponse(
-          authorizedScopes: [orgScope],
-          results: {
-            orgScope: IncrementalScopeSyncResult(changes: [], nextCursor: 'c0'),
-          },
-          mutations: [
-            MutationOutcome(
-              clientOpId: 'op-register-other',
-              status: MutationStatus.rejected,
-              error: MutationError(
-                code: MutationErrorCode.forbidden,
-                message: 'Volunteer cannot modify other members registrations',
-              ),
-            ),
-          ],
-        ),
-      ),
-      // The refused write is rolled back: the scope is re-bootstrapped at once.
-      _ExpectedSyncCall.response(
-        label: '${forbiddenStory.id}-restore',
-        request: const SyncRequest(cursors: {orgScope: null}),
         response: SyncResponse(
           authorizedScopes: const [orgScope],
           results: {
-            orgScope: BootstrapScopeSyncResult(
-              items: [
-                OrganizationPayload(organization: initialOrg),
-                MemberPayload(member: volunteer),
+            orgScope: IncrementalScopeSyncResult(
+              changes: [
+                Change(
+                  entityType: EntityType.organization,
+                  entityId: orgId,
+                  op: ChangeOp.upsert,
+                  payload: OrganizationPayload(organization: initialOrg),
+                  producedAt: 1,
+                ),
               ],
               nextCursor: 'c1',
             ),
           },
+          mutations: const [
+            MutationOutcome(
+              clientOpId: 'op-register-other',
+              status: MutationStatus.applied,
+              serverEntityId: orgId,
+            ),
+          ],
         ),
       ),
     ]);
@@ -386,10 +378,9 @@ void main() {
 
     expect(outcome, isA<SyncSuccess>());
     final syncSuccess = outcome as SyncSuccess;
-    expect(syncSuccess.rejectedMutations, hasLength(1));
-    expect(syncSuccess.rejectedMutations.first.clientOpId, 'op-register-other');
+    expect(syncSuccess.rejectedMutations, isEmpty);
 
-    // Pending mutations must be drained (REJECTED = acknowledged by server).
+    // Pending mutations must be drained (APPLIED = acknowledged by server).
     expect(await db.readPendingMutations(), isEmpty);
 
     // The org state must NOT contain the other member's registration.

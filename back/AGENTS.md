@@ -2,8 +2,8 @@
 
 > **Purpose**: Instructions for AI agents working on this codebase.
 > For installation, configuration, and usage, see [`README.md`](README.md).
-> For contributing guidelines and project architecture, see (MANDATORY!) [`CONTRIBUTING.md`](CONTRIBUTING.md).
-> For a project analysis, see (MANDATORY!) [`AI_CONTEXT.md`](AI_CONTEXT.md).
+> For contributing guidelines and project architecture, see [`CONTRIBUTING.md`](CONTRIBUTING.md) — read the relevant section before changing build, CI or architecture.
+> For a project analysis, see [`AI_CONTEXT.md`](AI_CONTEXT.md).
 ---
 
 ## Critical Rules
@@ -101,6 +101,7 @@ A change is complete when:
 
 - [ ] `back/gradlew format` passes
 - [ ] `back/gradlew check` passes (compiles without warnings, all tests pass) — `check` is unit-only; the `AcceptanceScenariosTest` suite runs via the repo-root `./gradlew allAcceptanceTests`, not `check`
+- [ ] `./gradlew allSonar` passes from the repo root (quality gate + `:back:sonarCheck`, 0 unresolved issues) — run it yourself after every code change, see root `AGENTS.md`
 - [ ] No public API is broken
 - [ ] Only relevant files are modified
 - [ ] Type safety is preserved

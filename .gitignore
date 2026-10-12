@@ -13,6 +13,9 @@ out/
 # Kotlin
 .kotlin
 
+# JVM Attach API handshake files (mockk/ByteBuddy agent, jcmd…)
+.attach_pid*
+
 # DynamoDB Local runtime data
 **/docker/dynamodb/
 

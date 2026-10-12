@@ -6,15 +6,6 @@ description: >
   @Tags(['cross-component']) for E2E tests against a live backend.
   Covers _Scripted* fake pattern, BLoC stream assertions, widget tests,
   scenario linking, and cross-component skip guards.
-triggers:
-  - acceptance test
-  - scripted api
-  - _ScriptedSyncApi
-  - _ScriptedAuthService
-  - cross-component test
-  - e2e flutter
-  - testWidgets acceptance
-  - BLoC acceptance
 ---
 
 # Flutter Acceptance Tests
@@ -255,7 +246,4 @@ flutter test test/acceptance/sync_acceptance_test.dart
 
 # All tests including acceptance (exclude cross-component)
 flutter test --exclude-tags cross-component
-
-# Full suite with golden update
-flutter test test/golden/ --update-goldens --tags golden
 ```

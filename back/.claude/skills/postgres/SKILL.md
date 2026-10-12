@@ -13,7 +13,7 @@ All Postgres persistence lives in `persistence:postgres` (`back/persistence/post
 
 ## Flyway migrations
 
-Files must follow the naming convention: `V{N}__{description}.sql` where N is the next integer after the current highest. The history was squashed into a single consolidated baseline `V1__init.sql`, so the next migration is `V2`.
+Files must follow the naming convention: `V{N}__{description}.sql` where N is the next integer after the current highest. The history was squashed into a single consolidated baseline `V1__init.sql`; later migrations follow it, so list `src/main/resources/db/migration/` to find the next number.
 
 ```sql
 -- V2__my_new_table.sql
@@ -33,6 +33,7 @@ Rules:
 - Use `BIGINT` for timestamps (epoch millis)
 - Entity tables that participate in sync need no `changes` column — the shared `changes` table handles it
 - Always run the server after adding a migration to validate Flyway applies cleanly
+- Add every new table to the `TRUNCATE` list in `JvmSyncTestSupport.resetDb()` (`back/deploy/jvm/src/test/kotlin/JvmSyncTestSupport.kt`); otherwise rows leak from one acceptance scenario to the next
 
 ## DAO pattern
 

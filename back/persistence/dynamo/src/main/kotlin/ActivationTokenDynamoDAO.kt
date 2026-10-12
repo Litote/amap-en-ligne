@@ -67,7 +67,8 @@ internal class ActivationTokenDynamoDAO(
             kind = ActivationKind.valueOf((item.getValue("kind") as AttributeValue.S).value),
             requestId = (item["request_id"] as? AttributeValue.S)?.value?.toId(),
             producerRequestId = (item["producer_request_id"] as? AttributeValue.S)?.value?.toId(),
-            adminEmail = (item.getValue("admin_email") as AttributeValue.S).value,
+            // Removed by anonymiseByMemberInvitationId: an index key cannot be an empty string.
+            adminEmail = (item["admin_email"] as? AttributeValue.S)?.value.orEmpty(),
             organizationId = (item["organization_id"] as? AttributeValue.S)?.value?.toId(),
             producerAccountId = (item["producer_account_id"] as? AttributeValue.S)?.value?.toId(),
             ownerInvitationId = (item["owner_invitation_id"] as? AttributeValue.S)?.value?.toId(),
@@ -114,6 +115,23 @@ internal class ActivationTokenDynamoDAO(
         invalidateWhere("member_invitation_id", invitationId.id, invalidatedAt)
     }
 
+    override suspend fun anonymiseByMemberInvitationId(invitationId: Id<MemberInvitation>) {
+        tokenKeysWhere("member_invitation_id", invitationId.id).forEach { token ->
+            client.client.updateItem(
+                UpdateItemRequest {
+                    tableName = client.table
+                    key =
+                        mapOf(
+                            "pk" to AttributeValue.S("ACTIVATION_TOKEN"),
+                            "sk" to AttributeValue.S(token),
+                        )
+                    // admin_email keys a secondary index, which rejects an empty string.
+                    updateExpression = "REMOVE admin_email"
+                },
+            )
+        }
+    }
+
     override suspend fun invalidateByOrganizationRequestId(
         requestId: Id<OrganizationRequest>,
         invalidatedAt: Instant,
@@ -128,13 +146,13 @@ internal class ActivationTokenDynamoDAO(
         invalidateWhere("producer_request_id", requestId.id, invalidatedAt)
     }
 
-    private suspend fun invalidateWhere(
+    /** The token ids (sort keys) whose [attributeName] equals [referenceId]. */
+    private suspend fun tokenKeysWhere(
         attributeName: String,
         referenceId: String,
-        invalidatedAt: Instant,
-    ) {
-        val response =
-            client.client.query(
+    ): List<String> =
+        client.client
+            .query(
                 QueryRequest {
                     tableName = client.table
                     keyConditionExpression = "pk = :pk"
@@ -145,9 +163,16 @@ internal class ActivationTokenDynamoDAO(
                             ":reference_id" to AttributeValue.S(referenceId),
                         )
                 },
-            )
-        response.items.orEmpty().forEach { item ->
-            val token = (item["sk"] as? AttributeValue.S)?.value ?: return@forEach
+            ).items
+            .orEmpty()
+            .mapNotNull { (it["sk"] as? AttributeValue.S)?.value }
+
+    private suspend fun invalidateWhere(
+        attributeName: String,
+        referenceId: String,
+        invalidatedAt: Instant,
+    ) {
+        tokenKeysWhere(attributeName, referenceId).forEach { token ->
             client.client.updateItem(
                 UpdateItemRequest {
                     tableName = client.table

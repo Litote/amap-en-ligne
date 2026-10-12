@@ -17,7 +17,7 @@ This adds `koin-core`, `koin-annotations`, `koin-ksp-compiler` (via KSP), and te
 - `KOIN_CONFIG_CHECK=true` — compile-time validation of the graph
 - `KOIN_DEFAULT_MODULE=false` — no implicit default module
 
-**Exception**: `service:data` explicitly overrides `KOIN_CONFIG_CHECK` to `false` because it depends on DAO interfaces that are only satisfied at deployment time.
+**Exception**: modules that depend on DAO or port interfaces only satisfied at deployment time (e.g. `service:sync`, `service:member`) override `KOIN_CONFIG_CHECK` to `false`.
 
 ## Annotating a service or DAO
 
@@ -85,7 +85,7 @@ Some interfaces have different implementations per deployment:
 - `AuthenticationService`: `GoTrueAuthenticationModule` (`lib:authentication-gotrue`, jvm) vs `CognitoAuthenticationModule` (`lib:authentication-cognito`, lambda)
 - `InstanceConfig` + `InstanceAuthConfigSerializers`: `GoTrueInstanceConfigModule` (`lib:instance-config-gotrue`, jvm) vs `CognitoInstanceConfigModule` (`lib:instance-config-cognito`, lambda). Each adapter also registers its polymorphic `InstanceAuthConfig` subtype so the routing layer's Json can serialize the discovery doc.
 
-When adding a deployment-specific adapter, annotate it in `deploy:jvm` or `deploy:lambda` only — not in `service:data`.
+When adding a deployment-specific adapter, annotate it in `deploy:jvm` or `deploy:lambda` only — not in a `service:*` module.
 
 ## Testing with Koin
 

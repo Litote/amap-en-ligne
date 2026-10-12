@@ -7,6 +7,6 @@ import org.koin.dsl.*
 public val core_CoreModule : Module get() = module {
 	includes(notificationpublisher.NotificationPublisherModule().module)
 	single(createdAtStart=true) { _ -> core.AuthorizedScopeResolver(memberSyncDAO=get(),producerSyncDAO=get())} 
-	single(createdAtStart=true) { _ -> core.RoleService(ownerDAO=get(),userProvisioningPort=get())} 
+	single(createdAtStart=true) { _ -> core.RoleService(ownerDAO=get(),userProvisioningPort=get(),memberInvitationSyncDAO=get())} 
 }
 public val core.CoreModule.module : org.koin.core.module.Module get() = core_CoreModule

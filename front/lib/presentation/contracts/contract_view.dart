@@ -4,6 +4,7 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/producer_account.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
+import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
 
 enum ContractFilter { all, inPreparation, active, upcoming, ended }
 
@@ -33,6 +34,24 @@ bool contractLinkableAt(Contract contract, DateTime date, {DateTime? now}) {
   if (min != null && d.isBefore(min)) return false;
   if (max != null && d.isAfter(max)) return false;
   return true;
+}
+
+/// The member's subscription instant worth showing on their contract card, or
+/// null when it falls after the contract's last delivery: nobody subscribes to
+/// a finished contract, such a date is a technical one (e.g. the date legacy
+/// subscriptions were imported) and would only confuse the member.
+String? displayedSubscriptionInstant(
+  Contract contract,
+  String subscriptionInstant,
+) {
+  final subscribed = DateTime.tryParse(subscriptionInstant);
+  final end = _parseDate(contract.maxDeliveryDate);
+  if (subscribed != null &&
+      end != null &&
+      _normalizeDate(subscribed.toLocal()).isAfter(end)) {
+    return null;
+  }
+  return subscriptionInstant;
 }
 
 bool contractMatchesFilter(
@@ -94,8 +113,30 @@ String memberDisplayName(Member member) {
   if (fullName.isNotEmpty) return fullName;
   final email = member.email?.trim();
   if (email != null && email.isNotEmpty) return email;
+  if (isDeletedMember(member)) return kDeletedMemberLabel;
   return member.memberId;
 }
+
+/// Whether [member] is what the back leaves of a deleted account: the row is
+/// kept (suspended) for referential integrity but its PII is nulled.
+bool isDeletedMember(Member member) =>
+    member.accountStatus == MemberAccountStatus.suspended &&
+    (member.firstName?.trim() ?? '').isEmpty &&
+    (member.lastName?.trim() ?? '').isEmpty &&
+    (member.email?.trim() ?? '').isEmpty;
+
+/// The [members] a coordinator may pick (contract members, coordinators):
+/// deleted accounts are left out, except those in [keepMemberIds] (still
+/// linked), so they can be seen — and unlinked.
+List<Member> assignableMembers(
+  List<Member> members, {
+  Set<String> keepMemberIds = const {},
+}) => members
+    .where(
+      (member) =>
+          !isDeletedMember(member) || keepMemberIds.contains(member.memberId),
+    )
+    .toList();
 
 DateTime? _parseDate(String value) {
   final parsed = DateTime.tryParse(value);

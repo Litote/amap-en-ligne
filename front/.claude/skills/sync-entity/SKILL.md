@@ -5,16 +5,6 @@ description: >
   the 6-file checklist: EntityType enum → Freezed model → EntityPayload →
   Drift table → EntitySyncHandler → Repository. Includes tmp_ id handling,
   buildEntitySyncHandlers wiring, and test patterns.
-triggers:
-  - new entity
-  - sync entity
-  - EntityType
-  - EntitySyncHandler
-  - EntityPayload
-  - offline entity
-  - add entity front
-  - synchronisable
-  - tmp_ id
 ---
 
 # Adding a Synchronised Entity (Frontend)
@@ -99,7 +89,7 @@ abstract class FooPayload extends EntityPayload with _$FooPayload {
 
 ### 4. `data/local/database.dart` — Drift table + AppDatabase helpers
 
-Add the `Table` class and register it in `@DriftDatabase`. Increment `schemaVersion` and add a migration. Then add query helpers (`watchFoos`, `upsertFoo`, `deleteFoo`, `clearFoosForTenant`, `remapFooId`). See the **drift** skill for complete patterns.
+Add the `Table` class in `data/local/database/tables.dart` and register it in `@DriftDatabase`. Increment the current `schemaVersion` by one and add the matching `if (from < N)` migration step. Then add query helpers in a `part` mixin under `data/local/database/` (`<area>_queries.dart`) (`watchFoos`, `upsertFoo`, `deleteFoo`, `clearFoosForTenant`, `remapFooId`). See the **drift** skill for complete patterns.
 
 ```dart
 @DriftDatabase(tables: [ProductTypes, SyncCursors, PendingMutations, Foos])
@@ -117,9 +107,9 @@ class AppDatabase extends _$AppDatabase {
 }
 ```
 
-### 5. `data/sync/entity_sync_handler.dart` — handler implementation
+### 5. `data/sync/handlers/foo_sync_handler.dart` — handler implementation
 
-Add a new `final class` implementing `EntitySyncHandler`. Append it to `buildEntitySyncHandlers`:
+Add a new `final class` implementing `EntitySyncHandler` in its own file under `data/sync/handlers/`. Append it to `buildEntitySyncHandlers` in `data/sync/entity_sync_handler.dart`:
 
 ```dart
 final class FooSyncHandler implements EntitySyncHandler {

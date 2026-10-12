@@ -4,7 +4,6 @@ import authentication.AuthenticatedInfo
 import authentication.Role
 import core.BasketComposition
 import core.EntityTypeService
-import core.PlainMemberRedaction
 import core.ProducerScheduleProjection
 import core.organizationInstanceOwnerChanges
 import core.toFrenchLongDate
@@ -76,11 +75,13 @@ class OrganizationService(
         val isPrivilegedCaller = auth.roles.any { it == Role.OWNER || it == Role.ADMIN || it == Role.COORDINATOR }
         val isVolunteerCaller = auth.roles.any { it == Role.VOLUNTEER }
         val persistedOrg = organizationSyncDAO.getById(payload.organization.organizationId)
-        // A plain member is served a masked copy (PlainMemberRedaction): put the stored values
-        // back before any check or write. The derived participation counts are never stored.
+        val isVolunteerWrite = !isPrivilegedCaller && isVolunteerCaller && persistedOrg != null
+        // A volunteer's copy may be stale and was served masked (PlainMemberRedaction): only
+        // their own registrations are taken from it (VolunteerWriteRebase). The derived
+        // participation counts are never stored.
         val incoming =
-            if (PlainMemberRedaction.appliesTo(auth)) {
-                PlainMemberRedaction.restoreServedMasks(persistedOrg, payload.organization, auth.memberId)
+            if (isVolunteerWrite) {
+                VolunteerWriteRebase.ownRegistrationsOnto(persistedOrg, payload.organization, auth.memberId.toId())
             } else {
                 payload.organization.copy(participationCountsBySeason = null)
             }
@@ -88,7 +89,7 @@ class OrganizationService(
         var normalizedOrg = incoming
         var slotEvents = emptyList<SlotLifecycleNormalizer.SlotEvent>()
 
-        if (!isPrivilegedCaller && isVolunteerCaller && persistedOrg != null) {
+        if (isVolunteerWrite) {
             val templates = deliveryTemplateSyncDAO.getByOrganizationId(organizationId.toId())
             val validationOutcome =
                 VolunteerMutationValidator.validate(
@@ -115,7 +116,7 @@ class OrganizationService(
             )
         if (productCheckOutcome != null) return productCheckOutcome
 
-        val missingCoordinatorOutcome = checkConfirmedDeliveriesHaveCoordinators(incoming, mutation)
+        val missingCoordinatorOutcome = checkConfirmedDeliveriesHaveCoordinators(persistedOrg, incoming, mutation)
         if (missingCoordinatorOutcome != null) return missingCoordinatorOutcome
 
         checkNoFutureDeliveryCompleted(persistedOrg, incoming, mutation)?.let { return it }
@@ -448,12 +449,27 @@ class OrganizationService(
             producedAt = System.currentTimeMillis(),
         )
 
+    /**
+     * Rejects a CONFIRMED delivery whose contract links lack a coordinator — only for the
+     * deliveries this write confirms or whose links / coordinators it changes. A delivery left
+     * without coordinator otherwise (its only coordinator's account was deleted) shows the
+     * « Coordinateur manquant » alert but must not block unrelated writes (other deliveries,
+     * volunteer registrations).
+     */
     private fun checkConfirmedDeliveriesHaveCoordinators(
+        persistedOrg: Organization?,
         org: Organization,
         mutation: ClientMutation,
     ): MutationOutcome? {
+        val persistedDeliveries = persistedOrg?.deliveries.orEmpty().associateBy { it.deliveryId }
         for (delivery in org.deliveries) {
             if (delivery.status != DeliveryStatus.CONFIRMED) continue
+            val stored = persistedDeliveries[delivery.deliveryId]
+            val untouched =
+                stored != null &&
+                    stored.status == DeliveryStatus.CONFIRMED &&
+                    stored.contracts.map { it.contractId to it.coordinators } == delivery.contracts.map { it.contractId to it.coordinators }
+            if (untouched) continue
             val missing = delivery.contracts.filter { it.coordinators.isEmpty() }
             if (missing.isNotEmpty()) {
                 val missingIds = missing.joinToString(",") { it.contractId.id }

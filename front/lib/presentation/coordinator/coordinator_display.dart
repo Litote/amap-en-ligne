@@ -6,6 +6,17 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 
 // V1: no per-contract emoji yet; spec uses 🥕/🍞 as illustrations.
 
+/// Shown instead of the name copied on a registration once its member's
+/// account was deleted (the back blanks the name and email of their history).
+const kDeletedMemberLabel = 'Membre supprimé';
+
+/// The name to show for [registration]: the name copied when registering, or
+/// [kDeletedMemberLabel] when it was blanked by an account deletion.
+String registrationDisplayName(MemberRegistration registration) =>
+    registration.displayName.trim().isEmpty
+    ? kDeletedMemberLabel
+    : registration.displayName;
+
 /// Returns an abbreviated name for [member]: "J. Morel".
 ///
 /// Falls back to [member.memberId] when both [firstName] and [lastName] are

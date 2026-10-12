@@ -15,7 +15,7 @@ tableau de bord). L'écran s'intitule **« Gestion des membres »**.
 1. Touchez le bouton rond **[Inviter un membre]** (icône de personne avec un « + »), en
    bas à droite de l'écran.
 2. Renseignez le **prénom**, le **nom** et l'**e-mail** (tous obligatoires).
-3. Cochez au moins un **rôle** à attribuer :
+3. Cochez au moins un **rôle** à attribuer (**Amapien** est déjà coché) :
    - **Amapien** (membre standard) ;
    - **Coordinateur** (accès gestion) ;
    - **Admin** (accès complet — visible uniquement si vous êtes vous-même admin).
@@ -78,6 +78,13 @@ Ce que fait la suppression :
 
 - le membre **ne peut plus se connecter** : son compte est supprimé ;
 - ses **nom, prénom, e-mail et téléphone sont effacés** de sa fiche ;
+- ses **inscriptions aux livraisons à venir sont retirées** (les places sont libérées) et il
+  n'en est plus coordinateur : pensez à désigner un autre coordinateur si l'alerte
+  « Coordinateur manquant » apparaît ;
+- ses **abonnements aux contrats en cours sont annulés** (ses paniers ne sont plus comptés) et
+  il est retiré des paniers partagés ;
+- ses **échanges de paniers en cours sont clos** : son offre ouverte est annulée, ses
+  demandes en attente sont retirées ;
 - son **historique est conservé** sans son nom (contrats, paniers, participations), pour
   que les comptes de l'AMAP restent justes ;
 - il reçoit un e-mail l'informant de la suppression.
@@ -85,8 +92,10 @@ Ce que fait la suppression :
 La suppression est **définitive**. Vous pourrez réinviter la même adresse plus tard : la personne repartira
 d'un compte neuf, sans son ancien historique.
 
-> Certaines traces ne sont pas effacées automatiquement (nom recopié sur les feuilles
-> d'émargement passées, ancienne invitation, notifications déjà reçues). Pour une
+> Ses anciennes invitations sont anonymisées (« Invitation anonymisée » dans les
+> invitations passées) et ses participations passées apparaissent « Membre supprimé ».
+> Certaines traces ne sont pas effacées automatiquement (feuilles d'émargement déjà
+> imprimées ou envoyées, notifications déjà reçues). Pour une
 > demande d'effacement complet, contactez l'administrateur de votre instance.
 
 ## Règles importantes sur les rôles
