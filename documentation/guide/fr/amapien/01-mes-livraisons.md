@@ -14,7 +14,8 @@ besoin de bénévoles :
 ┌──────────────────────────────────────────────
 │ 🎯 Ma prochaine participation
 │   Mercredi 31 Jan • 18h-20h
-│   ✅ Inscrit(e) • 5/5 bénévoles
+│   ✅ Inscrit(e) • Créneau standard · Arrivée 18h
+│   5/5 bénévoles
 │   [SE DÉSINSCRIRE]
 │
 │ 📋 Prochaines livraisons

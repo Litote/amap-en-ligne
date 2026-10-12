@@ -32,8 +32,11 @@ Cet écran est notamment ouvert depuis l'action `[➕ NOUVELLE LIVRAISON]` du da
 │  │  👥 Max bénévoles anticipés: [2]                        │ │
 │  │     [Modifier pour cette livraison uniquement]          │ │
 │  │                                                         │ │
+│  │  👥 Total attendu : 7 bénévoles                         │ │
+│  │     (5 au créneau standard + 2 au créneau anticipé)     │ │
+│  │                                                         │ │
 │  │  👥 Bénévoles requis:                                   │ │
-│  │     Minimum: [5 ▼]  (prérempli depuis le template)      │ │
+│  │     Bénévoles (créneau standard): [5 ▼]  (du template)  │ │
 │  │     Maximum: [8 ▼]                                      │ │
 │  │     Si modifié manuellement, reste inchangé             │ │
 │  │     lors d'un changement de template                    │ │
@@ -143,7 +146,7 @@ Dans la liste des livraisons existantes, l'indicateur `👥 N/M` correspond aux 
 ### Champs obligatoires
 - **Date de livraison** : Sélection dans un calendrier
 - **Horaires** : Heures de début et fin (par défaut 18h-20h, ou préremplies depuis le template)
-- **Bénévoles minimum** : Nombre requis pour assurer la livraison ; prérempli depuis le nombre de bénévoles souhaité du template sélectionné. Ce champ n'est affiché que si la livraison est liée à au moins un contrat principal (*CONTRACT* `is_main_contract`) — voir « Matérialisation des créneaux bénévoles »
+- **Bénévoles (créneau standard)** (« Bénévoles minimum ») : Nombre de bénévoles du créneau standard ; prérempli depuis le nombre de bénévoles souhaité du template sélectionné. Ce champ n'est affiché que si la livraison est liée à au moins un contrat principal (*CONTRACT* `is_main_contract`) — voir « Matérialisation des créneaux bénévoles »
 - **Contrats** : Sélection parmi les contrats (*CONTRACT*) proposables à la date choisie (plage de dates compatible ET non effectivement terminés) ; tous cochés par défaut à la création
 
 ### Champs optionnels
@@ -152,6 +155,7 @@ Dans la liste des livraisons existantes, l'indicateur `👥 N/M` correspond aux 
   - Heure d'arrivée anticipée (antérieure à l'heure de début standard)
   - Explication (texte visible par les Amapiens)
   - Nombre maximum de bénévoles pour ce créneau anticipé
+  - « Total attendu : N bénévoles (S au créneau standard + E au créneau anticipé) » : les places du créneau anticipé s'ajoutent à celles du créneau standard dans le besoin de la livraison (le M des compteurs « N/M bénévoles »)
   L'action « Modifier pour cette livraison uniquement » passe ces champs en édition sans modifier le template source.
 - **Bénévoles maximum** : Limite supérieure d'inscription
 - **Contrats additionnels** : Œufs, Pain, Fromage selon les contrats actifs disponibles

@@ -1001,7 +1001,9 @@ class _InviteForm extends StatelessWidget {
         if (canEditAdminRole) _roleTile(context, Role.admin, 'Admin'),
         if (_attempted && state.inviteRoles.isEmpty)
           Text('Choisissez au moins un rôle.', style: errorStyle),
-        if (inviteError != null) ...[
+        // Missing fields are already flagged one by one above.
+        if (inviteError != null &&
+            inviteError != kInviteRequiredFieldsMessage) ...[
           const SizedBox(height: 8),
           Text(inviteError, style: errorStyle),
         ],

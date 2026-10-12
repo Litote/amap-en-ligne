@@ -312,7 +312,10 @@ class _ContractCard extends StatelessWidget {
     );
     final subscriptionInstant = memberEntry.isEmpty
         ? null
-        : memberEntry.first.subscriptionInstant;
+        : displayedSubscriptionInstant(
+            contract,
+            memberEntry.first.subscriptionInstant,
+          );
     final subscriptions = memberEntry.isEmpty
         ? <MemberSubscription>[]
         : memberEntry.first.subscriptions;
