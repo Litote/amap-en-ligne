@@ -3,6 +3,7 @@
 package persistence.model
 
 import i18n.Language
+import i18n.TimeZoneIdSerializer
 import id.Id
 import kotlinx.datetime.TimeZone
 import kotlinx.serialization.SerialName
@@ -16,6 +17,7 @@ import kotlin.time.Instant
 @Serializable
 data class UserSettings(
     val language: Language,
+    @Serializable(with = TimeZoneIdSerializer::class)
     val timezone: TimeZone,
     @SerialName("server_id")
     val serverId: Id<Server>,

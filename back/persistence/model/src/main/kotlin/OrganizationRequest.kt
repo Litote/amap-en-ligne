@@ -3,6 +3,7 @@
 package persistence.model
 
 import i18n.Language
+import i18n.TimeZoneIdSerializer
 import id.Id
 import kotlinx.datetime.TimeZone
 import kotlinx.serialization.SerialName
@@ -21,6 +22,7 @@ data class OrganizationRequest(
     @SerialName("request_id") val requestId: Id<OrganizationRequest>,
     @SerialName("organization_name") val organizationName: String,
     @SerialName("organization_type") val organizationType: OrganizationType,
+    @Serializable(with = TimeZoneIdSerializer::class)
     val timezone: TimeZone,
     @SerialName("default_language") val defaultLanguage: Language,
     @SerialName("admin_first_name") val adminFirstName: String,
@@ -46,6 +48,7 @@ enum class OrganizationRequestStatus {
 data class CreateOrganizationRequestBody(
     @SerialName("organization_name") val organizationName: String,
     @SerialName("organization_type") val organizationType: OrganizationType,
+    @Serializable(with = TimeZoneIdSerializer::class)
     val timezone: TimeZone,
     @SerialName("default_language") val defaultLanguage: Language,
     @SerialName("admin_first_name") val adminFirstName: String,

@@ -3,6 +3,7 @@ package authentication
 import i18n.DEFAULT_LANGUAGE
 import i18n.DEFAULT_TIMEZONE
 import i18n.Language
+import i18n.TimeZoneIdSerializer
 import i18n.toTimeZone
 import id.Id
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -66,6 +67,7 @@ data class AuthenticatedInfo(
     val organizationId: String? = null,
     val producerAccountId: String? = null,
     val language: Language = DEFAULT_LANGUAGE,
+    @Serializable(with = TimeZoneIdSerializer::class)
     val timezone: TimeZone = DEFAULT_TIMEZONE.toTimeZone(),
     val roles: List<Role> = emptyList(),
     val scopes: List<Scope> = emptyList(),
