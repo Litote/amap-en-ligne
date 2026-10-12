@@ -13,7 +13,7 @@ List<String> missingCoordinatorContractNames(
     .map((link) => deliveryContractName(link, contracts))
     .toList();
 
-/// « ⚠️ Coordinateur manquant : `<contrats>` » alert line of a delivery card
+/// « ⚠ Coordinateur manquant : `<contrats>` » alert line of a delivery card
 /// (coordinator dashboard and delivery list). Renders nothing when every
 /// contract has a coordinator.
 class MissingCoordinatorWarning extends StatelessWidget {
@@ -25,7 +25,7 @@ class MissingCoordinatorWarning extends StatelessWidget {
   Widget build(BuildContext context) {
     if (contractNames.isEmpty) return const SizedBox.shrink();
     return Text(
-      '⚠️ Coordinateur manquant : ${contractNames.join(', ')}',
+      '⚠ Coordinateur manquant : ${contractNames.join(', ')}',
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
         color: Theme.of(context).colorScheme.error,
         fontWeight: FontWeight.w600,

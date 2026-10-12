@@ -36,6 +36,24 @@ bool contractLinkableAt(Contract contract, DateTime date, {DateTime? now}) {
   return true;
 }
 
+/// The member's subscription instant worth showing on their contract card, or
+/// null when it falls after the contract's last delivery: nobody subscribes to
+/// a finished contract, such a date is a technical one (e.g. the date legacy
+/// subscriptions were imported) and would only confuse the member.
+String? displayedSubscriptionInstant(
+  Contract contract,
+  String subscriptionInstant,
+) {
+  final subscribed = DateTime.tryParse(subscriptionInstant);
+  final end = _parseDate(contract.maxDeliveryDate);
+  if (subscribed != null &&
+      end != null &&
+      _normalizeDate(subscribed.toLocal()).isAfter(end)) {
+    return null;
+  }
+  return subscriptionInstant;
+}
+
 bool contractMatchesFilter(
   Contract contract,
   ContractFilter filter, {

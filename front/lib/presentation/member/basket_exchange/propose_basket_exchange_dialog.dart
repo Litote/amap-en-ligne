@@ -269,7 +269,7 @@ class _ProposeBasketExchangeDialogState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '⚠️ Règles d\'échange :',
+                    '⚠ Règles d\'échange :',
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   SizedBox(height: 4),

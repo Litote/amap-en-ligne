@@ -30,7 +30,7 @@ import 'package:go_router/go_router.dart';
 ///
 /// Implements the wireframe in
 /// `documentation/feature/fr/ui/coordinator/screen-coordinator-06-basket-exchange.md`.
-/// Three sections: "💝 Mes propositions en cours", "🛍️ Échanges disponibles",
+/// Three sections: "💝 Mes propositions en cours", "🛍 Échanges disponibles",
 /// "📊 Mon historique".
 class BasketExchangeScreen extends StatelessWidget {
   const BasketExchangeScreen({
@@ -301,7 +301,7 @@ class _ReadyBody extends StatelessWidget {
 
         // --- Section: Échanges disponibles ---
         Text(
-          '🛍️ Échanges disponibles',
+          '🛍 Échanges disponibles',
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
@@ -590,7 +590,7 @@ class _HistoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusEmoji = switch (exchange.status) {
       BasketExchangeStatus.accepted => '✅',
-      BasketExchangeStatus.cancelled => '⏸️',
+      BasketExchangeStatus.cancelled => '⏸',
       BasketExchangeStatus.open => '🟡',
     };
 

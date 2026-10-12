@@ -72,6 +72,8 @@ flutter build web --release  # builds WASM by default
 
 **Comments:** In English (as per global AGENTS.md rule).
 
+**Emoji in UI copy:** never write the invisible variation selector U+FE0F (`⚠️`, `ℹ️` → `⚠`, `ℹ`): Flutter web has no fallback font for it and logs « Could not find a set of Noto fonts » on every page. Pinned by `test/presentation/common/no_variation_selector_test.dart`.
+
 **No silent catches:** never write `on Exception catch (_)`. A real operation failure reduced to a generic UI state must call `unawaited(Sentry.captureException(e, stackTrace: stackTrace))`; an expected, recoverable fallback (lookup miss, claim decode, parse) must call `recordFallbackBreadcrumb(...)` (`presentation/common/error_feedback.dart`; in `data/`, use `Sentry.addBreadcrumb` directly). For a pure lookup, prefer `.where(...).firstOrNull` over try/catch.
 
 **Dependency proposal:** when adding a package (or exposing a transitive one) is the cleanest solution, stop and ask the user explicitly — package, exact version, and why — rather than working around it with a hack; add it only after approval (see root `AGENTS.md`).
