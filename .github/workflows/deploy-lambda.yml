@@ -54,7 +54,9 @@ jobs:
   # ── GraalVM native compile ────────────────────────────────────────────────
   build-native:
     name: Build Lambda (GraalVM native)
-    runs-on: ubuntu-latest
+    # arm64 runner: native-image compiles for the host platform, and the Lambda functions run on
+    # Graviton (Terraform `lambda_architecture`, default arm64). Change both together.
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
     permissions:
       contents: read
@@ -81,6 +83,16 @@ jobs:
       - name: Compile native image
         working-directory: back
         run: ./gradlew :deploy:lambda:packageNative
+
+      # The ZIP must match the Terraform `lambda_architecture` (arm64): fail fast rather than deploy
+      # functions that cannot start.
+      - name: Check native binaries are arm64
+        working-directory: back/deploy/lambda/build/native/nativeCompile
+        run: |
+          for binary in bootstrap libaws-crt-jni.so; do
+            file "$binary"
+            file "$binary" | grep -q "ARM aarch64" || { echo "::error::$binary is not arm64"; exit 1; }
+          done
 
       - name: Upload lambda.zip
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

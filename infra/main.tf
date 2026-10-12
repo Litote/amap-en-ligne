@@ -49,6 +49,7 @@ module "lambda" {
   jar_s3_object_version                 = module.storage.zip_s3_object_version
   handler                               = "deploy.lambda.DataLambda"
   runtime                               = "provided.al2023"
+  architecture                          = var.lambda_architecture
   memory_mb                             = var.lambda_memory_mb
   timeout_seconds                       = var.lambda_timeout_seconds
   log_retention_days                    = var.log_retention_days
@@ -85,6 +86,7 @@ module "email_lambda" {
   jar_s3_bucket         = module.storage.bucket_id
   jar_s3_key            = module.storage.zip_s3_key
   jar_s3_object_version = module.storage.zip_s3_object_version
+  architecture          = var.lambda_architecture
   ses_from_email        = var.ses_from_email
   sns_topic_arn         = module.lambda.activation_email_topic_arn
   log_retention_days    = var.log_retention_days
