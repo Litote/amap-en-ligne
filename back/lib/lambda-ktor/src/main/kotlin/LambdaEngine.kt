@@ -8,8 +8,7 @@ import io.ktor.server.engine.ApplicationEngineFactory
 import io.ktor.server.engine.BaseApplicationEngine
 import io.ktor.util.pipeline.execute
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.readRemaining
-import kotlinx.io.readByteArray
+import io.ktor.utils.io.toByteArray
 import lambda.APIGatewayV2HTTPEvent
 import lambda.APIGatewayV2HTTPResponse
 import java.util.Base64
@@ -86,4 +85,4 @@ private suspend fun buildResponse(response: LambdaApplicationResponse): APIGatew
     )
 }
 
-private suspend fun ByteReadChannel.drain(): ByteArray = readRemaining().readByteArray()
+private suspend fun ByteReadChannel.drain(): ByteArray = toByteArray()
