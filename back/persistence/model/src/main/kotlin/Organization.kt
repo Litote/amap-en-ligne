@@ -3,6 +3,7 @@
 package persistence.model
 
 import i18n.Language
+import i18n.TimeZoneIdSerializer
 import id.Id
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -25,6 +26,7 @@ data class Organization(
     @SerialName("default_delivery_template_id") val defaultDeliveryTemplateId: Id<DeliveryTemplate>? = null,
     @SerialName("contact_email") val contactEmail: String,
     @SerialName("active_status") val activeStatus: Boolean,
+    @Serializable(with = TimeZoneIdSerializer::class)
     val timezone: TimeZone,
     @SerialName("default_language") val defaultLanguage: Language,
     @SerialName("created_instant") val createdInstant: Instant,

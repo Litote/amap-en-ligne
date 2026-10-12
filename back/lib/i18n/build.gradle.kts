@@ -1,5 +1,5 @@
 plugins {
-    id("kotlin-convention")
+    id("serialization-convention")
     alias(libs.plugins.ktlint)
     id("jacoco")
 }
