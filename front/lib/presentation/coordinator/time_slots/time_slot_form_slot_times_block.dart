@@ -5,6 +5,10 @@ import 'package:flutter/services.dart';
 /// Editable per-delivery slot-time overrides: the volunteer arrival time, the
 /// end time, and an optional early slot (arrival + capacity + explanation).
 ///
+/// With the early slot enabled, a hint states the total number of volunteers
+/// expected (standard + early capacity): the "N/M bénévoles" counters sum both
+/// slots, so the coordinator sees where the M comes from.
+///
 /// Empty fields fall back to the selected template, then to the hard-coded
 /// defaults when the delivery is saved.
 class SlotTimesBlock extends StatelessWidget {
@@ -12,6 +16,7 @@ class SlotTimesBlock extends StatelessWidget {
     super.key,
     required this.arrivalTime,
     required this.endTime,
+    required this.standardVolunteersCtrl,
     required this.earlySlotEnabled,
     required this.earlySlotArrivalTime,
     required this.earlySlotMaxCtrl,
@@ -24,6 +29,7 @@ class SlotTimesBlock extends StatelessWidget {
 
   final TimeOfDay? arrivalTime;
   final TimeOfDay? endTime;
+  final TextEditingController standardVolunteersCtrl;
   final bool earlySlotEnabled;
   final TimeOfDay? earlySlotArrivalTime;
   final TextEditingController earlySlotMaxCtrl;
@@ -106,7 +112,32 @@ class SlotTimesBlock extends StatelessWidget {
           ),
           maxLines: 2,
         ),
+        const SizedBox(height: 8),
+        ListenableBuilder(
+          listenable: Listenable.merge([
+            standardVolunteersCtrl,
+            earlySlotMaxCtrl,
+          ]),
+          builder: (context, _) => Text(
+            expectedVolunteersLabel(
+              standard: int.tryParse(standardVolunteersCtrl.text),
+              early: int.tryParse(earlySlotMaxCtrl.text),
+            ),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
       ],
     ],
   );
+}
+
+/// « Total attendu : N bénévoles (S au créneau standard + E au créneau
+/// anticipé) ». Unparsable or empty counts read as 1, the values the form
+/// saves (`_earlySlotOverride`, the standard minimum fallback).
+String expectedVolunteersLabel({required int? standard, required int? early}) {
+  final s = standard == null || standard < 1 ? 1 : standard;
+  final e = early == null || early < 1 ? 1 : early;
+  final total = s + e;
+  return 'Total attendu : $total bénévole${total > 1 ? 's' : ''} '
+      '($s au créneau standard + $e au créneau anticipé)';
 }

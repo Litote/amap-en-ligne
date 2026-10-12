@@ -229,7 +229,7 @@ void main() {
         find.text('✅ Vous êtes inscrit(e) comme coordinateur'),
         findsOneWidget,
       );
-      expect(find.text('✅ Vous êtes inscrit(e) comme bénévole'), findsNothing);
+      expect(find.textContaining('comme bénévole'), findsNothing);
     });
 
     testWidgets('dashboard', (tester) async {
@@ -249,6 +249,7 @@ void main() {
   ) async {
     final reg = buildRegistration(memberId: memberId);
     final slot = buildSlot(
+      startTime: '2030-01-16T19:00:00',
       requiredVolunteers: 3,
       currentRegistrations: 1,
       registrations: [reg],
@@ -265,8 +266,46 @@ void main() {
       variant: DeliveryCardVariant.dashboard,
     );
 
-    expect(find.text('✅ Inscrit(e)'), findsOneWidget);
+    expect(
+      find.text('✅ Inscrit(e) • Créneau standard · Arrivée 19h'),
+      findsOneWidget,
+    );
     expect(find.text('SE DÉSINSCRIRE'), findsOneWidget);
+  });
+
+  testWidgets('planning: a member registered on the early slot is told so', (
+    tester,
+  ) async {
+    final standard = buildSlot(
+      startTime: '2030-01-16T19:00:00',
+      requiredVolunteers: 3,
+      currentRegistrations: 0,
+    );
+    final early = buildSlot(
+      startTime: '2030-01-16T18:30:00',
+      requiredVolunteers: 1,
+      currentRegistrations: 1,
+      registrations: [buildRegistration(memberId: memberId)],
+    ).copyWith(slotKind: SlotKind.early);
+    final delivery = buildDelivery(
+      contracts: [
+        buildContract(slots: [standard, early]),
+      ],
+    );
+    await pumpCard(
+      tester,
+      delivery: delivery,
+      org: buildOrg(deliveries: [delivery]),
+      variant: DeliveryCardVariant.planning,
+    );
+
+    expect(
+      find.text(
+        '✅ Vous êtes inscrit(e) comme bénévole • Créneau anticipé · '
+        'Arrivée 18h30',
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('dashboard: open slot shows S\'INSCRIRE', (tester) async {
@@ -595,7 +634,10 @@ void main() {
         find.textContaining('⏰ Créneau anticipé disponible'),
         findsNothing,
       );
-      expect(find.text('✅ Inscrit(e)'), findsOneWidget);
+      expect(
+        find.textContaining('✅ Inscrit(e) • Créneau standard'),
+        findsOneWidget,
+      );
     },
   );
 
@@ -750,7 +792,7 @@ void main() {
         template: template,
       );
 
-      expect(find.textContaining('ℹ️'), findsNothing);
+      expect(find.textContaining('ℹ'), findsNothing);
     },
   );
 

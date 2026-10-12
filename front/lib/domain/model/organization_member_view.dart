@@ -513,21 +513,26 @@ Delivery? lastCompletedDelivery(Organization org, String memberId) {
 // Registration lookup per delivery
 // ---------------------------------------------------------------------------
 
-/// Returns the slot kind of the first active registration for [memberId] on
+/// Returns the slot of the first active registration for [memberId] on
 /// [delivery], or null when no active registration exists.
-SlotKind? registeredSlotKindOn(Delivery delivery, String memberId) {
+MemberSlot? registeredSlotOn(Delivery delivery, String memberId) {
   for (final contract in delivery.contracts) {
     for (final slot in contract.slots) {
       for (final reg in slot.registrations) {
         if (reg.memberId == memberId &&
             reg.status != RegistrationStatus.cancelled) {
-          return slot.slotKind;
+          return slot;
         }
       }
     }
   }
   return null;
 }
+
+/// Returns the slot kind of the first active registration for [memberId] on
+/// [delivery], or null when no active registration exists.
+SlotKind? registeredSlotKindOn(Delivery delivery, String memberId) =>
+    registeredSlotOn(delivery, memberId)?.slotKind;
 
 /// Returns the contract id and slot kind of the first slot with available
 /// capacity of [kind] within [delivery], or null when no such slot exists.

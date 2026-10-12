@@ -12,6 +12,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.path
@@ -96,6 +97,12 @@ fun Application.dataRoutingModule(koin: KoinApplication) {
                 HttpStatusCode.BadRequest,
                 httpService.invalidPayloadError(call.request.path(), "malformed request body"),
             )
+        }
+        // A body in a format no converter reads: Ktor ≥ 3.6 throws this from `call.receive` instead
+        // of answering 415 itself (a malformed JSON body is a `BadRequestException`, handled above).
+        exception<ContentTransformationException> { call, cause ->
+            logger.debug(cause) { "Unsupported request body: ${cause.message}" }
+            call.respond(HttpStatusCode.UnsupportedMediaType, httpService.unsupportedMediaTypeError(call.request.path()))
         }
         exception<Throwable> { call, cause ->
             logger.error(cause) { "Technical error: ${cause.message}" }

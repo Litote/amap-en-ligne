@@ -13,6 +13,11 @@ variable "jar_s3_key" {
   type        = string
 }
 
+variable "architecture" {
+  description = "Instruction set of the function (arm64 or x86_64) — must match the native ZIP"
+  type        = string
+}
+
 variable "jar_s3_object_version" {
   description = "S3 object version of the artifact (forces redeployment when artifact changes)"
   type        = string

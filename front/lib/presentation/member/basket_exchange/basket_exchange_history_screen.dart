@@ -245,7 +245,7 @@ class _HistoryCard extends StatelessWidget {
 
   String get _statusEmoji => switch (exchange.status) {
     BasketExchangeStatus.accepted => '✅',
-    BasketExchangeStatus.cancelled => '⏸️',
+    BasketExchangeStatus.cancelled => '⏸',
     BasketExchangeStatus.open => '🟡',
   };
 

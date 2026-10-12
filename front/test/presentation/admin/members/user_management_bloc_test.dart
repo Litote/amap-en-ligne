@@ -311,7 +311,8 @@ void main() {
 
   group('invite member', () {
     blocTest<UserManagementBloc, UserManagementState>(
-      'showInviteForm sets showingInviteForm true and clears invite fields',
+      'showInviteForm sets showingInviteForm true, clears invite fields and '
+      'pre-checks the Amapien role',
       build: buildBloc,
       seed: () => UserManagementState.loaded(
         members: _members,
@@ -329,7 +330,7 @@ void main() {
             .having((s) => s.inviteFirstName, 'inviteFirstName', '')
             .having((s) => s.inviteLastName, 'inviteLastName', '')
             .having((s) => s.inviteEmail, 'inviteEmail', '')
-            .having((s) => s.inviteRoles, 'inviteRoles', isEmpty)
+            .having((s) => s.inviteRoles, 'inviteRoles', {Role.volunteer})
             .having((s) => s.inviteError, 'inviteError', null)
             .having((s) => s.inviteSuccess, 'inviteSuccess', false),
       ],

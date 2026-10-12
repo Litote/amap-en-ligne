@@ -22,7 +22,9 @@ bénévoles. Un **modèle de livraison** peut pré-remplir la plupart des champs
    modèle pré-remplit les horaires, le nombre de bénévoles et l'éventuel créneau anticipé.
 4. Dans **Horaires des créneaux**, vérifiez ou ajustez l'**heure d'arrivée des
    bénévoles** et l'**heure de fin** (« Selon le modèle » tant que vous n'y touchez pas).
-5. Indiquez les **Bénévoles minimum requis**.
+5. Indiquez le nombre de **Bénévoles (créneau standard)**. Si un créneau anticipé est
+   prévu, ses places s'y ajoutent : « Total attendu » indique le nombre de bénévoles
+   recherchés pour la livraison (c'est le M des compteurs « N/M bénévoles »).
 6. Cochez les **contrats présents** sur cette livraison (« 🌿 Contrats présents ») —
    chaque case indique le nom du contrat et son producteur ; les contrats actifs à la
    date choisie sont tous cochés par défaut. La liste **« Produits présents »** se limite
@@ -39,7 +41,7 @@ bénévoles. Un **modèle de livraison** peut pré-remplir la plupart des champs
 │   Modèle de livraison (facultatif) : [Standard ▼]
 │   Horaires des créneaux
 │     Heure d'arrivée : [17:30]  Heure de fin [20:00]
-│   Bénévoles minimum requis : [5]
+│   Bénévoles (créneau standard) : [5]
 │   🌿 Contrats présents :
 │      ✅ Légumes de saison — Maraîcher Bio
 │      ☐ Œufs fermiers — Œufs Fermiers
@@ -50,7 +52,7 @@ bénévoles. Un **modèle de livraison** peut pré-remplir la plupart des champs
 └──────────────────────────────────────────────
 ```
 
-Le bloc « Bénévoles minimum requis » et les créneaux de bénévolat n'apparaissent que si
+Le champ « Bénévoles (créneau standard) » et les créneaux de bénévolat n'apparaissent que si
 l'un des contrats cochés est un **contrat principal** (voir
 [Contrats de saison](03-contrats-de-saison.md)).
 
@@ -58,7 +60,7 @@ l'un des contrats cochés est un **contrat principal** (voir
 
 - Le modèle ne fait que **pré-remplir** : vous pouvez tout ajuster pour cette livraison,
   sans modifier le modèle.
-- Si vous modifiez vous-même le **nombre de bénévoles minimum**, un changement de
+- Si vous modifiez vous-même le **nombre de bénévoles du créneau standard**, un changement de
   modèle ne l'écrasera plus.
 - L'option **« Aucun modèle »** laisse les horaires entièrement libres.
 - Les modèles sont créés par l'**administrateur de l'AMAP** (voir le
@@ -75,6 +77,10 @@ seulement (le modèle n'est jamais modifié) :
 - **Arrivée (créneau anticipé)** ;
 - **Bénévoles max (créneau anticipé)** ;
 - **Explication (créneau anticipé, facultatif)**, visible par les amapiens.
+
+Quand le créneau anticipé est activé, la ligne **« Total attendu : 6 bénévoles
+(5 au créneau standard + 1 au créneau anticipé) »** rappelle que ses places comptent dans
+le besoin de la livraison.
 
 ## Confirmer une livraison : au moins un coordinateur par produit
 

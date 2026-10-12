@@ -463,7 +463,7 @@ class _PlanFooter extends StatelessWidget {
           Expanded(
             child: _FooterButton(
               onPressed: () => context.go('/help'),
-              icon: 'ℹ️',
+              icon: 'ℹ',
               label: 'AIDE',
               stacked: isNarrow,
             ),
