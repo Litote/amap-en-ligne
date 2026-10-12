@@ -193,6 +193,58 @@ void main() {
     expect(find.text('Tomates'), findsNothing);
   });
 
+  testWidgets('hides a subscription date later than the contract end', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      organizationRepository: organizationRepository,
+      memberRepository: memberRepository,
+      contractRepository: contractRepository,
+      authService: authService,
+    );
+    await tester.pump();
+
+    organizationStream.add(buildOrganization());
+    await tester.pump();
+    memberStream.add(const Member(memberId: 'm-1', organizationId: 'org-1'));
+    await tester.pump();
+    contractStream.add([
+      buildContract(
+        contractId: 'c-active',
+        producerAccountId: 'p-1',
+        minDeliveryDate: '2020-01-01',
+        maxDeliveryDate: '2099-12-31',
+        members: const [
+          ContractMember(
+            memberId: 'm-1',
+            subscriptionInstant: '2026-01-01T00:00:00Z',
+            status: ContractMemberStatus.active,
+          ),
+        ],
+      ),
+      buildContract(
+        contractId: 'c-ended',
+        producerAccountId: 'p-1',
+        minDeliveryDate: '2020-05-27',
+        maxDeliveryDate: '2020-07-01',
+        members: const [
+          ContractMember(
+            memberId: 'm-1',
+            // Stamped by an import long after the contract ended.
+            subscriptionInstant: '2026-10-01T00:00:00Z',
+            status: ContractMemberStatus.active,
+          ),
+        ],
+      ),
+    ]);
+    await tester.pumpAndSettle();
+
+    // Only the active contract keeps its date; the ended one shows none.
+    expect(find.text('Souscrit le : 1er janv. 2026'), findsOneWidget);
+    expect(find.textContaining('Souscrit le'), findsOneWidget);
+  });
+
   testWidgets('filters the current member contracts by period', (tester) async {
     await _pump(
       tester,

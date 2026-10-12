@@ -33,6 +33,11 @@ const _kLastAdminMessage = 'Cette AMAP doit conserver au moins un Admin.';
 const _kSelfDeleteMessage = 'Vous ne pouvez pas supprimer votre propre compte.';
 const _kDeleteFailedMessage = 'La suppression a échoué. Veuillez réessayer.';
 
+/// Invitation submitted with a blank field or no role. The invite form already
+/// names each missing field next to it, so it does not repeat this summary.
+const kInviteRequiredFieldsMessage =
+    'Veuillez remplir tous les champs obligatoires.';
+
 class UserManagementBloc
     extends Bloc<UserManagementEvent, UserManagementState> {
   UserManagementBloc({
@@ -308,7 +313,8 @@ class UserManagementBloc
         inviteFirstName: '',
         inviteLastName: '',
         inviteEmail: '',
-        inviteRoles: const {},
+        // Most invitees are plain members: start with « Amapien » checked.
+        inviteRoles: const {Role.volunteer},
         inviteError: null,
         inviteSuccess: false,
       ),
@@ -604,11 +610,7 @@ class UserManagementBloc
         current.inviteLastName.trim().isEmpty ||
         current.inviteEmail.trim().isEmpty ||
         current.inviteRoles.isEmpty) {
-      emit(
-        current.copyWith(
-          inviteError: 'Veuillez remplir tous les champs obligatoires.',
-        ),
-      );
+      emit(current.copyWith(inviteError: kInviteRequiredFieldsMessage));
       _submittingInvitation = false;
       return;
     }

@@ -15,7 +15,7 @@ tableau de bord). L'écran s'intitule **« Gestion des membres »**.
 1. Touchez le bouton rond **[Inviter un membre]** (icône de personne avec un « + »), en
    bas à droite de l'écran.
 2. Renseignez le **prénom**, le **nom** et l'**e-mail** (tous obligatoires).
-3. Cochez au moins un **rôle** à attribuer :
+3. Cochez au moins un **rôle** à attribuer (**Amapien** est déjà coché) :
    - **Amapien** (membre standard) ;
    - **Coordinateur** (accès gestion) ;
    - **Admin** (accès complet — visible uniquement si vous êtes vous-même admin).

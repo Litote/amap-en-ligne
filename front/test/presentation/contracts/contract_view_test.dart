@@ -223,6 +223,42 @@ void main() {
     );
   });
 
+  group('displayedSubscriptionInstant', () {
+    test('keeps a subscription made during the contract', () {
+      expect(
+        displayedSubscriptionInstant(
+          buildContract(maxDeliveryDate: '2026-07-01'),
+          '2026-05-20T10:00:00Z',
+        ),
+        '2026-05-20T10:00:00Z',
+      );
+    });
+
+    test('keeps a subscription on the last delivery day', () {
+      expect(
+        displayedSubscriptionInstant(
+          buildContract(maxDeliveryDate: '2026-07-01'),
+          '2026-07-01T08:00:00',
+        ),
+        '2026-07-01T08:00:00',
+      );
+    });
+
+    test('hides a subscription dated after the contract ended', () {
+      expect(
+        displayedSubscriptionInstant(
+          buildContract(maxDeliveryDate: '2026-07-01'),
+          '2026-10-01T10:00:00Z',
+        ),
+        isNull,
+      );
+    });
+
+    test('keeps an unparsable value as is', () {
+      expect(displayedSubscriptionInstant(buildContract(), 'n/a'), 'n/a');
+    });
+  });
+
   group('contractLinkableAt', () {
     test('returns false when contract is effectively ended (ENDED manual)', () {
       expect(

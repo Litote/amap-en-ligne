@@ -474,8 +474,19 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Inviter'));
       await tester.pumpAndSettle();
 
-      // First name, last name and email, plus the roles.
+      // First name, last name and email; « Amapien » is pre-checked, and the
+      // generic summary is not repeated under the per-field messages.
       expect(find.text('Ce champ est requis.'), findsNWidgets(3));
+      expect(find.text('Choisissez au moins un rôle.'), findsNothing);
+      expect(
+        find.text('Veuillez remplir tous les champs obligatoires.'),
+        findsNothing,
+      );
+
+      await tester.tap(find.widgetWithText(CheckboxListTile, 'Amapien'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Inviter'));
+      await tester.pumpAndSettle();
       expect(find.text('Choisissez au moins un rôle.'), findsOneWidget);
 
       await tester.enterText(

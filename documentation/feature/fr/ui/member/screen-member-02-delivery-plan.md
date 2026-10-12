@@ -25,7 +25,8 @@ Interface de consultation du planning mensuel avec possibilité d'inscription di
 │  ┌─────────────────────────────────────────────────────────┐ │
 │  │  📅 Mercredi 10 Janvier • 18h00-20h00                  │ │
 │  │  🌿 Maraîcher Bio + 🍞 Pain Artisanal                  │ │
-│  │  ✅ Vous êtes inscrit(e) comme bénévole                │ │
+│  │  ✅ Vous êtes inscrit(e) comme bénévole • Créneau      │ │
+│  │     standard · Arrivée 18h                             │ │
 │  │  👥 5/5 bénévoles ─ COMPLET                            │ │
 │  │      [VOIR DÉTAILS] [SE DÉSINSCRIRE]                   │ │
 │  └─────────────────────────────────────────────────────────┘ │
@@ -92,7 +93,7 @@ Interface de consultation du planning mensuel avec possibilité d'inscription di
 - **🔴 BESOIN URGENT** : Moins de 50% des bénévoles requis et livraison dans 3 jours ou moins (le bouton devient « S'INSCRIRE MAINTENANT 🚨 »)
 - **🙋 Bénévoles recherchés** : Moins de 50% des bénévoles requis, livraison dans plus de 3 jours
 - **⚠️ Places limitées** : Entre 50% et 80% des places occupées
-- **Vous êtes inscrit(e)** : Participation confirmée du membre connecté. Lorsque le membre est lui-même coordinateur (*COORDINATOR*) d'un contrat de cette livraison, le libellé devient « ✅ Vous êtes inscrit(e) comme coordinateur » : un coordinateur n'est jamais compté parmi les bénévoles du compteur « N/M bénévoles » (sur l'accueil : « ✅ Inscrit(e) comme coordinateur »)
+- **Vous êtes inscrit(e)** : Participation confirmée du membre connecté, suivie du créneau choisi et de son heure d'arrivée (« • Créneau anticipé · Arrivée 18h30 »). Lorsque le membre est lui-même coordinateur (*COORDINATOR*) d'un contrat de cette livraison, le libellé devient « ✅ Vous êtes inscrit(e) comme coordinateur » : un coordinateur n'est jamais compté parmi les bénévoles du compteur « N/M bénévoles » (sur l'accueil : « ✅ Inscrit(e) comme coordinateur »)
 - **⏰ Créneau anticipé disponible** : La livraison dispose d'un créneau anticipé avec au moins une place libre
 - **🚧 Contrat inactif** : Tous les contrats (*CONTRACT*) liés à la livraison sont encore en préparation (`IN_PREPARATION`). Une telle livraison est **masquée pour les amapiens simples** ; seuls les coordinateurs et admins la voient, avec ce badge et **sans action d'inscription**
 

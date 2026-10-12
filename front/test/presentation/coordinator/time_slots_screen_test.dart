@@ -299,7 +299,7 @@ void main() {
         ),
       );
 
-      expect(find.text('⚠️ Coordinateur manquant : Pain 2026'), findsOneWidget);
+      expect(find.text('⚠ Coordinateur manquant : Pain 2026'), findsOneWidget);
     });
 
     testWidgets('is hidden when every contract has a coordinator', (

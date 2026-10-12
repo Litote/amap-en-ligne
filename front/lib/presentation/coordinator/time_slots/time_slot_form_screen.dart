@@ -1254,6 +1254,7 @@ class _TimeSlotFormScreenState extends State<TimeSlotFormScreen> {
             slotTimesBlock: SlotTimesBlock(
               arrivalTime: _volunteerArrivalTime,
               endTime: _standardEndTime,
+              standardVolunteersCtrl: _minVolunteersCtrl,
               earlySlotEnabled: _earlySlotEnabled,
               earlySlotArrivalTime: _earlySlotArrivalTime,
               earlySlotMaxCtrl: _earlySlotMaxCtrl,
@@ -1628,7 +1629,7 @@ class _FormBody extends StatelessWidget {
     controller: minVolunteersCtrl,
     onChanged: onMinVolunteersChanged,
     decoration: const InputDecoration(
-      labelText: 'Bénévoles minimum requis',
+      labelText: 'Bénévoles (créneau standard)',
       border: OutlineInputBorder(),
     ),
     keyboardType: TextInputType.number,

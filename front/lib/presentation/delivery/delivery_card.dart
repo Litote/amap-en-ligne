@@ -197,7 +197,7 @@ class DeliveryCard extends StatelessWidget {
           // volunteers: say so, or "0/2 — Manque 2" would contradict it.
           deliveryCoordinatorIds(delivery).contains(memberId)
               ? '✅ Vous êtes inscrit(e) comme coordinateur'
-              : '✅ Vous êtes inscrit(e) comme bénévole',
+              : '✅ Vous êtes inscrit(e) comme bénévole${_registeredSlotSuffix()}',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w600,
@@ -378,7 +378,7 @@ class DeliveryCard extends StatelessWidget {
     return switch (_needLevel(state)) {
       VolunteerNeedLevel.none => const SizedBox.shrink(),
       VolunteerNeedLevel.limited => Text(
-        '⚠️ Attention - Places limitées',
+        '⚠ Attention - Places limitées',
         style: Theme.of(
           context,
         ).textTheme.bodyMedium?.copyWith(color: Colors.orange.shade700),
@@ -462,6 +462,17 @@ class DeliveryCard extends StatelessWidget {
     );
   }
 
+  /// « • Créneau standard · Arrivée 19h » for the slot the member is
+  /// registered on, so they know when to come (empty when unknown).
+  String _registeredSlotSuffix() {
+    final slot = registeredSlotOn(delivery, member.memberId);
+    if (slot == null) return '';
+    final kind = slot.slotKind == SlotKind.early
+        ? 'Créneau anticipé'
+        : 'Créneau standard';
+    return ' • $kind · Arrivée ${formatSlotTime(slot.startTime)}';
+  }
+
   String _planningStandardLabel(_DeliveryCardState state) {
     final slot = state.standardSlot;
     if (slot == null) return _kRegisterLabel;
@@ -492,7 +503,7 @@ class DeliveryCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: Text(
-        'ℹ️ $explanation',
+        'ℹ $explanation',
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(context).colorScheme.secondary,
         ),
@@ -579,7 +590,7 @@ class DeliveryCard extends StatelessWidget {
         Text(
           deliveryCoordinatorIds(delivery).contains(memberId)
               ? '✅ Inscrit(e) comme coordinateur'
-              : '✅ Inscrit(e)',
+              : '✅ Inscrit(e)${_registeredSlotSuffix()}',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w600,
@@ -648,7 +659,7 @@ class DeliveryCard extends StatelessWidget {
     }
     final label = switch (_needLevel(state)) {
       VolunteerNeedLevel.none => null,
-      VolunteerNeedLevel.limited => '⚠️ Places limitées',
+      VolunteerNeedLevel.limited => '⚠ Places limitées',
       VolunteerNeedLevel.wanted => '🙋 Bénévoles recherchés',
       VolunteerNeedLevel.urgent => '🔴 Besoin urgent de bénévoles',
     };
