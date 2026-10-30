@@ -2,6 +2,7 @@
 
 package deploy.jvm
 
+import com.google.api.client.json.gson.GsonFactory
 import id.toId
 import persistence.model.Notification
 import persistence.model.NotificationCategory
@@ -9,6 +10,7 @@ import persistence.model.NotificationType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -45,5 +47,13 @@ internal class FcmPushPayloadTest {
         assertEquals("BASKET_EXCHANGE_ACCEPTED", data["category"])
         assertFalse(data.containsKey("deep_link"))
         assertFalse(data.containsKey("related_entity_id"))
+    }
+
+    @Test
+    fun `GIVEN a device FID WHEN building the FCM message THEN it targets the fid, never the deprecated token`() {
+        val json = GsonFactory.getDefaultInstance().toString(fcmPushMessage("fid-1", notification(deepLink = "app://x")))
+        assertTrue(""""fid":"fid-1"""" in json, json)
+        assertFalse(""""token"""" in json, json)
+        assertTrue(""""deep_link":"app://x"""" in json, json)
     }
 }

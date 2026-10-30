@@ -35,6 +35,11 @@
                 <data android:scheme="https" android:host="api.amap-en-ligne.fr" android:pathPrefix="/activate" />
             </intent-filter>
         </activity>
+        <!-- Push targets are Firebase Installation IDs (FIDs), not the deprecated FCM
+             registration tokens: FcmPushTokenSource calls register() then reads the FID. -->
+        <meta-data
+            android:name="firebase_messaging_installation_id_enabled"
+            android:value="true" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
