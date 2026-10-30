@@ -14,7 +14,7 @@
 
 [versions]
 angus-mail = "2.0.3"
-firebase-admin = "9.4.3"
+firebase-admin = "9.11.0"
 asyncant-lambda-runtime = "0.9.7"
 # Keep aligned on the aws-crt version the AWS SDK resolves at runtime.
 aws-crt = "0.42.2"
