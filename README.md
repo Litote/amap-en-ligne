@@ -13,7 +13,7 @@
 
 Application pour gérer l'organisation des AMAP.
 
-Clients disponibles sur Web, Android et iOS.
+Clients disponibles sur Web, Android (8.0 et plus) et iOS.
 
 Auto-hébergable et fédérée : pour installer votre propre instance, voir le
 [guide d'auto-hébergement](documentation/install/fr/auto-hebergement.md).
