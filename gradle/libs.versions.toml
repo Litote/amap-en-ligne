@@ -18,7 +18,7 @@ firebase-admin = "9.11.0"
 asyncant-lambda-runtime = "0.9.7"
 # Keep aligned on the aws-crt version the AWS SDK resolves at runtime.
 aws-crt = "0.42.2"
-aws-dynamodb = "1.6.59-beta"
+aws-dynamodb = "1.9.24"
 aws-sdk-kotlin = "1.6.59"
 coroutines = "1.10.2"
 flyway = "13.8.0"
