@@ -24,6 +24,15 @@ updates:
     labels:
       - dependencies
       - backend
+    groups:
+      # The DynamoDB mapper (aws-dynamodb), the SDK clients (aws-sdk-kotlin), the smithy
+      # runtime and aws-crt are released together and must resolve to aligned versions:
+      # bump them in a single PR instead of one PR per catalog entry.
+      aws-sdk:
+        patterns:
+          - "aws.sdk.kotlin*"
+          - "aws.smithy.kotlin*"
+          - "software.amazon.awssdk.crt*"
 
   # ── Gradle (root version catalog: gradle/libs.versions.toml) ───────────────
   - package-ecosystem: gradle
@@ -36,6 +45,15 @@ updates:
     labels:
       - dependencies
       - backend
+    groups:
+      # The DynamoDB mapper (aws-dynamodb), the SDK clients (aws-sdk-kotlin), the smithy
+      # runtime and aws-crt are released together and must resolve to aligned versions:
+      # bump them in a single PR instead of one PR per catalog entry.
+      aws-sdk:
+        patterns:
+          - "aws.sdk.kotlin*"
+          - "aws.smithy.kotlin*"
+          - "software.amazon.awssdk.crt*"
 
   # ── Flutter / Dart (pub) ────────────────────────────────────────────────────
   - package-ecosystem: pub
