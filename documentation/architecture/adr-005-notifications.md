@@ -137,8 +137,18 @@ NotificationDispatcher
 Both resolve the recipient's registered **`DeviceToken`s** by scope before sending. A
 device token is a first-class synced entity (`EntityType.DeviceToken`) on the same
 private per-recipient scopes as `Notification`; the client registers one when it
-obtains/refreshes a push registration token and deletes it on logout. The server
+obtains/refreshes its push target and deletes it on logout. The server
 deduplicates by `(recipientScope, token)`.
+
+The push target is the app installation's **Firebase Installation ID (FID)**, not the
+deprecated FCM registration token: the app runs in FCM's FID mode (Android manifest
+`firebase_messaging_installation_id_enabled`, iOS Info.plist
+`FirebaseMessagingInstallationIdEnabled`), calls `register()` then reads its FID
+(`FirebaseInstallations.getId()`), and re-registers it on `onRegistered`. The JVM sender
+targets it as the FCM HTTP v1 `fid`. **Accepted limitation (Lambda)**: SNS only documents
+FCM registration tokens; it is handed the FID, which FCM still accepts in its deprecated
+`token` target during the token-to-FID transition — once that ends, the Lambda transport
+must move to FCM HTTP v1 `fid` sends.
 
 Transport stays best-effort and post-commit: a failed send never rolls back the domain
 mutation. Email (JVM) and push (both deployments) are wired as real transports; the Lambda

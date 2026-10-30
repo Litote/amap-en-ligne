@@ -140,7 +140,7 @@ The port adapters themselves are deployment-agnostic and live in `service:email-
 - `deploy:lambda` → `LambdaEmailGateway.deliver` publishes `EmailMessage` on SNS (`ACTIVATION_EMAIL_SNS_TOPIC_ARN`); `ActivationEmailLambda` consumes and sends via SES v2.
 - `deploy:jvm` → `JvmEmailGateway.deliver` over SMTP (`EmailSender`).
 
-All email ports are real on both deployments (invitations, activations, rejections, account lifecycle, basket exchange, attendance sheets, EMAIL notification channel). Fan-out ports resolve recipients from DAOs (org admins via `MemberSyncDAO`, owner broadcast — PII-free — via `OwnerSyncDAO`). Push: `SnsPushNotificationChannelSender` on Lambda (`SNS_PLATFORM_APP_ARN_ANDROID`/`_IOS`), `FcmPushNotificationChannelSender` on JVM (`FCM_CREDENTIALS_FILE` / `GOOGLE_APPLICATION_CREDENTIALS`, self-disables when unset).
+All email ports are real on both deployments (invitations, activations, rejections, account lifecycle, basket exchange, attendance sheets, EMAIL notification channel). Fan-out ports resolve recipients from DAOs (org admins via `MemberSyncDAO`, owner broadcast — PII-free — via `OwnerSyncDAO`). Push: `SnsPushNotificationChannelSender` on Lambda (`SNS_PLATFORM_APP_ARN_ANDROID`/`_IOS`), `FcmPushNotificationChannelSender` on JVM (`FCM_CREDENTIALS_FILE` / `GOOGLE_APPLICATION_CREDENTIALS`, self-disables when unset). `DeviceToken.token` is a Firebase Installation ID: the JVM sends it as the FCM `fid` (`fcmPushMessage`); SNS receives it as a platform-endpoint token (works only while FCM accepts FIDs in `token` — ADR-005).
 
 ## Security notes
 

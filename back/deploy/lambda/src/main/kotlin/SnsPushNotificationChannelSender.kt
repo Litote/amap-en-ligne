@@ -75,7 +75,14 @@ internal class SnsPushNotificationChannelSender(
         }
     }
 
-    /** Idempotently resolves the SNS platform endpoint ARN for [token]. */
+    /**
+     * Idempotently resolves the SNS platform endpoint ARN for [token].
+     *
+     * Accepted limitation (ADR-005): [token] is the app's Firebase Installation ID (FID). SNS only
+     * documents FCM registration tokens, and FCM accepts an FID in its deprecated `token` target
+     * during the token-to-FID transition only — once FCM drops it, this transport must move to
+     * FCM HTTP v1 `fid` sends (as the JVM `FcmPushNotificationChannelSender` does).
+     */
     private suspend fun ensureEndpoint(
         platformApplicationArn: String,
         token: String,

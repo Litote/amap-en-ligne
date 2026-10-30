@@ -32,7 +32,8 @@ import com.google.firebase.messaging.Notification as FcmNotification
  * — transport is best-effort, the in-app feed remains the durable record.
  *
  * The device tokens are resolved upstream by `NotificationPublisher` and arrive in
- * [NotificationContact.devices], so this sender stays a pure transport.
+ * [NotificationContact.devices], so this sender stays a pure transport. A device token is the
+ * app installation's Firebase Installation ID, sent as the FCM `fid` target ([fcmPushMessage]).
  */
 @Single(createdAtStart = true, binds = [NotificationChannelSender::class])
 internal class FcmPushNotificationChannelSender(
@@ -53,31 +54,13 @@ internal class FcmPushNotificationChannelSender(
                 return
             }
         if (contact.devices.isEmpty()) return
-        val data = pushDataPayload(notification)
         withContext(dispatcher) {
             contact.devices.forEach { device ->
-                val message =
-                    Message
-                        .builder()
-                        .setToken(device.token)
-                        .setNotification(
-                            FcmNotification
-                                .builder()
-                                .setTitle(notification.title)
-                                .setBody(notification.body)
-                                .build(),
-                        ).apply { data.forEach { (key, value) -> putData(key, value) } }
-                        .setAndroidConfig(
-                            AndroidConfig
-                                .builder()
-                                .setPriority(AndroidConfig.Priority.HIGH)
-                                .build(),
-                        ).build()
                 try {
-                    messaging.send(message)
+                    messaging.send(fcmPushMessage(device.token, notification))
                 } catch (e: FirebaseMessagingException) {
                     if (e.messagingErrorCode == MessagingErrorCode.UNREGISTERED) {
-                        logger.info { "stale FCM token for device ${device.deviceTokenId.id}; will be pruned on next refresh" }
+                        logger.info { "stale FCM installation for device ${device.deviceTokenId.id}; will be pruned on next refresh" }
                     } else {
                         logger.warn(e) { "FCM push failed for device ${device.deviceTokenId.id}" }
                     }
@@ -113,6 +96,31 @@ internal class FcmPushNotificationChannelSender(
         private val logger = KotlinLogging.logger {}
     }
 }
+
+/**
+ * The FCM message for one device, targeted at its Firebase Installation ID ([fid]) — the
+ * registration `token` target is deprecated. Pure function — unit-tested.
+ */
+internal fun fcmPushMessage(
+    fid: String,
+    notification: Notification,
+): Message =
+    Message
+        .builder()
+        .setFid(fid)
+        .setNotification(
+            FcmNotification
+                .builder()
+                .setTitle(notification.title)
+                .setBody(notification.body)
+                .build(),
+        ).apply { pushDataPayload(notification).forEach { (key, value) -> putData(key, value) } }
+        .setAndroidConfig(
+            AndroidConfig
+                .builder()
+                .setPriority(AndroidConfig.Priority.HIGH)
+                .build(),
+        ).build()
 
 /**
  * Data payload carried alongside the notification so the client can route the tap
