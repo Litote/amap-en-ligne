@@ -10,6 +10,7 @@ import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/sync/mutation_outcome.dart';
+import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/coordinator/coordinator_dashboard_section.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
@@ -20,7 +21,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../support/organization_fixtures.dart';
@@ -204,9 +204,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
 
       String formatTitle(String isoDate) {
-        final raw = DateFormat(
+        // Same formatter as the screen: the 1st reads "1er".
+        final raw = frenchDateFormat(
           "EEEE d MMMM • HH'h'mm",
-          'fr',
         ).format(DateTime.parse(isoDate));
         return raw[0].toUpperCase() + raw.substring(1);
       }
@@ -256,9 +256,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
 
       String formatTitle(String isoDate) {
-        final raw = DateFormat(
+        // Same formatter as the screen: the 1st reads "1er".
+        final raw = frenchDateFormat(
           "EEEE d MMMM • HH'h'mm",
-          'fr',
         ).format(DateTime.parse(isoDate));
         return raw[0].toUpperCase() + raw.substring(1);
       }
