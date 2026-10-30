@@ -161,6 +161,9 @@ if (!project.hasProperty("sonarExternalCoverage")) {
  * Fails the build if the gate is not OK or any issue/hotspot remains.
  *
  * Waits for SonarCloud to finish processing the analysis (async CE task) before checking.
+ * On a pull-request scan (`-Dsonar.pullrequest.key=<n>`, as CI passes it) it checks that PR's
+ * analysis; otherwise the main branch's — so a PR is never failed by an issue it does not
+ * touch, nor passed despite one it introduces.
  *
  * Prerequisites: run `./gradlew jacocoAggregatedReport sonar` first to push the analysis.
  * Token: set `systemProp.sonar.token=<token>` in ~/.gradle/gradle.properties (or SONAR_TOKEN env).
@@ -179,6 +182,9 @@ tasks.register("sonarCheck") {
             ?: error("sonar.token not set. Add systemProp.sonar.token=<token> to ~/.gradle/gradle.properties")
 
         val projectKey = "Litote_amap-en-ligne"
+        val pullRequest = project.providers.systemProperty("sonar.pullrequest.key").orNull
+        val analysisScope =
+            pullRequest?.let { "&pullRequest=${java.net.URLEncoder.encode(it, Charsets.UTF_8)}" } ?: ""
         val client = HttpClient.newHttpClient()
         val slurper = JsonSlurper()
 
@@ -227,16 +233,16 @@ tasks.register("sonarCheck") {
         }
 
         @Suppress("UNCHECKED_CAST")
-        val qgData = fetch("https://sonarcloud.io/api/qualitygates/project_status?projectKey=$projectKey") as Map<String, Any>
+        val qgData = fetch("https://sonarcloud.io/api/qualitygates/project_status?projectKey=$projectKey$analysisScope") as Map<String, Any>
         @Suppress("UNCHECKED_CAST")
         val gateStatus = (qgData["projectStatus"] as Map<String, Any>)["status"] as String
 
         @Suppress("UNCHECKED_CAST")
-        val issuesData = fetch("https://sonarcloud.io/api/issues/search?projectKeys=$projectKey&resolved=false&ps=1") as Map<String, Any>
+        val issuesData = fetch("https://sonarcloud.io/api/issues/search?projectKeys=$projectKey&resolved=false&ps=1$analysisScope") as Map<String, Any>
         val issueCount = (issuesData["total"] as Number).toInt()
 
         @Suppress("UNCHECKED_CAST")
-        val hotspotsData = fetch("https://sonarcloud.io/api/hotspots/search?projectKey=$projectKey&status=TO_REVIEW&ps=1") as Map<String, Any>
+        val hotspotsData = fetch("https://sonarcloud.io/api/hotspots/search?projectKey=$projectKey&status=TO_REVIEW&ps=1$analysisScope") as Map<String, Any>
         @Suppress("UNCHECKED_CAST")
         val hotspotCount = ((hotspotsData["paging"] as Map<String, Any>)["total"] as Number).toInt()
 
@@ -244,6 +250,7 @@ tasks.register("sonarCheck") {
         logger.lifecycle("╔════════════════════════════════════╗")
         logger.lifecycle("║     SonarCloud Quality Gate        ║")
         logger.lifecycle("╠════════════════════════════════════╣")
+        logger.lifecycle("║  Scope   : ${(pullRequest?.let { "PR #$it" } ?: "main").padEnd(24)}║")
         logger.lifecycle("║  Gate    : ${gateStatus.padEnd(24)}║")
         logger.lifecycle("║  Issues  : ${issueCount.toString().padEnd(24)}║")
         logger.lifecycle("║  Hotspots: ${hotspotCount.toString().padEnd(24)}║")

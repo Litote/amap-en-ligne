@@ -393,4 +393,5 @@ Get your token at [sonarcloud.io](https://sonarcloud.io) → My Account → Secu
 This generates coverage for **both** components — back Kotlin (`jacocoAggregatedReport`) and front
 Dart/Flutter (`frontTest --coverage` → `front/coverage/lcov.info`) — uploads a single combined analysis to
 the `Litote_amap-en-ligne` SonarCloud project, then enforces the quality gate (`sonarCheck` fails the build
-when the gate ≠ OK or any issue / unreviewed hotspot remains).
+when the gate ≠ OK or any issue / unreviewed hotspot remains). In CI, a pull-request scan
+(`-Dsonar.pullrequest.key`) makes `sonarCheck` check that PR's analysis instead of `main`'s.
