@@ -1,7 +1,7 @@
 package i18n
 
-import kotlinx.datetime.IllegalTimeZoneException
 import kotlinx.datetime.TimeZone
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,7 +20,7 @@ class TimeZoneIdSerializerTest {
 
     @Test
     fun `GIVEN an unknown identifier WHEN decoded THEN decoding fails`() {
-        assertFailsWith<IllegalTimeZoneException> {
+        assertFailsWith<SerializationException> {
             Json.decodeFromString(TimeZoneIdSerializer, "\"Mars/Olympus\"")
         }
     }
