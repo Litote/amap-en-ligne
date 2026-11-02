@@ -13,7 +13,7 @@
 # alias verbatim — e.g. lib("koin-core"), plugin("ktlint").
 
 [versions]
-angus-mail = "2.0.3"
+angus-mail = "2.0.5"
 firebase-admin = "9.11.0"
 asyncant-lambda-runtime = "0.9.7"
 # Keep aligned on the aws-crt version the AWS SDK resolves at runtime.
