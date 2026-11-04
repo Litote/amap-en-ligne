@@ -7,15 +7,16 @@ on:
       - 'front/pubspec.yaml'
       - 'front/pubspec.lock'
 
-# Keep commit-backs on the same PR branch from racing on the ref.
-concurrency:
-  group: dependabot-autocommit-${{ github.head_ref }}
-  cancel-in-progress: false
-
 jobs:
   update-flutter-lock:
     name: Regenerate Flutter pubspec lock
     if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    # Shared with the Gradle verification workflow: two commits in parallel make the second ref update fail with
+    # "Update is not a fast forward". Declared at job level so that skipped runs stay out of the group.
+    concurrency:
+      group: dependabot-branch-update-${{ github.head_ref }}
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -60,36 +61,9 @@ jobs:
         working-directory: front
         run: flutter pub get
 
-      - name: Commit updated pubspec.lock
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
-          BRANCH: ${{ github.head_ref }}
-        run: |
-          if git diff --quiet -- front/pubspec.lock; then
-            echo "No changes to commit."
-            exit 0
-          fi
-          # Use the API to get the PR branch HEAD — git rev-parse HEAD would return
-          # the base branch SHA since we checked out github.base_ref, not the PR branch.
-          PARENT_SHA=$(gh api "repos/$OWNER/$REPO/git/refs/heads/$BRANCH" --jq '.object.sha')
-          CURRENT_TREE=$(gh api "repos/$OWNER/$REPO/git/commits/$PARENT_SHA" --jq '.tree.sha')
-
-          base64 -w 0 front/pubspec.lock > /tmp/content.b64
-          python3 -c "import json; c=open('/tmp/content.b64').read(); print(json.dumps({'content':c,'encoding':'base64'}))" > /tmp/blob-payload.json
-          BLOB_SHA=$(gh api "repos/$OWNER/$REPO/git/blobs" --input /tmp/blob-payload.json --jq '.sha')
-
-          TREE_SHA=$(jq -nc --arg base "$CURRENT_TREE" --arg path "front/pubspec.lock" --arg sha "$BLOB_SHA" \
-            '{base_tree: $base, tree: [{path: $path, mode: "100644", type: "blob", sha: $sha}]}' \
-            | gh api "repos/$OWNER/$REPO/git/trees" --input - --jq '.sha')
-
-          COMMIT_SHA=$(gh api "repos/$OWNER/$REPO/git/commits" \
-            --field message="chore: re-pin Flutter pubspec.lock to SDK versions" \
-            --field tree="$TREE_SHA" \
-            --field "parents[]=$PARENT_SHA" \
-            --jq '.sha')
-
-          gh api "repos/$OWNER/$REPO/git/refs/heads/$BRANCH" \
-            --method PATCH \
-            --field sha="$COMMIT_SHA"
+      - uses: Litote/ci/.github/actions/commit-via-api@bacd1e203a986488b089b784a496612740920599 # v0.3.0
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          branch: ${{ github.head_ref }}
+          paths: front/pubspec.lock
+          message: 'chore: re-pin Flutter pubspec.lock to SDK versions'
