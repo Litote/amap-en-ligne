@@ -158,5 +158,5 @@ Run this yourself after **every** code change, before reporting the work as done
 1. Run `./gradlew allSonar` from the repo root (runs all checks with coverage then uploads results).
 2. Use the `sonarqube` MCP server (configured in Claude Code) to query the gate status.
 3. The gate passes when `new_coverage ≥ 80%`, `new_duplicated_lines_density ≤ 3%`, ratings all A, hotspots reviewed 100%.
-4. The gate also allows **0 new issues** (back + front) — e.g. a new Dart method over the cognitive complexity limit (`dart:S3776`, 15) fails it. Fix every issue reported.
+4. The gate also allows **0 new issues** on a pull request and **0 issues overall** on `main` (back + front) — e.g. a new Dart method over the cognitive complexity limit (`dart:S3776`, 15) fails it. Fix every issue reported.
 ---
