@@ -23,3 +23,4 @@ Le reste de la documentation technique est en anglais.
 > **Contributing, building, and local development** are documented in
 > [`CONTRIBUTING.md`](CONTRIBUTING.md).
 > Component guides: [`front/`](front/CONTRIBUTING.md) · [`back/`](back/CONTRIBUTING.md).
+
