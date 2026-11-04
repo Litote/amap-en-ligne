@@ -12,9 +12,6 @@ on:
       - '.github/workflows/front-ci.yml'
   pull_request:
     branches: [main]
-    paths:
-      - 'front/**'
-      - '.github/workflows/front-ci.yml'
   # Allows the front-update-goldens workflow to trigger CI on its PR branch
   # (GITHUB_TOKEN cannot trigger other workflow runs — GitHub restriction).
   workflow_dispatch:
@@ -31,9 +28,34 @@ defaults:
     working-directory: front
 
 jobs:
+  # Replaces a paths filter on pull_request: a workflow that does not start leaves its required
+  # checks pending forever, whereas a skipped job counts as successful.
+  scope:
+    name: Detect PR scope
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      code: ${{ github.event_name != 'pull_request' || steps.detect-changes.outputs.has-code-changes == 'true' }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: github.event_name == 'pull_request'
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: Litote/ci/.github/actions/detect-changes@fbeb51096c741360965275ed62a9011598259013 # v0.2.0
+        if: github.event_name == 'pull_request'
+        id: detect-changes
+        with:
+          pattern: '^front/|^\.github/workflows/front-ci\.yml$'
+
   # ── Build Android APK ─────────────────────────────────────────────────────
   build-android:
     name: Build Android APK
+    needs: scope
+    if: needs.scope.outputs.code == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -83,6 +105,8 @@ jobs:
   # ── Build Web ─────────────────────────────────────────────────────────────
   build-web:
     name: Build Web (WASM)
+    needs: scope
+    if: needs.scope.outputs.code == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -111,6 +135,8 @@ jobs:
   # ── Build iOS + Golden tests ──────────────────────────────────────────────
   build-ios-goldens:
     name: Build iOS + Golden tests
+    needs: scope
+    if: needs.scope.outputs.code == 'true'
     runs-on: macos-26
 
     steps:
