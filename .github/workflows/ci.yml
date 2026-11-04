@@ -26,13 +26,6 @@ on:
       - '.github/workflows/deploy-web.yml'
   pull_request:
     branches: [main]
-    paths:
-      - 'back/**'
-      - 'front/**'
-      - 'acceptance/**'
-      - 'convention/**'
-      - 'gradle/**'
-      - '.github/workflows/ci.yml'
   workflow_dispatch:
 
 concurrency:
@@ -43,9 +36,34 @@ permissions:
   contents: read
 
 jobs:
+  # Replaces a paths filter on pull_request: a workflow that does not start leaves its required
+  # checks pending forever, whereas a skipped job counts as successful.
+  scope:
+    name: Detect PR scope
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      code: ${{ github.event_name != 'pull_request' || steps.detect-changes.outputs.has-code-changes == 'true' }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: github.event_name == 'pull_request'
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: Litote/ci/.github/actions/detect-changes@fbeb51096c741360965275ed62a9011598259013 # v0.2.0
+        if: github.event_name == 'pull_request'
+        id: detect-changes
+        with:
+          pattern: '^(back|front|acceptance|convention|gradle)/|^\.github/workflows/ci\.yml$'
+
   # ── Back unit tests + coverage ─────────────────────────────────────────────
   back:
     name: Back unit (check)
+    needs: scope
+    if: needs.scope.outputs.code == 'true'
     runs-on: ubuntu-latest
     # Backstop against a hung build, not the primary defense: DynamoClient sets an explicit
     # connectTimeout/connectionAcquireTimeout for local mode so an unreachable DynamoDB-Local
@@ -87,6 +105,8 @@ jobs:
   # ── Front unit + widget + acceptance tests + coverage (lcov) ───────────────
   front:
     name: Front (test + coverage)
+    needs: scope
+    if: needs.scope.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -139,6 +159,8 @@ jobs:
   # Postgres + GoTrue + MailHog) and Flutter.
   acceptance:
     name: Acceptance + E2E (allAcceptanceTests)
+    needs: scope
+    if: needs.scope.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
