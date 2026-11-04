@@ -66,7 +66,7 @@ tasks.register("allAcceptanceTests") {
 // four tasks in one graph therefore lets the scan read the coverage files left by
 // the PREVIOUS run (stale lcov/jacoco), silently under-reporting coverage. The scan
 // + gate phase thus runs as a nested Gradle invocation strictly after the coverage
-// phase; `:back:sonarCheck` orders itself after `:sonar` inside the back build.
+// phase. `:back:sonar` waits for the quality gate and fails the build if it is not OK.
 val sonarCoverage = tasks.register("sonarCoverage") {
     description = "Generates back (unit + acceptance) + front coverage for the SonarCloud scan."
     group = "verification"
@@ -81,7 +81,6 @@ tasks.register("sonarScanAndGate") {
     group = "verification"
     dependsOn(
         includedTask("back", ":sonar"),
-        includedTask("back", ":sonarCheck"),
     )
 }
 

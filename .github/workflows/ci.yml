@@ -318,7 +318,7 @@ jobs:
           JACOCO_PATHS="$GITHUB_WORKSPACE/coverage-reports/back/jacocoExecReport.xml,$GITHUB_WORKSPACE/coverage-reports/acceptance/jacocoExecReport.xml"
           LCOV_PATH="$GITHUB_WORKSPACE/front/coverage/lcov.info"
           COMMON_ARGS=(
-            sonar sonarCheck
+            sonar
             -PsonarExternalCoverage
             "-PjacocoXmlReportPaths=$JACOCO_PATHS"
             "-PdartLcovReportPaths=$LCOV_PATH"
