@@ -14,7 +14,7 @@ on:
 jobs:
   update-verification-metadata:
     name: Regenerate Gradle verification metadata
-    if: github.actor == 'dependabot[bot]'
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
     # Pushes a commit to the PR branch on top of its current HEAD, so two runs in parallel
     # make the second ref update fail with "Update is not a fast forward". Declared at job
     # level so that runs skipped by the `if` above (triggered by our own bot commits) stay
