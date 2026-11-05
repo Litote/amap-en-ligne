@@ -117,7 +117,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Flutter
-        uses: $/.github/actions/setup-flutter
+        uses: Litote/ci/.github/actions/setup-flutter@731f25b65744afb6ed50783472a6746193353272 # v0.6.0
         with:
           working-directory: front
 
@@ -175,7 +175,7 @@ jobs:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Setup Flutter
-        uses: $/.github/actions/setup-flutter
+        uses: Litote/ci/.github/actions/setup-flutter@731f25b65744afb6ed50783472a6746193353272 # v0.6.0
         with:
           working-directory: front
 
@@ -237,7 +237,7 @@ jobs:
       # issues + broken coverage attribution). Tests are NOT re-run here — coverage comes from
       # the downloaded lcov artifact; pub get only provides package resolution for the scan.
       - name: Setup Flutter
-        uses: $/.github/actions/setup-flutter
+        uses: Litote/ci/.github/actions/setup-flutter@731f25b65744afb6ed50783472a6746193353272 # v0.6.0
         with:
           working-directory: front
 
