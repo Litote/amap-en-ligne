@@ -232,7 +232,6 @@ Configure these in the repository settings before the relevant workflows will pa
 |------|---------|---------|
 | `GRADLE_ENCRYPTION_KEY` | `ci`, `deploy-lambda` | Encrypts the Gradle remote build cache |
 | `SONAR_TOKEN` | `ci` (`sonar` job) | SonarCloud analysis (optional — steps are skipped when absent) |
-| `GH_PAT` | `front-update-goldens` | PAT with `workflow:write` — triggers `front-ci.yml` on the golden PR branch (the built-in `GITHUB_TOKEN` cannot trigger other workflow runs) |
 | `AWS_ROLE_ARN` | `deploy-lambda` | IAM role assumed via OIDC for Terraform + Lambda deploy |
 | `TF_VAR_COGNITO_CLIENT_ID` | `deploy-lambda` | Terraform variable for the Cognito client id |
 | `RELEASE_PLEASE_APP_ID` | `release-please` | GitHub App id used to mint the release PR token (the built-in `GITHUB_TOKEN` cannot trigger CI on the PRs it opens). Provided as a Litote **organization** secret. |
