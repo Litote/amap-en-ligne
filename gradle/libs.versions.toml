@@ -44,7 +44,7 @@ playwright = "1.64.0"
 testcontainers = "1.21.4"
 version-catalog-update = "1.1.2"
 auth0-java-jwt = "4.6.2"
-auth0-jwks-rsa = "0.22.1"
+auth0-jwks-rsa = "0.24.2"
 
 [plugins]
 aws-dynamodb = { id = "aws.sdk.kotlin.hll.dynamodbmapper.schema.generator", version.ref = "aws-dynamodb" }
