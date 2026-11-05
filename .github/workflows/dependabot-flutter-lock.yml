@@ -63,7 +63,7 @@ jobs:
         working-directory: front
         run: flutter pub get
 
-      - uses: Litote/ci/.github/actions/commit-via-api@66e5eaaa94a847335a56427b1e165aa4385b0f83 # v0.4.1
+      - uses: Litote/ci/.github/actions/commit-via-api@731f25b65744afb6ed50783472a6746193353272 # v0.6.0
         with:
           token: ${{ steps.app-token.outputs.token }}
           branch: ${{ github.head_ref }}
