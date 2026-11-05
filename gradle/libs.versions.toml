@@ -42,7 +42,7 @@ smithy-kotlin-runtime = "1.7.13"
 sonarqube = "7.5.0.8588"
 playwright = "1.64.0"
 testcontainers = "1.21.4"
-version-catalog-update = "1.1.1"
+version-catalog-update = "1.1.2"
 auth0-java-jwt = "4.6.2"
 auth0-jwks-rsa = "0.22.1"
 
