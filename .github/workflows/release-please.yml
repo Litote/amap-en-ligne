@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: Litote/ci/.github/actions/release-please@5f7a96295fbcd88179faba3ac78685a78b7b6c84 # v0.8.1
+      - uses: Litote/ci/.github/actions/release-please@c111317515db0963d8dfebb7821cefbc92d34897 # v0.9.0
         with:
           app-id: ${{ secrets.RELEASE_PLEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
