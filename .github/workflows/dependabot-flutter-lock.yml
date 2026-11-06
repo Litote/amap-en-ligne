@@ -8,49 +8,32 @@ on:
       - 'front/pubspec.lock'
 
 jobs:
+  # This job works on files of the pull request, so it has no secret and no write access:
+  # the commit job holds the GitHub App token and executes nothing from this one.
   update-flutter-lock:
     name: Regenerate Flutter pubspec lock
     if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
-    # Shared with the Gradle verification workflow: two commits in parallel make the second ref update fail with
-    # "Update is not a fast forward". Declared at job level so that skipped runs stay out of the group.
-    concurrency:
-      group: dependabot-branch-update-${{ github.head_ref }}
-      cancel-in-progress: false
-      queue: max
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
 
     steps:
-      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        id: app-token
-        with:
-          app-id: ${{ secrets.RELEASE_PLEASE_APP_ID }}
-          private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
-          repositories: ${{ github.event.repository.name }}
-          permission-contents: write
-
-      # Checkout the base branch (trusted code) to avoid executing untrusted workflow
-      # logic. Only pubspec.yaml/pubspec.lock are then fetched from the PR branch — they
-      # carry safe, predictable content from dependabot, and `flutter pub get` resolves
-      # dependencies without executing package code.
+      # Checkout the base branch to avoid executing the workflow logic of the pull request.
+      # Only pubspec.yaml and pubspec.lock are then taken from it.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           ref: ${{ github.base_ref }}
-          token: ${{ steps.app-token.outputs.token }}
 
       - name: Apply dependabot dependency changes
-        id: pr-head
         env:
-          HEAD_REF: ${{ github.head_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          git fetch origin "$HEAD_REF"
-          echo "sha=$(git rev-parse FETCH_HEAD)" >> "$GITHUB_OUTPUT"
+          git fetch origin "$HEAD_SHA"
           git checkout FETCH_HEAD -- front/pubspec.yaml front/pubspec.lock
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@731f25b65744afb6ed50783472a6746193353272 # v0.6.0
+        uses: Litote/ci/.github/actions/setup-flutter@5f7a96295fbcd88179faba3ac78685a78b7b6c84 # v0.8.1
         with:
           working-directory: front
 
@@ -63,10 +46,57 @@ jobs:
         working-directory: front
         run: flutter pub get
 
-      - uses: Litote/ci/.github/actions/commit-via-api@731f25b65744afb6ed50783472a6746193353272 # v0.6.0
+      - uses: Litote/ci/.github/actions/upload-regenerated-files@5f7a96295fbcd88179faba3ac78685a78b7b6c84 # v0.8.1
+        with:
+          paths: front/pubspec.lock
+
+  commit-flutter-lock:
+    name: Commit Flutter pubspec lock
+    needs: update-flutter-lock
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    # Every workflow that commits to a Dependabot branch uses this group: two commits in parallel
+    # make the second ref update fail with "Update is not a fast forward". `queue: max` keeps
+    # every pending job instead of replacing it.
+    concurrency:
+      group: dependabot-branch-update-${{ github.head_ref }}
+      cancel-in-progress: false
+      queue: max
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.base_ref }}
+
+      # Only the index moves to the PR head: commit-via-api sees the changes relative to it,
+      # and this job, which holds the App token, keeps the files of the PR off the disk.
+      - name: Compare with the pull request head
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch --depth 1 origin "$HEAD_SHA"
+          git reset --quiet FETCH_HEAD
+
+      - uses: Litote/ci/.github/actions/apply-regenerated-files@5f7a96295fbcd88179faba3ac78685a78b7b6c84 # v0.8.1
+        with:
+          paths: front/pubspec.lock
+
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_PLEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+
+      - uses: Litote/ci/.github/actions/commit-via-api@5f7a96295fbcd88179faba3ac78685a78b7b6c84 # v0.8.1
         with:
           token: ${{ steps.app-token.outputs.token }}
           branch: ${{ github.head_ref }}
           paths: front/pubspec.lock
           message: 'chore: re-pin Flutter pubspec.lock to SDK versions'
-          expected-head: ${{ steps.pr-head.outputs.sha }}
+          expected-head: ${{ github.event.pull_request.head.sha }}
