@@ -54,7 +54,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@c111317515db0963d8dfebb7821cefbc92d34897 # v0.9.0
+        uses: Litote/ci/.github/actions/setup-flutter@510461dc1f569a7c12735a6cad12e88a6cb533ad # v0.10.0
         with:
           working-directory: front
 
@@ -80,16 +80,11 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
+      # exact Terraform version, and init with the committed lock file only
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        uses: Litote/ci/.github/actions/setup-terraform@510461dc1f569a7c12735a6cad12e88a6cb533ad # v0.10.0
         with:
-          terraform_version: '~1.11'
-
-      - name: Terraform init
-        working-directory: infra
-        env:
-          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
-        run: terraform init -backend-config="bucket=${TF_STATE_BUCKET}"
+          state-bucket: ${{ vars.TF_STATE_BUCKET }}
 
       - name: Select Terraform workspace
         working-directory: infra

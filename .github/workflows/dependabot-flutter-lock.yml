@@ -33,7 +33,7 @@ jobs:
           git checkout FETCH_HEAD -- front/pubspec.yaml front/pubspec.lock
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@c111317515db0963d8dfebb7821cefbc92d34897 # v0.9.0
+        uses: Litote/ci/.github/actions/setup-flutter@510461dc1f569a7c12735a6cad12e88a6cb533ad # v0.10.0
         with:
           working-directory: front
 
@@ -46,7 +46,7 @@ jobs:
         working-directory: front
         run: flutter pub get
 
-      - uses: Litote/ci/.github/actions/upload-regenerated-files@c111317515db0963d8dfebb7821cefbc92d34897 # v0.9.0
+      - uses: Litote/ci/.github/actions/upload-regenerated-files@510461dc1f569a7c12735a6cad12e88a6cb533ad # v0.10.0
         with:
           paths: front/pubspec.lock
 
@@ -81,7 +81,7 @@ jobs:
           git fetch --depth 1 origin "$HEAD_SHA"
           git reset --quiet FETCH_HEAD
 
-      - uses: Litote/ci/.github/actions/apply-regenerated-files@c111317515db0963d8dfebb7821cefbc92d34897 # v0.9.0
+      - uses: Litote/ci/.github/actions/apply-regenerated-files@510461dc1f569a7c12735a6cad12e88a6cb533ad # v0.10.0
         with:
           paths: front/pubspec.lock
 
@@ -93,7 +93,7 @@ jobs:
           repositories: ${{ github.event.repository.name }}
           permission-contents: write
 
-      - uses: Litote/ci/.github/actions/commit-via-api@c111317515db0963d8dfebb7821cefbc92d34897 # v0.9.0
+      - uses: Litote/ci/.github/actions/commit-via-api@510461dc1f569a7c12735a6cad12e88a6cb533ad # v0.10.0
         with:
           token: ${{ steps.app-token.outputs.token }}
           branch: ${{ github.head_ref }}
