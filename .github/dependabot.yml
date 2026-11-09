@@ -20,30 +20,12 @@ updates:
       - dependencies
       - github-actions
 
-  # ── Gradle (back) ──────────────────────────────────────────────────────────
+  # ── Gradle (back, root version catalog: gradle/libs.versions.toml) ────────
+  # A single entry for both directories, so that an update of both opens a single PR
   - package-ecosystem: gradle
-    directory: /back
-    schedule:
-      interval: weekly
-      day: monday
-    cooldown:
-      default-days: 7
-    labels:
-      - dependencies
-      - backend
-    groups:
-      # The DynamoDB mapper (aws-dynamodb), the SDK clients (aws-sdk-kotlin), the smithy
-      # runtime and aws-crt are released together and must resolve to aligned versions:
-      # bump them in a single PR instead of one PR per catalog entry.
-      aws-sdk:
-        patterns:
-          - "aws.sdk.kotlin*"
-          - "aws.smithy.kotlin*"
-          - "software.amazon.awssdk.crt*"
-
-  # ── Gradle (root version catalog: gradle/libs.versions.toml) ───────────────
-  - package-ecosystem: gradle
-    directory: /
+    directories:
+      - /back
+      - /
     schedule:
       interval: weekly
       day: monday
@@ -86,9 +68,12 @@ updates:
       - dependencies
       - flutter
 
-  # ── Terraform (infra) ───────────────────────────────────────────────────────
+  # ── Terraform (infra, infra bootstrap) ─────────────────────────────────────
+  # A single entry for both directories, so that a provider update opens a single PR
   - package-ecosystem: terraform
-    directory: /infra
+    directories:
+      - /infra
+      - /infra/bootstrap
     schedule:
       interval: weekly
       day: monday
@@ -97,15 +82,7 @@ updates:
     labels:
       - dependencies
       - infra
-
-  # ── Terraform (infra bootstrap) ─────────────────────────────────────────────
-  - package-ecosystem: terraform
-    directory: /infra/bootstrap
-    schedule:
-      interval: weekly
-      day: monday
-    cooldown:
-      default-days: 7
-    labels:
-      - dependencies
-      - infra
+    groups:
+      terraform-providers:
+        patterns:
+          - "*"
