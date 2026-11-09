@@ -30,7 +30,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_secure_storage: 11.2.0
-  flutter_svg: 2.3.0
+  flutter_svg: 2.3.2
   flutter_web_plugins:
     sdk: flutter
   freezed_annotation: 3.1.0
