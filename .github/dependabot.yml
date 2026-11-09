@@ -86,9 +86,12 @@ updates:
       - dependencies
       - flutter
 
-  # ── Terraform (infra) ───────────────────────────────────────────────────────
+  # ── Terraform (infra, infra bootstrap) ─────────────────────────────────────
+  # A single entry for both directories, so that a provider update opens a single PR
   - package-ecosystem: terraform
-    directory: /infra
+    directories:
+      - /infra
+      - /infra/bootstrap
     schedule:
       interval: weekly
       day: monday
@@ -97,15 +100,7 @@ updates:
     labels:
       - dependencies
       - infra
-
-  # ── Terraform (infra bootstrap) ─────────────────────────────────────────────
-  - package-ecosystem: terraform
-    directory: /infra/bootstrap
-    schedule:
-      interval: weekly
-      day: monday
-    cooldown:
-      default-days: 7
-    labels:
-      - dependencies
-      - infra
+    groups:
+      terraform-providers:
+        patterns:
+          - "*"
