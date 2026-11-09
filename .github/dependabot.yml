@@ -34,6 +34,12 @@ updates:
     labels:
       - dependencies
       - backend
+    ignore:
+      # KSP 2.3.13 has a regression with concurrent in-process executions
+      # (https://github.com/google/ksp/issues/3286): parallel module builds lose generated
+      # code (Koin, DynamoDB mapper). Remove once a fixed release is available.
+      - dependency-name: "com.google.devtools.ksp*"
+        versions: ["2.3.13"]
     groups:
       # The DynamoDB mapper (aws-dynamodb), the SDK clients (aws-sdk-kotlin), the smithy
       # runtime and aws-crt are released together and must resolve to aligned versions:
