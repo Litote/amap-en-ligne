@@ -5,7 +5,7 @@ publish_to: 'none'
 # Semver bumped by release-please (which rewrites the whole token, dropping
 # any +N suffix — expected). CI stamps the real build number via
 # --build-number (run number) so installed builds stay traceable.
-version: 0.0.0+1 # x-release-please-version
+version: 1.0.0 # x-release-please-version
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
