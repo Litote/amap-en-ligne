@@ -85,51 +85,15 @@ jobs:
             --build-number="${GITHUB_RUN_NUMBER}" \
             --dart-define=GIT_COMMIT_HASH="${GIT_SHA:0:7}"
 
-      # the api image runs jlink and adduser in the target platform: arm64 is emulated
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
-        with:
-          platforms: arm64
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: API image metadata
-        id: api-meta
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-        with:
-          images: ${{ env.API_IMAGE }}
-          # latest only when asked, even for a semver tag
-          flavor: latest=false
-          tags: |
-            type=raw,value=${{ steps.tags.outputs.tag }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.tags.outputs.tag }}
-            type=raw,value=latest,enable=${{ steps.tags.outputs.latest }}
-
+      # the api image runs jlink and adduser in the target platforms: arm64 is emulated
       - name: Build & push API image
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        id: api
+        uses: Litote/ci/.github/actions/docker-publish@0b0abb87bc454902c1e0860c90142e5bfa5f2a64 # feat/docker-publish (Litote/ci#32)
         with:
+          image: ${{ env.API_IMAGE }}
+          password: ${{ secrets.GITHUB_TOKEN }}
           context: back/deploy/jvm
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.api-meta.outputs.tags }}
-          labels: ${{ steps.api-meta.outputs.labels }}
-          provenance: mode=max
-          sbom: true
-
-      - name: Web image metadata
-        id: web-meta
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-        with:
-          images: ${{ env.WEB_IMAGE }}
-          flavor: latest=false
+          emulate: 'true'
           tags: |
             type=raw,value=${{ steps.tags.outputs.tag }}
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.tags.outputs.tag }}
@@ -137,25 +101,26 @@ jobs:
 
       # the web image only copies files: no emulation
       - name: Build & push web image
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        id: web
+        uses: Litote/ci/.github/actions/docker-publish@0b0abb87bc454902c1e0860c90142e5bfa5f2a64 # feat/docker-publish (Litote/ci#32)
         with:
+          image: ${{ env.WEB_IMAGE }}
+          password: ${{ secrets.GITHUB_TOKEN }}
           context: front/build/web
           file: back/deploy/jvm/prod/web.Dockerfile
           build-contexts: conf=back/deploy/jvm/prod
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.web-meta.outputs.tags }}
-          labels: ${{ steps.web-meta.outputs.labels }}
-          provenance: mode=max
-          sbom: true
+          tags: |
+            type=raw,value=${{ steps.tags.outputs.tag }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.tags.outputs.tag }}
+            type=raw,value=latest,enable=${{ steps.tags.outputs.latest }}
 
       - name: Summary
         env:
-          API_TAGS: ${{ steps.api-meta.outputs.tags }}
-          WEB_TAGS: ${{ steps.web-meta.outputs.tags }}
+          API_TAGS: ${{ steps.api.outputs.tags }}
+          WEB_TAGS: ${{ steps.web.outputs.tags }}
         run: |
           {
             echo "### Published"
             # one tag per line
-            printf '%s\n' "$API_TAGS" "$WEB_TAGS" | sed 's/.*/- `&`/'
+            printf '%s\n' "$API_TAGS" "$WEB_TAGS" | while IFS= read -r tag; do echo "- \`${tag}\`"; done
           } >> "$GITHUB_STEP_SUMMARY"
