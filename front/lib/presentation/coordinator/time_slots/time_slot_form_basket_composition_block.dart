@@ -1,6 +1,6 @@
 import 'package:amap_en_ligne/domain/model/organization.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Entry point to the per-delivery basket composition editor. Only an
 /// already-saved delivery can be composed (the editor loads the delivery from

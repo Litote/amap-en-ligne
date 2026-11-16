@@ -1,13 +1,14 @@
 import 'dart:async';
+
 import 'package:amap_en_ligne/data/network/public_api.dart';
 import 'package:amap_en_ligne/domain/auth/password_policy.dart';
 import 'package:amap_en_ligne/domain/auth/remembered_user_context.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/presentation/auth/password_visibility_button.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Activation screen reached from the link in the activation email.

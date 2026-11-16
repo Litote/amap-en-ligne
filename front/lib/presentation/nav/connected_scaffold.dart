@@ -1,7 +1,7 @@
 import 'package:amap_en_ligne/presentation/nav/nav_bloc.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_event.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Width threshold above which the navigation is always visible (sidebar
 /// mode) and the hamburger button is hidden from the AppBar.

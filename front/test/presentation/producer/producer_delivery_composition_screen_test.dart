@@ -5,11 +5,11 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/producer_schedule.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/presentation/producer/producer_delivery_composition_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockProducerScheduleRepository extends Mock

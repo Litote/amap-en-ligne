@@ -3,8 +3,8 @@ import 'package:amap_en_ligne/presentation/common/open_url_stub.dart'
     if (dart.library.js_interop) 'package:amap_en_ligne/presentation/common/open_url_web.dart'
     if (dart.library.io) 'package:amap_en_ligne/presentation/common/open_url_native.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 /// Screen title — kept as a constant so tests can find it by text.

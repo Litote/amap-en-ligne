@@ -1,6 +1,6 @@
 import 'package:amap_en_ligne/presentation/admin/delivery_templates/delivery_template_time_utils.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   test('validateStandardEndTime rejects end before or equal to start', () {

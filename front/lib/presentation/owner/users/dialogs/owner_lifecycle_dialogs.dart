@@ -1,5 +1,5 @@
 import 'package:amap_en_ligne/presentation/owner/users/user_row.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 const _kDeletionHeader = 'La suppression :\n';
 const _kSessionsInvalidated = '(sessions invalidées) ;\n';

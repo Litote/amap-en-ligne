@@ -9,8 +9,8 @@ import 'package:amap_en_ligne/presentation/delivery_description/delivery_descrip
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_state.dart';
 import 'package:amap_en_ligne/presentation/nav/back_navigation.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Screen to edit the [BasketDeliveryDescription] list for a given delivery.
 ///

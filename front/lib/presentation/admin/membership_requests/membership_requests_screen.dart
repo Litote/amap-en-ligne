@@ -9,8 +9,8 @@ import 'package:amap_en_ligne/presentation/common/instant_format.dart';
 import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 class MembershipRequestsScreen extends StatelessWidget {
   const MembershipRequestsScreen({required this.organizationId, super.key});

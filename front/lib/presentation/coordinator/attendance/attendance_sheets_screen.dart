@@ -17,9 +17,9 @@ import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 

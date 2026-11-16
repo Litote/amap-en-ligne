@@ -3,10 +3,10 @@ import 'package:amap_en_ligne/data/sync/sync_outcome.dart';
 import 'package:amap_en_ligne/data/sync/sync_repository.dart';
 import 'package:amap_en_ligne/domain/sync/mutation_outcome.dart';
 import 'package:amap_en_ligne/presentation/owner/invite_owner/invite_owner_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockOwnerInvitationRepository extends Mock
@@ -158,47 +158,51 @@ void main() {
       expect(find.byKey(const Key('send_invitation_button')), findsNothing);
     });
 
-    testWidgets('resets to form when [INVITER UN AUTRE PROPRIÉTAIRE] is tapped', (
-      tester,
-    ) async {
-      when(
-        () => repository.create(
-          firstName: any(named: 'firstName'),
-          lastName: any(named: 'lastName'),
-          email: any(named: 'email'),
-        ),
-      ).thenAnswer((_) async => 'op-1');
-      when(
-        () => syncRepository.sync(tenantId: any(named: 'tenantId')),
-      ).thenAnswer((_) async => const SyncOutcome.success());
+    testWidgets(
+      'resets to form when [INVITER UN AUTRE PROPRIÉTAIRE] is tapped',
+      (tester) async {
+        when(
+          () => repository.create(
+            firstName: any(named: 'firstName'),
+            lastName: any(named: 'lastName'),
+            email: any(named: 'email'),
+          ),
+        ).thenAnswer((_) async => 'op-1');
+        when(
+          () => syncRepository.sync(tenantId: any(named: 'tenantId')),
+        ).thenAnswer((_) async => const SyncOutcome.success());
 
-      await _pumpScreen(
-        tester,
-        repository: repository,
-        syncRepository: syncRepository,
-      );
+        await _pumpScreen(
+          tester,
+          repository: repository,
+          syncRepository: syncRepository,
+        );
 
-      await tester.enterText(find.byKey(const Key('first_name_field')), 'Jean');
-      await tester.enterText(
-        find.byKey(const Key('last_name_field')),
-        'Dupont',
-      );
-      await tester.enterText(
-        find.byKey(const Key('email_field')),
-        'jean@example.fr',
-      );
-      await tester.ensureVisible(
-        find.byKey(const Key('send_invitation_button')),
-      );
-      await tester.tap(find.byKey(const Key('send_invitation_button')));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key('first_name_field')),
+          'Jean',
+        );
+        await tester.enterText(
+          find.byKey(const Key('last_name_field')),
+          'Dupont',
+        );
+        await tester.enterText(
+          find.byKey(const Key('email_field')),
+          'jean@example.fr',
+        );
+        await tester.ensureVisible(
+          find.byKey(const Key('send_invitation_button')),
+        );
+        await tester.tap(find.byKey(const Key('send_invitation_button')));
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const Key('invite_another_button')));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('invite_another_button')));
+        await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('send_invitation_button')), findsOneWidget);
-      expect(find.byKey(const Key('confirmation_message')), findsNothing);
-    });
+        expect(find.byKey(const Key('send_invitation_button')), findsOneWidget);
+        expect(find.byKey(const Key('confirmation_message')), findsNothing);
+      },
+    );
 
     testWidgets('shows inline conflict error on rejected sync mutation', (
       tester,

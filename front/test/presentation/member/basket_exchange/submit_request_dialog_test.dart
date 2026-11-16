@@ -1,9 +1,9 @@
 import 'package:amap_en_ligne/domain/model/basket_exchange.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/member/basket_exchange/submit_request_dialog.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 
 const _futureDate = '2099-06-15T10:00:00';
 

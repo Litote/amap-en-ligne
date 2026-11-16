@@ -7,9 +7,9 @@ import 'package:amap_en_ligne/presentation/admin/delivery_templates/delivery_tem
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 class DeliveryTemplateListScreen extends StatelessWidget {
   const DeliveryTemplateListScreen({required this.organizationId, super.key});

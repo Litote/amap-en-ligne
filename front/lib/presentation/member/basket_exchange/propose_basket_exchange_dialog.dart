@@ -5,8 +5,8 @@ import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/shared_basket_view.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
 import 'package:amap_en_ligne/presentation/member/basket_exchange/basket_exchange_event.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Modal dialog for creating a new basket-exchange offer.
 ///

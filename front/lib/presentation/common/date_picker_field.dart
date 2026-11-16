@@ -1,5 +1,5 @@
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Header title of the app's date pickers. The default French one
 /// ("Sélectionner une date") is truncated in the landscape layout.

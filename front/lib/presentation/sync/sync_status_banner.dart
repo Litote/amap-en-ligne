@@ -5,9 +5,9 @@ import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_messages.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Reusable banner that surfaces [SyncFailed], [SyncOffline] and non-empty

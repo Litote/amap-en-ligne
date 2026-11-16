@@ -5,8 +5,8 @@ import 'package:amap_en_ligne/domain/model/producer_schedule.dart';
 import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/presentation/delivery_description/delivery_description_screen.dart';
 import 'package:amap_en_ligne/presentation/nav/back_navigation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The basket-composition editor opened by a producer on one of its
 /// deliveries (from « Mes livraisons » or its dashboard).

@@ -5,10 +5,10 @@ import 'package:amap_en_ligne/domain/model/member_join_request.dart';
 import 'package:amap_en_ligne/domain/model/public_organization.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/presentation/amap_search/amap_search_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockPublicApi extends Mock implements PublicApi {}

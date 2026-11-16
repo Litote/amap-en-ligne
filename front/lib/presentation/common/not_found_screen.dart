@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Shown by the router for any unknown location (replaces go_router's default
 /// English "Page Not Found" page).

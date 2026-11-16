@@ -3,8 +3,8 @@ import 'package:amap_en_ligne/presentation/nav/nav_bloc.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_event.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_menu_widget.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Responsive shell that wraps the authenticated portion of the app.
 ///

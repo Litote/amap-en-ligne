@@ -1,7 +1,7 @@
 import 'package:amap_en_ligne/presentation/owner/users/dialogs/owner_lifecycle_dialogs.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_row.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 UserRow _row({
   String firstName = 'Alice',

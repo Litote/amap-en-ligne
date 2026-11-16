@@ -1,7 +1,7 @@
 import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/delivery_contract_name.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Display names of [delivery]'s contracts that have no coordinator yet, in
 /// link order (live contract name, else the link snapshot).

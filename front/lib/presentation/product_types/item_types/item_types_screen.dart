@@ -6,9 +6,9 @@ import 'package:amap_en_ligne/presentation/nav/back_navigation.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_bloc.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_event.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Route entry of the component catalog: uses the product type handed over by
 /// the product type form, or — opened by its URL (reload, shared link) —

@@ -38,9 +38,9 @@ import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slots_blo
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Slot-time override values passed to [_withDefaultSlots] and
 /// [_withRewrittenSlots]. Grouped into a single record to keep both functions

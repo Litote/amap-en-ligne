@@ -4,10 +4,10 @@ import 'package:amap_en_ligne/domain/auth/auth_service.dart';
 import 'package:amap_en_ligne/domain/auth/remembered_user_context.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/presentation/auth/forgot_password_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockAuthService extends Mock implements AuthService {}

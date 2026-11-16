@@ -3,7 +3,7 @@ import 'package:amap_en_ligne/domain/model/product_type.dart';
 import 'package:amap_en_ligne/domain/sync/client_mutation.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/common/status_badge.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ProducerManagementModeBadge extends StatelessWidget {
   const ProducerManagementModeBadge({required this.mode, super.key});

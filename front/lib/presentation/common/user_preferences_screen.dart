@@ -22,8 +22,8 @@ import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Preferences screen for the current user.

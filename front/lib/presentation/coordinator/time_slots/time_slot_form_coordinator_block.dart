@@ -6,8 +6,8 @@ import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_event.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Block showing one row per [DeliveryContract] with coordinator chips and
 /// self-assign / admin-assign actions.

@@ -1,8 +1,8 @@
 import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/presentation/common/terms_checkbox_tile.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 const _config = GoTrueServerConfig(
   id: 'local',

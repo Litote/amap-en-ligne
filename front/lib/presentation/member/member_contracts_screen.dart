@@ -14,9 +14,9 @@ import 'package:amap_en_ligne/presentation/common/error_feedback.dart';
 import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 const _kMyContractsTitle = 'Mes contrats';
 

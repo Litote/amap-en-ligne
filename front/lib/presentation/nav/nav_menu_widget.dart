@@ -5,9 +5,9 @@ import 'package:amap_en_ligne/presentation/auth/auth_view_state.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_item.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_menu_item_tile.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_selection.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Full-screen overlay navigation menu for mobile/tablet layouts.
 ///

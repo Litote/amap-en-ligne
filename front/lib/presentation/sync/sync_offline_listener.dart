@@ -3,8 +3,8 @@ import 'package:amap_en_ligne/presentation/sync/sync_messages.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_status_banner.dart'
     show SyncStatusBanner;
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Surfaces network sync failures ([SyncOffline]) anywhere in the app.
 ///

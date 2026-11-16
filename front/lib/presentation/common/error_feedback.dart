@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// User-facing copy for unexpected errors.

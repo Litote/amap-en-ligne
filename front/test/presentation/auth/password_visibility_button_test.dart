@@ -1,6 +1,6 @@
 import 'package:amap_en_ligne/presentation/auth/password_visibility_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   Future<void> pump(WidgetTester tester, {required bool obscured}) =>

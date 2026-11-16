@@ -2,7 +2,7 @@ import 'package:amap_en_ligne/domain/model/owner.dart' show Owner;
 import 'package:amap_en_ligne/domain/model/producer_account.dart'
     show ProducerAccount;
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Which entity type the dialog is editing.
 enum _ProfileType { owner, producer }

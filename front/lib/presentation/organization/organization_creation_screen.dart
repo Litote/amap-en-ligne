@@ -5,9 +5,9 @@ import 'package:amap_en_ligne/presentation/common/terms_checkbox_tile.dart';
 import 'package:amap_en_ligne/presentation/organization/organization_creation_bloc.dart';
 import 'package:amap_en_ligne/presentation/organization/organization_creation_event.dart';
 import 'package:amap_en_ligne/presentation/organization/organization_creation_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 class OrganizationCreationScreen extends StatelessWidget {
   const OrganizationCreationScreen({super.key});

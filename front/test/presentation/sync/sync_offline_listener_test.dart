@@ -4,9 +4,9 @@ import 'package:amap_en_ligne/presentation/sync/sync_messages.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_offline_listener.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 class _MockSyncBloc extends MockBloc<SyncEvent, SyncState>
     implements SyncBloc {}

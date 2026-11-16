@@ -6,7 +6,7 @@ import 'package:amap_en_ligne/presentation/common/open_url_stub.dart'
     if (dart.library.js_interop) 'package:amap_en_ligne/presentation/common/open_url_web.dart'
     if (dart.library.io) 'package:amap_en_ligne/presentation/common/open_url_native.dart';
 import 'package:amap_en_ligne/presentation/coordinator/coordinator_display.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Compact single-line coordinator display: "👥 Coord. : J. Morel 📞 06… · —".
 ///

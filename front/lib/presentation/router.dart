@@ -67,9 +67,9 @@ import 'package:amap_en_ligne/presentation/producer_request/producer_request_scr
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_screen.dart';
 import 'package:amap_en_ligne/presentation/product_types/product_type_form_screen.dart';
 import 'package:amap_en_ligne/presentation/product_types/product_types_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Decodes the `email` query parameter from [uri] without treating `+` as a
 /// space. Dart's `Uri.queryParameters` uses HTML form decoding where `+` means

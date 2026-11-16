@@ -5,10 +5,10 @@ import 'package:amap_en_ligne/presentation/auth/auth_bloc.dart';
 import 'package:amap_en_ligne/presentation/auth/auth_view_state.dart';
 import 'package:amap_en_ligne/presentation/nav/app_shell_layout.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/mock_auth_bloc.dart';

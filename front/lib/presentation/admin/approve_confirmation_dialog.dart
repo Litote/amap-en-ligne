@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Asks the owner to confirm an approval — mirroring the reject flow, which
 /// already goes through a dialog. Resolves to `true` only on explicit confirm.

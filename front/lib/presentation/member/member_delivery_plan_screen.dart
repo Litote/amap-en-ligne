@@ -19,10 +19,10 @@ import 'package:amap_en_ligne/presentation/delivery/registration_rejection.dart'
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Monthly delivery planning screen for volunteer (Amapien) members.
 ///

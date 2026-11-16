@@ -1,8 +1,8 @@
 import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/coordinator/contract_list.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 Contract _contract(int i) => Contract(
   contractId: 'c-$i',
