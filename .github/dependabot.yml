@@ -21,11 +21,11 @@ updates:
       - github-actions
 
   # ── Gradle (back, root version catalog: gradle/libs.versions.toml) ────────
-  # A single entry for both directories, so that an update of both opens a single PR
+  # Only the root directory is scanned: back/ and convention/ load the same root catalog and
+  # their Gradle wrappers are symlinks to gradle/wrapper. Scanning /back too opened one
+  # duplicate PR per ungrouped update (directories: only merges grouped updates).
   - package-ecosystem: gradle
-    directories:
-      - /back
-      - /
+    directory: /
     schedule:
       interval: weekly
       day: monday
