@@ -63,28 +63,17 @@ jobs:
         with:
           persist-credentials: false
 
-      # Must satisfy the Gradle daemon JVM criteria
-      # (android/gradle/gradle-daemon-jvm.properties): Java 25, no download URL,
+      # Java 25 must satisfy the Gradle daemon JVM criteria
+      # (android/gradle/gradle-daemon-jvm.properties): no download URL,
       # so Gradle never provisions a JDK from foojay.
-      - name: Setup Java 25
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        with:
-          distribution: temurin
-          java-version: '25'
+      # Also caches the Gradle user home used by `flutter build apk`.
+      - name: Setup Java 25 and Gradle
+        uses: Litote/ci/.github/actions/setup-gradle@510461dc1f569a7c12735a6cad12e88a6cb533ad # v0.10.0
 
       - name: Setup Flutter
         uses: Litote/ci/.github/actions/setup-flutter@510461dc1f569a7c12735a6cad12e88a6cb533ad # v0.10.0
         with:
           working-directory: front
-
-      - name: Cache Gradle
-        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-android-${{ hashFiles('front/android/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: gradle-android-
 
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
