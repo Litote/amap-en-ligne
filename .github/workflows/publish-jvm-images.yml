@@ -88,21 +88,22 @@ jobs:
       # the api image runs jlink and adduser in the target platforms: arm64 is emulated
       - name: Build & push API image
         id: api
-        uses: Litote/ci/.github/actions/docker-publish@0b0abb87bc454902c1e0860c90142e5bfa5f2a64 # feat/docker-publish (Litote/ci#32)
+        uses: Litote/ci/.github/actions/docker-publish@d105ebf6af0a58ab149efef3ae1472fc4f38dc3d # feat/docker-publish (Litote/ci#32)
         with:
           image: ${{ env.API_IMAGE }}
           password: ${{ secrets.GITHUB_TOKEN }}
           context: back/deploy/jvm
           emulate: 'true'
+          # the requested tag first, before the semver one (priority 900)
           tags: |
-            type=raw,value=${{ steps.tags.outputs.tag }}
+            type=raw,value=${{ steps.tags.outputs.tag }},priority=1000
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.tags.outputs.tag }}
             type=raw,value=latest,enable=${{ steps.tags.outputs.latest }}
 
       # the web image only copies files: no emulation
       - name: Build & push web image
         id: web
-        uses: Litote/ci/.github/actions/docker-publish@0b0abb87bc454902c1e0860c90142e5bfa5f2a64 # feat/docker-publish (Litote/ci#32)
+        uses: Litote/ci/.github/actions/docker-publish@d105ebf6af0a58ab149efef3ae1472fc4f38dc3d # feat/docker-publish (Litote/ci#32)
         with:
           image: ${{ env.WEB_IMAGE }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -110,7 +111,7 @@ jobs:
           file: back/deploy/jvm/prod/web.Dockerfile
           build-contexts: conf=back/deploy/jvm/prod
           tags: |
-            type=raw,value=${{ steps.tags.outputs.tag }}
+            type=raw,value=${{ steps.tags.outputs.tag }},priority=1000
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.tags.outputs.tag }}
             type=raw,value=latest,enable=${{ steps.tags.outputs.latest }}
 
