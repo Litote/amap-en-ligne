@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Opens the basket-composition editor of one of the producer's deliveries.
 class ProducerCompositionButton extends StatelessWidget {

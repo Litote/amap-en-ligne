@@ -111,7 +111,7 @@ The app is **Material 3 Flutter with `ColorScheme.fromSeed(seedColor: Colors.gre
 
 ## ICONOGRAPHY
 
-**Source:** The codebase uses Flutter's built-in **Material Icons** (`package:flutter/material.dart` exports `Icons.*`). There is no custom icon font, no SVG sprite, no PNG icon set in the repository — `front/web/icons/` contains only the default Flutter PWA app-icon placeholders (the Flutter logo), which we do **not** treat as brand assets.
+**Source:** The codebase uses Flutter's built-in **Material Icons** (`package:material_ui/material_ui.dart` exports `Icons.*`). There is no custom icon font, no SVG sprite, no PNG icon set in the repository — `front/web/icons/` contains only the default Flutter PWA app-icon placeholders (the Flutter logo), which we do **not** treat as brand assets.
 
 **On the web (this design system):** We use **Material Symbols Outlined** loaded from Google Fonts CDN — it is the maintained successor to Material Icons and includes every glyph the Flutter code references. Same names, same metaphors.
 

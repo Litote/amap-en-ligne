@@ -1,7 +1,7 @@
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/presentation/contracts/contract_view.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Multi-select chip group for choosing coordinator(s) from a list of members.
 ///

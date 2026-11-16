@@ -64,7 +64,7 @@ flutter build web --release  # builds WASM by default
 
 **Validation on both sides:** every rule the back enforces and a user can trigger must be pre-checked in the form (French message, submit blocked), and every form rule must exist in the back too (see root `AGENTS.md` → *Validation on both sides*). Keep shared rules in `domain/` (e.g. `domain/auth/password_policy.dart`) so they can be unit-tested.
 
-**Imports:** Single imports only — no `show X, Y` patterns
+**Imports:** Single imports only — no `show X, Y` patterns. Import Material widgets from `package:material_ui/material_ui.dart` (also provides `GlobalMaterialLocalizations`): `package:flutter/material.dart` is deprecated since Flutter 3.50 and fails `flutter analyze --fatal-infos`.
 
 **Code generation:** Every model change requires re-running `build_runner`. Generated files (`.freezed.dart`, `.g.dart`) are committed to the repo.
 
@@ -107,6 +107,7 @@ flutter build web --release  # builds WASM by default
 | `dio` | HTTP client for `POST /v1/sync` |
 | `connectivity_plus` | Network-restored sync trigger |
 | `flutter_svg` | SVG rendering (brand assets) |
+| `material_ui` | Material widgets + localizations (decoupled from the Flutter SDK) |
 | `bloc_test` + `mocktail` | Testing utilities |
 
 ---

@@ -6,10 +6,10 @@ import 'package:amap_en_ligne/presentation/common/open_url_stub.dart'
     if (dart.library.io) 'package:amap_en_ligne/presentation/common/open_url_native.dart';
 import 'package:amap_en_ligne/presentation/home/home_bloc.dart';
 import 'package:amap_en_ligne/presentation/home/home_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 const String _gitCommitHash = String.fromEnvironment(

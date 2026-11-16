@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Eye button toggling a password field's visibility. The tooltip names the
 /// action, so screen readers do not announce an unlabelled button.

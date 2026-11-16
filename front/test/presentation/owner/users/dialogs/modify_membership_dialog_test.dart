@@ -1,8 +1,8 @@
 import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/presentation/owner/users/dialogs/modify_membership_dialog.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_row.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 UserRow _memberRow() => const UserRow(
   identityKey: 's-m-1',

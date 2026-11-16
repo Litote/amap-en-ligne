@@ -1,7 +1,7 @@
 import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/domain/validation/input_rules.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_row.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Dialog for modifying the AMAP roles of one membership.
 ///

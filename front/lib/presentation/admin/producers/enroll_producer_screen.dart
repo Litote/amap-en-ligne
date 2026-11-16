@@ -7,8 +7,8 @@ import 'package:amap_en_ligne/presentation/admin/producers/producer_management_b
 import 'package:amap_en_ligne/presentation/admin/producers/producer_ui_helpers.dart';
 import 'package:amap_en_ligne/presentation/nav/back_navigation.dart';
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Two-step wizard to enroll a producer into an organization.
 ///

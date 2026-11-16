@@ -3,9 +3,9 @@ import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/member/basket_exchange/basket_exchange_event.dart';
 import 'package:amap_en_ligne/presentation/member/basket_exchange/propose_basket_exchange_dialog.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 
 // A delivery far in the future so it always passes the "upcoming" filter.
 const _futureDate = '2099-06-15T10:00:00';

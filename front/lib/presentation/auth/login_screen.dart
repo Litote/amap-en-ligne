@@ -8,9 +8,9 @@ import 'package:amap_en_ligne/presentation/auth/auth_view_state.dart';
 import 'package:amap_en_ligne/presentation/auth/password_visibility_button.dart';
 import 'package:amap_en_ligne/presentation/server/server_selection_screen.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, this.initialEmail});

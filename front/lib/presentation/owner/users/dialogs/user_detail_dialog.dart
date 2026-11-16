@@ -16,8 +16,8 @@ import 'package:amap_en_ligne/presentation/owner/users/user_detail_bloc.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_detail_event.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_detail_state.dart';
 import 'package:amap_en_ligne/presentation/owner/users/user_row.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Shows the user detail dialog for a given [userId].
 ///

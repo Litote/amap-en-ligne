@@ -5,9 +5,9 @@ import 'package:amap_en_ligne/domain/auth/auth_error.dart';
 import 'package:amap_en_ligne/domain/auth/auth_service.dart';
 import 'package:amap_en_ligne/domain/auth/password_policy.dart';
 import 'package:amap_en_ligne/presentation/auth/password_visibility_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class ResetPasswordScreen extends StatefulWidget {

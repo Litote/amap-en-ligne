@@ -1,5 +1,5 @@
 import 'package:amap_en_ligne/presentation/nav/nav_item.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// A single row in the navigation menu.
 ///

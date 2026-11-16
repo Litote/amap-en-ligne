@@ -1,7 +1,7 @@
 import 'package:amap_en_ligne/domain/auth/role.dart';
 import 'package:amap_en_ligne/domain/auth/user_role.dart';
 import 'package:amap_en_ligne/presentation/nav/nav_item.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Builds [NavItem]s for a set of AMAP-context [Role]s, merging sections when
 /// the user holds multiple roles.

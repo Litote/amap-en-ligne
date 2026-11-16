@@ -1,7 +1,7 @@
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/organization_member_view.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Asks the coordinator to confirm the irreversible deletion of [delivery],
 /// warning about the volunteers who would lose their registration. Shared by

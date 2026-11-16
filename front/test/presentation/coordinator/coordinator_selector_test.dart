@@ -1,7 +1,7 @@
 import 'package:amap_en_ligne/domain/model/member.dart';
 import 'package:amap_en_ligne/presentation/coordinator/coordinator_selector.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   final coordinators = [

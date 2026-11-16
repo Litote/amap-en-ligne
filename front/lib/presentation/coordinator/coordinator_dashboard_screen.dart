@@ -2,7 +2,7 @@ import 'package:amap_en_ligne/presentation/coordinator/coordinator_dashboard_sec
 import 'package:amap_en_ligne/presentation/nav/connected_scaffold.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_button.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_status_banner.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Coordinator dashboard: thin wrapper around [CoordinatorDashboardSection].
 ///

@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:amap_en_ligne/data/server/server_config_storage.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
 import 'package:amap_en_ligne/main.dart' as app;
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _backUrl = String.fromEnvironment('BACK_URL');

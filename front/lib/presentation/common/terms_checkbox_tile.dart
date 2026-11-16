@@ -4,8 +4,8 @@ import 'package:amap_en_ligne/presentation/common/open_url_stub.dart'
     if (dart.library.io) 'package:amap_en_ligne/presentation/common/open_url_native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// URL of the terms of service:
 /// - [termsUrl] configured → that URL.

@@ -12,7 +12,7 @@ import 'package:amap_en_ligne/presentation/delivery/delivery_coordinators.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_format.dart';
 import 'package:amap_en_ligne/presentation/delivery/delivery_registration_actions.dart';
 import 'package:amap_en_ligne/presentation/product_types/item_types/item_types_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Which screen the card is rendered on. Drives the copy, ordering and
 /// coordinator style differences mandated by the respective UI specs.

@@ -3,8 +3,8 @@ import 'package:amap_en_ligne/domain/model/organization_member_view.dart'
     show activeRegistrationsExcluding, deliveryCoordinatorIds;
 import 'package:amap_en_ligne/presentation/common/status_badge.dart';
 import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slots_bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Block listing every volunteer slot of the edited delivery with per-slot
 /// lifecycle actions (cancel / delete).

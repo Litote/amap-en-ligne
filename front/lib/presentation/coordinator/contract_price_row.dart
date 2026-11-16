@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Formats a stored price for the editor field: always two decimals
 /// ("3.50", not "3.5"), empty when unset.

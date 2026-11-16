@@ -1,6 +1,6 @@
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/presentation/common/status_badge.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Status chip for a [DeliveryStatus] — shared by the coordinator dashboard and
 /// the coordinator tracking entry screens.

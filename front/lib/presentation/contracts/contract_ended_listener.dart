@@ -7,8 +7,8 @@ import 'package:amap_en_ligne/presentation/coordinator/time_slots/time_slot_form
     show TimeSlotFormScreen;
 import 'package:amap_en_ligne/presentation/sync/sync_bloc.dart';
 import 'package:amap_en_ligne/presentation/sync/sync_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Wraps [child] and listens for [SyncSucceeded] states that carry
 /// rejected mutations related to contract validation errors.

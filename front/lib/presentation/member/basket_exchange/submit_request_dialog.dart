@@ -4,7 +4,7 @@ import 'package:amap_en_ligne/domain/model/contract.dart';
 import 'package:amap_en_ligne/domain/model/organization.dart';
 import 'package:amap_en_ligne/domain/model/shared_basket_view.dart';
 import 'package:amap_en_ligne/presentation/common/french_date_formatting.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Modal dialog for sending a request on an available basket-exchange offer.
 ///

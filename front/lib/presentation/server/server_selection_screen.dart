@@ -1,6 +1,6 @@
 import 'package:amap_en_ligne/domain/server/auth_provider.dart';
 import 'package:amap_en_ligne/domain/server/server_config.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// First-launch picker that selects the back the app will talk to. The
 /// list currently comes from a bootstrap catalog provided by the app shell.
