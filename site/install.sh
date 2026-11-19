@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# Installe MkDocs Material avec les versions et les hashes de la CI : le requirements.txt de l'action
-# Litote/ci setup-mkdocs, au SHA épinglé dans le workflow docs (mis à jour par Dependabot).
+# Installs MkDocs Material with the same versions and hashes as the CI: the requirements.txt of the
+# Litote/ci setup-mkdocs action, at the SHA pinned in the docs workflow (updated by Dependabot).
 #
-# Usage : site/install.sh (de préférence dans un environnement virtuel Python, voir site/README.md)
+# Usage: site/install.sh (preferably inside a Python virtual environment, see site/README.md)
 
 set -euo pipefail
 
@@ -11,7 +11,7 @@ cd "$(dirname "$0")/.."
 
 sha=$(sed -n 's#.*Litote/ci/\.github/actions/setup-mkdocs@\([0-9a-f]\{40\}\).*#\1#p' .github/workflows/docs.yml | head -n 1)
 if [ -z "$sha" ]; then
-  echo "Pas de Litote/ci/.github/actions/setup-mkdocs@<sha> dans .github/workflows/docs.yml" >&2
+  echo "No Litote/ci/.github/actions/setup-mkdocs@<sha> found in .github/workflows/docs.yml" >&2
   exit 1
 fi
 
