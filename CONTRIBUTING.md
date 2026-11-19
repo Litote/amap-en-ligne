@@ -217,7 +217,7 @@ Current contract reminder:
 | `deploy-web.yml` | called by `ci.yml` after the tests on a push touching `front/**` to `main`, or manual dispatch (`dev`/`prod` target) | Builds Flutter web (WASM, build number = run number), syncs to S3, invalidates CloudFront. |
 | `publish-jvm-images.yml` | Manual only (`tag`, `latest`) | Builds the self-hosted JVM images — `ghcr.io/litote/amap-en-ligne-api` (`back/deploy/jvm/Dockerfile`) and `ghcr.io/litote/amap-en-ligne-web` (Flutter web + `back/deploy/jvm/prod/nginx.conf`, `prod/web.Dockerfile`) — and pushes them to GHCR with the built-in `GITHUB_TOKEN`. Tag defaults to `VERSION_NAME`. The two GHCR packages must be set **public** once (package settings) so installers can pull without logging in. |
 | `release-please.yml` | push on `main` | Maintains the running release PR from Conventional Commits (see [Releases & versioning](#releases--versioning)). |
-| `docs.yml` | push on `documentation/guide/fr/**`, `site/**` | Builds and publishes the MkDocs help site to GitHub Pages |
+| `docs.yml` | pull request, push on `documentation/guide/fr/**`, `site/**` | Builds the MkDocs help site (`mkdocs build --strict`, MkDocs Material installed by the Litote/ci `setup-mkdocs` action), publishes it to GitHub Pages from `main` |
 | `zizmor.yml` | push/PR on `main` | Security scan of all workflow files |
 
 Dependabot runs every Monday and opens PRs for GitHub Actions, Gradle (`/back`), and pub (`/front`) dependency updates.
