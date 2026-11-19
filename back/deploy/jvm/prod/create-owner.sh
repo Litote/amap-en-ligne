@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Creates (or repairs) the instance OWNER account of a self-hosted instance:
 #
-#   ./create-owner.sh owner@example.org Prénom Nom
+#   ./create-owner.sh owner@example.org FirstName LastName
 #
 # 1. creates the GoTrue user through the admin API (email confirmed, app_metadata.roles = [OWNER]);
 # 2. sets the password typed at the prompt (never passed on the command line);

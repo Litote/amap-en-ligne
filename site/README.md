@@ -13,7 +13,7 @@ La page de garde (`docs/index.md`) et la configuration (`mkdocs.yml`) vivent ici
 
 ## Prérequis
 
-- Python 3.9+
+- Python 3.11+
 
 ## Développement local
 
@@ -21,7 +21,7 @@ La page de garde (`docs/index.md`) et la configuration (`mkdocs.yml`) vivent ici
 cd site
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+./install.sh   # versions et hashes de la CI (action Litote/ci setup-mkdocs)
 
 # Prévisualisation avec rechargement à chaud
 mkdocs serve
@@ -33,13 +33,18 @@ Le site est servi sur http://127.0.0.1:8000.
 
 ```bash
 cd site
-mkdocs build        # sortie dans site/_build (gitignorée)
+mkdocs build --strict   # sortie dans site/_build (gitignorée), échoue sur un lien cassé
 ```
 
 ## Publication
 
 La publication sur GitHub Pages est automatisée par
-`.github/workflows/docs.yml` à chaque push sur `main`.
+`.github/workflows/docs.yml` à chaque push sur `main`. Le site est aussi construit
+(`mkdocs build --strict`) sur les pull requests, sans publication.
+
+MkDocs Material est installé par l'action `Litote/ci/.github/actions/setup-mkdocs`,
+qui porte les versions épinglées avec leurs hashes : Dependabot les met à jour dans
+Litote/ci, puis le projet les reçoit avec la montée de version de Litote/ci.
 
 > Pensez à ajuster `site_url` dans `mkdocs.yml` à l'URL de publication réelle.
 
