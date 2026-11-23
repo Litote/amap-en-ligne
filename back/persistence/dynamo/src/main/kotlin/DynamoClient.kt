@@ -61,7 +61,6 @@ internal class DynamoClient(
                         endpointUrl = Url.parse("https://dynamodb.$region.amazonaws.com")
                         httpClient = CrtHttpEngine()
                         credentialsProvider = EnvironmentCredentialsProvider()
-                        retryPolicy = StaleConnectionRetryPolicy
                     }
                 }
             }
