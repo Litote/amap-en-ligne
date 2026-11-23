@@ -45,7 +45,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - uses: Litote/ci/.github/actions/detect-changes@15172a08495ba5ce96b92c224ede2d102174803f # v0.12.0
+      - uses: Litote/ci/.github/actions/detect-changes@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
         if: github.event_name == 'pull_request'
         id: detect-changes
         with:
@@ -68,10 +68,10 @@ jobs:
       # so Gradle never provisions a JDK from foojay.
       # Also caches the Gradle user home used by `flutter build apk`.
       - name: Setup Java 25 and Gradle
-        uses: Litote/ci/.github/actions/setup-gradle@15172a08495ba5ce96b92c224ede2d102174803f # v0.12.0
+        uses: Litote/ci/.github/actions/setup-gradle@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@15172a08495ba5ce96b92c224ede2d102174803f # v0.12.0
+        uses: Litote/ci/.github/actions/setup-flutter@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
         with:
           working-directory: front
 
@@ -104,7 +104,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@15172a08495ba5ce96b92c224ede2d102174803f # v0.12.0
+        uses: Litote/ci/.github/actions/setup-flutter@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
         with:
           working-directory: front
 
@@ -137,7 +137,7 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_26.2.app
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@15172a08495ba5ce96b92c224ede2d102174803f # v0.12.0
+        uses: Litote/ci/.github/actions/setup-flutter@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
         with:
           working-directory: front
 
