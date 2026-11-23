@@ -34,10 +34,10 @@ updates:
     labels:
       - dependencies
       - backend
-    # The wrappers of the back/, convention/ and front/ builds are symlinks to the root wrapper
-    # (front/gradlew.bat is a plain copy): Dependabot ran the wrapper task in each of them and
-    # GitHub refused a commit writing regular files over those symlinks ("invalid or unauthorized
-    # changes"). Only the root wrapper is updated; the symlinks follow it.
+    # The wrappers of the back/, convention/ and front/ builds are symlinks to the root wrapper:
+    # Dependabot ran the wrapper task in each of them and GitHub refused a commit writing regular
+    # files over those symlinks ("invalid or unauthorized changes"). Only the root wrapper is
+    # updated; the symlinks follow it.
     exclude-paths:
       - "back/gradlew"
       - "back/gradle/wrapper/**"
