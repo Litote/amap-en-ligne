@@ -37,7 +37,7 @@ jobs:
           persist-credentials: false
 
       # MkDocs Material, pinned with hashes in the action (site/install.sh installs the same versions locally)
-      - uses: Litote/ci/.github/actions/setup-mkdocs@15172a08495ba5ce96b92c224ede2d102174803f # v0.12.0
+      - uses: Litote/ci/.github/actions/setup-mkdocs@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
 
       - name: Build MkDocs
         working-directory: site
