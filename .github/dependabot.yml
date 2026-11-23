@@ -41,14 +41,13 @@ updates:
       - dependency-name: "com.google.devtools.ksp*"
         versions: ["2.3.13"]
     groups:
-      # The DynamoDB mapper (aws-dynamodb), the SDK clients (aws-sdk-kotlin), the smithy
-      # runtime and aws-crt are released together and must resolve to aligned versions:
+      # The DynamoDB mapper (aws-dynamodb), the SDK clients (aws-sdk-kotlin) and the smithy
+      # runtime are released together and must resolve to aligned versions:
       # bump them in a single PR instead of one PR per catalog entry.
       aws-sdk:
         patterns:
           - "aws.sdk.kotlin*"
           - "aws.smithy.kotlin*"
-          - "software.amazon.awssdk.crt*"
 
   # ── Flutter / Dart (pub) ────────────────────────────────────────────────────
   - package-ecosystem: pub
