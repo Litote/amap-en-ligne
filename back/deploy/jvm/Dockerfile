@@ -6,7 +6,7 @@
 # comes from jdeps; regenerate it after adding/upgrading a runtime dependency:
 #   cd back/deploy/jvm/build/install/jvm/lib && \
 #     jdeps --ignore-missing-deps --print-module-deps --multi-release 25 --class-path '*' *.jar
-FROM eclipse-temurin:25-jdk-alpine AS jre-build
+FROM eclipse-temurin:25-jdk-alpine@sha256:22edbb1021420ae6e248519d1af07577742314d67d4c60fcbb2e285b7e47fa78 AS jre-build
 RUN jlink \
       --add-modules java.base,java.compiler,java.desktop,java.instrument,java.management,java.naming,java.net.http,java.security.jgss,java.security.sasl,java.sql,jdk.unsupported \
       --strip-debug \
@@ -15,7 +15,7 @@ RUN jlink \
       --compress=zip-6 \
       --output /jre
 
-FROM alpine:3.22
+FROM alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f
 ENV JAVA_HOME=/opt/java
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /jre ${JAVA_HOME}
