@@ -72,6 +72,12 @@ updates:
     labels:
       - dependencies
       - flutter
+    groups:
+      # Every FlutterFire plugin pins an exact firebase-ios-sdk version: bumped one by one, the
+      # iOS Swift Package Manager resolution fails. Bump them in a single PR.
+      firebase:
+        patterns:
+          - "firebase_*"
 
   # ── Gradle (front/android — standalone Flutter-generated Android build) ────
   - package-ecosystem: gradle
