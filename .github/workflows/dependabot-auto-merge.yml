@@ -13,9 +13,9 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    uses: Litote/ci/.github/workflows/dependabot-auto-merge.yml@15172a08495ba5ce96b92c224ede2d102174803f # v0.12.0
+    uses: Litote/ci/.github/workflows/dependabot-auto-merge.yml@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
     with:
-      ecosystems: gradle,pub
+      ecosystems: gradle,pub,docker
       # Gradle plugins and the build tools run in the build without being called: they stay manual.
       exclude-dependencies: >-
         org.jetbrains.kotlin.*,

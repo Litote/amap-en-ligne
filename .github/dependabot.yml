@@ -103,3 +103,19 @@ updates:
       terraform-providers:
         patterns:
           - "*"
+
+  # ── Docker (base images of the JVM deployment) ─────────────────────────────
+  # Dockerfile (api) and prod/web.Dockerfile (web): the images are pinned by digest, so that a new
+  # digest of the same tag is a pull request too
+  - package-ecosystem: docker
+    directories:
+      - /back/deploy/jvm
+      - /back/deploy/jvm/prod
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies
+      - backend

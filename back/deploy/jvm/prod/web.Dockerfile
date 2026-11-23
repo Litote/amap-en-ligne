@@ -5,6 +5,6 @@
 #   cd front && flutter build web --wasm
 #   docker buildx build -f back/deploy/jvm/prod/web.Dockerfile \
 #     --build-context conf=back/deploy/jvm/prod -t amap-en-ligne-web front/build/web
-FROM nginx:1.29-alpine
+FROM nginx:1.29-alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
 COPY --from=conf nginx.conf /etc/nginx/conf.d/default.conf
 COPY . /usr/share/nginx/html
