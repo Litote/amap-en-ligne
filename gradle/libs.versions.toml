@@ -14,7 +14,7 @@
 
 [versions]
 angus-mail = "2.0.5"
-firebase-admin = "9.11.0"
+firebase-admin = "9.12.0"
 asyncant-lambda-runtime = "0.9.7"
 aws-dynamodb = "1.9.37"
 aws-sdk-kotlin = "1.9.37"
