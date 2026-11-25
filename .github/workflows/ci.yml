@@ -53,7 +53,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - uses: Litote/ci/.github/actions/detect-changes@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+      - uses: Litote/ci/.github/actions/detect-changes@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         if: github.event_name == 'pull_request'
         id: detect-changes
         with:
@@ -80,7 +80,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - uses: Litote/ci/.github/actions/setup-gradle@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+      - uses: Litote/ci/.github/actions/setup-gradle@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
@@ -117,7 +117,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+        uses: Litote/ci/.github/actions/setup-flutter@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           working-directory: front
 
@@ -135,7 +135,7 @@ jobs:
         working-directory: front
         run: flutter analyze --fatal-infos
 
-      - uses: Litote/ci/.github/actions/setup-gradle@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+      - uses: Litote/ci/.github/actions/setup-gradle@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
@@ -170,12 +170,12 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - uses: Litote/ci/.github/actions/setup-gradle@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+      - uses: Litote/ci/.github/actions/setup-gradle@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+        uses: Litote/ci/.github/actions/setup-flutter@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           working-directory: front
 
@@ -232,7 +232,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: Litote/ci/.github/actions/setup-gradle@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+      - uses: Litote/ci/.github/actions/setup-gradle@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
@@ -315,7 +315,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - uses: Litote/ci/.github/actions/setup-gradle@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+      - uses: Litote/ci/.github/actions/setup-gradle@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
@@ -325,7 +325,7 @@ jobs:
       # issues + broken coverage attribution). Tests are NOT re-run here — coverage comes from
       # the downloaded lcov artifact; pub get only provides package resolution for the scan.
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+        uses: Litote/ci/.github/actions/setup-flutter@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           working-directory: front
 

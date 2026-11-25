@@ -54,7 +54,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+        uses: Litote/ci/.github/actions/setup-flutter@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           working-directory: front
 
@@ -82,7 +82,7 @@ jobs:
 
       # exact Terraform version, and init with the committed lock file only
       - name: Set up Terraform
-        uses: Litote/ci/.github/actions/setup-terraform@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+        uses: Litote/ci/.github/actions/setup-terraform@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           state-bucket: ${{ vars.TF_STATE_BUCKET }}
 

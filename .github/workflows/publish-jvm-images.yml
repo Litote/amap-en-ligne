@@ -58,7 +58,7 @@ jobs:
           echo "latest=$INPUT_LATEST" >> "$GITHUB_OUTPUT"
 
       - name: Set up JDK 25 and Gradle
-        uses: Litote/ci/.github/actions/setup-gradle@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+        uses: Litote/ci/.github/actions/setup-gradle@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           cache-read-only: true
 
@@ -68,7 +68,7 @@ jobs:
         run: ./gradlew :deploy:jvm:installDist
 
       - name: Setup Flutter
-        uses: Litote/ci/.github/actions/setup-flutter@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+        uses: Litote/ci/.github/actions/setup-flutter@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           working-directory: front
 
@@ -88,7 +88,7 @@ jobs:
       # the api image runs jlink and adduser in the target platform: arm64 is emulated
       - name: Build & push API image
         id: api
-        uses: Litote/ci/.github/actions/docker-publish@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+        uses: Litote/ci/.github/actions/docker-publish@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           image: ${{ env.API_IMAGE }}
           context: back/deploy/jvm
@@ -103,7 +103,7 @@ jobs:
       # the web image only copies files: no emulation
       - name: Build & push web image
         id: web
-        uses: Litote/ci/.github/actions/docker-publish@fe7f5d3c7b0763dc89db8a8f90606284114ceb54 # v0.13.0
+        uses: Litote/ci/.github/actions/docker-publish@63a67e7add1b9fde6396c84399f90c9252f7b8e6 # v0.15.0
         with:
           image: ${{ env.WEB_IMAGE }}
           context: front/build/web
